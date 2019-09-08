@@ -1,0 +1,34 @@
+\input{../include/preample-jsbook}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+
+\begin{document}
+
+\renewcommand{\input}[1]{}           % \input を無効化
+\renewcommand{\documentclass}[2]{}   % \documentclassを無効化
+
+\frontmatter
+\include{title}
+\tableofcontents
+\clearpage
+
+\newcommand{\maketitle}{}            % \maketitleを無効果
+\newcommand{\title}[1]{\chapter{#1}} % \titleを\chapterに読み替える
+
+% Abstract
+
+\mainmatter
+\part{分子シミュレーション基礎}
+\label{part:MDmethod}
+
+
+\part{分子シミュレーションの解析方法}
+\label{part:MDanalysis}
+
+
+% 参考文献
+% \bibliographystyle{junsrt}
+% \bibliography{MDtext}
+
+\end{document}
