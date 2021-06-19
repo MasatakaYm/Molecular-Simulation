@@ -1,0 +1,288 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{分子動力学シミュレーションの基礎}
+\maketitle
+
+\section{ミクロカノニカルアンサンブルでのシミュレーション}
+一般に物理系の位相空間は座標$\bm{r}$と運動量$\bm{p}$で張られ,
+そのハミルトニアンは
+\begin{equation}
+ \mathcal{H}
+ =
+ \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{2 m_{i}} + U(\bm{r})
+\end{equation}
+と表される. このハミルトニアン$\mathcal{H}$に対する運動方程式は, 正準方程式より
+\begin{alignat}{3}
+   \frac{d \bm{r}_{i}}{dt}
+&=&\frac{\partial{\mathcal{H}}}{\partial{\bm{p}_{i}}}
+ =&\frac{\bm{p}_{i}}{m_{i}}
+  \label{eq:HamiltonEq1}
+   \\
+   \frac{d \bm{p}_{i}}{dt}
+&=&-\frac{\partial{\mathcal{H}}}{\partial{\bm{r}_{i}}}
+ =&-\frac{\partial{U(\bm{r})}}{\partial{\bm{r}}_{i}}
+ =\bm{F}_{i}
+  \label{eq:HamiltonEq2}
+\end{alignat}
+で書かれる. $\bm{F}_{i}$は$i$番目の粒子に働く力である.
+運動方程式を数値的に解くことでミクロカノニカルアンサンブルが得られる.
+
+\section{2体力近似}
+粒子間の相互作用に2体力近似
+\begin{equation}
+ U(\bm{r}_{1}, \bm{r}_{2}, \cdots, \bm{r}_{N})
+=\sum_{i=1}^{N-1} \sum_{j > i}^{N} u(r_{ij})
+\end{equation}
+を用いることが多い.
+特によく用いられる2体相互作用としてレナード・ジョーンズポテンシャル
+\begin{equation}
+ u(r)
+=4\epsilon
+  \left\{
+          \left(\frac{\sigma}{r}\right)^{12}
+         -\left(\frac{\sigma}{r}\right)^{6}
+ \right\}
+\end{equation}
+が用いられる.
+第1項目は斥力を表している.
+この項の12乗は物理に基づいて得られた乗数ではないため実際には13乗や14乗
+を用いても良い.
+一方, 第2項目は分散力に基づく項である.
+電子雲の揺らぎによる一時的多極子-誘起双極子間の相互作用から得られるため必ず6乗を使用する.
+レナードジョーンズポテンシャルは希ガスの気体・液体・固体の相転移などの現象をよく
+再現することが知られている.
+
+\section{単位の無次元化}
+計算機シミュレーションでは, 様々な物理量を無次元化した換算単位で表すことが多い.
+これは実単位系における値が計算機で扱うには大きい, あるいは小さすぎることがあるからである.
+問題とする系に対して代表的な量を単位として表すことで, 全ての量が物質に依存する
+パラメータを一切含まない形で調べることができる.
+エネルギーと時間の次元は
+\begin{align}
+  [\mathrm{エネルギー}]
+&=\frac{[\mathrm{質量}][\mathrm{長さ}]^{2}}{[\mathrm{時間}]^2}
+\end{align}
+であるから, 時間の次元は
+\begin{align}
+  [\mathrm{時間}]
+&=\sqrt{\frac{[\mathrm{質量}] \cdot [\mathrm{長さ}]^{2}}{[\mathrm{エネルギー}]}}
+\end{align}
+と表せる. この次元をもとに換算単位を求める.
+
+\subsection{LJ単位系}
+レナードジョーンズパラメータの$\epsilon$はLJポテンシャルの深さ, $\sigma$はLJの直径, $M$は粒子の質量
+をそれぞれエネルギー, 長さ, 質量の単位とする:
+\begin{align}
+ \epsilon &= [\mathrm{エネルギー}] \notag \\
+ \sigma   &= [\mathrm{長さ}]       \notag \\
+ M        &= [\mathrm{質量}]       \notag
+\end{align}
+したがって, 時間の単位は$\tau$は
+\begin{align}
+ \tau
+=\sqrt{\frac{M \sigma^{2}}{\epsilon}}
+\end{align}
+となる. 例えばAr原子の場合,
+\begin{align}
+ \sigma   &= 0.34 \times 10^{-9} \mathrm{m}
+ \notag
+ \\
+ \epsilon &= 120k_{\mathrm{B}} = 1.66 \times 10^{-21} \mathrm{J}
+ \notag
+ \\
+ M        &= 6.6 \times 10^{-26} \mathrm{kg}
+ \notag
+ \\
+ \tau     &= 2.15 \times 10^{-12} \mathrm{s}
+ \notag
+\end{align}
+である.
+その他の物理量を$\epsilon$, $\sigma$, $M$単位系で表すと
+\begin{align}
+ [\mathrm{速度}] &= \frac{[\mathrm{長さ}]}{[\mathrm{時間}]} = \frac{\sigma}{\tau}
+ \notag \\
+ [\mathrm{温度}] &= \frac{[\mathrm{エネルギー}]}{k_{\mathrm{B}}} = \frac{\epsilon}{k_{\mathrm{B}}}
+ \notag \\
+ [\mathrm{運動量}] &= [\mathrm{質量}][\mathrm{速度}] = \frac{M \sigma}{\tau}
+ \notag \\
+ [\mathrm{圧力}]  &= \frac{[\mathrm{力}]}{[\mathrm{面積}]} = \frac{[\mathrm{質量}][\mathrm{加速度}]}{\mathrm{面積}}
+                   = \frac{M \frac{\sigma}{\tau^{2}}}{\sigma^{2}} = \frac{\epsilon}{\sigma^{3}}
+ \notag
+\end{align}
+となる.
+以上を用いると様々な物理量$A$の無次元量$A^{*}$を以下のように表せる.
+\begin{alignat}{3}
+&\mathrm{時間:\ }  && t^{*} &&= \frac{t}{\tau}
+ \notag \\ \notag \\
+&\mathrm{ハミルトニアン:\ } && \mathcal{H}^{*} &&= \frac{\mathcal{H}}{\epsilon}
+ \notag \\ \notag \\
+&\mathrm{温度:\ } && T^{*} &&= \frac{\epsilon}{k_{\mathrm{B}}}
+ \notag \\ \notag \\
+&\mathrm{長さ:\ } && r^{*} &&= \frac{r}{\epsilon}
+ \notag \\ \notag \\
+&\mathrm{運動量:\ } && p^{*} &&= \frac{p}{\frac{M\epsilon}{\tau}}
+ \notag \\ \notag \\
+&\mathrm{圧力:\ } && P^{*} &&= \frac{P}{\frac{\epsilon}{\sigma^{3}}}
+ \notag \\ \notag \\
+&\mathrm{質量:\ } && m^{*} &&= \frac{m}{M}
+ \notag
+\end{alignat}
+となる.
+これらの無次元量をハミルトンの正準方程式(\ref{eq:HamiltonEq1})(\ref{eq:HamiltonEq2})
+に代入すれば無次元量に対するハミルトンの正準方程式が導かれる.
+
+\subsection{全原子生体分子モデルに対する無次元化}
+全原子生体分子シミュレーションでは
+\begin{alignat}{3}
+ [\mathrm{エネルギー}] &= \mathrm{kcal/mol} &&= 4.184~\mathrm{kJ/mol}
+ \notag \\
+ [\mathrm{長さ}]       &= \mathrm{\AA} &&= 10^{-10}~\mathrm{m}
+ \notag \\
+ [\mathrm{質量}]       &= \mathrm{amu} &&= \mathrm{g/mol}
+ \notag
+\end{alignat}
+を基本単位系とする.
+全原子分子動力学シミュレーションではpsあるいはfsを単位時間とすることが多い.
+ここではpsを単位時間にすることを考える.
+基本単位系を用いて時間を表すと
+\begin{align}
+  [\mathrm{s}]
+&=\sqrt{\frac{[\mathrm{kg}][\mathrm{m}]^{2}}{[\mathrm{J}]}}
+ =\sqrt{\frac{1}{10^{-3}}\frac{[\mathrm{kg}][\mathrm{m}]^{2}}{[\mathrm{kJ}]}}
+ =\sqrt{\frac{1}{10^{-3}}\frac{[\mathrm{kg/mol}][\mathrm{m}]^{2}}{[\mathrm{kJ/mol}]}}
+ =\sqrt{\frac{10^{3}}{(10^{-3}/4.184)}\frac{[\mathrm{g/mol}][\mathrm{m}]^{2}}{[\mathrm{kcal/mol}]}}
+  \notag \\
+&=\sqrt{4.184 \times 10^{26}} \sqrt{\frac{[\mathrm{g/mol}][\mathrm{\AA}]^{2}}{[\mathrm{kcal/mol}]}}
+  \notag
+\end{align}
+となる. $[\mathrm{s}] = 10^{12}[\mathrm{ps}]$だから
+\begin{align}
+ [\mathrm{ps}]
+=10\sqrt{4.184} \sqrt{\frac{[\mathrm{g/mol}][\mathrm{\AA}]^{2}}{[\mathrm{kcal/mol}]}}
+\end{align}
+となる.
+
+\section{周期境界条件}
+分子シミュレーションでは境界条件として周期境界条件を課すことが多い.
+つまり, 考えているシミュレーションボックスの周り(前, 後, 左,右, 手前, 奥)に
+そのコピーが並んでいるよう状況を考えるのである.
+運動の結果, 原子がシミュレーションボックスの外に飛び出た場合,
+反対側から入ってくるようにする.
+
+3つの基本並進ベクトル
+\begin{align}
+ \bm{a}_{1} &= (a_{1x}, a_{1y}, a_{1z})^{t}, \\
+ \bm{a}_{2} &= (a_{2x}, a_{2y}, a_{2z})^{t}, \\
+ \bm{a}_{3} &= (a_{3x}, a_{3y}, a_{3z})^{t}
+\end{align}
+で張られる平行六面体を基本セルとして考えた場合,
+基本セル中の粒子$j$のイメージセルにおける位置ベクトル$\bm{r}_{j}^{\prime}$は
+$\bm{L}=(\bm{a}_{1}~\bm{a}_{2}~\bm{a}_{3})$と,
+ある整数の組のベクトル$\bm{n}=(n_{1},n_{2},n_{3})^{\mathrm{t}}$を用いて
+\begin{align}
+   \bm{r}_{j}^{\prime}
+ = \bm{r}_{j} - \bm{Ln}
+ = \bm{r}_{j}
+  -(n_{1} \bm{a}_{1} +  n_{2}  \bm{a}_{2} + n_{3} \bm{a}_{3})
+\end{align}
+と書ける.
+
+ミクロカノニカルアンサンブルでは, エネルギー保存則, 運動量保存則, 角運動保存則が成立する.
+しかし, 周期境界条件を課した場合, 角運動量保存則は成立しなくなる.
+これは, 周期境界条件により原子・分子が箱の端から端へ移動すると, 角運動量が不連続に変化するためである. 
+
+\section{相互作用のカットオフ}
+遠くの粒子との相互作用が十分小さくポテンシャルエネルギーに含めてもあまり意味がない場合,
+計算コストを削減のために粒子間の相互作用を無視することがある.
+例えば, 距離$r_{\mathrm{c}}$以上はなれている粒子間の相互作用を無視する.
+これを相互作用のカットオフといい, $r_{\mathrm{c}}$をカットオフ半径とかカットオフ距離
+と言う. カットオフ半径はシミュレーションセルの一辺の長さ$L$の半分よりも短く設定する:
+\begin{equation}
+ r_{c} < \frac{L}{2}
+\end{equation}
+
+相互作用のカットオフについては様々な方法が提案されている.
+ここではレナードジョーンズ相互作用$u_{\mathrm{LJ}} (r)$に対するカットオフを考える.
+\begin{description}
+ \item[単純なカットオフ] \mbox{}\\
+ ポテンシャルをカットオフ半径$r_{\mathrm{c}}$で打ち切るものである.
+ この方法では$r=r_{\mathrm{c}}$でポテンシャルが不連続になる.
+ \begin{equation}
+  u_{\mathrm{r}} (r) =
+  \begin{cases}
+   u_{\mathrm{LJ}}(r) & \text{$r \le r_{\mathrm{c}}$の時} \\
+   0                  & \text{$r  > r_{\mathrm{c}}$の時}
+  \end{cases}
+\end{equation}
+
+ \item[カットオフ\&シフト] \mbox{}\\
+ カットオフに加えて, ポテンシャルをシフトすることで$r=r_{\mathrm{c}}$で
+ ポテンシャル関数を連続にする. この方法はポテンシャルの深さが元のポテンシャルと
+ 異なることと, $r=r_{\mathrm{c}}$でも1階微分は不連続であることに気をつけな
+ けらばならない.
+ \begin{equation}
+  u_{\mathrm{r}} (r) =
+  \begin{cases}
+   u_{\mathrm{LJ}}(r) - r_{\mathrm{LJ} (r_{\mathrm{c}})} & \text{$r \le r_{\mathrm{c}}$の時} \\
+   0                  & \text{$r  > r_{\mathrm{c}}$の時}
+  \end{cases}
+\end{equation}
+
+\item[スイッチング関数を用いた方法] \mbox{}\\
+なめらかに0から1まで変化するスイッチング関数$S(r)$を用いて, スイッチング開始距離$r_{\mathrm{s}}$から
+$r_{\mathrm{c}}$の間でなめらかに0に近づくようにする.
+ \begin{equation}
+  u_{\mathrm{r}} (r) =
+  \begin{cases}
+   u_{\mathrm{LJ}}(r) & \text{$r \le r_{\mathrm{s}}$の時} \\
+   u_{\mathrm{LJ}}(r) * S(r) & \text{$r_{\mathrm{s}} < r \le r_{\mathrm{c}}$の時} \\
+   0                  & \text{$r_{\mathrm{c}} < r$の時}
+  \end{cases}
+ \end{equation}
+スイッチング関数としては, 例えば
+ \begin{equation}
+  S(r) = \frac{(r_{\mathrm{c}}^{2} - r^{2})^{2} (r_{\mathrm{c}}^{2} + 2r^{2} - 3 r_{\mathrm{s}}^{2})}
+              {r_{\mathrm{c}}^{2} - r_{\mathrm{s}}^{2}}^{3}
+ \end{equation}
+などが使われる\cite{1994Steinbach}. このスイッチング関数は
+$S(r_{\mathrm{s}}) = 1$,
+$S(r_{\mathrm{c}}) = 0$,
+$dS/dr(r_{\mathrm{s}}) = 0$,
+$dS/dr(r_{\mathrm{c}}) = 0$
+を満たしていることが確認できる.
+その他のスイッチング関数としては
+\begin{equation}
+  S(r) = 1
+       - 3 \left(\frac{r - r_{\mathrm{s}}}{r_{\mathrm{c}} - r_{\mathrm{s}}} \right)^{3}
+       + 3 \left(\frac{r - r_{\mathrm{s}}}{r_{\mathrm{c}} - r_{\mathrm{s}}} \right)^{6}
+       - 3 \left(\frac{r - r_{\mathrm{s}}}{r_{\mathrm{c}} - r_{\mathrm{s}}} \right)^{9}
+\end{equation}
+なども用いられる\cite{2013Sakaguchi}. この関数では$r=r_{\mathrm{c}}$と$r=r_{\mathrm{s}}$で二階微分可能なことが確認できる.
+\end{description}
+
+
+\section{分子動力学シミュレーションの手順}
+分子シミュレーションを実行するための基本的な手順は以下の通りとなる.
+
+\begin{description}
+ \item[1. 初期構造の生成] \mbox{}\\
+ 分子動力学シミュレーションを行うため, 粒子の座標と運動量の初期条件を決める.
+ 運動量はボルツマン分布にしたがって生成することが多い.
+ 通常, 重心に関する並進速度と角速度はゼロとなるように設定する.
+
+ \item[2. 平衡化] \mbox{}\\
+ 調べたい状態を作るため, 温度の制御をして平衡状態にする.
+
+ \item[3. 本番] \mbox{}\\
+ 本番のシミュレーションを実行する. つまり, 運動方程式を数値的に解く.
+ 粒子配置に対して力を計算して, その力にしたがって運動量や座標を更新する.
+ 必要なステップだけ繰り返したら, 得られた物理量の統計平均をとるなど結果を解析する.
+\end{description}
+
+\bibliographystyle{junsrt}
+\bibliography{simulation-basic}
+\input{../include/end}

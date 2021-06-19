@@ -1,0 +1,189 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{熱力学量の算出}
+\maketitle
+
+\section{熱力学量}
+シミュレーションから状態Aと状態B間の熱力学量差を計算する方法を説明する. 
+状態Aと状態Bの存在確率をそれぞれ$f_{A}$, $f_{B}$とすると, 
+2状態間のギブスの自由エネルギー差 $\Delta G$は次のように計算される:
+\begin{equation}
+    \Delta G = G_{B} - G_{A} =
+    RT \log \left( \frac{f_{A}}{f_{B}} \right)
+    \label{Eq:DeltaG}
+\end{equation}
+ここで$R$は気体定数であり, $R=8.3145$ J/(mol K). 
+求めた$\Delta G$から, 
+部分モルエンタルピー差$\Delta H$, 定圧比熱差$\Delta C_{P}$, 部分モル体積差$\Delta V$
+はそれぞれ
+\begin{alignat}{2}
+    &\Delta H &&=
+    \left[\frac{\partial \left(\Delta G / T\right)}{\partial \left( 1/T \right)}\right]_{P} =
+    R \left[\frac{\partial \log (f_{A}/f_{B})} {\partial(1/T)} \right]_{P}
+    \label{Eq:DeltaH} \\
+    &\Delta C_{p} &&=
+    - T \left(\frac{\partial^{2} \Delta G}{\partial T^{2}}\right)_{P}
+    \label{Eq:DeltaCp} \\
+    &\Delta V &&=
+    \left[\frac{\partial \Delta G}{\partial P}\right]_{T} =
+    RT \left[\frac{\partial \log (f_{A}/f_{B})}{\partial P} \right]_{T}
+  \label{Eq:DeltaV}
+\end{alignat}
+と計算される. 
+さらに, 内部エネルギー差$\Delta U$とエンタルピー差$\Delta S$はそれぞれ
+\begin{align}
+    \Delta U &= \Delta H - P \Delta V
+    \label{Eq:DeltaU} \\
+    \Delta S &= \frac{\Delta H - \Delta G}{T}
+    \label{Eq:DeltaS}
+\end{align}
+と計算される. 
+
+\section{Hawleyの方程式}
+二状態間のギブスの自由エネルギー差$\Delta G$の温度・圧力依存性はHawley~\cite{Hawley1971}によって提案された式
+\begin{align}
+    \Delta G(T,P) &=
+    \Delta G_{0} - \Delta S_{0} (T - T_{0}) - \Delta C_{P} \left[T \left\{ \ln \left(\frac{T}{T_{0}} \right) -1 \right\} + T_{0} \right]
+    \notag　\\ &+
+    \Delta V_{0}(P-P_{0}) + \frac{\Delta \beta}{2}(P-P_{0})^{2} + \Delta \alpha (P-P_{0})(T-T_{0})
+    \label{Eq:Hawley-DeltaG}
+\end{align}
+を用いてフィッティングすることができる. 
+ここで, $T_{0}$と$P_{0}$はそれぞれ参照温度, 参照圧力である. 
+$\Delta G_{0}$, $\Delta S_{0}$, $\Delta V_{0}$はそれぞれ
+温度$T_{0}$, 圧力$P_{0}$におけるギブスの自由エネルギー差, エントロピー差, 部分モル体積差である. 
+$\Delta C_{p}$は定圧比熱差である. 
+また, $\Delta \alpha$は熱膨張係数$\Delta \beta$は熱圧縮率である. 
+通常, $T_{0}$, $P_{0}$における$\Delta G_{0}$は基準点として事前に算出しておく. 
+したがって, $\Delta S_{0}$, $\Delta V_{0}$, $\Delta C_{p}$
+$\Delta \beta$, $\Delta \alpha$の5つがフィティングパラメータとなる. 
+
+式~(\ref{Eq:Hawley-DeltaG})に基づくと, 圧力$P_{0}$における$\Delta G$の温度依存性と, 
+温度$T_{0}$における$\Delta G$の圧力依存性は次の式でフィッティングできる. 
+\begin{align}
+ \Delta G(T) =
+ & \Delta G_{0} - \Delta S_{0} (T - T_{0}) - \Delta C_{P} \left[T \left\{ \ln \left(\frac{T}{T_{0}} \right) -1 \right\} + T_{0} \right]
+ \label{Eq:Hawley-DeltaG-T}
+ \\
+ \Delta G(P) =
+ & \Delta G_{0} + \Delta V_{0}(P-P_{0}) + \frac{\Delta \beta}{2}(P-P_{0})^{2}
+ \label{Eq:Hawley-DeltaG-P}
+\end{align}
+
+\subsection{Hawleyの式の導出}
+ギブスの自由エネルギー
+\begin{equation}
+    \Delta G = \Delta U + P\Delta V - T \Delta S
+\end{equation}
+の全微分は
+\begin{align}
+    d(\Delta G) &=
+    \frac{\partial \Delta G}{\partial T} dT +
+    \frac{\partial \Delta G}{\partial P} dP
+    \\ &=
+    -\Delta S dT + \Delta V dP
+    \label{Eq:d-DeltaG}
+\end{align}
+である. 
+定圧比熱差$\Delta C_{p}$, 熱膨張係数$\Delta \alpha$, 熱圧縮率$\Delta \beta$は, 
+\begin{align}
+    \Delta \alpha &=
+    \left. \frac{\partial}{\partial T} \right|_{P}
+    \left. \frac{\partial \Delta G}{\partial P} \right|_{T} \\
+    \Delta \beta &=
+    \frac{\partial^{2} \Delta G}{\partial^{2}P} =
+    \left. \frac{\partial V}{\partial P} \right|_{T} \\
+    \Delta C_{p} &=
+    \left. -T \frac{\partial^{2} \Delta G}{\partial^{2}T}\right|_{P} =
+    \left. T \frac{\partial \Delta S}{\partial T}\right|_{P}
+\end{align}
+である. 
+以下の導出において, 定圧比熱差$\Delta C_{p}$, 熱膨張係数$\Delta \alpha$, 熱圧縮率$\Delta \beta$は, 
+温度・圧力に依存しない定数と仮定する. 
+Hawlay式を得るために, 式(\ref{Eq:d-DeltaG})中の, $\Delta S$と$\Delta V$を具体的に計算する必要がある. 
+$\Delta S$と$\Delta V$の独立変数は, 温度と圧力であるから, その全微分は
+\begin{align}
+    d(\Delta S) &=
+    \frac{\partial \Delta S}{\partial T} dT + \frac{\partial \Delta S}{\partial P} dP \\ &=
+    \frac{\partial \Delta S}{\partial T} dT - \frac{\partial \Delta V}{\partial T} dP \\ &=
+    \frac{\Delta C_{p}}{T}dT - \Delta \alpha dP
+\end{align}
+である. 第一行目から第二行目の変形においてMaxwellの関係式
+\begin{equation}
+    \frac{\partial \Delta S}{\partial P} = - \frac{\partial \Delta V}{\partial T}
+\end{equation}
+を使用した. 
+同様に, $\Delta V$の全微分は
+\begin{align}
+    d(\Delta V) &=
+    \frac{\partial \Delta V}{\partial T} dT + \frac{\partial \Delta V}{\partial P} dP \\ &=
+    \Delta \alpha dT + \Delta \beta dP
+\end{align}
+である. これらの式を積分すると, 
+\begin{align}
+    \Delta S &=
+    \Delta S_{0} + \int_{T_{0}}^{T} \frac{\Delta C_{p}}{T}dT - \int_{P_{0}}^{P} \Delta \alpha dP \notag \\ &=
+    \Delta S_{0} + \Delta C_{p} \ln(T/T_{0}) + \Delta \alpha (P - P_{0})
+\end{align}
+\begin{align}
+    \Delta V &=
+    \Delta V_{0} + \Delta \alpha (T - T_{0}) + \Delta \beta (P - P_{0})
+\end{align}
+を得る. 式(\ref{Eq:d-DeltaG})に代入すると, 
+\begin{align}
+    d(\Delta G) =
+    &-
+    \left[
+            \Delta S_{0} + \Delta C_{p} \ln(T/T_{0}) + \Delta \alpha (P - P_{0})
+    \right] dT \notag \\ &+
+    \left[
+            \Delta V_{0} + \Delta \alpha (T - T_{0}) + \Delta \beta (P - P_{0})
+    \right] dP
+\end{align}
+となる. これを積分するとHawleyの式, 
+\begin{align}
+    \Delta G(T,P) &=
+    \Delta G_{0} - \Delta S_{0} (T - T_{0}) -
+    \Delta C_{P} \left[T \ln \left(\frac{T}{T_{0}} \right) - (T - T_{0}) \right]
+    \notag　\\ &+
+    \Delta V_{0}(P-P_{0}) + \frac{\Delta \beta}{2}(P-P_{0})^{2} + \Delta \alpha (P-P_{0})(T-T_{0})
+\end{align}
+が得られる. 
+
+\subsection{部分モルエンタルピーと部分モル体積}
+
+式~(\ref{Eq:Hawley-DeltaG})を式~(\ref{Eq:DeltaH})と式~(\ref{Eq:DeltaV})に代入する. 
+部分モルエンタルピー差$\Delta H$は
+\begin{align}
+ \Delta H (T,P)
+ &=  \Delta G_{0} + T_{0} \Delta S_{0} + (T - T_{0})\Delta C_{p}
+ \notag
+ \\ &~~~~
+  + \Delta V_{0} (P - P_{0}) + \frac{\Delta \beta}{2} (P - P_{0})^{2}
+  - \Delta \alpha (P - P_{0})T_{0}
+ \label{Eq:deltaHTP_Hawley}
+\end{align}
+と計算される. 導出の途中で, $1/T=x$と置いて, 
+\begin{align}
+    \frac{\partial}{\partial(1/T)} \ln \frac{T_{0}}{T}=
+    \frac{dx}{d(1/T)}\frac{d}{dx} \ln(T_{0}x) =
+    T_{0} \frac{1}{T_{0}x} =
+    \frac{1}{x} =
+    T
+\end{align}
+の関係式を用いた. 
+また, 部分モル体積差$\Delta V$は
+\begin{align}
+ \Delta V (T,P)
+ &= \Delta V_{0} + \Delta \beta (P - P_{0}) + \Delta \alpha (T - T_{0})
+ \label{Eq:deltaVTP_Hawley}
+\end{align}
+と計算される. 
+
+\bibliographystyle{junsrt}
+\bibliography{thermodynamics-quantities}
+\input{../include/end}

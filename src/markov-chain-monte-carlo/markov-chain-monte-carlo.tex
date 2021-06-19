@@ -1,0 +1,533 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{マルコフ連鎖モンテカルロ法}
+\maketitle
+
+\section{マルコフ連鎖}
+\subsection{マルコフ過程とマルコフ連鎖の簡単な説明}
+
+以下のような確率過程を考える:
+\begin{equation}
+    x_{1} \to x_{2} \to \cdots \to x_{k-2} \to x_{k-1} \to x_{k} \to x_{k+1}
+\end{equation}
+状態$x_{k+1}$が一つ前の状態$x_{k}$から確率的に生成され, それ以前の状態$x_{k-1}, x_{k-2}, \cdots$に依存しないような過程のことをマルコフ過程という. また, このような状態の流れをマルコフ連鎖という. 
+
+\subsection{状態空間, 確率分布, 遷移確率行列, アンサンブルの導入}
+\paragraph{状態空間}
+マルコフ連鎖が動き回る集合が, $n$個の状態を持つような有限集合であるとする.
+このような有限集合を状態空間(state space) $S = [s_{1}, \ldots, s_{n}]$と表す.
+
+\paragraph{確率分布}
+状態空間$S = [s_{1}, \ldots, s_{n}]$上の確率分布を
+\begin{align}
+\mu &= (\mu_{1}, \mu_{2}, \ldots, \mu_{n})
+\end{align}
+と書く. 確率分布$\mu$は
+\begin{itemize}
+    \item 任意の$i \in S$に対して$\mu_{i} \ge 0$
+    \item $\sum_{i \in S} \mu_{i} = 1$
+\end{itemize}
+を満たす.
+この確率分布は重みと言われることもある.
+
+\paragraph{遷移確率行列}
+ある状態$x_{i}$からある状態$x_{j}$に遷移する確率を$P_{ij} \equiv P(i \to j)$とし, 遷移確率行列$P=\{P_{ij}\}_{i,j \in S}$を導入する.
+遷移確率行列の要素は遷移確率であるため, 次の条件を満足する:
+\begin{itemize}
+\item 任意の$(i, j) \in S \times S$に対して$P_{ij} \ge 0$
+\item 任意の$i \in S$に対して$\sum_{j \in S} P_{ij} = 1$
+\end{itemize}
+この条件は, 遷移確率行列の各行ベクトルが$S$上の分布であることと同値である.
+
+\paragraph{アンサンブルについて}
+状態空間$S = [s_{1}, \ldots, s_{n}]$における各状態$k$について確率$\mu_{k}$, $\sum_{i \in S}\mu_{i}=1$を与えるような状態サンプルの集合のことをアンサンブル$E$と呼ぶ.
+
+
+\subsection{一般的なマルコフ連鎖の定義}
+状態空間$S = [s_{1}, \ldots, s_{n}]$における確率過程を考える.
+\begin{align}
+    \bm{P}(x_{0} = s_{i_0},\ldots, x_{N-1} = s_{i_{N-1}}, x_{N} = s_{i}) \neq 0
+\end{align}
+となるような任意の$N$, $i_0, \ldots, i_{N-1} \in S$, $i,j \in S$に対して
+\begin{align}
+&\bm{P}(x_{N+1} = s_{j} | x_{0} = s_{i_0},\ldots, x_{N-1} = s_{i_{N-1}}, x_{N} = s_{i}) \\
+=~&\bm{P}(x_{N+1} = s_{j} | x_{N} = s_{i}) \\
+=~&P_{ij}
+\end{align}
+が成り立つ場合, 遷移確率行列$P$を持つ(一様な)マルコフ連鎖であるという.
+これは $S = [s_{1}, \ldots, s_{n}]$の初期分布$\mu_{i_0}$に対して
+\begin{align}
+    \bm{P}(x_{0} = s_{i_0},\ldots, x_{N-1} = s_{i_{N-1}}, x_{N} = s_{i})
+    =
+    \mu_{i_0} P(i_0 \to i_1) \times \ldots P(i_{N-1} \to i_{N})
+\end{align}
+となるような過程であると同値である.
+
+
+\subsection{平衡分布}
+
+遷移確率行列$P$を持つ, 状態空間$S = [s_{1}, \ldots, s_{n}]$上のマルコフ連鎖$(x_{0}, x_{1},\ldots, )$に対する平衡分布$\pi=(\pi_{1}, \ldots, \pi_{n}),$は以下の条件を満たす:
+
+\begin{description}
+    \item[1. 規格化条件:] $\sum_{i \in S} \pi_{i} = 1$. ただし$\pi_{i} \ge 0 ~~~(i \in S)$.
+    \item[2. 釣り合い条件:] $\pi P = \pi$, すなわち任意の$j \in S$に対して$\sum_{i \in S} \pi_{i} P_{ij} = \pi_{j}$である.
+\end{description}
+また, 釣り合い条件の十分条件である詳細釣り合い条件
+\begin{equation}
+    \pi_{i} P_{ij} = \pi_{j} P_{ji}
+\end{equation}
+を満たす時, $\pi$は可逆分布であるという.
+定常分布と可逆分布は以下の性質をもつ.
+\begin{itemize}
+    \item $\pi$が定常分布であるとき, 任意の$n = 0, 1, 2,\ldots$に対して$\pi P^{n} = \pi$である.
+    \item 確率分布$\mu$が可逆分布であるならば, $\mu$は定常分布である. 逆は成り立たない.
+    \item 遷移確率行列$P$が対称行列ならば, 一様分布$\mu_{i} = 1/|S|,~(\forall i \in S)$と定義される確率分布は可逆分布である.
+\end{itemize}
+
+
+\paragraph{平衡分布の例}
+統計物理学における平衡分布の典型的な例としてカノニカル分布があげられる.
+カノニカル分布は具体的に
+\begin{align}
+\pi_{\mathrm{B}} &= [c_{\mathrm{B}} e^{-\beta E_{1}}, c_{\mathrm{B}} e^{-\beta E_{2}},\ldots,c_{\mathrm{B}} e^{-\beta E_{n}}]
+\end{align}
+と計算される. ここで, $c_{\mathrm{B}}$は規格化因子である.
+
+
+\section{マルコフ連鎖の平衡分布への収束性}
+マルコフ連鎖の中心的な話題として, 「マルコフ連鎖の漸近的な長期挙動」が挙げられる.
+具体的には, 長いマルコフ連鎖により得られたサンプルが興味のある分布（例えばカノニカルアンサンブルや定温定圧アンサンブル）に従っているかが重要な問題となる.
+望みの確率分布から状態を生成するには, 遷移確率行列$P$は次の性質を満たす必要がある:
+\begin{enumerate}
+    \item エルゴード性
+    \item 規格化条件
+    \item 釣り合い条件
+\end{enumerate}
+
+\subsection{エルゴード性(規約性と非周期性)}
+既約かつ非周期的なマルコフ連鎖のことをエルゴード(Erogodicity)であると言う.
+既約性と非周期性の定義は以下のように与えられる.
+
+\paragraph{既約性の定義}
+状態空間$S = [s_{1}, \ldots, s_{n}]$を考える. 任意の$i, j \in S$に対して$(P^{n})_{ij} > 0$となるような, ある整数$n$が存在する時, マルコフ連鎖は既約(irreducibility)であると言う.
+言い換えれば, 遷移確率行列$P$を持つマルコフ連鎖$(x_{0}, x_{1},\ldots, )$について, 任意の状態$s_i, s_j \in S$が相互到達可能, つまり$s_{i}$から出発したマルコフ連鎖が有限時間内で$s_{j}$に到達する確率が0でないことを意味する. 規約でないマルコフ連鎖は可約であると言う
+
+\paragraph{非周期性の定義}
+$\gcd[a_1, \ldots, a_n]$は$a_1,\ldots,a_n$の最大公約数と表記すると, 状態$s_{i} \in S$の周期$d(d_{i})$は次で定義される:
+\begin{equation}
+    d(s_{i}) = \gcd [n \ge 1: (P^{n})_{ii} > 0]
+\end{equation}
+$d(s_{i}) = 1$のとき, 状態$s_{i}$は非周期的(aperiodic)であるという.
+全ての状態が非周期的ならば, マルコフ連鎖は非周期的であるという.
+そうでない時は, 連鎖は周期的(periodic)であると言われる.
+
+\subsection{規格化条件}
+状態空間$S = [s_{1}, \ldots, s_{n}]$上の遷移確率行列$P$を持つようなマルコフ連鎖を考える.
+遷移確率行列に対する規格化条件は, 任意の$i \in S$に対して
+\begin{equation}
+    \sum_{j \in S} P_{ij} = 1
+\end{equation}
+である.
+
+
+\subsection{釣り合い条件}
+状態空間$S = [s_{1}, \ldots, s_{n}]$上の遷移確率行列$P$, 確率分布$w$に対するマルコフ連鎖を考える.
+この時, 釣り合い条件は
+\begin{equation}
+    w P = w
+\end{equation}
+すなわち
+\begin{equation}
+    \sum_{i \in S} w_{i} P_{ij} = w_{j}
+\end{equation}
+とかかれる.
+つまり, 確率分布$w$は遷移確率行列$P$の固有ベクトルで, その固有値は1であることを意味する.
+確率流を
+\begin{equation}
+    v(i \to j) = w_{i} P_{ij}
+\end{equation}
+のように定義すれば釣り合い条件は次のようにも書かれる:
+\begin{equation}
+    \sum_{i \in S} v(i \to j) = \sum_{i \in S} v(j \to i)
+\end{equation}
+
+
+
+\subsection{収束性について}
+状態空間$S = [s_{1}, \ldots, s_{n}]$上のマルコフ連鎖が
+(1) エルゴード性, (2)規格化条件, (3)釣り合い条件を満たす時
+
+\begin{description}
+    \item[1. 定常分布の存在性:] 定常分布が少なくとも一つ存在すること
+    \item[2. 定常分布の一意性:] 定常分布$\pi$が一意的に存在し, 任意の$j \in S$に対して$\pi > 0$
+    \item[3. 定常分布への収束性:] $S$上の任意の分布$\mu$に対して$\lim_{n\to\infty} \mu P^{n} = \pi$, つまりマルコフ連鎖は平衡分布へと収束する
+\end{description}
+を示すことができる.
+
+物理系のマルコフ連鎖モンテカルロの場合, カノニカル分布, 定温低圧分布, グランドカノニカル分布のもとで考えるので, 定常分布が存在性を前提としても差し支えない.
+
+\subsubsection{既約かつ非周期的なマルコフ連鎖の平衡分布への収束性の証明}
+
+2つのアンサンブル$E$, $E^{\prime}$を考える.
+アンサンブル$E$における状態$s_{k}$の確率を$w_{k}$, アンサンブル$E^{\prime}$における状態$s_{k}$の確率を$w_{k}^{\prime}$とする.
+アンサンブル$E$と$E^{\prime}$の距離を
+\begin{equation}
+    || E - E^{\prime} || = \sum_{k \in S} | w_{k} - w_{k}^{\prime} |
+\end{equation}
+と書く.
+アンサンブル$E^{\prime}$はアンサンブル$E$に遷移確率行列$P$を適用して生じたアンサンブルだと仮定する.
+$E^{\prime}$と平衡アンサンブル$E^{\mathrm{eq}}$の距離を$E$と平衡アンサンブル$E^{\mathrm{eq}}$の距離と比較する:
+
+\begin{align}
+    || E^{\prime} - E^{\mathrm{eq}} ||
+    &=
+    \sum_{l \in S}
+    \left| \sum_{k \in S} P_{kl} (w_{k} - w_{k}^{\mathrm{eq}}) \right| \\
+    &\le
+    \sum_{l \in S} \sum_{k \in S}
+    \left| P_{kl} (w_{k} - w_{k}^{\mathrm{eq}}) \right| \\
+    &=
+    \sum_{k \in S} \left| (w_{k} - w_{k}^{\mathrm{eq}}) \right| \\
+    &=
+    || E - E^{\mathrm{eq}} ||
+\end{align}
+と計算される.
+ここで1行目の展開で釣り合い条件, 1行目から2行目への変形で三角不等式, 2行目から3行目での展開で規格化条件を使用した.
+得られた結果をまとめる:
+\begin{equation}
+    || E^{\prime} - E^{\mathrm{eq}} || \le || E - E^{\mathrm{eq}} ||
+\end{equation}
+この不等式は, $E$に$P$を作用させた結果生じるアンサンブル$E^{\prime}$は, $E$と比較して平衡アンサンブルに近い, あるいは等しい距離にあることを意味する.
+つまり, 平衡アンサンブルがマルコフ仮定の不動点になっていることがわかる.
+
+続いて, 平衡分布への収束を考えていく.
+遷移確率行列$P$それ自身は通常エルゴードではないが, $\mathcal{P} \equiv P^{n}$がエルゴードになるような整数$n$が存在するとする.
+エルゴード性の定義から, $\mathcal{P}$の全ての要素は0よりも大きい:
+\begin{equation}
+    0 < w_{\min} \equiv \min_{i,~j} \{ \mathcal{P}_{ij} \} < 1
+\end{equation}
+ここで, 確率分布$\mu$と$\mu^{\prime}$が
+\begin{equation}
+    \mu^{\prime} = \mathcal{P} \mu
+\end{equation}
+で関係づけられているとする.
+平衡分布への収束性$\mu^{n} \to \pi^{\mathrm{eq}}$をみるには
+\begin{equation}
+    || E^{\prime} - E^{\mathrm{eq}} ||
+    \le
+    (1 - w_{\min}) || E - E^{\mathrm{eq}} ||
+\end{equation}
+であることを示せばよい.
+$\epsilon \equiv || E - E^{\mathrm{eq}} ||$を定義する.
+$|| E - E^{\mathrm{eq}} ||$は次のように分割できる：
+\begin{align}
+    || E - E^{\mathrm{eq}} ||
+    &=
+    \sum_{k \in S} | w_{k} - w_{k}^{\mathrm{eq}} | \\
+    &=
+    \sum_{k \in K^{+}} (w_{k} - w_{k}^{\mathrm{eq}}) -
+    \sum_{k \in K^{-}} (w_{k} - w_{k}^{\mathrm{eq}})
+\end{align}
+ここで, $\sum_{k \in K^{+}}$は$w_{k} - w_{k}^{\mathrm{eq}} \ge 0$となるような$k$に対する和であり, $\sum_{k \in K^{-}}$は$w_{k} - w_{k}^{\mathrm{eq}} < 0$となるような$k$に対する和を意味する.
+また, 規格化条件
+\begin{align}
+    \sum_{k \in S} \pi_{k}
+    &= \sum_{k \in K^{+}} w_{k} + \sum_{k \in K^{-}} w_{k} = 1
+    \\
+    \sum_{k \in S} \pi_{k}^{\mathrm{eq}}
+    &= \sum_{k \in K^{+}} w_{k}^{\mathrm{eq}} + \sum_{k \in K^{-}} w_{k}^{\mathrm{eq}} = 1
+\end{align}
+を連立して解くと
+\begin{equation}
+    \sum_{k \in K^{+}} (w_{k} - w_{k}^{\mathrm{eq}})
+    =
+    \sum_{k \in K^{-}} (w_{k}^{\mathrm{eq}} - w_{k} )
+    =
+    \frac{\epsilon}{2}
+    \label{Eq:sum-probdist-w}
+\end{equation}
+を得る.
+
+以上のように証明に必要となる関係式を一通り揃えたので, ここからは$|| E^{\prime} - E^{\mathrm{eq}}||$を具体的に計算し, $|| E- E^{\mathrm{eq}}||$と比較していく.
+まずは, 釣り合い条件を用いて
+\begin{align}
+    || E^{\prime} - E^{\mathrm{eq}}||
+    &=
+    \sum_{l \in S}
+    \left| \sum_{k \in S} \mathcal{P}_{kl} (w_{k} - w_{k}^{\mathrm{eq}}) \right| \\
+    &=
+    \sum_{l \in S}
+    \left|
+          \sum_{k \in K^{+}} \mathcal{P}_{kl} (w_{k} - w_{k}^{\mathrm{eq}})
+        + \sum_{k \in K^{-}} \mathcal{P}_{kl} (w_{k} - w_{k}^{\mathrm{eq}})
+    \right|
+\end{align}
+と展開する.
+ここで$L^{+}$と$L^{-}$はそれぞれ, 以下を満たすような状態$l$の集合であると定義する:
+\begin{align}
+    L^{+}
+    &\equiv
+    \left\{
+        l \in S
+        \left|
+        \sum_{k \in K^{+}} \mathcal{P}_{kl} (w_{k} - w_{k}^{\mathrm{eq}})
+      + \sum_{k \in K^{-}} \mathcal{P}_{kl} (w_{k} - w_{k}^{\mathrm{eq}}) > 0
+    \right\} \right.
+    \\
+    L^{-}
+    &\equiv
+    \left\{
+        l \in S
+        \left|
+        \sum_{k \in K^{+}} \mathcal{P}_{kl} (w_{k} - w_{k}^{\mathrm{eq}})
+      + \sum_{k \in K^{-}} \mathcal{P}_{kl} (w_{k} - w_{k}^{\mathrm{eq}}) < 0
+    \right\} \right.
+\end{align}
+このように$l$に関する和を分割することで
+\begin{align}
+    || E^{\prime} - E^{\mathrm{eq}}||
+    &=
+    \sum_{l \in L^{+}}
+    \left[
+          \sum_{k \in K^{+}} \mathcal{P}_{kl} (w_{k} - w_{k}^{\mathrm{eq}})
+        + \sum_{k \in K^{-}} \mathcal{P}_{kl} (w_{k} - w_{k}^{\mathrm{eq}})
+    \right]
+    \\
+    &-
+    \sum_{l \in L^{-}}
+    \left[
+          \sum_{k \in K^{+}} \mathcal{P}_{kl} (w_{k} - w_{k}^{\mathrm{eq}})
+        + \sum_{k \in K^{-}} \mathcal{P}_{kl} (w_{k} - w_{k}^{\mathrm{eq}})
+    \right]
+    \\
+    &\le
+    (1 - w_{\min}) \frac{\epsilon}{2} + (1 - w_{\min}) \frac{\epsilon}{2}
+    =
+    (1 - w_{\min})\epsilon
+\end{align}
+となる. 途中の式変形で$0 < w_{\min} < 1$であること, $l$に関する和を分割したことで$\mathcal{P}$に関する和が最大でも$(1 - w_{\min})$であること, 式(\ref{Eq:sum-probdist-w})を利用した.
+このようにして,
+\begin{equation}
+    || E^{\prime} - E^{\mathrm{eq}} ||
+    \le
+    (1 - w_{\min}) || E - E^{\mathrm{eq}} ||
+\end{equation}
+が得られた.
+遷移確率行列$\mathcal{P}$によるマルコフ連鎖を繰り返すと確率分布は
+\begin{eqnarray}
+    w^{k} = \mathcal{P}^{k} \mu,~~~~~(k=1,2,\ldots)
+\end{eqnarray}
+と変化していき, アンサンブル(分布)が平衡アンサンブル(分布)へ収束が以下のように確認できる:
+\begin{equation}
+    || E^{k} - E^{\mathrm{eq}} ||
+    \le
+    e^{-\lambda k} || E - E^{\mathrm{eq}} ||
+\end{equation}
+ただし$\lambda = - \ln(1-w_{\min}) > 0$である.
+
+
+\section{遷移確率行列の構築法}
+\subsection{マルコフ連鎖のおさらい}
+まずはじめに, マルコフ連鎖モンテカルロ法の基礎について述べる.
+マルコフ連鎖とは, 次の状態$j$をとる確率が直前の状態$i$のみで決定されるようにして状態を変化させていく過程のことをいう.
+
+ここでは$n$個の状態を持つ系を考えることにする. 状態$i$は重み$w_{i}$をもち, 確率$P(i \to j)$で状態$j$に遷移する.
+ここで, 状態$i$から状態$j$への確率流$v(i \to j)$を次のように定義する.
+\begin{equation}
+ v(i \to j) = w_{i} P( i \to j )
+ \label{eqn:def_nu}
+\end{equation}
+定常状態を実現するには, 系は釣り合い条件
+\begin{equation}
+ \sum_{i=1}^{n} v(i \to j) = \sum_{i=1}^{n} v(j \to i)
+ \label{eqn:GBC}
+\end{equation}
+を満たさなければならない.
+式~(\ref{eqn:GBC})を満たすような確率流$v(i \to j)$にしたがって状態を遷移させることで, 必要なアンサンブル(例えば, カノニカルアンサンブルや定温定圧アンサンブル)を得ることができる.
+
+\subsection{詳細釣り合い条件を満たす遷移確率計算アルゴリズム}
+
+
+メトロポリス法や熱浴法は, 式~(\ref{eqn:GBC})の十分条件である詳細釣り合い条件
+\begin{equation}
+ v(i \to j) = v(j \to i)
+  \label{eqn:DBC}
+\end{equation}
+を満たすようなアルゴリズムである.
+メトロポリスの方法では, 状態$i$から状態$j$への確率流と遷移確率は次のように与えられる.
+\begin{align}
+ v(i \to j) &= \frac{1}{n-1} \mathrm{min} \left( w_i,w_j \right),~ j \neq i  \label{eqn:nu_MP} \\
+ P(i \to j) &= \frac{v(i \to j)}{w_{i}} = \frac{1}{n-1}\mathrm{min}\left(1,\frac{w_{j}}{w_{i}}\right), ~j \neq i \label{eqn:MP_P}
+\end{align}
+ここで, 係数 $1/(n-1)$ は状態$i$を除く$n-1$個の状態の中からランダムに状態$j$を選ぶことに由来している.
+一方で, 熱浴法では状態$i$から状態$j$への確率流と遷移確率は次のように与えられる.
+\begin{align}
+ v(i \to j) &= \frac{w_{i}w_{j}}{\sum_{k=1}^{n} w_{k}},~ \forall j, i            \label{eqn:nu_HB} \\
+ P(i \to j) &= \frac{v(i \to j)}{w_{i}} = \frac{w_{j}}{\sum_{k=1}^{n} w_{k}}, ~ \forall j, i \label{eqn:HB_P}
+\end{align}
+メトロポリス法と熱浴法の確率流の計算の模式図を図~\ref{fgr:Metropolis}, 図~\ref{fgr:HeatBath}に示す.
+図からわかるように, これらの方法では同じ状態に留まる確率流$v(i \to i)$が存在する.
+$v(i \to i)$が大きいほど状態を遷移させることができないため, マルコフ連鎖モンテカルロシミュレーションとしては非効率になってしまう.
+
+\subsection{詳細釣り合いを破るが, 釣り合い条件を満たす遷移確率計算アルゴリズム}
+
+続いて, 諏訪・藤堂の方法について説明する.
+諏訪・藤堂の方法は詳細釣り合い条件~(\ref{eqn:DBC})を破っており, 釣り合い条件~(\ref{eqn:GBC})のみ満たすアルゴリズムである.
+諏訪・藤堂のアルゴリズムは図~\ref{fgr:SuwaTodo}に示した通り, 以下の手続きで説明される.
+ここでの手続きは, $w_{j}$の容量を持つ箱$j$に, もともと箱$i$を満たしていた液体$i$を流し込むような操作である.
+状態$i$の重み$w_{i}$は箱$i$の容量, 状態$i$から状態$j$への確率流$v(i \to j)$は箱$i$から箱$j$に移す液体の量に対応する.
+
+% Figure
+% \begin{figure}
+%  \begin{center}
+%   \includegraphics[width=0.9\hsize]{figure/Metropolis.eps}
+%   \caption{メトロポリスの方法の概念図}
+%   \label{fgr:Metropolis}
+%  \end{center}
+% % \end{figure}
+% % \begin{figure}
+%  \begin{center}
+%   \includegraphics[width=0.9\hsize]{figure/HeatBath.eps}
+%   \caption{熱浴法の概念図}
+%   \label{fgr:HeatBath}
+%  \end{center}
+% % \end{figure}
+% % \begin{figure}
+%  \begin{center}
+%   \includegraphics[width=0.9\hsize]{figure/SuwaTodo.eps}
+%   \caption{諏訪・藤堂の方法の概念図}
+%   \label{fgr:SuwaTodo}
+%  \end{center}
+% \end{figure}
+
+
+\begin{enumerate}
+ \setlength{\leftskip}{0.4cm}
+ \item[Step 1]もっとも大きい重みを持つ状態を選ぶ.
+	      もし, もっとも大きい重みを持つ状態が2つ以上あった場合, そのうちの1つを選ぶ.
+	      ここでは, 状態1がもっとも大きい重み$w_{1}$を持つと仮定する.
+	      このような仮定をしても, 一般性は失われない.
+
+ \item[Step 2]液体1を可能な限り箱2に移す. 箱2に移される液体の量は$v(1 \to 2)$である.
+	      もし, 液体1がまだ残っているならば, さらに次の箱3に可能な限り液体1を移す.
+	      次の箱へ液体1を流し込む操作を, 全ての液体1が移動されるまで続ける.
+	      最後に液体1が注がれた箱を$k$とする.
+	      ここでは確率流$v(1 \to 2),~\dots~, v(1 \to k)$を得る.
+
+ \item[Step 3]次に液体2を, 部分的に液体が入っている箱$k$に可能な限り注ぐ. もし, 箱$k$が満杯になったら,
+	      続いて箱$k+1$に液体2を注ぐ. すべての液体2が他の箱$k+1$,
+	      $\dots$, 箱$l$に移すまで操作を続ける.
+	      ここでは確率流$v(2 \to k),　~\dots~, v(2 \to l)$を得る.
+
+ \item[Step 4]他の液体についても順次, 次の箱に液体を流し込む操作を行う.
+	      もし最後の箱$n$が一杯になってしまったら, 一番初めの箱1を残りの液体で埋める.
+	      以上のようにしてすべての液体を他の箱に移すことができる.
+\end{enumerate}
+
+以上の操作で得られる確率流$v(i \to j)$を式で表すと,
+\begin{equation}
+ v(i \to j) = \mathrm{max} \left(0, \mathrm{min} \left(\Delta_{ij}, w_i + w_j - \Delta_{ij} ,w_i, w_j \right) \right)
+ \label{eq:SuwaTodo}
+\end{equation}
+となる. ただし,
+\begin{align} \notag
+ \Delta_{ij} &\equiv  S_{i} - S_{j-1} + w_{1}
+ \notag
+ \\
+ S_{i} &\equiv \sum_{k=1}^{i} w_{k}
+ \notag
+ \\
+ S_{0} &\equiv S_{n}
+ \notag
+\end{align}
+と定義した.
+式~(\ref{eq:SuwaTodo})を使うことで, 遷移確率$P(i \to j) = v(i \to j)/w_{i}$を得ることができる.
+ここで, 諏訪・藤堂の方法での遷移確率を議論する.
+状態$i$から状態$i$, つまりリジェクトされるような確率流は
+\begin{equation}
+ v (i \to i) = \begin{cases}
+		\mathrm{max}(0, 2w_1 - S_n)  ,&\text{$i =1$} \\
+		0                            ,&\text{$i \ge 2$}
+	       \end{cases}
+\end{equation}
+と計算される. この式は, $w_{1} \le S_{n}/2$のとき, リジェクト率は0であることを意味している.
+したがって, 諏訪・藤堂の方法はリジェクト率を最小化するため, 効率的にシミュレーションを行うことができる.
+ここで, 系の状態の数が2つ($n=2$)のとき, 諏訪・藤堂の方法はメトロポリスの方法と等価な方法になることに注意する.
+
+\clearpage
+\subsection{具体例1}
+確率流の計算の具体例として状態が4つの系を考える. 
+重み因子を
+\begin{equation}
+    \bm{w} = \{w_{1},~w_{2},~w_{3},~w_{4}\} = \{180,~ 90,~ 150,~ 120\}
+\end{equation}
+とする. 
+
+\subsubsection{メトロポリス法}
+メトロポリス法を用いた場合, 確率流は具体的に以下のように計算できる:
+\begin{alignat}{4}
+    v(1 \to 2) &= \frac{1}{n-1} \min[w_{1},~ w_{2}] &&= \frac{1}{3} \min[180,~  90] &&= \frac{90}{3}  &&= 30 \notag \\
+    v(1 \to 3) &= \frac{1}{n-1} \min[w_{1},~ w_{3}] &&= \frac{1}{3} \min[180,~ 150] &&= \frac{150}{3} &&= 50 \notag \\
+    v(1 \to 4) &= \frac{1}{n-1} \min[w_{1},~ w_{4}] &&= \frac{1}{3} \min[180,~ 120] &&= \frac{120}{3} &&= 40 \notag \\
+    v(1 \to 1) &= 180 - (30 + 50 + 40) &&= 60 \notag \\
+    \notag \\
+    v(2 \to 1) &= v(1 \to 2) = 30 \notag \\
+    v(2 \to 3) &= \frac{1}{n-1} \min[w_{2},~ w_{3}] &&= \frac{1}{3} \min[90,~ 150] &&= \frac{150}{3} &&= 30 \notag \\
+    v(2 \to 4) &= \frac{1}{n-1} \min[w_{2},~ w_{4}] &&= \frac{1}{3} \min[90,~ 120] &&= \frac{120}{3} &&= 30 \notag \\
+    v(2 \to 2) &= 90 - (30 + 30 + 30) &&= 0 \notag \\
+    \notag \\
+    v(3 \to 1) &= v(1 \to 3) = 50 \notag \\
+    v(3 \to 2) &= v(2 \to 3) = 30 \notag \\
+    v(3 \to 4) &= \frac{1}{n-1} \min[w_{3},~ w_{4}] &&= \frac{1}{3} \min[150,~ 120] &&= \frac{120}{3} &&= 40 \notag \\
+    v(3 \to 3) &= 150 - (50 + 30 + 40) &&= 30 \notag \\
+    \notag \\
+    v(4 \to 1) &= v(1 \to 4) = 40 \notag \\
+    v(4 \to 2) &= v(2 \to 4) = 30 \notag \\
+    v(4 \to 3) &= v(3 \to 4) = 40 \notag \\
+    v(4 \to 4) &= 120 - (40 + 30 + 40) &&= 10 \notag
+\end{alignat}
+
+\clearpage
+
+\subsubsection{熱浴法}
+熱浴法を用いた場合, 確率流は具体的に以下のように計算できる:
+
+\begin{alignat}{4}
+    v(1 \to 1) &= \frac{w_{1}w_{1}}{\sum_{i=1}^{4} w_{i}} && = \frac{180 \times 180}{540} &&= 60 \notag \\
+    v(1 \to 2) &= \frac{w_{1}w_{2}}{\sum_{i=1}^{4} w_{i}} && = \frac{180 \times  90}{540} &&= 30 \notag \\
+    v(1 \to 3) &= \frac{w_{1}w_{3}}{\sum_{i=1}^{4} w_{i}} && = \frac{180 \times 150}{540} &&= 50 \notag \\
+    v(1 \to 4) &= \frac{w_{1}w_{4}}{\sum_{i=1}^{4} w_{i}} && = \frac{180 \times 120}{540} &&= 40 \notag \\
+    \notag \\
+    v(2 \to 1) &= v(1 \to 2) &&= 30 \notag \\
+    v(2 \to 2) &= \frac{w_{2}w_{2}}{\sum_{i=1}^{4} w_{i}} && = \frac{ 90 \times  90}{540} &&= 15 \notag \\
+    v(2 \to 3) &= \frac{w_{2}w_{3}}{\sum_{i=1}^{4} w_{i}} && = \frac{ 90 \times 150}{540} &&= 25 \notag \\
+    v(2 \to 4) &= \frac{w_{2}w_{4}}{\sum_{i=1}^{4} w_{i}} && = \frac{ 90 \times 120}{540} &&= 20 \notag \\
+    \notag \\
+    v(3 \to 1) &= v(1 \to 3) &&= 50 \notag \\
+    v(3 \to 2) &= v(2 \to 3) &&= 25 \notag \\
+    v(3 \to 3) &= \frac{w_{3}w_{3}}{\sum_{i=1}^{4} w_{i}} && = \frac{150 \times 150}{540} &&= 41.666\ldots \notag \\
+    v(3 \to 4) &= \frac{w_{3}w_{4}}{\sum_{i=1}^{4} w_{i}} && = \frac{150 \times 120}{540} &&= 33.333\ldots \notag \\
+    \notag \\
+    v(4 \to 1) &= v(1 \to 4) &&= 50 \notag \\
+    v(4 \to 2) &= v(2 \to 4) &&= 20 \notag \\
+    v(4 \to 3) &= v(3 \to 4) &&= 33.333\ldots \notag \\
+    v(4 \to 4) &= \frac{w_{4}w_{4}}{\sum_{i=1}^{4} w_{i}} && = \frac{120 \times 120}{540} &&= 26.666\ldots \notag
+\end{alignat}
+
+\subsubsection{諏訪・藤堂の方法}
+諏訪・藤堂の方法を用いた場合, 確率流は具体的に以下のように計算できる:
+
+\begin{alignat}{4}
+    v(1 \to 2) &= 90,~~~~ v(1 \to 3) &&= 90 \notag \\
+    v(2 \to 3) &= 60,~~~~ v(2 \to 4) &&= 30 \notag \\
+    v(3 \to 4) &= 90,~~~~ v(3 \to 1) &&= 60 \notag \\
+    v(4 \to 1) &= 120 \notag
+\end{alignat}
+
+% \bibliographystyle{junsrt}
+% \bibliography{}
+\input{../include/end}

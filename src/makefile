@@ -1,40 +1,48 @@
+FILE=main
+TARGET=$(FILE).pdf
+
+#
+# Tex commantds
+#
 TEX=uplatex
 BIBTEX=upbibtex
 TEX2PDF=uptex2pdf
 DVI2PDF=dvipdfmx
-FILENAME=main
-
-TEX2PDFFLAG = -e -l 
+TEX2PDFFLAG = -e -l
 
 .SUFFIXES: .tex .dvi .aux .log .toc .lof .lot .pdf .ps .bbl .bib .blg
 
-all: $(FILENAME).dvi
+SRCS=$(shell find . -name '*.tex' -and ! -name 'main.tex' -and ! -name 'preface.tex' -and ! -name 'title.tex')
+DVIS=$(patsubst %.tex, %.dvi, $(SRCS))
+BIBS=$(patsubst %.tex, %.bib, $(SRCS))
+BBLS=$(patsubst %.bib, %.bbl, $(BIBS))
 
-bbl: $(FILENAME).bbl
-
-release: $(FILENAME).pdf
+all: $(TARGET)
 
 open:
-	open $(FILENAME).dvi
+	open $(FILE).dvi
 
-$(FILENAME).pdf: $(FILENAME).dvi
+$(TARGET): main.tex preface.tex title.tex $(SRCS) $(DVIS)
+	$(TEX) main.tex preface.tex title.tex $(SRCS)
+	$(TEX) main.tex preface.tex title.tex $(SRCS) # To generete index correctly.
+
+pdf: $(FILE).dvi
 	$(DVI2PDF) $<
-	mv $(FILENAME).pdf ../release
+	mv $(patsubst %.dvi, %.pdf, $<) ../pdf/
 
-$(FILENAME).dvi: $(FILENAME).tex 
-	 sh ../utility/compile.sh $(FILENAME)
-	$(DVI2PDF) $(FILENAME).dvi
-	mv $(FILENAME).pdf ../draft/
+%.dvi: %.tex
+	sh ./scripts/compile.sh $(patsubst %.tex, %, $<)
 
-$(FILENAME).bbl: $(FILENAME).bib $(FILENAME).tex
-	$(TEX) $(FILENAME).tex   # 1. Output reference information to aux file.
-	$(BIBTEX) $(FILENAME)    # 2. make bbl file.
-	$(TEX) $(FILENAME).tex   # 3. Import bbl file information.
-	$(TEX) $(FILENAME).tex   # 4. Solve cress-references.
+%.bbl: %.bib %.aux
+	$(BIBTEX) $(patsubst %.bib, %, $<)    # 2. make bbl file.
+
+%.aux: %.tex
+	$(TEX) $<  # 1. Output reference information to aux file.
+
 
 clean:
-	rm -r $(FILENAME)~ $(FILENAME).dvi $(FILENAME).aux $(FILENAME).toc $(FILENAME).out \
-	$(FILENAME).log $(FILENAME).pdf $(FILENAME).ps $(FILENAME).bbl $(FILENAME).blg
+	rm -r $(FILE)~ $(FILE).dvi $(FILE).aux $(FILE).toc $(FILE).out \
+	$(FILE).log $(FILE).pdf $(FILE).ps $(FILE).bbl $(FILE).blg $(FILE).tex~
 
 cleanup:
 	rm -r *~ *.dvi *.aux *.toc *.out *.log *.pdf *.ps *.bbl *.blg

@@ -1,0 +1,199 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{自己相関関数}
+\maketitle
+
+\section{自己相関関数の定義}
+自己相関関数$C(\tau)$は
+
+\begin{equation}
+    C(\tau)
+    =
+    \frac{\langle x(t) x(t + \tau) \rangle - \langle x(t) \rangle \langle x(t + \tau) \rangle}{\langle x(t) x(t) \rangle - \langle x(t) \rangle^{2}}
+\end{equation}
+と計算される.
+
+\section{解析的に自己相関関数が計算できる関数の例}
+ここでは解析的に自己相関関数が計算できる例として, 正弦波と余弦波の自己相関関数を紹介する.
+このような例はプログラムを実装したときの確認として役に立つ.
+
+\subsection{正弦波の自己相関関数}
+正弦波を
+\begin{equation}
+    x(t) = a \sin(\omega t + \phi)
+\end{equation}
+とおく.
+時刻$t+\tau$での正弦波は
+\begin{align}
+    x(t+\tau)
+    &= a \sin(\omega (t + \tau) + \phi) \\
+    &= a \sin(\omega t + \phi) \cos(\omega \tau)
+     + a \cos(\omega t + \phi) \sin(\omega \tau)
+\end{align}
+であるので, その積は
+\begin{align}
+    x(t) x(t + \tau)
+    &=
+    a^{2} \sin^{2}(\omega t + \phi) \cos(\omega \tau) +
+    a^{2} \sin(\omega t + \phi) \cos(\omega t + \phi) \sin(\omega \tau) \\
+    &=
+    \frac{a^{2}}{2} [1 - \cos(2\omega t + 2\phi)] \cos(\omega \tau) +
+    \frac{a^{2}}{2} [\sin(2\omega t + 2\phi)] \sin(\omega \tau) \\
+    &=
+    \frac{a^{2}}{2}
+    [ \cos(\omega \tau)
+    + \sin(2\omega t + 2\phi)\sin(\omega \tau)
+    - \cos(2\omega t + 2\phi)\cos(\omega \tau)] \\
+    &=
+    \frac{a^{2}}{2}
+    [\cos(\omega \tau) - \cos (2\omega t + 2\phi + \omega \tau)]
+\end{align}
+と計算される.
+続いて自己相関関数の計算に必要な平均を求めていく.
+\begin{align}
+    \langle x(t) \rangle = \langle a \sin(\omega t + \phi) \rangle = 0
+\end{align}
+
+\begin{align}
+    \langle x(t+\tau) \rangle
+    &=
+    \langle
+        a \sin(\omega t + \phi) \cos(\omega \tau) +
+        a \cos(\omega t + \phi) \sin(\omega \tau)
+    \rangle \\
+    &=
+    a [\cos(\omega \tau) \langle \sin(\omega t + \phi) \rangle +
+       \sin(\omega \tau) \langle \cos(\omega t + \phi) \rangle ]\\
+    &=
+    0
+\end{align}
+
+\begin{align}
+    \langle x(t) x(t+\tau) \rangle
+    &=
+    \frac{a^{2}}{2}
+    \langle
+        \cos(\omega \tau) - \cos(2\omega t + 2\phi + \omega \tau)
+    \rangle \\
+    &=
+    \frac{a^{2}}{2} \cos(\omega \tau)
+\end{align}
+
+\begin{align}
+    \langle x(t) x(t) \rangle
+    &=
+    \langle
+        a^{2} \sin^{2} (\omega t + \phi)
+    \rangle \\
+    &=
+    a^{2} \langle \sin^{2}(\omega t + \phi) \rangle
+\end{align}
+以上を用いると, 自己相関関数は
+\begin{align}
+    C(\tau)
+    &=
+    \frac{\langle x(t) x(t + \tau) \rangle - \langle x(t) \rangle \langle x(t + \tau) \rangle}{\langle x(t) x(t) \rangle - \langle x(t) \rangle^{2}} \\
+    &=
+    \frac{\frac{a^{2}}{2} \cos(\omega \tau)}{a^{2} \langle \sin^{2}(\omega t + \phi)
+    \rangle} \\
+    &=
+    \frac{1}{2}
+    \frac{\cos(\omega \tau)}{\langle \frac{1-\cos(2\omega t + 2\phi)}{2}\rangle} \\
+    &=
+    \frac{1}{2}
+    \frac{\cos(\omega \tau)}{\frac{1}{2} [1 - \langle \cos(2\omega t + 2\phi) \rangle]} \\
+    &=
+    \cos(\omega \tau)
+\end{align}
+と計算される.
+まとめると, 正弦波の自己相関関数は余弦波となる.
+
+
+\subsection{余弦波の自己相関関数}
+余弦波を
+\begin{equation}
+    x(t) = a \cos(\omega t + \phi)
+\end{equation}
+とおく.
+時刻$t+\tau$での正弦波は
+\begin{align}
+    x(t+\tau)
+    &= a \cos(\omega (t + \tau) + \phi) \\
+    &= a \cos(\omega t + \phi) \cos(\omega \tau)
+     + a \sin(\omega t + \phi) \sin(\omega \tau)
+\end{align}
+であるので, その積は
+\begin{align}
+    x(t) x(t + \tau)
+    &=
+    a^{2} \cos^{2}(\omega t + \phi) \cos(\omega \tau) -
+    a^{2} \sin(\omega t + \phi) \cos(\omega t + \phi) \sin(\omega \tau) \\
+    &=
+    \frac{a^{2}}{2} [1 + \cos(2\omega t + 2\phi)] \cos(\omega \tau) -
+    \frac{a^{2}}{2} [\sin(2\omega t + 2\phi)] \sin(\omega \tau) \\
+    &=
+    \frac{a^{2}}{2}
+    [ \cos(\omega \tau)
+    + \cos(2\omega t + 2\phi)\cos(\omega \tau)
+    - \sin(2\omega t + 2\phi)\sin(\omega \tau)] \\
+    &=
+    \frac{a^{2}}{2}
+    [\cos(\omega \tau) + \cos (2\omega t + 2\phi + \omega \tau)]
+\end{align}
+と計算される.
+続いて自己相関関数の計算に必要な平均を求めていく.
+\begin{align}
+    \langle x(t) \rangle = \langle a \cos(\omega t + \phi) \rangle = 0
+\end{align}
+
+\begin{align}
+    \langle x(t+\tau) \rangle
+    &=
+    \langle
+        a \cos(\omega t + \phi) \cos(\omega \tau) -
+        a \sin(\omega t + \phi) \sin(\omega \tau)
+    \rangle \\
+    &=
+    a [\cos(\omega \tau) \langle \cos(\omega t + \phi) \rangle -
+       \sin(\omega \tau) \langle \sin(\omega t + \phi) \rangle ]\\
+    &=
+    0
+\end{align}
+
+\begin{align}
+    \langle x(t) x(t+\tau) \rangle
+    &=
+    \frac{a^{2}}{2} \cos(\omega \tau)
+\end{align}
+
+\begin{align}
+    \langle x(t) x(t) \rangle
+    &=
+    \langle
+        a^{2} \cos^{2} (\omega t + \phi)
+    \rangle \\
+    &=
+    a^{2} \langle \frac{1}{2} [1 + \cos(2\omega t + 2\phi)] \rangle \\
+    &=
+    \frac{a^{2}}{2}
+\end{align}
+以上を用いると, 自己相関関数は
+\begin{align}
+    C(\tau)
+    &=
+    \frac{\langle x(t) x(t + \tau) \rangle - \langle x(t) \rangle \langle x(t + \tau) \rangle}{\langle x(t) x(t) \rangle - \langle x(t) \rangle^{2}} \\
+    &=
+    \frac{\frac{a^{2}}{2} \cos(\omega \tau)}{\frac{a^{2}}{2}} \\
+    &=
+    \cos(\omega \tau)
+\end{align}
+と計算される.
+まとめると, 余弦波の自己相関関数は余弦波となる.
+
+% \bibliographystyle{junsrt}
+% \bibliography{}
+\input{../include/end}

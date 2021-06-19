@@ -1,0 +1,1248 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{統計力学の復習}
+\maketitle
+
+ここでは統計力学について簡単にまとめる.
+詳しくは統計力学の教科書を参照のこと\cite{1978Toda, 1998Kubo, Goldstein1, Goldstein2,Tuckerman}.
+
+\section{分布関数, リウビルの定理}
+\subsection{分布関数}
+古典粒子系を考える.
+系の微視的状態は位相空間$\bm{\Gamma} = (\bm{q}, \bm{p})$上の1つの点で指定できる.
+これを代表点という.
+多数の同様な力学系を考え, それらの代表点(微視的状態)が位相空間内に分布していると考える.
+この集団(代表点の集まり)を統計集団あるいはアンサンブルと呼ぶ.
+系の数が多い時, 位相空間中の代表点の密度を考えることができる.
+代表点の位相空間における分布を分布関数, あるいは確率密度といい$f(\bm{q}, \bm{p})$であらわす.
+アンサンブルはそれを特徴付ける分布関数で定義される.
+
+位相空間中の点が実現する確率は
+\begin{equation}
+ \int_{\Delta \bm{\Gamma}}~ d\bm{q} d\bm{p}~ f(\bm{q}, \bm{p})
+\end{equation}
+である.
+ここで$\int d\bm{q} d\bm{p}$は全ての粒子の座標と運動量に関する積分
+\begin{equation}
+ \int~ d\bm{q} d\bm{p}
+=\int~ dq_{1}dq_{2} \cdots dq_{3N}dp_{1}dp_{2} \cdots dp_{3N}
+\end{equation}
+を意味する.
+
+分布関数が与えられれば物理量$A(\bm{q}, \bm{p})$の平均値$\langle A \rangle$は
+\begin{equation}
+ \langle A \rangle
+=\int~ d\bm{q} d\bm{p}~ A(\bm{q}, \bm{p}) f(\bm{q}, \bm{p})
+\end{equation}
+と計算することができる.
+
+\subsection{リウヴィルの定理}
+時間が経過すると代表点の集合は位相空間内を流体のように流れる.
+つまり, 分布関数$f(\bm{q}, \bm{p})$は位相空間内を流れていく.
+そこで, 位相空間内の$f(\bm{q},\bm{p})$の時間変化を考えよう.
+位相空間内のある点$\bm{\Gamma} = (\bm{q}, \bm{p})$における分布関数の変化について連続の式が成り立つ.
+\begin{equation}
+ \frac{\partial f}{\partial t} + \mathrm{div}(\dot{\bm{\Gamma}} f) = 0
+ \label{eq:GeneralizedLiouvilleEquation}
+\end{equation}
+これを一般化されたリウヴィル方程式と呼ぶ.
+ここで$\mathrm{div}$は座標空間での発散でなはく位相空間での発散である.
+すなわち
+\begin{equation}
+ \mathrm{div} = \frac{\partial}{\partial \bm{\Gamma}}
+\end{equation}
+である.
+式(\ref{eq:GeneralizedLiouvilleEquation})の左辺第1項目は位相空間内のある点
+$\bm{\Gamma} = (\bm{q}, \bm{p})$周りの微小体積に含まれる代表点の数の単位時間あたりの変化を意味する.
+一方, 左辺の第2項目は位相空間上での流れを表すベクトル場の発散量であり,
+単位時間に流入した代表点の数と流出した代表点の数の差を意味する.
+つまり一般化されたリウヴィル方程式は代表点に関する局所的な保存則であり, 代表点が生成消滅
+することはないことを意味する.
+式(\ref{eq:GeneralizedLiouvilleEquation})左辺第2項は
+\begin{align}
+  \mathrm{div}(\dot{\bm{\Gamma}})
+&=\frac{\partial}{\partial \bm{\Gamma}} \cdot (\dot{\bm{\Gamma}} f)
+  \notag
+  \\
+& =\dot{\bm{\Gamma}} \cdot \frac{\partial f}{\partial \bm{\Gamma}}
+ +\left( \frac{\partial}{\partial \bm{\Gamma}} \cdot \dot{\bm{\Gamma}} \right) f
+\end{align}
+と計算される.
+ハミルトンの正準方程式より, 最後の式の第2項は0になる:
+\begin{align}
+  \frac{\partial}{\partial \bm{\Gamma}} \cdot \dot{\bm{\Gamma}}
+&=\sum_{i=1}^{N}
+  \left(
+         \frac{\partial}{\partial q_{i}} \dot{q}_{i}
+        +\frac{\partial}{\partial p_{i}} \dot{p}_{i}
+  \right)
+  \notag
+  \\
+&=\sum_{i=1}^{N}
+  \left(
+         \frac{\partial}{\partial q_{i}} \frac{\partial \mathcal{H}}{\partial p_{i}}
+        -\frac{\partial}{\partial p_{i}} \frac{\partial \mathcal{H}}{\partial q_{i}}
+  \right)
+ =0
+  \label{eq:GeneralizedLiouvilleEq2}
+\end{align}
+これを式(\ref{eq:GeneralizedLiouvilleEquation})に代入すると
+\begin{equation}
+ \frac{\partial f}{\partial t} + \dot{\bm{\Gamma}} \cdot \frac{\partial f}{\partial \bm{\Gamma}}
+=\frac{d f}{dt}
+=0
+ \label{eq:LiouvilleEquation}
+\end{equation}
+が導かれる. この式(\ref{eq:LiouvilleEquation})をリウヴィル方程式という.
+左辺第2項目にあらわれた演算子はリウビル演算子である.
+全微分$df/dt$は位相空間内の$f$の流れに沿って$f$の時間変化を計算した量である.
+一方, 偏微分$\partial f/\partial t$は観察する点$\bm{\Gamma}$を固定して
+$f$の時間変化を計算した量である.
+$df/dt=0$は流れに沿った$f$の時間変化が0であることを意味する.
+式$(\ref{eq:LiouvilleEquation})$は位相空間における確率密度$f(\bm{\Gamma})$の流れに沿ったてみた時,
+確率密度は時間が経っても一定であり非圧縮流体のように振る舞うということを意味する.
+これをリウヴィルの定理という.
+式(\ref{eq:LiouvilleEquation})はPoisson括弧を用いて
+\begin{align}
+  \frac{\partial f}{\partial t}
+ +\dot{\bm{\Gamma}} \cdot \frac{\partial f}{\partial \bm{\Gamma}}
+&=\frac{\partial f}{\partial t}
+ +\sum_{i}
+  \left\{
+         \frac{\partial f}{\partial q_{i}} \frac{\partial \mathcal{H}}{\partial p_{i}}
+        -\frac{\partial f}{\partial p_{i}} \frac{\partial \mathcal{H}}{\partial q_{i}}                     \right\}
+ \notag
+ \\
+ &=\frac{\partial f}{\partial t} + \left[f, \mathcal{H} \right]
+  = 0
+\end{align}
+と書くこともできる.
+
+分子動力学シミュレーションで使う運動方程式のなかにはハミルトニアンから正準方程式として
+導かれるものではないものもある.
+この場合, 式(\ref{eq:GeneralizedLiouvilleEq2})の第2項は0にならず,
+リウヴィル方程式(\ref{eq:LiouvilleEquation})は成立しない.
+例えば, 温度制御のベレンゼン法や速度スケーリング法による時間発展は正準変換を満たさないため
+リウヴィルの定理を満たさない.
+また, 現実時間に対する能勢の方程式も時間刻みが速くなったり遅くなったりし体積素が伸び縮みするため
+リウヴィルの定理を満たさない. ただし, 仮想時間における能勢の方程式は正準方程式から導かれているため
+リウヴィルの定理を満たすことに注意.
+
+
+\section{等重率の原理とミクロカノニカルアンサンブル}
+ここでは熱平衡にある孤立系を考える.
+この系のエネルギー$E$, 体積$V$, 粒子数$N$は一定である.
+これが与えられた巨視的条件である.
+
+\subsection{等重率の原理}
+エネルギーの等しい状態は全て等しい重みを持つと考える.
+これを等重率の原理といい, 統計力学の基本原理として仮定する.
+
+\subsection{ミクロカノニカルアンサンブル}
+体系のエネルギーが狭い範囲$E$から$E+\delta E$の間にあるとする.
+等重率の原理からこの間にある状態は等しい確率で実現すると考える.
+したがって, 孤立系の分布関数$f(\bm{q}, \bm{p})$は次のように書かれる:
+\begin{equation}
+ f(\bm{q}, \bm{p})
+=\frac{1}{\int_{E < \mathcal{H}(q, p) < E+\delta E} ~d \bm{q}~d\bm{p}}
+ \label{eq:f-MicroCanonical}
+\end{equation}
+ここで$\delta E$は不確定程度の幅である.
+系に幅を持たせるのは, 分布関数の分母の積分が0にならないようにするためである.
+分布関数が式(\ref{eq:f-MicroCanonical})であるアンサンブルをミクロカノニカルアンサンブル
+あるいは小正準集団という.
+
+エネルギー$E \sim E+\delta E$, 粒子数$N$, 体積$V$のミクロカノニカルアンサンブルにおいて許される
+微視的状態数は
+\begin{equation}
+ W(E, \delta E, N, V)
+=\frac{1}{N!h^{3N}} \int_{E < \mathcal{H}(q, p) < E + \delta E} ~ d\bm{q} ~ d\bm{p}
+\end{equation}
+である.
+古典力学では微視的状態数は$[\text{(距離)} \times \text{(運動量)}]^{3N}$の次元を持ち,
+定義に曖昧さが残る. 量子力学的には和で分配関数が定義されるため無次元化するのが望ましい.
+一方で不確定原理によると, 座標と運動量を同時に決定することはできず$\Delta q \Delta p \sim h$
+の不確定性が残る.
+これにより$\Gamma$空間の最小単位は$h^{3N}$となる.
+3次元空間に$N$個の粒子が存在する$6N$次元の位相空間上では$h^{3N}$の体積が古典的な微視的状態数に対応する.
+したがって量子論的な微視的状態数に対応させるために$h^{3N}$で割る必要がある.
+また$N!$は量子力学的に$N$個の同種粒子は互いに識別不可能であることに由来する.
+$N!$は粒子の順列の数である.
+もし$N!$で割らない場合, 古典点状理想気体のエントロピーが示量性にならないという問題が生じる.
+これをGibbsのパラドクスと言う.
+以上は一応の説明であるが, 厳密にやるには量子論的な考えが$\hbar \to 0$の極限で古典統計に一致することを
+みる.
+$\mathcal{H} = \sum \bm{p}^{2}/2m + V(\bm{r}_{1} \cdots \bm{r}_{N})$に対応する密度行列
+$\exp(-\beta \mathcal{H})$の$\bm{r}$表示
+$\langle \bm{r}_{1}^{\prime} \cdots \bm{r}_{N}^{\prime} | \exp(-\beta \mathcal{H}) | \bm{r}_{1}^{\prime \prime} \cdots \bm{r}_{N}^{\prime \prime} \rangle$を作り$\hbar \to 0$の極限において分配関数
+$\mathrm{Tr}[\exp(-\beta \mathcal{H})]$が古典分配関数に一致することを確認すればよい.
+詳しくは久保亮五演習書6章問題33を参照のこと.
+
+エネルギー$0$と$E$の間にある微視的状態の総数を状態数という.
+状態数は,
+\begin{equation}
+ \Omega_{0} (E, N, V)
+=\frac{1}{N! h^{3N}}\int_{\mathcal{H}(q, p) < E} ~ d\bm{q} ~ d\bm{p}
+\end{equation}
+と表される. 状態数を$E$で微分した量を状態密度という:
+\begin{equation}
+ \Omega(E, N, V)
+=\frac{d\Omega_{0}(E, N, N)}{dE}
+\end{equation}
+$\delta E$が小さいとき
+\begin{equation}
+ W(E, \delta E, N, V)
+=\Omega(E, N, V)\delta E
+\end{equation}
+である.
+
+\subsection{ボルツマンの関係式}
+微視的状態数$W$からエントロピー$S$が定義される:
+\begin{equation}
+ S(E, N, V) = k_{\mathrm{B}} \log W(E, \delta E, N, V).
+\end{equation}
+これをボルツマンの関係式という.
+$k_{\mathrm{B}}$はボルツマン定数という.
+ボルツマンの関係式は, 熱力学な量であるエントロピー$S(E, N, V)$が統計力学的な
+微視的な量である$W(E, \delta E, N, V)$と関係づけられる統計力学の基本原理の一つである.
+
+\section{カノニカルアンサンブル}
+熱浴に接触していて温度が制御されている系を考える.
+このときは温度$T$, 体積$V$, 粒子数$N$を指定することにより巨視的条件が与えられる.
+カノニカルアンサンブル(正準集団)における分布関数$f(\bm{q}, \bm{p})$は
+\begin{equation}
+ f(\bm{q}, \bm{p})
+=\frac{\frac{1}{N! h^{3N}}\exp\{-\beta \mathcal{H}(\bm{q}, \bm{p})\} }{Z}
+\end{equation}
+とかける. ここで規格化因子$Z$は分配関数と呼ばれ
+\begin{equation}
+ Z = \frac{1}{N! h^{3N}} \int d\bm{q} \int d\bm{p} ~ \exp\{-\beta \mathcal{H}(\bm{q}, \bm{p})\}
+\end{equation}
+である. また$\beta$ は逆温度と呼ばれ
+\begin{equation}
+ \beta = \frac{1}{k_{\mathrm{B}} T}
+\end{equation}
+と書かれる. 分配関数はヘルムホルツの自由エネルギー$F$と
+\begin{equation}
+ F = - k_{\mathrm{B}} T \log Z
+\end{equation}
+の関係がある.
+
+\section{定温定圧アンサンブル}
+熱浴および圧力浴(ピストン)に接触している系を考える.
+つまり温度と圧力が制御されている系を考える.
+このとき温度$T$, 圧力$P$,　粒子数$N$を指定することにより巨視的条件が与えられる.
+ここでは$\bm{q}$, $\bm{p}$だけでなく圧力の共役な量である体積$V$も微視的状態数を指定する変数になる.
+定温定圧アンサンブルにおける分布関数$f(\bm{q}, \bm{p}, V)$は
+\begin{equation}
+ f(\bm{q}, \bm{p}, V)
+=\frac{\frac{1}{N! h^{3N}}
+       \exp \left[-\beta \left\{ \mathcal{H}(\bm{q}, \bm{p}, V) + PV \right\} \right]}{Y}
+\end{equation}
+と書かれる. ここで規格化因子$Y$は分配関数と呼ばれ
+\begin{equation}
+ Y
+=\frac{1}{N! h^{3N}} \int d\bm{q} \int d\bm{p} \int dV
+ \exp \left[-\beta \left\{ \mathcal{H}(\bm{q}, \bm{p}, V) + PV \right\} \right]
+\end{equation}
+である. 分配関数$Y$はギブスの自由エネルギー$G$と
+\begin{equation}
+ G = -k_{\mathrm{B}} T \log Y
+\end{equation}
+の関係がある.
+
+
+\section{熱力学量: 温度}
+微視的な立場からの温度の表式を導くことで, 分子シミュレーションにおいて温度を計算する方法を与える.
+ここでは, カノニカルアンサンブルにおける表式を導くが, 他のアンサンブルでも同じ表式を使えることが知られている. 
+
+体積$V$の立方体中に$N$個の粒子が入っている系を考える.
+系のハミルトニアンを
+\begin{equation}
+ \mathcal{H} = \sum_{i=1}^{N}\frac{\bm{p}_{i}^{2}}{2m_{i}} + U(\bm{r})
+\end{equation}
+とする.
+ここで運動エネルギーのアンサンブル平均を計算すると
+\begin{align}
+  \left\langle \sum_{i=1}^{N}\frac{\bm{p}_{i}^{2}}{2 m_{i}} \right\rangle
+&=\frac {
+          \int d\bm{r} \int d\bm{p} \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{2 m_{i}}
+          \exp \left[
+                     -\beta \left\{\sum_{j=1}^{N} \frac{\bm{p}_{j}^{2}}{2m_{j}} + U (\bm{r}) \right\}
+               \right]
+         }
+         {
+           \int d\bm{r} \int d\bm{p}
+           \exp \left[
+                      -\beta \left\{\sum_{j=1}^{N} \frac{\bm{p}_{j}^{2}}{2m_{j}} + U (\bm{r}) \right\}
+                \right]
+         }
+  \notag
+  \\
+  \notag
+  \\
+&=\frac {
+          \int d\bm{p} \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{2 m_{i}}
+          \exp \left[
+                     -\beta \left\{\sum_{j=1}^{N} \frac{\bm{p}_{j}^{2}}{2m_{j}} \right\}
+               \right]
+         }
+         {
+           \int d\bm{p}
+           \exp \left[
+                      -\beta \left\{\sum_{j=1}^{N} \frac{\bm{p}_{j}^{2}}{2m_{j}} \right\}
+                \right]
+         }
+  \notag
+  \\
+&=\sum_{i=1}^{N} \frac{3}{2 m_{i}}
+  \frac {
+          \int d p_{i}~ p_{i}^{2} \exp \left\{-\beta \frac{p^{2}}{2m_{i}} \right\}
+        }
+        {
+          \int d p_{i}~ \exp \left\{-\beta \frac{p^{2}}{2m_{i}} \right\}
+        }
+  \notag
+  \\
+&=\sum_{i=1}^{N} \frac{3}{2 m_{i}}
+  \frac {
+          \frac{2m_{i}}{2\beta} \sqrt{\frac{2m_{i}\pi}{\beta}}
+        }
+        {
+          \sqrt{\frac{2m_{i}\pi}{\beta}}
+        }
+  \notag
+  \\
+&=\frac{3}{2} N k_{\mathrm{B}} T
+  \notag
+\end{align}
+と計算される.
+第1行目から第2行目の展開では$\bm{r}$に関する積分を約分した.
+また第3行目から第4行目の積分ではガウス積分
+\begin{align}
+  \int_{-\infty}^{\infty}~dx~ \exp(-\alpha x^{2})
+&=\sqrt{\frac{\pi}{\alpha}}
+  \notag
+  \\
+  \int_{-\infty}^{\infty}~dx~ x^{2} \exp(-\alpha x^{2})
+&=\frac{1}{2\alpha}\sqrt{\frac{\pi}{\alpha}}
+  \notag
+\end{align}
+を用いた. よって系の温度$T$は
+\begin{equation}
+ T
+=\frac{1}{3N k_{\mathrm{B}}}
+ \left\langle \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{m_{i}} \right\rangle
+\end{equation}
+とかける.
+つまり, 系の温度は運動エネルギーのアンサンブル平均あるいは時間平均である.
+ここで, 温度は統計平均量で決まることに注意する必要がある.
+時々刻々の運動エネルギーから計算される
+\begin{equation}
+ T(t)
+=\frac{1}{3N k_{\mathrm{B}}}
+ \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{m_{i}}
+\end{equation}
+は瞬間温度といい, 熱力学的な温度$T$とは区別する.
+
+\section{熱力学量: 圧力}
+一般的に, 圧力は3行3列の二階のテンソル量であり, 
+\begin{equation}
+  \bm{P}
+  =
+  \left(
+    \begin{array}{ccc}
+       P_{xx} & P_{xy} & P_{xz} \\
+       P_{yx} & P_{yy} & P_{yz} \\
+       P_{zx} & P_{zy} & P_{zz}
+    \end{array}
+\right)
+\end{equation}
+と表される. 対角成分$P_{xx}$, $P_{yy}$, $P_{zz}$はそれぞれ, $x$軸, $y$軸, $z$軸方向の圧力である. 例えば, $P_{xx}$は$yz$軸を押すような圧力である. 
+一方, 圧力テンソルの非対角項$P_{\alpha\beta}$は基本セルをずらそうとする圧力である. 例えば, $P_{xz}$は$z$軸に垂直な平面(つまり$xy$平面)を$x$軸方向にずらそうとする力である. 
+
+レナード・ジョーンズ流体のような単原子分子で構成されて, 異方性のない等方的な体積の揺らぎをもつ場合は, 単位テンソル成分しか持たないため, 圧力はスカラー量となる.
+一方で, 脂質二重膜や固体結晶のような非方性のある系では, 軸によって圧力が異なるため, 圧力はテンソル量となる. 
+
+本節では, 微視的な立場から圧力の表式を導く.ここではカノニカルアンサンブルにおける表式を導くが,
+他のアンサンブルでも同じ表式を使えることが知られている.
+はじめに系が等方的な場合の圧力の計算表式を導出した後に, 系が非等方的の場合を考える. 非等方的なセルとして, 原子分子が平行六面体の中に含まれる場合を説明する.
+
+% 続いて, 原子圧力と分子圧力についても説明する. 分子中の原子がバネで結ばれたような, フレキシブルモデルに基づいた分子系の圧力も同様に 原子圧力で計算される. しかし, 分子が四元数など一般化座標で記述されるような剛体回転子モデルであったり, SHAKE 法のような拘束の動力学を使う場合は, 分子圧力の取り扱いに注意が必要である.
+
+\subsection{セルの揺らぎが等方的な場合の圧力の表式}
+圧力を$\bm{r}$と$\bm{p}$で表す.
+ヘルツホルムの自由エネルギーは分配関数$Z$を用いて
+\begin{equation}
+ F = -k_{\mathrm{B}} T \ln Z
+\end{equation}
+と表せる. ヘルムホルツの自由エネルギーの微分が
+\begin{align}
+ dF &= dU - TdS - SdT           \notag \\
+    &= (TdS - PdV) - TdS - SdT  \notag \\
+    &= -PdV -S dT               \notag
+\end{align}
+であるので, 圧力は温度$T$をある値に定めた時の体積$V$に関する偏微分で与えられる:
+\begin{equation}
+ P = -\left(\frac{\partial F}{\partial V}\right)_{T}
+\end{equation}
+カノニカルアンサンブルにおける分配関数$Z$は
+\begin{align}
+  Z
+&=\frac{1}{N! h^{3N}}
+  \int ~d\bm{r}~d\bm{p}
+  \exp \left[ -\beta \left\{ \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{2m} + U(\bm{r}) \right\}\right]
+  \notag
+  \\
+&=\left(\frac{2 \pi m k_{\mathrm{B}} T}{h^{2}}\right)^{\frac{3N}{2}}
+  \frac{1}{N!}
+  \int ~d\bm{r} \exp\left\{-\beta U(\bm{r}) \right\}
+\end{align}
+である.
+第1行目から第2行目に展開する際, $\bm{p}$に関してガウス積分を実行した.
+また右辺の座標に関する積分を配置分配関数$Q$という:
+\begin{equation}
+ Q
+=\frac{1}{N!}
+ \int ~d\bm{r} \exp\left\{-\beta U(\bm{r}) \right\}
+\end{equation}
+したがって圧力は配置積分を用いて
+\begin{align}
+  P
+&=-\left(\frac{\partial F}{\partial V}\right)_{T}
+ =k_{\mathrm{B}} T \left(\frac{\partial \ln Q}{\partial V}\right)_{T}
+ =k_{\mathrm{B}} T \frac{1}{Q} \left(\frac{\partial Q}{\partial V}\right)_{T}
+\end{align}
+とかける.
+ここで式変形において$\bm{p}$の積分部分は$V$に依存しない定数であることを用いた.
+続いて, $Q$の$V$に関する偏微分を考える.
+以下の議論は, 立方体のような, 全ての軸方向の辺の長さが同じようなボックスを考える.
+$Q$の積分範囲は$ 0 \le r_{i} \le V^{\frac{1}{3}}$であり,
+積分範囲が体積$V$に依存するため容易に微分を実行できない.
+そこで戸田・ボルン・グリーンの方法を用いて, この問題を回避する.
+この方法では座標$\bm{r}$を一辺の長さ$V^{\frac{1}{3}}$を用いて
+\begin{equation}
+ \bm{r} = V^{\frac{1}{3}} \tilde{\bm{r}}
+\end{equation}
+と変換する.
+$\tilde{\bm{r}}$は$V$に依存しない無次元量であり$0 \le \tilde{r}_{i} \le 1$の範囲を持つ.
+\begin{equation}
+ d \bm{r} = V^{N} d \tilde{\bm{r}}
+\end{equation}
+より配置分配関数$Q$は
+\begin{equation}
+ Q
+=\frac{V^{N}}{N!} \int~ d\tilde{\bm{r}} \exp \left\{ -\beta U(V^{\frac{1}{3}}\tilde{\bm{r}})\right\}
+ \label{eq:ConfPartitionFunc}
+\end{equation}
+とかける. よって$V$に関する偏微分は
+\begin{align}
+  \frac{\partial Q}{\partial V}
+&=\frac{\partial}{\partial V}
+  \left[
+         \frac{V^{N}}{N!} \int~ d\tilde{\bm{r}} \exp \left\{ -\beta U(V^{\frac{1}{3}}\tilde{\bm{r}})\right\}
+  \right]
+  \notag
+  \\
+&=\frac{N V^{N-1}}{N!}
+  \int~ d\tilde{\bm{r}} \exp \left\{ -\beta U(V^{\frac{1}{3}}\tilde{\bm{r}}) \right\}
+ -\frac{V^{N}}{N!} \beta
+  \int~ d\tilde{\bm{r}}
+  \frac{\partial U(V^{\frac{1}{3}} \tilde{\bm{r}})}{\partial V}
+  \exp \left\{ -\beta U(V^{\frac{1}{3}}\tilde{\bm{r}}) \right\}
+  \notag
+  \\
+ &=\frac{N}{V}Q
+  -\frac{1}{k_{\mathrm{B}} T} \frac{V^{N}}{N!}
+   \int ~d\tilde{\bm{r}} \frac{1}{3V}
+   \sum_{i=1}^{N} \bm{r}_{i} \cdot \frac{\partial U}{\partial \bm{r}_{i}}
+   \exp \left\{ -\beta U(V^{\frac{1}{3}} \tilde{\bm{r}})\right\}
+\end{align}
+と計算される.
+途中,
+\begin{equation}
+ \frac{\partial U (V^{\frac{1}{3}} \tilde{\bm{r}})}{\partial V}
+=\sum_{i}\frac{\partial U}{\partial \bm{r}_{i}}
+ \cdot   \frac{\partial \bm{r}_{i}}{\partial V}
+=\sum_{i}\frac{\partial U}{\partial \bm{r}_{i}}
+ \cdot   \left(\frac{1}{3}V^{-\frac{2}{3}}\tilde{\bm{r}}_{i}\right)
+=\sum_{i}\frac{\partial U}{\partial \bm{r}_{i}}
+ \cdot   \left(\frac{1}{3V}V^{\frac{1}{3}}\tilde{\bm{r}}_{i}\right)
+=\sum_{i}\frac{\partial U}{\partial \bm{r}_{i}}
+ \cdot   \left(\frac{1}{3V}\bm{r}_{i}\right)
+\end{equation}
+であることを使用した.
+スケールされた座様$\tilde{\bm{r}}$から座標$\bm{r}$に戻すと
+\begin{equation}
+  \frac{\partial Q}{\partial V}
+ =\frac{N}{V}Q
+ -\frac{1}{k_{\mathrm{B}} T} \frac{1}{3V} \frac{1}{N!}
+  \int ~d\bm{r}
+  \sum_{i=1}^{N} \bm{r}_{i} \cdot \frac{\partial U}{\partial \bm{r}_{i}}
+  \exp \left\{ -\beta U(\bm{r})\right\}
+\end{equation}
+となる.
+これを式(\ref{eq:ConfPartitionFunc})に代入すると
+\begin{align}
+  P
+&=k_{\mathrm{B}} T \frac{1}{Q} \frac{\partial Q}{\partial V}_{T}
+  \notag
+  \\
+&=k_{\mathrm{B}} T
+  \frac{
+         \frac{N}{V}Q
+        -\frac{1}{k_{\mathrm{B}} T} \frac{1}{3V} \frac{1}{N!}
+         \int d\bm{r}
+         \sum_{i=1}^{N} \bm{r}_{i} \cdot \frac{\partial U(\bm{r})}{\partial \bm{r}_{i}}
+         \exp \left\{ -\beta U(\bm{r})\right\}
+       }{Q}
+  \notag
+  \\
+&=\frac{N k_{\mathrm{B}} T}{V}
+ -\frac{1}{3V}
+  \frac{
+         \frac{1}{N!}
+         \int d\bm{r}
+         \sum_{i=1}^{N} \bm{r}_{i} \cdot \frac{\partial U(\bm{r})}{\partial \bm{r}_{i}}
+         \exp \left\{ -\beta U(\bm{r})\right\}
+       }
+       {
+         \frac{1}{N!}
+         \int d\bm{r}
+         \exp \left\{ -\beta U(\bm{r})\right\}
+       }
+   \notag
+   \\
+ &=\frac{N k_{\mathrm{B}} T}{V}
+  -\frac{1}{3N}
+   \left\langle \sum_{i=1}^{N} \bm{r}_{i} \cdot \frac{\partial U(\bm{r})}{\partial \bm{r}_{i}} \right\rangle
+\end{align}
+と変形される.
+さらに温度の計算式
+\begin{equation}
+ k_{\mathrm{B}} T
+=\frac{1}{3N}
+ \left\langle \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{m_{i}} \right\rangle
+\end{equation}
+を用いると
+\begin{equation}
+  P
+=\frac{1}{3V}
+ \left\{
+         \left\langle \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{m_{i}} \right\rangle
+        -\left\langle \sum_{i=1}^{N} \bm{r}_{i} \cdot \frac{\partial U(\bm{r})}{\partial \bm{r}_{i}} \right\rangle
+ \right\}
+ \label{eq:Pressure}
+\end{equation}
+を得る.
+式(\ref{eq:Pressure})の右辺第2項
+\begin{equation}
+ \left\langle \sum_{i=1}^{N} \bm{r}_{i} \cdot \frac{\partial U(\bm{r})}{\partial \bm{r}_{i}} \right\rangle
+=\left\langle \sum_{i=1}^{N} \bm{r}_{i} \cdot \bm{F}_{i} \right\rangle
+\end{equation}
+をヴィリアルという.
+ここで温度と同様, 圧力も統計平均あるいは時間平均で得られる量であることに注意する必要がある.
+時々刻々の運動エネルギー及びヴィリアルから求まる圧力を瞬間圧力という:
+\begin{equation}
+ P(t)
+=\frac{1}{3V}
+ \left\{
+         \left\langle \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}(t)}{m_{i}} \right\rangle
+        -\left\langle \sum_{i=1}^{N} \bm{r}_{i}(t) \cdot \frac{\partial U(\bm{r}(t))}{\partial \bm{r}_{i}(t)} \right\rangle
+ \right\}
+\end{equation}
+ここでヴィリアウがどう解釈されるか, 定性的な説明を与える.
+系の中にある基準点$O$を考える.
+ここで粒子の座標$\bm{r}_{i}$は基準点からの位置ベクトルとする.
+もし$\bm{r}_{i}$と$\bm{F}_{i}$が同じ向きの時, 粒子は壁に向かって力を加えることになる.
+この時, $\bm{r}_{i} \cdot \bm{F}_{i} > 0$となり圧力$P$を増加させる向きに寄与させる.
+一方$\bm{r}_{i}$と$\bm{F}_{i}$が反対向きの時, 粒子は基準点方向に力を加えることになる.
+この時, $\bm{r}_{i} \cdot \bm{F}_{i} < 0$となり圧力$P$を減少させる向きに寄与させる.
+
+例として2体ポテンシャル$u(r_{ij})$を考える.
+粒子$i$と粒子$j$の距離を$r_{ij} \equiv |\bm{r}_{i} - \bm{r}_{j}|$として
+ポテンシャルエネルギーが2体ポテンシャルエネルギー$u(r_{ij})$の和で表されるとする:
+\begin{equation}
+ U(\bm{r})
+=\sum_{i=1}^{N-1}\sum_{j > i}^{N} u(r_{ij})
+\end{equation}
+この時, 圧力$P$は
+\begin{align}
+  P
+&=\frac{1}{3N}
+  \left(
+         \left\langle \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{m_{i}} \right\rangle
+        -\left\langle \sum_{i=1}^{N-1} \sum_{j>i}^{N} r_{ij} \frac{\partial u(r_{ij})}{\partial r_{ij}} \right\rangle
+  \right)
+  \\
+&=\frac{1}{3N}
+  \left(
+         \left\langle \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{m_{i}} \right\rangle
+        -\left\langle \sum_{i=1}^{N-1} \sum_{j>i}^{N} r_{ij} f_{ij} \right\rangle
+  \right)
+\end{align}
+となる.
+粒子間に斥力が働いている場合,
+$\bm{r}_{ij}$と$\bm{f}_{ij}$(粒子$i$が粒子$j$に及ぼす力)は同じ向であるため圧力に対してヴィリアルは正の寄与となる.
+一方で粒子間に引力が働いている場合,
+$\bm{r}_{ij}$と$\bm{f}_{ij}$は反対向きであるため圧力に対してヴィリアルは負の寄与となる.
+すなわち理想気体と比較して圧力を下げるように寄与するのである.
+
+\subsection{セルの揺らぎが非等方的な場合の圧力の表式}
+\subsubsection{平行六面体の数学的基礎}
+
+まず初めに平行六面体の数学的表現を与える. 
+平行六面体は3つの基本並進ベクトル
+\begin{align}
+\bm{a}_{1} &= (a_{1x}, a_{1y}, a_{1z})^{t},~ \\ \notag
+\bm{a}_{2} &= (a_{2x}, a_{2y}, a_{2z})^{t},~ \\ \notag
+\bm{a}_{3} &= (a_{3x}, a_{3y}, a_{3z})^{t}      \notag
+\end{align}
+で張られる. 
+基本セルはセル行列$\bm{L}$を使って
+\begin{align}
+\bm{L}
+=
+\left(\bm{a}_{1}~ \bm{a}_{2}~ \bm{a}_{3} \right)
+=
+\left(
+       \begin{array}{ccc}
+        a_{1x} & a_{2x} & a_{3x} \\
+        a_{1y} & a_{2y} & a_{3y} \\
+        a_{1z} & a_{2z} & a_{3z} \\
+       \end{array}
+\right)
+\notag
+\end{align}
+と表すことができる.
+軸$\bm{a}_{2}$と軸$\bm{a}_{3}$のなす角を$\alpha$,
+軸$\bm{a}_{1}$と軸$\bm{a}_{3}$のなす角を$\beta$,
+軸$\bm{a}_{1}$と軸$\bm{a}_{2}$のなす角を$\gamma$とする.
+系の体積$V$は
+\begin{equation}
+  V = \bm{a}_{1} \cdot \bm{a}_{2} \times \bm{a}_{3}
+    = \det \bm{L}
+\end{equation}
+と計算される.
+
+
+\subsubsection{圧力テンソルの熱統計力学的表式}
+
+ヘルムホルツの自由エネルギーは
+\begin{equation}
+  F = F(N, \bm{L}, T)
+\end{equation}
+とセル行列に依存する形になるため, 圧力は3行3列の二階のテンソル量となる:
+\begin{align}
+  P_{\alpha\beta}
+ &=
+  -\frac{1}{\det \bm{L}}
+  \sum_{\eta = 1}^{3} L_{\beta\eta}
+  \left(\frac{\partial F}{\partial L_{\alpha\eta}} \right)_{T}
+  \label{Eq:pressure-tensor1}
+  \\
+ &=
+  \frac{k_{\mathrm{B}}T}{\det \bm{L}}
+  \sum_{\eta = 1}^{3} L_{\beta\eta}
+  \left(\frac{\partial \ln Q}{\partial L_{\alpha\eta}} \right)_{T}
+  \\
+ &=
+  \frac{k_{\mathrm{B}}T}{V}
+  \sum_{\eta = 1}^{3} L_{\beta\eta}
+  \left(\frac{\partial \ln Q}{\partial L_{\alpha\eta}} \right)_{T}.
+\end{align}
+
+\subsubsection{圧力テンソルの熱統計力学的表式(\ref{Eq:pressure-tensor1})の導出}
+
+系が立方体である時の圧力は, ヘルムホルツの自由エネルギーの体積$V$の微分で計算される. 
+系が非等方的な時の圧力は, 歪みテンソル$\bm{\epsilon}$の微分として計算される. 
+歪みテンソルとは, 「基本セルが変形する時のセルの各辺の単位長さ当たりの伸縮の大きさ, および, 二辺のなす角の変化の大きさ」を表す物理量であり, 基本セルの変形によって座標ベクトル$\bm{r}$が$\bm{r}^{\prime}$に移動した時の変位ベクトル$\bm{u} = \bm{r} - \bm{r}^{\prime}$を用いて, 
+\begin{equation}
+  \bm{\epsilon}
+  =
+  \frac{1}{2}
+  \left[
+    \frac{\partial \bm{u}}{\partial \bm{r}} +
+    \left(\frac{\partial \bm{u}}{\partial \bm{r}}\right)^{t}
+  \right]
+  \label{Eq:strain-tensor1}
+\end{equation}
+と定義される. 各成分は
+\begin{equation}
+  \epsilon_{\alpha\beta}
+  =
+  \frac{1}{2}
+  \left[
+    \frac{\partial u_{\beta}}{\partial r_{\alpha}} +
+    \frac{\partial u_{\alpha}}{\partial r_{\beta}}
+  \right]
+  \label{Eq:strain-tensor2}
+\end{equation}
+と書き下される. 
+したがって歪みテンソル$\bm{\epsilon}$の微分として計算される圧力テンソルは
+\begin{equation}
+  P_{\alpha \beta}
+  =
+  - \frac{1}{\det \bm{L}}
+  \left(
+    \frac{\partial F}{\partial \epsilon_{\alpha \beta}}
+  \right)_{T}
+  =
+  - \frac{1}{\det \bm{L}}
+  \left(
+    \sum_{\chi} \sum_{\eta}
+    \frac{\partial F}{\partial L_{\chi \eta}}
+    \frac{\partial L_{\chi \eta}}{\partial \epsilon_{\alpha \beta}}
+  \right)_{T}
+  \label{Eq:pressure-tensor2}
+\end{equation}
+となる. 最後の式変形で微分に関する連鎖律を用いた. 
+続いて, 最右辺$\partial L_{\chi \eta}/\partial \epsilon_{\alpha \beta}$の具体的な計算を考えていくが, そのためには$\bm{L}$を$\epsilon$で表す必要がある.
+変形前後のセル行列をそれぞれ$\bm{L}$, $\bm{L}^{\prime}$と置く. 
+セル行列でスケールされた座標を$\tilde{\bm{r}}$とすると, 変形前後における点Aの位置ベクトル$\bm{r}$, $\bm{r}^{\prime}$はそれぞれ
+\begin{align}
+  \bm{r} &= \bm{L} \tilde{\bm{r}} \\
+  \bm{r}^{\prime} &= \bm{L}^{\prime} \tilde{\bm{r}}
+\end{align}
+とかける.
+ここで行列$\bm{\Gamma} = \bm{L}^{\prime} \bm{L}^{-1}$を導入すると, セル変形後における点Aの位置ベクトルは
+\begin{equation}
+  \bm{r}^{\prime}
+  =
+  \bm{L}^{\prime} \tilde{\bm{r}}
+  =
+  \bm{L}^{\prime} \bm{r}^{-1} \bm{r}
+  =
+  \bm{\Gamma} \bm{r}
+\end{equation}
+と表せる.
+したがって, セル変形による, ある点Aの変位ベクトル$\bm{u}$は
+\begin{equation}
+  \bm{u}
+  =
+  \bm{r}^{\prime}
+  =
+  \bm{\Gamma} \bm{r} - \bm{r}
+  =
+  (\bm{\Gamma} - \bm{I}) \bm{r}
+  =
+  (\bm{L}^{\prime} \bm{L}^{-1} - \bm{I}) \bm{r}
+\end{equation}
+と$\bm{u}$を$\bm{r}^{\prime}$, $\bm{L}$, $\bm{L}^{\prime}$で表すことができた.
+ここで$\bm{I}$は単位行列である.
+これより 歪みテンソル(\ref{Eq:strain-tensor1}), (\ref{Eq:strain-tensor2})は
+\begin{align}
+  \epsilon_{\alpha \beta}
+  =&
+  \frac{1}{2}
+  \left(
+    \frac{\partial u_{\beta}}{\partial r_{\alpha}} +
+    \frac{\partial u_{\alpha}}{\partial r_{\beta}}
+  \right)
+  \\
+  =&
+  \frac{1}{2}
+  \left\{
+    \frac{\partial [(\bm{\Gamma} - \bm{I})\bm{r}]_{\beta}}
+         {\partial r_{\alpha}}
+    +
+    \frac{\partial [(\bm{\Gamma} - \bm{I})\bm{r}]_{\alpha}}
+         {\partial r_{\beta}}
+  \right\}
+  \\
+  =&
+  \frac{1}{2}
+  \left\{
+    \frac{\partial [\sum_{\chi}(\Gamma_{\beta\chi} - \delta_{\beta \chi})r_{\chi}]}{\partial r_{\alpha}}
+    +
+    \frac{\partial [\sum_{\chi}(\Gamma_{\alpha\chi} - \delta_{\alpha\chi})r_{\chi}]}{\partial r_{\beta}}
+  \right\}
+  \\
+  =&
+  \frac{1}{2}
+  \left(
+      \Gamma_{\beta\alpha} - \delta_{\beta\alpha}
+      +
+      \Gamma_{\alpha\beta} - \delta_{\alpha\beta}
+  \right)
+  %\\
+  %=&
+  %\frac{1}{2}
+  %\left( \bm{\Gamma}^{t} + \bm{\Gamma} \right) - \bm{I}
+  %\\
+  %=&
+  %\frac{1}{2}
+  %\left(
+  %  \sum_{\chi} L_{\beta\chi}^{\prime} L_{\chi\alpha}^{-1} - \delta_{\beta\alpha}
+  %  +
+  %  \sum_{\chi} L_{\alpha\chi}^{\prime} L_{\chi\alpha}^{-1} - \delta_{\alpha\beta}
+  %\right)
+\end{align}
+とかける.
+$\Gamma_{\alpha\beta} = \sum_{\chi} L_{\alpha\chi}^{\prime} L_{\chi\beta}^{-1}$であるので, $\bm{\epsilon}$はセル行列$\bm{L}$の関数で書かれることがわかる.
+行列形式に表し直すと
+\begin{equation}
+  \bm{\epsilon}
+  =
+  \frac{1}{2}
+  \left( \bm{\Gamma}^{t} + \bm{\Gamma} \right) - \bm{I}
+  \label{Eq:tensor-epsilon}
+\end{equation}
+となる.
+微分を計算すると,
+\begin{equation}
+  \mathrm{d} \bm{\epsilon}
+  =
+  \frac{1}{2}
+  \left( \mathrm{d}\bm{\Gamma}^{t} + \mathrm{d}\bm{\Gamma} \right)
+  \label{Eq:diff-tensor-epsilon}
+\end{equation}
+となる.
+$\mathrm{d}\bm{\epsilon}$は$\mathrm{d}\bm{\Gamma}$の対称部分を表している.
+以降の計算を分かりやすくするために, 反対称部分
+\begin{equation}
+  \mathrm{d}\bm{\omega}
+  =
+  \frac{1}{2}
+  \left( \mathrm{d}\bm{\Gamma}^{t} - \mathrm{d}\bm{\Gamma} \right)
+  \label{Eq:diff-tensor-omega}
+\end{equation}
+を定義する.
+式(\ref{Eq:diff-tensor-epsilon}), (\ref{Eq:diff-tensor-omega})の和と差をそれぞれ計算すると
+\begin{alignat}{2}
+  &\mathrm{d}\bm{\Gamma}^{t} &&= \mathrm{d}\bm{\epsilon} + \mathrm{d}\bm{\omega} \\
+  &\mathrm{d}\bm{\Gamma}     &&= \mathrm{d}\bm{\epsilon} - \mathrm{d}\bm{\omega}
+\end{alignat}
+を得る. 転置を取り直すとそれぞれ
+\begin{alignat}{2}
+&\mathrm{d}\bm{\Gamma} &&= (\mathrm{d}\bm{\epsilon} + \mathrm{d}\bm{\omega})^{t} \\
+&\mathrm{d}\bm{\Gamma} &&=  \mathrm{d}\bm{\epsilon} - \mathrm{d}\bm{\omega}
+\end{alignat}
+となる.
+$\mathrm{d}{\bm{\epsilon}}$の対称性$\mathrm{d}\bm{\epsilon} = \mathrm{d}\bm{\epsilon}^{t}$と$\mathrm{d}{\bm{\omega}}$の反対称性$\mathrm{d}\bm{\omega} = -\mathrm{d}\bm{\omega}^{t}$を用いると,
+\begin{equation}
+  \mathrm{d}\bm{\Gamma} = \mathrm{d} \bm{\epsilon} + \mathrm{d} \bm{\omega}
+\end{equation}
+を得る. 左辺に$\bm{\Gamma} = \bm{L}^{\prime}\bm{L}^{-1}$を具体的に代入することで
+\begin{equation}
+  \mathrm{d} \bm{L}^{\prime}
+  =
+  \mathrm{d} (\bm{\epsilon} + \bm{\omega}) \bm{L}
+\end{equation}
+を得る. 成分で表示すると
+\begin{equation}
+  \mathrm{d} L_{\mu\chi}^{\prime}
+  =
+  \sum_{\nu} (\mathrm{d}\epsilon_{\mu\nu} + \mathrm{d}\omega_{\mu\nu})
+  L_{\mu\chi}
+\end{equation}
+であるので, 
+\begin{equation}
+  \frac{\mathrm{\partial} L_{\mu\chi}^{\prime}}{\partial \epsilon_{\eta\nu}}
+  =
+  \delta_{\mu\eta} L_{\nu\chi}
+\end{equation}
+と計算される.
+変形前後でのセル行列$\bm{L}$, $\bm{L}^{\prime}$が無限に近づいたとすれば,
+$\bm{L}$と$\bm{L}^{\prime}$の区別がなくなるため
+\begin{equation}
+  \frac{\mathrm{\partial} L_{\mu\chi}}{\partial \epsilon_{\eta\nu}}
+  =
+  \delta_{\mu\eta} L_{\nu\chi}
+\end{equation}
+となる.
+したがって, 圧力テンソル(\ref{Eq:pressure-tensor2})は
+\begin{align}
+  P_{\alpha \beta}
+  =&
+  - \frac{1}{\det \bm{L}}
+  \left(
+    \sum_{\chi} \sum_{\eta}
+    \frac{\partial F}{\partial L_{\chi \eta}}
+    \frac{\partial L_{\chi \eta}}{\partial \epsilon_{\alpha \beta}}
+  \right)_{T}
+  \\
+  =&
+  - \frac{1}{\det \bm{L}}
+  \left(
+    \sum_{\chi} \sum_{\eta}
+    \frac{\partial F}{\partial L_{\chi \eta}}
+    \delta_{\chi\alpha} L_{\beta\eta}
+  \right)_{T}
+  \\
+  =&
+  - \frac{1}{\det \bm{L}}
+  \left(
+    \sum_{\eta} L_{\beta\eta}
+    \frac{\partial F}{\partial L_{\alpha \eta}}
+  \right)_{T}
+\end{align}
+と展開することができ, 圧力テンソルの熱統計力学的表式(\ref{Eq:pressure-tensor1})を得ることができた. 
+
+\subsubsection{圧力テンソルの具体的表式の導出}
+
+微視的描像に基づいた圧力テンソルの具体的な表式を導出するために, 配置積分の表式, つまり系のハミルトニアンを知る必要がある. 
+ラグランジアンからハミルトニアンを導出するために, まず初めにスケールした座標と速度を導入する:
+\begin{align}
+  \bm{r}_{i} &= \bm{L} \tilde{\bm{r}}_{i}
+  \\ \notag
+  \dot{\bm{r}}_{i} &= \bm{L} \dot{\tilde{\bm{r}}}_{i}
+\end{align}
+続いて, 計量テンソル
+\begin{equation}
+  \bm{G}
+  =
+  \bm{L}^{\mathrm{t}} \bm{L}
+  =
+  \left(
+       \begin{array}{c}
+        \bm{a}_{1}^{\mathrm{t}}  \\
+        \bm{a}_{2}^{\mathrm{t}}  \\
+        \bm{a}_{3}^{\mathrm{t}}  \\
+       \end{array}
+  \right)
+  \left(\bm{a}_{1} \bm{a}_{2} \bm{a}_{3}\right)
+  =
+  \left(
+       \begin{array}{ccc}
+          \bm{a}_{1}\cdot\bm{a}_{1}
+        & \bm{a}_{1}\cdot\bm{a}_{2}
+        & \bm{a}_{1}\cdot\bm{a}_{3} \\
+          \bm{a}_{2}\cdot\bm{a}_{1}
+        & \bm{a}_{2}\cdot\bm{a}_{2}
+        & \bm{a}_{2}\cdot\bm{a}_{3} \\
+          \bm{a}_{3}\cdot\bm{a}_{1}
+        & \bm{a}_{3}\cdot\bm{a}_{2}
+        & \bm{a}_{3}\cdot\bm{a}_{3}
+       \end{array}
+  \right)
+\end{equation}
+を導入する. 計量テンソル$\bm{G}$を用いると速度の二乗は
+\begin{equation}
+  \dot{\bm{r}}_{i}^{2}
+  =
+  \dot{\bm{r}}_{i}^{\mathrm{t}} \dot{\bm{r}}_{i}
+  =
+  \left(\bm{L} \dot{\tilde{\bm{r}}} \right)^{\mathrm{t}} \bm{L} \dot{\tilde{\bm{r}}}
+  =
+  \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{L}^{\mathrm{L}} \bm{L} \dot{\tilde{r}}_{i}
+  =
+  \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{G} \dot{\tilde{r}}_{i}
+\end{equation}
+とかける. ここで任意の行列$A$と$B$について
+\begin{equation}
+  A^{\mathrm{t}} B^{\mathrm{t}} = (BA)^{\mathrm{t}}
+\end{equation}
+の関係が成り立つことを用いた. 
+
+スケール座標$\tilde{\bm{r}}$と$\bm{L}$を用いて物理系のラグランジアン
+\begin{equation}
+  \mathcal{L} (\tilde{\bm{r}}, \dot{\tilde{\bm{r}}})
+  =
+  \frac{1}{2}
+  \sum_{i=1}^{N}
+  m_{i} \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{G} \dot{\tilde{r}}_{i}
+  -
+  U(\tilde{\bm{r}}, \bm{L})
+\end{equation}
+を導入する.
+ここでテンソル計算の便利のために$\tilde{\bm{r}}_{i}$の$\alpha$成分を$\tilde{r}_{i\alpha}$と書き$\bm{L}$の$(\alpha,~\beta)$成分を$L_{\alpha \beta}$と書くことにする. 
+$\alpha,\beta,\cdots$は1,2,3の値をとる. 
+この記法を用いると座標と速度はそれぞれ
+\begin{align}
+  r_{i \alpha}
+ &=
+  \sum_{\beta = 1}^{3} L_{\alpha \beta} \tilde{r}_{i\beta}
+  \\
+  \notag
+  \dot{r}_{i \alpha}
+ &=
+  \sum_{\beta = 1}^{3} L_{\alpha \beta} \dot{\tilde{r}}_{i\beta}
+\end{align}
+とかける. 
+この記法を用いてラグランジアンを書き直せば
+\begin{align}
+  \mathcal{L} (\tilde{\bm{r}}, \dot{\tilde{\bm{r}}})
+ &=
+  \frac{1}{2}
+  \sum_{i=1}^{N} m_{i}
+  \sum_{\alpha,\beta,\gamma}
+  L_{\alpha\beta}\dot{\tilde{r}}_{i\beta} L_{\alpha\gamma}\dot{\tilde{r}}_{i\gamma}
+  -
+  U(\tilde{\bm{r}}, \bm{L})
+  \\
+  \notag
+ &=
+  \frac{1}{2}
+  \sum_{\alpha,\beta,\gamma}
+  L_{\alpha\beta} L_{\alpha\gamma}
+  \sum_{i=1}^{N} m_{i}
+  \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  -
+  U(\tilde{\bm{r}}, \bm{L})
+\end{align}
+となる. 
+
+スケール座標$\tilde{\bm{r}}_{j}$に共役な運動量$\bm{\pi}_{j}$は
+\begin{equation}
+  \pi_{j\lambda} = \frac{\partial \mathcal{L}}{\partial \dot{\tilde{r}}_{j\lambda}}
+\end{equation}
+と計算される. 具体的に計算すると
+\begin{align}
+  \pi_{j\lambda}
+ &=
+  \frac{\partial}{\partial \dot{\tilde{r}}_{j\lambda}}
+  \left\{
+        \frac{1}{2}
+        \sum_{\alpha,\beta,\gamma} L_{\alpha\beta} L_{\alpha\gamma}
+        \sum_{i=1}^{N} m_{i} \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+        -
+        U(\tilde{\bm{r}}, \bm{L})
+  \right\}
+  \\
+  \notag
+  &=
+  \frac{1}{2}
+  \sum_{\alpha,\beta,\gamma} L_{\alpha\beta} L_{\alpha\gamma}
+  \sum_{i=1} m_{i}
+  \left(
+         \delta_{ij}\delta_{\beta\gamma} \dot{\tilde{r}}_{i\gamma}
+       + \dot{\tilde{r}}_{i\beta} \delta_{ij}\delta_{\gamma\lambda}
+  \right)
+  \\
+  \notag
+  &=
+  \frac{1}{2} m_{j}
+  \left(
+    \sum_{\alpha,\gamma} L_{\alpha\lambda} L_{\alpha\gamma} \dot{\tilde{r}}_{i\gamma}
+  + \sum_{\alpha,\beta}  L_{\alpha\beta}   L_{\alpha\gamma} \dot{\tilde{r}}_{i\beta}
+  \right)
+  \\
+  \notag
+  &=
+  m_{j}
+  \notag
+  \sum_{\alpha,\gamma} L_{\alpha\lambda} L_{\alpha\gamma} \dot{\tilde{r}}_{i\gamma}
+\end{align}
+を得る. 計量テンソル$\bm{G}$を用いれば
+\begin{equation}
+  \pi_{j\lambda}
+  =
+  m_{j}
+  \sum_{\alpha,\gamma} L_{\alpha,\lambda} L_{\alpha\gamma} \dot{\tilde{r}}_{i\gamma}
+  =
+  m_{j}
+  \sum_{\gamma} G_{\lambda\gamma} \dot{\tilde{r}}_{i\gamma}
+  =
+  m_{j} (\bm{G} \dot{\tilde{\bm{r}}})_{\lambda}
+\end{equation}
+とかける. 一方, スケール前の座標を用いると
+\begin{equation}
+  \pi_{j\lambda}
+  =
+  m_{j}
+  \sum_{\alpha,\gamma} L_{\alpha\lambda} L_{\alpha\gamma} \dot{\tilde{r}}_{i\gamma}
+  =
+  m_{j}
+  \sum_{\alpha} \dot{r}_{j\alpha} L_{\alpha\lambda}
+  =
+  m_{j} (\dot{\bm{r}}_{i} \bm{L})_{\lambda}
+  =
+  (\bm{p}_{i} \bm{L})_{\lambda}
+\end{equation}
+とかける. これより, スケール前の運動量とスケール座標に共役な運動量は
+\begin{align}
+  \bm{\pi}_{j} &= \bm{p}_{j}   \bm{L}      \label{Eq:Momentum-pi-p} \\
+  \bm{p}_{j}   &= \bm{\pi}_{j} \bm{L}^{-1} \label{Eq:Momentum-p-pi}
+\end{align}
+で変換できることがわかる. 
+
+続いて, ハミルトニアンを導出する. ラグランジアンのルジャンドル変換よりハミルトニアンは
+\begin{equation}
+  \mathcal{H}(\tilde{\bm{r}}, \bm{\pi})
+  =
+  \sum_{i=1}^{N} \bm{\pi}_{i} \cdot \dot{\tilde{\bm{r}}} - \mathcal{L}
+  =
+  \sum_{i=1}^{N} \sum_{\alpha} \pi_{i\alpha} \dot{\tilde{r}}_{i\alpha} - \mathcal{L}
+\end{equation}
+である. 
+$\dot{\tilde{\bm{r}}} = \bm{L}^{-1} \dot{\bm{r}}_{i} = \bm{L}^{-1}\bm{p}_{i}/m_{i} = \bm{L}^{-1}\bm{\pi}_{i} \bm{L}^{-1}/m_{i}$であることを用いると, 
+\begin{align}
+  \mathcal{H}(\tilde{\bm{r}}~, \bm{\pi})
+ &=
+  \sum_{i=1}^{N} \sum_{\alpha} \pi_{i\alpha} \dot{\tilde{r}}_{i\alpha} - \mathcal{L}
+  \\
+  \notag
+ &=
+  \sum_{i=1}^{N} \sum_{\alpha} \pi_{i\alpha} \dot{\tilde{r}}_{i\alpha}
+   - \left\{
+          \frac{1}{2}
+          \sum_{i=1}^{N} m_{i}
+          \sum_{\alpha,\beta,\gamma}
+           L_{\alpha\beta}  \dot{\tilde{r}}_{i\beta}
+           L_{\alpha\gamma} \dot{\tilde{r}}_{i\gamma}
+         - U(\tilde{\bm{r}}, \bm{L})
+   \right\}
+  \\
+  \notag
+ &=
+  \frac{1}{2}
+  \sum_{i=1}^{N} \sum_{\alpha\gamma} \pi_{i\alpha} \dot{\tilde{r}}_{i\alpha}
+  +U(\tilde{\bm{r}}, \bm{L})
+  \\
+  \notag
+ &=
+ \frac{1}{2}
+ \sum_{i=1}^{N} \sum_{\alpha,\beta,\gamma}
+ \frac{1}{m_{i}}
+ \pi_{i\alpha} L_{\alpha\beta}^{-1} \pi_{i\gamma} L_{\gamma\beta}^{-1}
+ +U(\tilde{\bm{r}}, \bm{L})
+\end{align}
+を得る.
+最終的に, 平行六面体のシミュレーションボックスを用いる時の物理系のハミルトニアン
+\begin{equation}
+  \mathcal{H}(\tilde{\bm{r}}, \bm{\pi})
+  =
+  \sum_{i=1}^{N} \sum_{\mu, \nu, \lambda}
+  \frac{\pi_{i\mu} \pi_{i\nu} L_{\mu\lambda}^{-1} L_{\nu\lambda}^{-1}}{2m_{i}}
+  +
+  U(\tilde{\bm{r}}, \bm{L})
+\end{equation}
+を得る. 
+ここで, この後の導出で多くのインデックスが必要になるのに備えて ハミルトニアン中の和のインデックスに使用する文字を変更した. 
+圧力テンソルの表式は, 
+\begin{align}
+  P_{\alpha\beta} &=
+  \frac{k_{\mathrm{B}}T}{\det(\bm{L})}
+  \sum_{\gamma=1}^{3} L_{\beta\gamma}\frac{\partial \ln Q(N,\bm{L},T)}{\partial L_{\alpha\gamma}}
+  \\ &=
+  \frac{1}{Q(N,\bm{L},T)}\frac{k_{\mathrm{B}}T}{\det(\bm{L})}
+  \sum_{\gamma=1}^{3} L_{\beta\gamma}\frac{\partial Q(N,\bm{L},T)}{\partial L_{\alpha\gamma}}
+  \\ &=
+  \frac{k_{\mathrm{B}}T}{\det(\bm{L})}\frac{1}{Q(N,\bm{L},T)}
+  \int d\bm{\pi}~d\bm{s}~\sum_{\gamma=1}^{3} L_{\beta\gamma}
+  \left(-\beta \frac{\partial \mathcal{H}}{\partial L_{\alpha\gamma}}\right) e^{-\beta \mathcal{H}}
+  \\&=
+  \left\langle
+  - \frac{1}{\det(\bm{L})} \sum_{\gamma=1}^{3} L_{\beta\gamma} \frac{\partial \mathcal{H}}{\partial L_{\alpha\gamma}}
+  \right\rangle
+  \label{Eq:Pressure-Tensor-NVT}
+\end{align}
+である. 続いてハミルトニアン$\mathcal{H}$の$L$に関する微分を計算していく:
+\begin{align}
+  \frac{\partial H}{\partial L_{\alpha\gamma}} =
+  \sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  \left(
+    \frac{\partial L_{\mu\lambda}^{-1}}{\partial L_{\alpha\gamma}} L_{\nu\lambda}^{-1} +
+    L_{\mu\lambda}^{-1} \frac{\partial L_{\nu\lambda}^{-1}}{\partial L_{\alpha\gamma}}
+  \right) +
+  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{L_{\alpha\gamma}}
+\end{align}
+$\partial L_{\mu\lambda}^{-1}/\partial L_{\alpha\gamma}$の計算を実行するために, 行列$\bm{M}(\lambda)$の恒等式に関する微分を考える:
+\begin{align}
+  &\bm{M}(\lambda)\bm{M}^{-1}(\lambda) = \bm{I} \\
+  &\frac{d\bm{M}(\lambda)}{\lambda} \bm{M}^{-1}(\lambda) + \bm{M}(\lambda)\frac{d\bm{M}^{-1}(\lambda)}{d\lambda} = 0
+\end{align}
+$d\bm{M}^{-1}(\lambda)/d\lambda$について解くと, 
+\begin{equation}
+  \frac{d\bm{M}^{-1}(\lambda)}{\lambda} = - \bm{M}^{-1}(\lambda)\frac{d\bm{M}(\lambda)}{d\lambda} \bm{M}^{-1}(\lambda)
+\end{equation}
+を得る. この恒等式を用いると, ハミルトニアン$\mathcal{H}$の$L$に関する微分は, 
+\begin{align}
+  \frac{\partial H}{\partial L_{\alpha\gamma}} =&
+  -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  \sum_{\rho,\sigma}
+  \left(
+    L_{\mu\rho}^{-1} \frac{\partial L_{\rho\sigma}}{\partial L_{\alpha\gamma}} L_{\sigma\lambda}^{-1} L_{\nu\lambda}^{-1} +
+    L_{\mu\lambda}^{-1} L_{\mu\rho}^{-1} \frac{\partial L_{\rho\sigma}}{\partial L_{\alpha\gamma}} L_{\sigma\lambda}^{-1}
+  \right) +
+  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{L_{\alpha\gamma}}
+\end{align}
+となる. $\partial L_{\rho\sigma}/\partial_{\alpha\gamma} = \delta_{\alpha\rho}\delta_{\sigma\gamma}$を用いて, $\rho$と$\sigma$に関する和をとると,
+\begin{align}
+  \frac{\partial H}{\partial L_{\alpha\gamma}} =&
+  -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  \sum_{\rho,\sigma}
+  \left(
+    L_{\mu\alpha}^{-1} L_{\gamma\lambda}^{-1} L_{\nu\lambda}^{-1} +
+    L_{\mu\lambda}^{-1} L_{\nu\alpha}^{-1} L_{\gamma\lambda}^{-1}
+  \right) +
+  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{L_{\alpha\gamma}}
+\end{align}
+を得る. 一方, ポテンシャルに対する微分は, 
+\begin{align}
+  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{L_{\alpha\gamma}} =
+  \frac{\partial U(\bm{L}\tilde{\bm{r}}_{1},\ldots,\bm{L}\tilde{\bm{r}}_{N})}{L_{\alpha\gamma}} &=
+  \sum_{i}\sum_{\mu,\nu}
+  \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\mu}}
+  \frac{\partial L_{\mu\nu}}{\partial L_{\alpha\gamma}}\tilde{\bm{r}}_{i\nu} \\ &=
+  \sum_{i}\sum_{\mu,\nu}
+  \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\mu}}
+  \delta_{\alpha\mu}\delta_{\gamma\nu}\tilde{\bm{r}}_{i\nu} \\ &=
+  \sum_{i} \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\alpha}} \tilde{\bm{r}}_{i\gamma}
+\end{align}
+以上の計算によって, ハミルトニアン$\mathcal{H}$の$L$に関する微分を
+\begin{align}
+  \frac{\partial H}{\partial L_{\alpha\gamma}} =
+  -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  \sum_{\rho,\sigma}
+  \left(
+    L_{\mu\alpha}^{-1} L_{\gamma\lambda}^{-1} L_{\nu\lambda}^{-1} +
+    L_{\mu\lambda}^{-1} L_{\nu\alpha}^{-1} L_{\gamma\lambda}^{-1}
+  \right) +
+  \sum_{i} \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\alpha}} \tilde{\bm{r}}_{i\gamma}
+  \label{Eq:partial-H-partial-L}
+\end{align}
+と計算することができた. 圧力テンソルの表式(\ref{Eq:Pressure-Tensor-NVT})より, 式(\ref{Eq:partial-H-partial-L})に$L_{\beta\gamma}$を乗じて$\gamma$について和をとる. 
+$\sum_{\gamma} L_{\beta\gamma}L_{\gamma\lambda}^{-1} = \delta_{\beta\lambda}$を用いて, $\gamma$に関して和を計算した後に$\lambda$について和を計算する:
+\begin{align}
+  \sum_{\gamma=1}^{3} L_{\beta\gamma} \frac{\partial H}{\partial L_{\alpha\gamma}} =&
+  -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  \sum_{\rho,\sigma} \sum_{\gamma=1}^{3} L_{\beta\gamma}
+  \left(
+    L_{\mu\alpha}^{-1} L_{\gamma\lambda}^{-1} L_{\nu\lambda}^{-1} +
+    L_{\mu\lambda}^{-1} L_{\nu\alpha}^{-1} L_{\gamma\lambda}^{-1}
+  \right) \\ &+
+  \sum_{i} \sum_{\gamma=1}^{3} \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\alpha}} \tilde{\bm{r}}_{i\gamma}
+  \\
+  =&
+  -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  \sum_{\rho,\sigma}
+  \left(
+    L_{\mu\alpha}^{-1} L_{\nu\lambda}^{-1} \delta_{\beta\lambda} +
+    L_{\mu\lambda}^{-1} L_{\nu\alpha}^{-1} \delta_{\beta\lambda}^{-1}
+  \right) +
+  \sum_{i} \sum_{\gamma=1}^{3} \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\alpha}} \tilde{\bm{r}}_{i\gamma}
+  \\
+  =&
+  -\sum_{i} \sum_{\mu,\nu} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  \sum_{\rho,\sigma}
+  \left(
+    L_{\mu\alpha}^{-1} L_{\nu\beta}^{-1} +
+    L_{\mu\beta}^{-1} L_{\nu\alpha}^{-1}
+  \right) +
+  \sum_{i} \sum_{\gamma=1}^{3} \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\alpha}} \tilde{\bm{r}}_{i\gamma}
+\end{align}
+最後に, スケール座標からスケールされていない座標への変換式
+\begin{align}
+  \sum_{\mu} \pi_{i\mu} L_{\mu\alpha}^{-1} &= p_{i\alpha} \\
+  \sum_{\nu} \pi_{i\nu} L_{\nu\beta}^{-1} &= p_{i\beta} \\
+  \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})} &= \frac{\partial U}{\partial \bm{r}_{i}} \\
+  \sum_{\gamma} L_{\beta\gamma} \tilde{\bm{r}}_{i\gamma} &= \bm{r}_{i\beta}
+\end{align}
+を用いることで, 
+\begin{equation}
+  P_{\alpha\beta} =
+  \left\langle
+    \frac{1}{\det(\bm{L})} \sum_{i=1}^{N}
+    \left(\frac{p_{i\alpha} p_{i\beta}}{m_{i}} + F_{i\alpha}r_{i\beta}\right)
+  \right\rangle
+\end{equation}
+のように圧力テンソルの表式を得ることができた. 
+\bibliographystyle{junsrt}
+\bibliography{statistical-mechanics}
+\input{../include/end}

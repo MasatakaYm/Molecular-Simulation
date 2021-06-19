@@ -1,0 +1,469 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{圧力制御}
+\maketitle
+
+\section{Andersenの方法}
+定圧環境では, 系の体積の値は揺らいでいる. 
+体積を大きくすれば圧力は下がり, 体積を小さくすれば圧力は上がる. 
+よって, 圧力制御をするにはピストンをつけて体積$V$を変化させればよい. 
+Andersenはピストンを新たな一般化座標として導入した\cite{1980Andersen}. 
+ここでは, 一方向のピストンではなく, 立方体セルの三方向から等方的に圧縮・膨張するピストンを考える. 
+新たな一般化座標として導入されたピストンの座標は基本セルの体積$V$の値となる.
+
+\subsection{Andersenの運動方程式}
+Andersenの方法では, 立方体セルの一辺の長さ$L=V^{\frac{1}{3}}$を用いて座標を
+\begin{equation}
+ \bm{r}_{i} = V^{\frac{1}{3}} \Tilde{\bm{r}}_{i}
+ \label{eq:Andersen1}
+\end{equation}
+とスケールする. この時間微分は以下のようになる. 
+\begin{equation}
+ \dot{\bm{r}}_{i}
+  = V^{\frac{1}{3}} \dot{\Tilde{\bm{r}}}_{i}
+  + \frac{\dot{V}}{3V} V^{\frac{1}{3}} \tilde{\bm{r}}_{i}
+  \label{eq:Andersen2}
+\end{equation}
+式(\ref{eq:Andersen2})の右辺の第2項は(i)一様な体積の増減に伴う流れであり, 温度に寄与する運動エネルギーから除くべきであること, 
+(ii)セル中の位置$\dot{\Tilde{\bm{r}}}$によって速度へに寄与が異なってしまうことは望まししくないことから, これを無視すると, 
+\begin{equation}
+ \dot{\bm{r}}_{i}
+  = V^{\frac{1}{3}} \dot{\Tilde{\bm{r}}}_{i}
+ \label{eq:Andersen3}
+\end{equation}
+となる. ただし, 一度$\dot{\bm{r}}_{i} = V^{\frac{1}{3}}\dot{\Tilde{\bm{r}}}$として
+ハミルトニアン$\mathcal{H}_{\mathrm{A}}$を導入した後に正準方程式を導く際には, 
+$\dot{\bm{r}_{i}} = L \dot{\Tilde{\bm{r}}}_{i}+\dot{L}\Tilde{\bm{r}}_{i}$
+として計算しなければならないことに注意. 
+ピストンを以下のように付けて, 拡張系ラグランジアンを
+\begin{equation}
+ \mathcal{L}_{\mathrm{A}}
+  =
+  \sum_{i=1}^{N} \frac{m_{i}}{2} V^{\frac{2}{3}} \dot{\Tilde{\bm{r}}}_{i}^{2}
+  - U(\bm{r}) + \frac{1}{2} W \dot{V}^{2} - P_{\mathrm{eq}}V
+ \label{eq:Andersen4}
+\end{equation}
+のように導入する. 
+ここで$W$はピストンの仮想的な質量である.
+$\Tilde{\bm{r}}_{i}$と$V$に正準共役な運動量$\Tilde{\bm{p}}_{i}$,~$p_{V}$はそれぞれ
+\begin{align}
+ \Tilde{\bm{p}}_{i}
+ &\equiv
+ \frac{\partial L_{\mathrm{A}}}{\partial \dot{\Tilde{\bm{r}}}_{i}}
+ =
+ m_{i} V^{\frac{2}{3}} \dot{\Tilde{\bm{r}}}_{i}
+ =
+ V^{\frac{1}{3}} \bm{p}_{i}
+ \label{eq:Andersen5.1}
+ \\
+ p_{V}
+ &\equiv
+ \frac{\partial L_{\mathrm{A}}}{\partial \dot{V}}
+ =
+ W \dot{V}
+ \label{eq:Andersen5.2}
+\end{align}
+と求まる. 
+式(\ref{eq:Andersen4}), (\ref{eq:Andersen5.1}), (\ref{eq:Andersen5.2})より, 対応するハミルトニアン$\mathcal{H}_{\mathrm{A}}$は
+\begin{align}
+ \mathcal{H}_{\mathrm{A}}
+ &=
+ \sum_{i=1}^{N} \dot{\Tilde{\bm{r}}}_{i} \cdot \Tilde{\bm{p}}_{i}
+ + \dot{V} p_{V} - \mathcal{L}_{\mathrm{A}}
+ \notag
+ \\
+ &=
+ \sum_{i=1}^{N} \frac{\Tilde{\bm{p}}_{i}^{2}}{m_{i} V^{\frac{2}{3}}}
+ + \frac{p_{V}^2}{W} - \mathcal{L}_{\mathrm{A}}
+ \notag
+ \\
+ &=
+ \sum_{i=1}^{N} \frac{\Tilde{\bm{p}}_{i}^{2}}{2 m_{i} V^{\frac{2}{3}}}
+ + U(V^{\frac{1}{3}} \Tilde{\bm{r}})
+ + \frac{p_{V}^2}{2W} + P_{\mathrm{eq}}V
+ \label{eq:Andersen6}
+\end{align}
+となる. ハミルトニアン$\mathcal{H}_{\mathrm{A}}$から運動方程式を導くと
+\begin{alignat}{3}
+ \frac{d \Tilde{\bm{r}}_{i}}{d t}
+  &= &&\frac{\partial \mathcal{H}_{\mathrm{A}}}{\partial \Tilde{\bm{p}}_{i}} &
+  &= \frac{\Tilde{\bm{p}}_{i}}{m_{i} V^{\frac{2}{3}}}
+ \label{eq:Andersen7.1}
+ \\
+ \frac{d \Tilde{\bm{p}}_{i}}{d t}
+  &= - &&\frac{\partial \mathcal{H}_{\mathrm{A}}}{\partial \Tilde{\bm{r}}_{i}}&
+  &= - \frac{\partial U}{\partial \Tilde{\bm{r}}_{i}}
+   =   V^{\frac{1}{3}} \bm{F}_{i}
+ \label{eq:Andersen7.2}
+ \\
+ \frac{d V}{d t}
+  &= &&\frac{\partial \mathcal{H}_{\mathrm{A}}}{\partial p_{V}} &
+ &= \frac{p_{V}}{W}
+ \label{eq:Andersen7.3}
+ \\
+ \frac{d p_{V}}{d t}
+  &= - &&\frac{\partial \mathcal{H}_{\mathrm{A}}}{\partial V}  &
+  &= \frac{1}{3V}
+   \left(
+         \sum_{i=1}^{N} \frac{\Tilde{\bm{p}}^{2}_{i}}{m_{i} V^{\frac{2}{3}}}
+       + \sum_{i=1}^{N} \bm{F}_{i} \cdot \bm{r}_{i}
+   \right)
+   - P_{\mathrm{eq}}
+ \label{eq:Andersen7.4}
+\end{alignat}
+となる. 
+ここで, 系の圧力制御の様子を見るために, 式(\ref{eq:Andersen7.3})と式(\ref{eq:Andersen7.4})
+を$V$に関する方程式に書き直すと, 
+\begin{align}
+ \Ddot{V}
+ &=
+ \frac{1}{W}
+ \left\{
+ \frac{1}{3V}
+ \left(
+ \sum_{i=1}^{N} \frac{\Tilde{\bm{p}}_{i}^{2}}{m_{i} V^{\frac{2}{3}}}
+ + \sum_{i=1}^{N} \bm{F}_{i} \cdot \bm{r}_{i}
+ \right)
+ - P_{\mathrm{eq}}
+ \right\}
+ \notag
+ \\
+ &=
+ \frac{1}{W}
+ \left\{
+ \frac{1}{3V}
+ \left(
+ \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{m_{i}}
+ + \sum_{i=1}^{N} \bm{F}_{i} \cdot \bm{r}_{i}
+  \right)
+ - P_{\mathrm{eq}}
+ \right\}
+ \label{eq:Andersen8}
+\end{align}
+となる. この式は瞬間圧力
+\begin{equation}
+ P(t)
+  = \frac{1}{3V}
+  \left(
+   \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2} (t)}{m_{i}}
+  +\sum_{i=1}^{N} \bm{F}_{i}(t) \cdot \bm{r}_{i}(t)
+   \right)
+ \label{eq:Andersen9}
+\end{equation}
+を用いて, 
+\begin{equation}
+ W \Ddot{V} = P(t) - P_{\mathrm{eq}}
+\label{eq:Andersen10}
+\end{equation}
+と書き直すことができる. 
+したがって, 瞬間圧力$P(t)$が設定圧力$P_{\mathrm{eq}}$よりも低い時, 
+体積の加速度$\Ddot{V}$が負の値となり, 系の収縮速度を大きくさせることで, 瞬間圧力$P(t)$を高くする. 
+一方で, 瞬間圧力$P(t)$が設定圧力$P_{\mathrm{eq}}$よりも高い時, 
+体積の加速度$\Ddot{V}$が正の値となり, 系の膨張速度を大きくさせることで, 瞬間圧力$P(t)$を低くする. 
+このように, 瞬間圧力に基づいて系の体積がフィードバックを受けることで圧力を制御している. 
+さらに, 式(\ref{eq:Andersen10})を次のように書き直す. 
+\begin{equation}
+ \Ddot{V} = \frac{P(t) - P_{\mathrm{eq}}}{W}
+\label{eq:Andersen11}
+\end{equation}
+この式より, ピストンの質量$W$を大きくすると, 体積の収縮・膨張速度$\Ddot{V}$は小さくなり, 
+逆にピストンの質量$W$を小さくすると, 体積の収縮・膨張速度$\Ddot{V}$は大きくなる. 
+ピストンの質量が大きすぎると, 緩和に時間がかかりすぎ, 
+逆に小すぎると緩和が振動型となり緩和に時間がかかるようになる. 
+瞬間圧力$P(t)$の時間変化と同じくらいのスケールで$V$の値も時間変化するように$W$の値を調整すると, 
+効率よく圧力を制御することができる. 
+
+\subsection{Andersenの方法が実現する統計アンサンブル}
+Andersenの運動方程式(\ref{eq:Andersen7.1})--(\ref{eq:Andersen7.4})による時間発展において,
+ハミルトニアン$\mathcal{H}_{\mathrm{A}}$はある一定の値$E$に保たれる. 
+\begin{equation}
+ \mathcal{H}_{\mathrm{A}}
+  =
+ \sum_{i}^{N} \frac{\Tilde{\bm{p}}_{i}^{2}}{2 m_{i} V^{\frac{2}{3}}}
+ + U(V^{\frac{1}{3}} \Tilde{\bm{r}})
+ + \frac{p_{V}^2}{2W} + P_{\mathrm{eq}}V
+ =
+ E
+ \label{eq:Andersen12}
+\end{equation}
+この保存量はエンタルピー$H$と$p_{V}^{2}/W$だけ異なる.
+平衡状態では体積は平均値の周りでゆっくり揺らぐだけで, 体積の運動エネルギー$p_{V}^{2}/2W$は
+ハミルトニアン$\mathcal{H}_{\mathrm{A}}$に比べて小さな値を取ることが多い.
+系が等分配則を満たすとするとヴィリアルの定理から$\langle p_{V}^{2}/W \rangle = k_{\mathrm{B}}T_{\mathrm{eq}}$
+であるため, $N$が十分大きい場合
+\begin{equation}
+ \left| \frac{p_{V}^{2}}{2 W} \right| \ll \left| \mathcal{H}_{\mathrm{A}} \right|
+ \label{eq:Andersen13}
+\end{equation}
+となる. したがって, エンタルピー$H$は近似的に
+\begin{equation}
+ H
+  \equiv
+  \mathcal{H}_{0} + P_{\mathrm{eq}} V
+  \simeq
+  \mathrm{一定値}
+  \label{eq:Andersen14}
+\end{equation}
+となる. ゆえに, Andersenの方法では近似的に$NPH$一定のアンサンブル(等圧・等エンタルピーアンサンブル)が得られる. 
+\subsection{Andersenの運動方程式の時間発展法}
+Andersenの運動方程式(\ref{eq:Andersen7.1})--(\ref{eq:Andersen7.4})は
+位相空間$(\Tilde{\bm{r}},\Tilde{\bm{p}},V,p_{V})$で張られる. 
+よって物理量$A(\Tilde{\bm{r}},\Tilde{\bm{p}},V,p_{V})$の
+時間発展は
+\begin{equation}
+ \dot{A}(\Tilde{\bm{r}},\Tilde{\bm{p}},V,p_{V})
+  =
+  \sum_{i=1}^{N} \dot{\Tilde{\bm{r}}}_{i}
+                 \cdot \frac{\partial A}{\partial \Tilde{\bm{r}}_{i}}
+  +
+  \sum_{i=1}^{N} \dot{\Tilde{\bm{p}}}_{i}
+                 \cdot \frac{\partial A}{\partial \Tilde{\bm{p}}_{i}}
+  +
+  \dot{V} \frac{\partial A}{\partial V}
+  +
+  \dot{p_{V}} \frac{\partial A}{\partial p_{V}}
+  \label{eq:Andersen15}
+\end{equation}
+とかける. ここで演算子$\mathcal{D}$を導入する. 
+\begin{align}
+ \mathcal{D}
+ &\equiv
+  \sum_{i=1}^{N} \dot{\Tilde{\bm{r}}}_{i}
+                 \cdot \frac{\partial}{\partial \Tilde{\bm{r}}_{i}}
+  +
+  \sum_{i=1}^{N} \dot{\Tilde{\bm{p}}}_{i}
+                 \cdot \frac{\partial}{\partial \Tilde{\bm{p}}_{i}}
+  +
+  \dot{V} \frac{\partial}{\partial V}
+  +
+ \dot{p_{V}} \frac{\partial}{\partial p_{V}}
+  \label{eq:Andersen16}
+\end{align}
+運動方程式(\ref{eq:Andersen7.1})--(\ref{eq:Andersen7.4})を
+式(\ref{eq:Andersen16})に代入すると, 
+\begin{align}
+ \mathcal{D}
+  &=
+  \sum_{i=1}^{N} \frac{\Tilde{\bm{p}}_{i}}{m_{i} V^{\frac{2}{3}}}
+                 \cdot \frac{\partial}{\partial \Tilde{\bm{r}}_{i}}
+  +
+  \sum_{i=1}^{N} V^{\frac{1}{3}} \bm{F}_{i}
+                 \cdot \frac{\partial}{\partial \Tilde{\bm{p}}_{i}}
+  +
+  \frac{p_{V}}{W} \frac{\partial}{\partial V}
+  \\
+  &~~~~+
+  \left\{
+  \frac{1}{3V}
+    \left(
+          \sum_{i=1}^{N} \frac{\Tilde{\bm{p}}^{2}_{i}}{m_{i} V^{\frac{2}{3}}}
+        + \sum_{i=1}^{N} \bm{F}_{i} \cdot \bm{r}_{i}
+    \right)
+ - P_{\mathrm{eq}}
+ \right\}
+ \frac{\partial}{\partial p_{V}}
+ \label{eq:Andersen17}
+\end{align}
+となる. 続いて, 演算子$\mathcal{D}$を以下のように3つに分割する. 
+\begin{alignat}{2}
+ &\mathcal{D}
+ &&= \mathcal{D}_{1} + \mathcal{D}_{2} + \mathcal{D}_{3}
+ \label{eq:Andersen18.1}
+ \\
+ &\mathcal{D}_{1}
+ &&=
+ \sum_{i=1}^{N} \frac{\Tilde{\bm{p}}_{i}}{m_{i} V^{\frac{2}{3}}}
+                 \cdot \frac{\partial}{\partial \Tilde{\bm{r}}_{i}}
+ +
+ \sum_{i=1}^{N} \frac{\Tilde{\bm{p}}^{2}_{i}}{3 m_{i} V^{\frac{5}{3}}}
+ \cdot \frac{\partial}{\partial p_{V}}
+ \label{eq:Andersen18.2}
+ \\
+ &\mathcal{D}_{2}
+ &&=
+ \frac{p_{V}}{W} \frac{\partial}{\partial V}
+ \label{eq:Andersen18.3}
+ \\
+ &\mathcal{D}_{3}
+ &&=
+ \sum_{i=1}^{N} V^{\frac{1}{3}} \bm{F}_{i}
+ \cdot  \frac{\partial}{\partial \Tilde{\bm{p}}_{i}}
+ + \left\{
+   \frac{1}{3V} \sum_{i=1}^{N} \bm{F}_{i} \cdot \bm{r}_{i} - P_{\mathrm{eq}}
+   \right\}
+   \frac{\partial}{\partial p_{V}}
+ \label{eq:Andersen18.4}
+\end{alignat}
+鈴木・トロッター展開を用いると, 時間発展演算子を
+\begin{equation}
+ e^{\mathcal{D} \Delta t}
+  =
+  e^{\mathcal{D}_{3} \frac{\Delta t}{2}}
+  e^{\mathcal{D}_{2} \frac{\Delta t}{2}}
+  e^{\mathcal{D}_{1} \Delta t}
+  e^{\mathcal{D}_{2} \frac{\Delta t}{2}}
+  e^{\mathcal{D}_{3} \frac{\Delta t}{2}}
+  + \mathcal{O}\left( (\Delta t)^{3} \right)
+ \label{eq:Andersen19}
+\end{equation}
+と分割することができる. 
+各時間発展演算子による位相空間の時間発展は
+\begin{align}
+ e^{\mathcal{D}_{1} \Delta t}
+ \begin{bmatrix}
+  \Tilde{\bm{r}}_{i} (t) \\
+  \Tilde{\bm{p}}_{i} (t) \\
+  V (t) \\
+  p_{V} (t)
+ \end{bmatrix}
+ % &= \left[
+ %    1 + \left\{
+ %        \sum_{i=1}^{N} \frac{\Tilde{\bm{p}}_{i}}{m_{i} V^{\frac{2}{3}}}
+ %                       \cdot \frac{\partial}{\partial \Tilde{\bm{r}}_{i}} 
+ %        \right\} \Delta t
+ %    + \cdots
+ %    \right]
+ % \begin{bmatrix}
+ %  \Tilde{\bm{r}}_{i} (t) \\
+ %  \Tilde{\bm{p}}_{i} (t) \\
+ %  V (t) \\
+ %  p_{V} (t)
+ % \end{bmatrix}
+ % \notag \\
+ &=
+ \begin{bmatrix}
+  \Tilde{\bm{r}}_{i} (t)
+  + \frac{\Tilde{\bm{p}}_{i}(t)}{m_{i} V^{\frac{2}{3}}} \Delta t
+  \\
+  \Tilde{\bm{p}}_{i} (t)
+  \\
+  V(t)
+  \\
+  p_{V}(t) + \sum_{i=1}^{N} \frac{1}{3 m_{i} V^{\frac{5}{3}}}
+  \Tilde{\bm{p}}_{i}^{2} \Delta t
+ \end{bmatrix}
+% \end{align}
+ % \begin{align}
+ \label{eq:Andersen20.1}
+ \\
+ e^{\mathcal{D}_{2} \Delta t}
+ \begin{bmatrix}
+  \Tilde{\bm{r}}_{i} (t) \\
+  \Tilde{\bm{p}}_{i} (t) \\
+  V (t) \\
+  p_{V} (t)
+ \end{bmatrix}
+ % &= \left[
+ %    1 + \frac{p_{V}}{W}\frac{\partial}{\partial V} \Delta t
+ %    + \cdots
+ %    \right]
+ % \begin{bmatrix}
+ %  \Tilde{\bm{r}}_{i} (t) \\
+ %  \Tilde{\bm{p}}_{i} (t) \\
+ %  V (t) \\
+ %  p_{V} (t)
+ % \end{bmatrix}
+ % \notag \\
+ &=
+ \begin{bmatrix}
+  \Tilde{\bm{r}}_{i}(t)
+  \\
+  \Tilde{\bm{p}}_{i}(t)
+  \\
+  V(t) + \frac{p_{V}(t)}{W} \Delta t
+  \\
+  p_{V}(t)
+ \end{bmatrix}
+   % \end{align}
+% \begin{align}
+ \label{eq:Andersen20.2}
+ \\
+ e^{\mathcal{D}_{3} \Delta t}
+ \begin{bmatrix}
+  \Tilde{\bm{r}}_{i} (t) \\
+  \Tilde{\bm{p}}_{i} (t) \\
+  V (t) \\
+  p_{V} (t)
+ \end{bmatrix}
+ % &= \left[
+ %    1
+ %    +
+ %    \left\{
+ %           \sum_{i=1}^{N} V^{\frac{1}{3}} \bm{F}_{i}
+ %           \cdot  \frac{\partial}{\partial \Tilde{\bm{p}}_{i}}
+ %         + \left(
+ %                 \frac{1}{3V} \sum_{i=1}^{N} \bm{F}_{i}
+ %                 \cdot \bm{r}_{i} - P_{\mathrm{eq}}
+ %           \right)
+ %           \frac{\partial}{\partial p_{V}}
+ %         + \cdots
+ %    \right\} \Delta t
+ %    \right]
+ % \begin{bmatrix}
+ %  \Tilde{\bm{r}}_{i} (t) \\
+ %  \Tilde{\bm{p}}_{i} (t) \\
+ %  V (t) \\
+ %  p_{V} (t)
+ % \end{bmatrix}
+ % \notag \\
+ &=
+ \begin{bmatrix}
+  \Tilde{\bm{r}}_{i}(t)
+  \\
+  \Tilde{\bm{p}}_{i}(t) + V^{\frac{1}{3}} \bm{F}_{i} \Delta t
+  \\
+  V(t)
+  \\
+  p_{V}(t)
+  + \left(
+  \frac{1}{3V} \sum_{i=1}^{N} \bm{F}_{i} \cdot \bm{r}_{i} - P_{\mathrm{eq}}
+  \right) \Delta t
+ \end{bmatrix}
+ \label{eq:Andersen20.3}
+ \end{align}
+ となるので, 式(\ref{eq:Andersen19})の順番で
+ 位相空間$(\Tilde{\bm{r}}_{i}$,$\Tilde{\bm{p}}_{i}$,$V$,$p_{V})$を時間発展させると
+ 次のアルゴリズムを得る. 
+\begin{alignat}{2}
+ &\Tilde{\bm{p}}_{i} &&\gets \Tilde{\bm{p}}_{i}
+                                 + V^{\frac{1}{3}} \bm{F}_{i} \frac{\Delta t}{2}
+ \label{eq:Andersen21.1}
+ \\
+ &p_{V} &&\gets p_{V} + \left(
+                                \frac{1}{3V} \sum_{i=1}^{N} \bm{F}_{i}
+                                \cdot \bm{r}_{i} - P_{\mathrm{eq}}
+                          \right) \frac{\Delta t}{2}
+ \label{eq:Andersen21.2}
+ \\
+ &V &&\gets V + \frac{p_{V}}{W} \frac{\Delta t}{2}
+ \label{eq:Andersen21.3}
+ \\
+ &\Tilde{\bm{r}}_{i} &&\gets \Tilde{\bm{r}}_{i}
+                                   + \frac{\Tilde{\bm{p}}_{i}^{2}}{m_{i} V^{\frac{2}{3}}} \Delta t
+ \label{eq:Andersen21.4}
+ \\
+ &p_{V} &&\gets p_{V} + \sum_{i=1}^{N} \frac{1}{3 m_{i} V^{\frac{5}{3}}}
+                                         \Tilde{\bm{p}}_{i}^{2} \Delta t
+ \label{eq:Andersen21.5}
+ \\
+ &V &&\gets V + \frac{p_{V}}{W} \frac{\Delta t}{2}
+ \label{eq:Andersen21.6}
+ \\
+ &\Tilde{\bm{p}}_{i} &&\gets \Tilde{\bm{p}}_{i}
+                            + V^{\frac{1}{3}} \bm{F}_{i} \frac{\Delta t}{2}
+ \label{eq:Andersen21.4}
+ \\
+ &p_{V} &&\gets p_{V} + \left(
+                                \frac{1}{3V} \sum_{i=1}^{N} \bm{F}_{i}
+                                \cdot \bm{r}_{i} - P_{\mathrm{eq}}
+                          \right) \frac{\Delta t}{2}
+ \label{eq:Andersen21.5}
+\end{alignat}
+
+\bibliographystyle{junsrt}
+\bibliography{pressure-control}
+\input{../include/end}

@@ -1,0 +1,943 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{平均2乗偏差 (RMSD: Root Mean Square Deviation)}
+\maketitle
+
+2つの$N$原子系の構造を重ね合わせることを考える.
+各原子の座標ベクトルの組を$\mathbf{x}_{n}$, $\mathbf{y}_{n}$と表す.
+$\mathbf{x}_{n}$は重ね合わせの対象となる構造(target), $\mathbf{y}_{n}$は重ね合わせの参照構造(model)である.
+$n$の範囲は$1 \le n \le N$である. 
+座標ベクトルをまとめて$3 \times N$行列$\mathcal{X}$と$\mathcal{Y}$で表す.
+$\mathcal{X}$と$\mathcal{Y}$の$n$列目はそれぞれ$\mathbf{x}_{n}$と$\mathbf{y}_{n}$である.
+直交変換(剛体の回転) $\mathcal{U}$ と並進移動 $\mathbf{t}$ を用いて,
+\begin{align}
+ E 
+ \equiv
+ \frac{1}{N} \sum_{n=1}^{N} w_{n} |\mathcal{U}\mathbf{x}_{n} + \mathbf{t} - \mathbf{y}_{n}|^{2}
+ \label{eq:E}
+\end{align}
+を定義する.
+$w_{n}$は各原子に対する重みであるが, 通常$w_{n}=1$として取り扱うので, 以降では$w_{n}$を取り除いた表式を考える.
+RMSDは$E$の最小値の平方根で定義される:
+\begin{align}
+ \mathrm{RMSD} = \sqrt{E_{\mathrm{min}}} .
+\end{align}
+RMSDの計算は, $E$を最小化するような剛体の回転並進移動を求める問題へと帰着する.
+回転行列を求める方法はいくつか提案されている.
+例えば, W. Kabschが提案したLagrangeの未定乗数法から計算する方法\cite{1976Kabsch, 1978Kabsch}や,
+特異値分解を用いた方法\cite{2004Coutsias}, 四元数を用いた方法\cite{2004Coutsias, 2007Karney, 2019Coutsias}などが提案されている.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{並進移動$\mathbf{t}$の計算}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+まずはじめに並進移動$\mathbf{t}$を考える.
+$E$の極値は
+\begin{align}
+ \sum_{n=1}^{N} (\mathcal{U}\mathbf{x}_{n} + \mathbf{t} - \mathbf{y}_{n}) = 0
+\end{align}
+を満たすので, これを解くと並進移動$\mathbf{t}$は
+\begin{align}
+  \mathbf{t} 
+&=
+  \frac{1}{N} \sum_{n=1}^{N} \mathbf{y}_{n} - \mathcal{U} \frac{1}{N} \sum_{n=1}^{N} \mathbf{x}_{n}
+\notag \\
+&= 
+  \tilde{\mathbf{y}} - \mathcal{U} \tilde{\mathbf{x}}
+\end{align}
+と求まる. ここで$\tilde{\mathbf{x}}$と$\tilde{\mathbf{y}}$は重心座標である.
+新たな座標
+\begin{align}
+ \tilde{\mathbf{x}}_{n} &= \mathbf{x}_{n} - \tilde{\mathbf{x}}, \\
+ \tilde{\mathbf{y}}_{n} &= \mathbf{y}_{n} - \tilde{\mathbf{y}},
+\end{align}
+を導入すると, 計算すべき$E$は以下のように書き直すことができる:
+\begin{align}
+ E
+ =
+ \frac{1}{N}  \sum_{n=1}^{N} |\mathcal{U} \tilde{\mathbf{x}}_{n} -  \tilde{\mathbf{y}}_{n}|^{2}
+%  \\
+ =
+ \frac{1}{N}  \sum_{n=1}^{N} |\tilde{\mathbf{x}}_{n}^{\prime} -  \tilde{\mathbf{y}}_{n}|^{2}.
+ \label{eq:mod_E}
+\end{align}
+まとめると, 並進移動$\mathbf{t}$は2つの構造の重心を原点に移動させる操作である.
+これから見ていく計算については, 事前に構造の重心を原点に移動させたものとしてチルダを省略して書くことにする.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Lagrange未定乗数法を使う場合\cite{1976Kabsch, 1978Kabsch}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{直交変換$\mathcal{U}$の導出}
+直交行列$\mathcal{U}=\{u_{ij}\}$の拘束条件(直交条件) $\sum_{k=1}^{K}u_{ki}u_{kj} - \delta_{ij} = 0$ のもとで, 以下の関数の極値を求める:
+\begin{align}
+  E = \sum_{n=1}^{N} w_{n} |\mathcal{U} \mathbf{x}_{n} - \mathbf{y}_{n}|^{2}.
+  \label{eq:E_Kabsch}
+\end{align}
+ラグランジュの未定乗数である対称行列$\mathcal{L}=\{l_{ij}\}$と, その補助関数
+\begin{align}
+ F = \sum_{i,j} l_{ij} \left(\sum_{k=1}^{K} u_{kl} u_{kj} - \delta_{ij}\right)
+\end{align}
+を定めると, ラグランジュ関数は
+\begin{align}
+  G
+&= E + F
+ \\
+&= \sum_{n=1}^{N} w_{n} |\mathcal{U} \mathbf{x}_{k} - \mathbf{y}_{k}|^{2}
+  +
+   \sum_{i,j} l_{ij} \left(\sum_{k=1}^{K} u_{ki} u_{kj} - \delta_{ij}\right)
+\end{align}
+となる. 
+それぞれの異なる直交条件について独立した$l_{ij}$が得られるので, 拘束条件下での$E$の極小値は$G$の極小値の中に含まれている. 
+$G$が極小値を持つ条件は, 
+\begin{align}
+ \frac{\partial G}{\partial u_{ij}} 
+ =
+ \sum_{k=1}^{K} u_{ik} \left(\sum_{n=1}^{N} w_{n} x_{nk} x_{nj} + l_{kj}\right) - \sum_{n=1}^{N} w_{n} y_{ni}x_{nj} = 0
+ \label{eq:dGdu}
+\end{align}
+であることと,
+\begin{align}
+ \frac{\partial^{2} G}{\partial u_{mk} \partial u_{ij}} 
+=
+ \delta_{ml} (\sum_{n=1}^{N} w_{n} y_{nk} x_{nj} + l_{kj})
+ \label{eq:d2Gdudu}
+\end{align}
+が正値行列の要素であることである. 
+$x_{nk}$と$y_{nk}$はそれぞれ$\bm{x}_{n}$と$\bm{y}_{n}$の$k$番目の要素である. 
+ここで対称行列
+\begin{align}
+ \mathcal{R}_{ij} &= \sum_{n} w_{n} y_{ni} x_{nj} \\
+ \mathcal{S}_{ij} &= \sum_{n} w_{n} x_{ni} x_{nj}
+\end{align}
+を定義すると, 式(\ref{eq:dGdu})は
+\begin{align}
+ \mathcal{U} (\mathcal{S} + \mathcal{L}) = \mathcal{R}
+ \label{eq:d2Gdudu-2}
+\end{align}
+と書き直せる.
+式(\ref{eq:d2Gdudu})より$i=m=1$に対して, ラグランジュ関数$G$の極小値は
+$\mathcal{S} + \mathcal{L}$が正値であることを必要とする. 
+
+式(\ref{eq:E_Kabsch})が極値となる直交行列$\mathcal{U}$を求めていく.
+それには$\mathcal{U}$が直交となるような, ラグランジュの未定乗数の対称行列$\mathcal{L}$を見つければ良い. 
+式(\ref{eq:d2Gdudu-2})の両辺にそれぞれの転置行列を作用させると,
+\begin{align}
+ [\mathcal{U} (\mathcal{S} + \mathcal{L})]^{\mathrm{t}} [\mathcal{U} (\mathcal{S} + \mathcal{L})]
+&=
+ (\mathcal{S} + \mathcal{L})^{\mathrm{t}} \mathcal{U}^{\mathrm{t}} \mathcal{U} (\mathcal{S} + \mathcal{L})
+ \\
+&=
+ (\mathcal{S} + \mathcal{L})^{\mathrm{t}} (\mathcal{S} + \mathcal{L})
+ \\
+&=
+ (\mathcal{S} + \mathcal{L}) (\mathcal{S} + \mathcal{L})
+ \\
+&=
+ \mathcal{R}^{\mathrm{t}} \mathcal{R}.
+\end{align}
+となる.
+$\mathcal{R}^{\mathrm{t}} \mathcal{R}$は正値対称行列であるので
+\begin{align}
+\mathcal{R}^{\mathrm{t}} \mathcal{R}
+=
+ \mathcal{P} \Lambda \mathcal{P}^{\mathrm{t}}
+=
+ \mathcal{P} \Lambda^{\frac{1}{2}} \mathcal{P}^{\mathrm{t}} \mathcal{P} \Lambda^{\frac{1}{2}} \mathcal{P}^{\mathrm{t}}
+\end{align}
+と対角化できる. 
+$\mathcal{R}^{\mathrm{t}} \mathcal{R}$は固有値$\lambda_{k}$と固有ベクトル$\mathbf{a}_{k}$を持つ.
+$\mathcal{S} +\mathcal{L}$も正値対称行列であるので, 固有値$\sqrt{\lambda}_{k}$と規格化された固有ベクトル$\mathbf{a}_{k}$を持つ.
+対角化の表式から一般的な解として, 
+\begin{align}
+ \mathcal{S} + \mathcal{L} 
+= 
+ \{l_{ij} + s_{ij}\}
+=
+ \sum_{k=1}^{N} a_{ki} a_{kj} \cdot \sigma_{k} \sqrt{\lambda_{k}}
+\end{align}
+を得る. ここで, $\sigma_{k}=\pm1$となる量を導入した. 単位ベクトル$\mathbf{b}_{k}$を
+\begin{align}
+ \mathbf{b}_{k} 
+ =
+ \mathcal{U} \mathbf{a}_{k}
+ =
+ \frac{1}{\sigma_{k} \sqrt{\lambda_{k}}} \mathcal{U}(\mathcal{S} + \mathcal{L}) \mathbf{a}_{k}
+ =
+ \frac{1}{\sigma_{k} \sqrt{\lambda_{k}}} \mathcal{R} \mathbf{a}_{k}
+\end{align}
+と定義すると, 直交行列 $\mathcal{U}$ は最終的に
+\begin{align}
+ u_{ij} = \sum_{k=1}^{K} b_{kl} a_{kj}
+\end{align}
+と計算される.
+極値点における$E$は
+\begin{align}
+   E
+&=
+   \sum_{n=1}^{N} w_{n} |\mathcal{U}\mathbf{x}_{n} - \mathbf{y}_{n}|^{2}
+   \\
+&=
+    \sum_{n=1}^{N} w_{n} \left(\mathbf{x}_{n}^{2} + \mathbf{y}_{n}^{2} \right)
+  -2\sum_{n=1}^{N} w_{n} \mathbf{y}_{n} \cdot (\mathcal{U}\mathbf{x}_{n})
+   \\
+&=
+    \sum_{n=1}^{N} w_{n} \left(\mathbf{x}_{n}^{2} + \mathbf{y}_{n}^{2}\right)
+  -2\sum_{n=1}^{N} w_{n} \left\{ \sum_{k=1}^{K} (\mathbf{b}_{k} \cdot \mathbf{y}_{k}) 
+                                                (\mathbf{x}_{k} \cdot \mathbf{a}_{k}) \right\}
+   \\
+&=
+    \sum_{n=1}^{N} w_{n} \left(\mathbf{x}_{n}^{2} + \mathbf{y}_{n}^{2}\right)
+  -2\sum_{k=1}^{K} \mathbf{b}_{k} \cdot (\mathcal{R}\mathbf{a}_{k})
+   \\
+&=
+     \sum_{n=1}^{N} w_{n} \left(\mathbf{x}_{n}^{2} + \mathbf{y}_{n}^{2}\right)
+   -2\sum_{k=1}^{K} \sigma_{k} \sqrt{\lambda_{k}}
+\end{align}
+と計算される. 全ての$k$について$\sigma_{k}=-1$の時, $E$は最大となる.
+一方, 全ての$k$について$\sigma_{k}=1$の時, $E$は最小となる.
+
+もし$\mathrm{det} [\mathcal{R}] > 0$であるならば, $E$の最小値に対応する直交行列$\mathcal{U}$は適切な回転を与える.
+しかし, $\mathrm{det} [\mathcal{R}] < 0$の場合, $E$の最小値に対して不適切な回転を与えてしまう.
+この場合, 最も適切な回転に対応する$E$の最小値は, $\sigma_{1} = \sigma_{2} = 1, \sigma_{3} = -1$となる.
+ただし, $\lambda_{3}$が最も小さい固有値であることを仮定した.
+$\mathrm{det} [\mathcal{R}] < 0$の時, 固有値が縮退していると, 最も適切な回転行列を一意に決めることができない.
+
+\subsection{アルゴリズム}
+\begin{enumerate}
+ \item 
+       2つの構造の重心が原点となるように平行移動させる.
+ \item 
+       $\mathcal{R}^{\mathrm{t}}\mathcal{R}$を計算し, 固有値$\lambda_{k}$と対応する固有ベクトル$a_{k}$を求める.
+       固有値は$\lambda_{1} \ge \lambda_{2} \ge \lambda_{3}$となるようにソートする.
+       また右手系となるように, $\mathbf{a}_{3} = \mathbf{a}_{1} \times \mathbf{a}_{2}$と設定する.
+ \item 
+       $\mathcal{R}\mathbf{a}_{k}$ $(k = 1,2,3)$を計算する. 最初の二つのベクトルを規格化して, $\mathbf{b}_{1}, \mathbf{b}_{2}$
+       を得る. $\mathbf{b}_{3} = \mathbf{b}_{1} \times \mathbf{b}_{2}$と設定する. $\lambda_{2} \ge \lambda_{3} =0$となっていないか
+       確認する.
+ \item 
+       回転行列$\mathcal{U}$を計算する.
+       もし$\mathbf{b}_{3} \cdot (\mathcal{R}\mathbf{a}_{3}) < 0$の時, $\sigma_{3} = -1$とする.
+       それ以外の場合は$\sigma_{3} = 1$とする.
+       これを用いて$E$の最小値を計算することができる.
+\end{enumerate}
+
+\clearpage
+\section{特異値分解を用いた方法\cite{2004Coutsias}}
+\subsection{直交変換$\mathcal{U}$の導出}
+式(\ref{eq:mod_E})を変形すると
+\begin{align}
+ NE
+&=
+   \sum_{k=1}^{N} |\mathbf{x}_{k}^{\prime} -  \mathbf{y}_{k}|^{2}
+ \notag
+ \\
+&=
+   \mathrm{Tr}[ (\mathcal{X}^{\prime} - \mathcal{Y})^{\mathrm{t}} 
+                (\mathcal{X}^{\prime} - \mathcal{Y}) ]
+ \notag
+ \\
+&=
+     \mathrm{Tr} [ \mathcal{X}^{\prime \mathrm{t}} \mathcal{X}^{\prime} ]
+  +  \mathrm{Tr} [ \mathcal{Y}^{\mathrm{t}} \mathcal{Y}]
+  - 2\mathrm{Tr} [ \mathcal{Y}^{\mathrm{t}} \mathcal{X}^{\prime} ]
+ \notag
+ \\
+&=
+    \sum_{k=1}^{N} |\mathbf{x}_{k}|^{2} + |\mathbf{y}_{k}|^{2} 
+  - 2\mathrm{Tr} [\mathcal{Y}^{\mathrm{t}} \mathcal{X}^{\prime} ]
+ \notag
+  \label{Eq:Residue-SVD}
+\end{align}
+を得る. 
+したがって, $E$の最小化問題は$\mathrm{Tr}[\mathcal{Y}^{\prime \mathrm{t}} \mathcal{X}^{\prime}]$の最大化問題に帰着する. トレースの値は行列の演算の順を入れ替えても同じ値となるため,
+\begin{align}
+  \mathrm{Tr} [ \mathcal{Y}^{\mathrm{t}} \mathcal{X}^{\prime} ]
+=
+  \mathrm{Tr} [ \mathcal{Y}^{\mathrm{t}} \mathcal{U} \mathcal{X} ]
+=
+  \mathrm{Tr} [ \mathcal{X} \mathcal{Y}^{\mathrm{t}} \mathcal{U} ]
+=
+  \mathrm{Tr} [ \mathcal{R} \mathcal{U} ]
+\end{align}
+が成立する. 
+最後の式変形で, 以下のように定義される相関行列$\mathcal{R}$を導入した: 
+\begin{align}
+  \mathcal{R}
+ &\equiv
+  \mathcal{X} \mathcal{Y}^{\mathrm{t}}
+  =
+  \sum_{k=1}^{N} \mathbf{x}_{k} \mathbf{y}_{k}^{\mathrm{t}},
+  \\ 
+  \to
+  R_{ij} 
+ &= \sum_{k=1}^{N} x_{ik} y_{jk} ~ (i, j = 1, 2, 3).
+ \end{align}
+相関行列$\mathcal{R}$は
+\begin{align}
+ \mathcal{R} = \mathcal{V} \Sigma \mathcal{W}^{\mathrm{t}}
+\end{align}
+のように特異値分解できる. $\mathcal{V}$は左特異ベクトル, $\mathcal{W}$は右特異ベクトル, $\Sigma$は特異値行列(the positive semidefininite diagonal matrix of singular values)である.
+相関行列$\mathcal{R}$のi番目の特異値を$\sigma_{i}$とおく. 
+相関行列$\mathcal{R}$の特異値分解により
+\begin{align}
+%   \mathrm{Tr} [ \mathcal{Y}^{\prime \mathrm{T}} \mathcal{X}^{\prime} ]
+% =
+  \mathrm{Tr} [ \mathcal{R} \mathcal{U} ]
+=
+  \mathrm{Tr} [ \mathcal{V} \Sigma \mathcal{W}^{\mathrm{t}} \mathcal{U} ]
+=
+  \mathrm{Tr} [ \Sigma \mathcal{W}^{\mathrm{t}} \mathcal{U} \mathcal{V} ]
+=
+  \sum_{i=1}^{3} \sigma_{i} w_{i}^{\mathrm{t}} \mathcal{U} v_{i}
+=
+  \sum_{i=1}^{3} \sigma_{i} T_{ii}
+\end{align}
+を得る. 
+ここで直交行列$\mathcal{T} = \mathcal{W}^{\mathrm{t}} \mathcal{U} \mathcal{V}$を導入した.
+$|T_{ii}| \le 1$であるので,
+\begin{align}
+ \mathrm{Tr} [ \mathcal{Y}^{\mathrm{t}} \mathcal{X}^{\prime} ] 
+ \le
+ \sum_{i=1}^{3} \sigma_{i}
+\end{align}
+である.
+$\mathrm{Tr}[\mathcal{Y}^{\prime \mathrm{t}} \mathcal{X}^{\prime}]$の最大値は
+\begin{align}
+  \mathrm{Tr} [ \mathcal{Y}^{\mathrm{t}} \mathcal{X}^{\prime} ] 
+  =
+  \sum_{i=1}^{3} \sigma_{i}
+ \end{align}
+であるので, 式(\ref{Eq:Residue-SVD})より$E$の最小値は
+\begin{align}
+  E_{\mathrm{min}} 
+=
+   \frac{1}{N} \sum_{k=1}^{N} |\mathbf{x}_{k}|^{2} + |\mathbf{y}_{k}|^{2} 
+ - \frac{2}{N} (\sigma_{1} + \sigma_{2} + \chi\sigma_{3})
+\end{align}
+と計算される. 
+%ここで, $\chi=\mathrm{sgn}[\mathrm{det} \mathcal{R}]$であり, 
+%$\sigma_{i}$は相関行列$\mathcal{R}$のi番目の特異値で, $\sigma_{1} \ge \sigma_{2} \ge \sigma_{3} \ge 0$を満たす.
+この時, $\mathrm{Tr}[\mathcal{Y}^{\prime \mathrm{t}} \mathcal{X}^{\prime}] = \sum_{i=1}^{N} \sigma_{i}$であるので, 回転行列$\mathcal{U}$は
+\begin{align}
+ \mathcal{U} = \mathcal{W} \mathcal{V}^{\mathrm{t}}
+\end{align}
+となる.
+しかし, この行列は特異ベクトル行列$\mathcal{W}$あるいは$\mathcal{V}$が異なるカイラリティ, つまり$\mathrm{det} [R] < 0$の時, 不適切な回転になる. 
+このような場合, もっとも適切な回転は
+\begin{align}
+ \mathcal{U} \mathbf{v}_{i} &= + \mathbf{w}_{i} ~ (\mathrm{for}~ i = 1, 2) \\ 
+ \mathcal{U} \mathbf{v}_{i} &= - \mathbf{w}_{i} ~ (\mathrm{for}~ i = 3)
+\end{align}
+で与えられることが示せる(例えば, $\mathcal{X}$から$\mathcal{Y}$への回転を表すためにオイラー角を利用する).
+このような理由で$E$の最小値は
+\begin{align}
+  E_{\mathrm{min}} 
+=
+   \frac{1}{N} \sum_{k=1}^{N} |\mathbf{x}_{k}|^{2} + |\mathbf{y}_{k}|^{2} 
+ - \frac{2}{N} (\sigma_{1} + \sigma_{2} + \chi\sigma_{3})
+\end{align}
+と計算される. ここで, $\chi=\mathrm{sgn}[\mathrm{det} \mathcal{R}]$であり, 
+$\sigma_{i}$は相関行列$\mathcal{R}$のi番目の特異値で, $\sigma_{1} \ge \sigma_{2} \ge \sigma_{3} \ge 0$を満たす.
+この時, ターゲット構造と参照構造の最適な重ね合わせを実現する回転行列は
+\begin{align}
+  \mathcal{U} 
+= \mathcal{W} 
+  \left(
+  \begin{array}{ccc}
+   1 &   &    \\
+     & 1 &    \\
+     &   & \chi\\
+  \end{array}
+  \right)
+  \mathcal{V}^{\mathrm{t}}
+\end{align}
+となる. 
+
+\clearpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{四元数を用いる方法\cite{2004Coutsias, 2007Karney, 2019Coutsias}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{直交変換$\mathcal{U}$の導出}
+
+$\mathbf{x}_{k}$と$\mathbf{y}_{k}$を純四元数を用いて,
+\begin{align}
+ \hat{x_{k}} &= [0,~ \mathbf{x}_{k}], \\
+ \hat{y_{k}} &= [0,~ \mathbf{y}_{k}]
+\end{align}
+と拡張する. また座標の回転行列は
+\begin{align}
+  [0,~ \mathcal{U}(\hat{q}) \mathbf{x}_{k}] 
+ =
+  \hat{q} \hat{x_{k}} \hat{q}^{\mathrm{c}}
+\end{align}
+で書かれる. $E$の四元数表示$E_{q}$は
+\begin{align}
+   E_{q}
+ =
+   \frac{1}{N} \sum_{n=1}^{N} 
+   (\hat{q} \hat{x_{k}} \hat{q}^{\mathrm{c}} - \hat{y}_{k})
+   (\hat{q} \hat{x_{k}} \hat{q}^{\mathrm{c}} - \hat{y}_{k})^{\mathrm{c}}
+ \label{eq:E_q}
+\end{align}
+である. 式(\ref{eq:E_q})を展開すると,
+\begin{align}
+   N E_{q}
+&=
+  \sum_{n=1}^{N}
+  \{
+     (\hat{q} \hat{x}_{k} \hat{q}^{\mathrm{c}})
+     (\hat{q} \hat{x}_{k} \hat{q}^{\mathrm{c}})^{\mathrm{c}}
+    +
+      \hat{y}_{k} \hat{y}_{k}^{\mathrm{c}}
+    - 
+      (\hat{q} \hat{x}_{k} \hat{q}^{\mathrm{c}}) \hat{y}_{k}^{\mathrm{c}}
+    -
+      \hat{y}_{k} (\hat{q} \hat{x}_{k} \hat{q}^{\mathrm{c}})^{\mathrm{c}}
+  \}
+ \notag
+ \\
+&=
+  \sum_{n=1}^{N}
+  \{
+      \hat{x_{k}} \hat{x}_{k}^{\mathrm{c}} 
+    +
+      \hat{y}_{k} \hat{y}_{k}^{\mathrm{c}}
+    + 
+      (\hat{q} \hat{x}_{k} \hat{q}^{\mathrm{c}}) \hat{y}_{k}
+    +
+      \hat{y}_{k} (\hat{q} \hat{x}_{k} \hat{q}^{\mathrm{c}})
+  \}
+ \label{eq:NEq}
+\end{align}
+となる. 途中式展開において, $\hat{q}\hat{q}^{\mathrm{c}}=1$であることと,
+純四元数の性質である$\hat{y}_{k}^{\mathrm{c}}=-\hat{y}$であることを使用した.
+さらに純四元数において, 
+$\hat{a}\hat{b} + \hat{b}\hat{a} = 2[-\mathbf{a}\cdot\mathbf{b},~ \mathbf{0}]
+= 2[\{\hat{a}\hat{b}\}_{0},~ \mathbf{0}]$が成立するので, 式(\ref{eq:NEq})の最後の2項は
+\begin{align}
+   (\hat{q} \hat{x}_{k} \hat{q}^{\mathrm{c}}) \hat{y}_{k}
+ +
+   \hat{y}_{k} (\hat{q} \hat{x}_{k} \hat{q}^{\mathrm{c}})
+ =
+   2[\{\hat{y}_{k} (\hat{q} \hat{x}_{k} \hat{q}^{\mathrm{c}})\}_{0},~ \mathbf{0}]
+\end{align}
+と計算される. さらに補足で定義されている
+$\mathcal{A}_{\mathrm{L}},~\mathcal{A}_{\mathrm{R}}$
+と$\mathcal{L}=(q_{0}, q_{1}, q_{2}, q_{3})^{\mathrm{t}}$を用いると
+\begin{align}
+  2\{\hat{y}_{k} (\hat{q} \hat{x}_{k} \hat{q}^{\mathrm{c}})\}_{0}
+&=
+  2\{(\hat{y}_{k} \hat{q} \hat{x}_{k}) \hat{q}^{\mathrm{c}}\}_{0}
+ \notag
+ \\
+&=
+  2\mathcal{L}^{\mathrm{t}} 
+   \mathcal{A}_{\mathrm{L}} (y_{k}) \mathcal{A}_{\mathrm{L}} (x_{k})
+   \mathcal{L}
+\end{align}
+と書き直せることから, 
+\begin{align}
+ NE_{q} = \sum_{n=1}^{N} (|\mathbf{x}_{k}|^{2} + |\mathbf{y}_{k}|^{2})
+         - 2\mathcal{L}^{\mathrm{t}} \mathcal{F} \mathcal{L}
+\end{align}
+を得る. ここで
+\begin{align}
+ \mathcal{F} = - \sum_{n=1}^{N} 
+                 \mathcal{A}_{\mathrm{L}} (y_{k})
+                 \mathcal{A}_{\mathrm{R}} (x_{k})
+\end{align}
+と定義した. 成分をあらわに書き下すと,
+\begin{align}
+ \mathcal{F}
+=
+ \left(
+   \begin{array}{cccc}
+    R_{11} + R_{22} + R_{33} & R_{23} - R_{32} & R_{31} - R_{13} & R_{12} - R_{21}  \\
+    R_{23} - R_{32} & R_{11} - R_{22} - R_{33} & R_{12} + R_{21} & R_{13} + R_{31}  \\
+    R_{31} - R_{13} & R_{12} + R_{21} & -R_{11} + R_{22} - R_{33} & R_{23} + R_{32} \\
+    R_{12} - R_{21} & R_{13} + R_{31} & R_{23} + R_{32} & -R_{11} - R_{22} + R_{33}
+   \end{array}
+ \right)
+\end{align}
+となる. ここで, 
+\begin{align}
+ R_{ij} = \sum_{n=1}^{N} x_{ik} y_{jk}, ~ \mathrm{for}~i,j = 1,2,3,
+\end{align}
+である.
+$E_{q}$の最小値を求める問題は, 
+2次形式$\mathcal{L}^{\mathrm{t}} \mathcal{F} \mathcal{L}$の最大値
+を$\mathcal{L}^{\mathrm{t}}\mathcal{L}=1$の拘束条件のもとで
+求める問題になっている. 
+$\mathcal{L}^{\mathrm{t}} \mathcal{F} \mathcal{L}$は
+対称行列$\mathcal{F}$のレイリー商であるので, 
+その最大値は$\mathcal{F}$の最も大きい固有値$\lambda_{\mathrm{max}}$に等しい.
+したがって, 固有値問題
+\begin{align}
+ \mathcal{F} \mathcal{L} = \lambda \mathcal{L}
+\end{align}
+を解けばいい.
+$\lambda$は固有値, $\mathcal{L}$は固有ベクトルである.
+$\mathcal{L}$の各成分は四元数である.
+つまり, 固有ベクトル$\mathcal{L}$の成分$q_{0}, q_{1}, q_{2}, q_{3}$を用いれば, $E_{q}$の極値を与えるような回転行列を得ることができる:
+\begin{align}
+  \mathcal{U}(q)
+ =
+  \left(
+    \begin{array}{ccc}
+       q_{0}^{2} + q_{1}^{2} + q_{2}^{2} - q_{3}^{2} 
+     & 2(q_{1} q_{2} - q_{0} q_{3})
+     & 2(q_{1} q_{3} + q_{0} q_{2})
+     \\
+       2(q_{1} q_{2} + q_{0} q_{3})
+     & q_{0}^{2} - q_{1}^{2} + q_{2}^{2} - q_{3}^{2} 
+     & 2(q_{2} q_{3} - q_{0} q_{1})
+     \\
+       2(q_{1} q_{3} - q_{0} q_{2})
+     & 2(q_{2} q_{3} + q_{0} q_{1})
+     & q_{0}^{2} - q_{1}^{2} - q_{2}^{2} + q_{3}^{2} 
+    \end{array}
+ \right).
+ \end{align}
+一方で, Best-fit RMSD $e_{q}$は次のように計算される:
+\begin{align}
+  e_{q} 
+=
+ \sqrt{\mathrm{min} \{E_{q}\}}
+=
+ \sqrt{\frac{1}{N}
+       \left\{
+         \sum_{n=1}^{N} (|\mathbf{x}_{k}|^{2} + |\mathbf{y}_{k}|^{2})
+         - 2\lambda_{\mathrm{max}}
+       \right\}
+       },
+\end{align}
+ここで$\lambda_{\mathrm{max}}$は行列$\mathcal{L}$の最大の固有値である.
+
+%\subsection{計算アルゴリズム}
+
+\clearpage
+\section{補足(数学の基礎)}
+\subsection{四元数\cite{2007Hori, 2008Dunn, 2007Yabe, 2004Coutsias, 2007Karney, 2019Coutsias}} 
+四元数は複素数の一般化である.
+複素数は2つの実数を用いて$a+ib$と表され, 平面のベクトルに対応することはよく知られている.
+四元数は複素数を空間に拡張したものである.
+四元数を用いると, オイラー角の回転に存在する特異点を無くすことができるなどのメリットがある.
+
+\subsubsection{四元数の表記}
+四元数$\hat{q}$はスカラー部分$q_{0}$とベクトル部分$\mathbf{q} = (q_{1}, q_{2}, q_{3})$から構成され,
+\begin{align}
+ \hat{q} 
+ = q_{0}
+ + q_{1} \mathbf{i}
+ + q_{2} \mathbf{j}
+ + q_{3} \mathbf{k}
+\end{align}
+あるいは4成分のベクトルを用いて
+\begin{align}
+\hat{q}=[q_{0}, q_{1}, q_{2}, q_{3}] \equiv [q_{0}, \mathbf{q}]
+\end{align}
+で表される. ここで$\mathbf{u}$は単位要素である. 
+基底ベクトル$\mathbf{i}, \mathbf{j}, \mathbf{k}$は複素数的な性質を持つ:
+\begin{align}
+ \mathbf{i}^{2} = \mathbf{j}^{2} = \mathbf{k}^{2} = \mathbf{ijk} =- \mathbf{u},~~
+ \mathbf{ij} =  -\mathbf{ji}  = \mathbf{k},~~
+ \mathbf{jk} =  -\mathbf{kj}  = \mathbf{i},~~
+ \mathbf{ki} =  -\mathbf{ik}  = \mathbf{j}.
+\end{align}
+
+
+\subsubsection{恒等四元数, 共役四元数, ノルム, 逆四元数}
+恒等四元数$\hat{1}$, 共役四元数$\hat{q}^{\mathrm{c}}$, 二乗ノルム$N(\hat{q})$, 逆四元数$\hat{q}^{-1}$を以下のように定義する:
+\begin{alignat}{3}
+&\hat{1} &~\equiv~& [1, \mathbf{0}],
+ \\
+& \hat{q}^{\mathrm{c}} &~\equiv~& [q_{0}, -\mathbf{q}],
+ \\
+&N(\hat{q}) &~\equiv~& \hat{q}^{\mathrm{c}} \hat{q} 
+            = \hat{q} \hat{q}^{\mathrm{c}} = q_{0}^{2} + \mathbf{q} \cdot \mathbf{q},
+ \\
+&\hat{q}^{-1} &~\equiv~& \frac{q^{\mathrm{c}}}{N(\hat{q})} 
+              = \frac{[q_{0}, - \mathbf{q}]}{N(\hat{q})}.
+\end{alignat}
+
+\subsubsection{和, 積(外積)}
+四元数の和と積は
+\begin{align}
+ \hat{p} + \hat{q} &= [p_{0} + q_{0},~ \mathbf{p} + \mathbf{q}], \\
+ \hat{p} \hat{q}   &= [p_{0} q_{0} - \mathbf{p} \cdot \mathbf{q},~ 
+                       p_{0}\mathbf{q} + q_{0}\mathbf{p} + \mathbf{p} \times \mathbf{q}]
+\end{align}
+と計算される. 
+四元数の積では一般に結合法則$\hat{a}(\hat{b}\hat{c}) = (\hat{a}\hat{b})\hat{c}$は成り立つが, 非可換$\hat{a}\hat{b} \neq \hat{b}\hat{a}$である. 
+四元数の積の式は, 次の計算から確かめることができる:
+\begin{align}
+ (p_{0} + p_{1} \mathbf{i} + p_{2} \mathbf{j} + p_{3} \mathbf{k})&
+ (q_{0} + q_{1} \mathbf{i} + q_{2} \mathbf{j} + q_{3} \mathbf{k})
+ \notag \\
+ ~=~
+   & p_{0} q_{0} - p_{1} q_{1} - p_{2} q_{2} - p_{3} q_{3}  \notag \\
+ + &(p_{0} q_{1} + p_{1} q_{0} + p_{2} q_{3} - p_{3} q_{2}) \mathbf{i} \notag \\
+ + &(p_{0} q_{2} + p_{2} q_{0} + p_{3} q_{1} - p_{1} q_{3}) \mathbf{j} \notag \\
+ + &(p_{0} q_{3} + p_{3} q_{0} + p_{1} q_{2} - p_{2} q_{1}) \mathbf{k}.
+\end{align}
+四元数の積は行列の積で表すことができる.
+四元数の積を計算すると,
+\begin{align}
+   \hat{p} \hat{q}
+ &=
+   \left(
+     \begin{array}{c}
+      p_{0} q_{0} - p_{1}q_{1} - p_{2}q_{2} - p_{3}q_{3} \\
+      p_{1} q_{0} + p_{0}q_{1} - p_{3}q_{2} + p_{2}q_{3} \\
+      p_{2} q_{0} + p_{3}q_{1} + p_{0}q_{2} - p_{1}q_{3} \\
+      p_{3} q_{0} - p_{2}q_{1} + p_{1}q_{2} + p_{0}q_{3} \\
+     \end{array}
+   \right)
+ \\
+ &=
+   \left(
+     \begin{array}{cccc}
+       p_{0} & -p_{1} & -p_{2} & -p_{3} \\
+       p_{1} &  p_{0} & -p_{3} &  p_{2} \\
+       p_{2} &  p_{3} &  p_{0} & -p_{1} \\
+       p_{3} & -p_{2} &  p_{1} &  p_{0} \\
+     \end{array}
+   \right)
+   \left(
+     \begin{array}{c}
+      q_{0} \\
+      q_{1} \\
+      q_{2} \\
+      q_{3} \\
+     \end{array}
+   \right)
+ \\
+ &=
+   \left(
+     \begin{array}{cccc}
+       q_{0} & -q_{1} & -q_{2} & -q_{3} \\
+       q_{1} &  q_{0} &  q_{3} & -q_{2} \\
+       q_{2} & -q_{3} &  q_{0} &  q_{1} \\
+       q_{3} &  q_{2} & -q_{1} &  q_{0} \\
+     \end{array}
+   \right)
+   \left(
+     \begin{array}{c}
+      p_{0} \\
+      p_{1} \\
+      p_{2} \\
+      p_{3} \\
+     \end{array}
+   \right)
+\end{align}
+となる. そこで, 行列 $\mathcal{A}_{\mathrm{R}}$と$\mathcal{A}_{\mathrm{L}}$を
+\begin{align}
+ \mathcal{A}_{\mathrm{R}} (\hat{p})&=
+   \left(
+     \begin{array}{cccc}
+       p_{0} & -p_{1} & -p_{2} & -p_{3} \\
+       p_{1} &  p_{0} & -p_{3} &  p_{2} \\
+       p_{2} &  p_{3} &  p_{0} & -p_{1} \\
+       p_{3} & -p_{2} &  p_{1} &  p_{0} \\
+     \end{array}
+   \right),~
+ \mathcal{A}_{\mathrm{L}} (\hat{p})&=
+   \left(
+     \begin{array}{cccc}
+       p_{0} & -p_{1} & -p_{2} & -p_{3} \\
+       p_{1} &  p_{0} &  p_{3} & -p_{2} \\
+       p_{2} & -p_{3} &  p_{0} &  p_{1} \\
+       p_{3} &  p_{2} & -p_{1} &  p_{0} \\
+     \end{array}
+   \right)
+\end{align}
+と定義することで, 四元数の積を次のように表すことができる:
+\begin{align}
+ \hat{p}\hat{q} \equiv \mathcal{A}_{\mathrm{L}} (\hat{p}) \mathcal{L},
+ ~~ \hat{p}\mathrm{は左から}\hat{q}\mathrm{に作用する},
+ \\
+ \hat{q}\hat{p} \equiv \mathcal{A}_{\mathrm{R}} (\hat{p}) \mathcal{L}, 
+ ~~ \hat{p}\mathrm{は右から}\hat{q}\mathrm{に作用する}.
+\end{align}
+ただし, $\mathcal{L} = (q_{0}, q_{1}, q_{2}, q_{3})^{\mathrm{t}}$は四元数$\hat{q}$の4成分列ベクトル表示である.
+
+共役四元数, 逆四元数の積に関して次の関係式が成立する:
+\begin{alignat}{3}
+ &(\hat{p}\hat{q})^{\mathrm{c}} &~=~& \hat{q}^{\mathrm{c}} \hat{p}^{\mathrm{c}},
+ \\
+ &(\hat{p}\hat{q})^{-1} &~=~& \hat{q}^{-1} \hat{p}^{-1}.
+\end{alignat}
+
+\subsubsection{純四元数}
+第0成分の値がゼロの四元数$\hat{q} = (0, \mathbf{q})$を純四元数と呼ぶ.
+純四元数の場合, 積と共役四元数は
+\begin{align}
+ \hat{p} \hat{q} &= [-\mathbf{p} \cdot \mathbf{q},~ \mathbf{p} \times \mathbf{q}],
+ \\
+ \hat{q}^{\mathrm{c}} &= (0, -\mathbf{q}) = -\hat{q},
+\end{align}
+と計算される.
+
+\subsubsection{内積}
+四元数の内積は
+\begin{align}
+ \hat{p} \cdot \hat{q} = p_{0}q_{0} + \mathbf{p} \cdot \mathbf{q}
+\end{align}
+と計算される.
+ベクトルの内積と同様, 四元数の内積もスカラーである.
+
+%\subsubsection{対数($\log$), 指数($\exp$),　スカラーによる乗算}
+
+\subsection{四元数を用いた剛体の回転}
+\subsubsection{回転を表す四元数}
+回転角(スカラー)と回転軸(ベクトル)の4成分によって剛体の回転を四元数で表せる.
+回転角$\theta$と単位ベクトル$\mathbf{v}$を用いて, 次の四元数を定義する:
+\begin{align}
+ \hat{q} 
+=
+ \left[\cos \frac{\theta}{2},~ \mathbf{v} \sin \frac{\theta}{2} \right]
+\end{align}
+
+\subsubsection{座標系を空間に固定して位置ベクトルを回転する場合}
+$r=[0,~ \mathbf{r}]$を座標系を固定したまま位置ベクトルの回転によって得られた座標を
+$r^{\prime}=[0,~ \mathbf{r}^{\prime}]$とする.
+$r^{\prime}$と$r$は
+\begin{align}
+ r^{\prime} &= \hat{q} r \hat{q^{\mathrm{c}}}
+ ,~~~~
+ [0,~ \mathbf{r}^{\prime}]
+ =
+ [q_{0},~ \mathbf{q}] [0,~ \mathbf{r}] [q_{0},~ -\mathbf{q}]
+ \equiv
+ [0,~ \mathcal{U}(q)\mathbf{r}]
+\end{align}
+の関係で結ばれる. これを具体的に計算すると, 
+\begin{align}
+ [0,~ \mathbf{r}^{\prime}]
+&=
+ [q_{0},~ \mathbf{q}] [0,~ \mathbf{r}] [q_{0},~ -\mathbf{q}]
+ \notag
+ \\
+&=
+ [-\mathbf{q} \cdot \mathbf{r},~
+  q_{0}\mathbf{r} + \mathbf{q} \times \mathbf{r}] 
+ [q_{0},~ -\mathbf{q}]
+ \notag
+ \\
+ &=
+ [0,~
+     (\mathbf{q} \cdot \mathbf{r}) \mathbf{q} 
+    + q_{0}^{2} \mathbf{r}
+    + 2q_{0} (\mathbf{q} \times \mathbf{r})
+    + \mathbf{q} \times (\mathbf{q} \times \mathbf{r})
+ ]
+ \notag
+ \\
+ &=
+ [0,~
+     (\mathbf{qq}) \cdot \mathbf{r} 
+    + q_{0}^{2} \mathbf{r}
+    + 2q_{0} (\mathbf{I} \times \mathbf{q}) \cdot \mathbf{r}
+    + (\mathbf{q} \cdot \mathbf{r}) \mathbf{q}
+    - (\mathbf{q} \cdot \mathbf{q}) \mathbf{r}
+ ]
+ \notag
+ \\
+ &=
+ [0,~ \left\{
+          (q_{0}^{2}  - |\mathbf{q}|^{2}) \mathbf{I}
+        + 2(\mathbf{qq} + q_{0}\mathbf{I} \times \mathbf{q})
+     \right\}
+     \cdot \mathbf{r}
+ ]
+ \notag
+\end{align}
+となる. 
+途中, 第3行目から第4行目の展開において, 
+parallel projection:
+$(\mathbf{aa}) \cdot \mathbf{b} = (\mathbf{a} \cdot \mathbf{b})\mathbf{a}$,
+cross operator:
+$\mathbf{a} \times \mathbf{b}
+= (\mathbf{I} \times \mathbf{a}) \cdot \mathbf{b}$,
+$\mathbf{A} \times (\mathbf{B} \times \mathbf{C}) 
+= (\mathbf{A} \cdot \mathbf{C}) \mathbf{B} 
+- (\mathbf{A} \cdot \mathbf{B}) \mathbf{C}$
+を用いた. 
+回転角と単位ベクトルを用いて,
+\begin{align}
+  [0,~ \mathbf{r}^{\prime}] 
+ =
+  [0,~ 
+  \{\mathbf{vv} + (\mathbf{I} - \mathbf{vv}) \cos \theta + (\mathbf{I} \times \mathbf{v}) \sin \theta \} \cdot \mathbf{r}]
+\end{align}
+ともかける.
+$3 \times 3$の回転行列の成分を書き下すと次のようになる:
+\begin{align}
+ \mathcal{U}(q)
+=
+ \left(
+   \begin{array}{ccc}
+      q_{0}^{2} + q_{1}^{2} + q_{2}^{2} - q_{3}^{2} 
+    & 2(q_{1} q_{2} - q_{0} q_{3})
+    & 2(q_{1} q_{3} + q_{0} q_{2})
+    \\
+      2(q_{1} q_{2} + q_{0} q_{3})
+    & q_{0}^{2} - q_{1}^{2} + q_{2}^{2} - q_{3}^{2} 
+    & 2(q_{2} q_{3} - q_{0} q_{1})
+    \\
+      2(q_{1} q_{3} - q_{0} q_{2})
+    & 2(q_{2} q_{3} + q_{0} q_{1})
+    & q_{0}^{2} - q_{1}^{2} - q_{2}^{2} + q_{3}^{2} 
+   \end{array}
+\right).
+\end{align}
+$\mathcal{U}$は直交行列であるから$\mathcal{U}^{-1} = \mathcal{U}^{\mathrm{t}}$である.
+
+\subsubsection{点を空間に固定して座標系を回転する場合}
+$r^{\prime}=[0,~ \mathbf{r}^{\prime}]$は座標軸$r=[0,~ \mathbf{r}]$を
+の回転によって得られた新たな座標軸とする. $r^{\prime}$
+\begin{align}
+ r^{\prime} &= \hat{q^{\mathrm{c}}} r \hat{q}
+ ,~~~~
+ [0,~ \mathbf{r}^{\prime}]
+ % =
+ % [q_{0},~ -\mathbf{q}] [0,~ \mathbf{r}] [q_{0},~ \mathbf{q}]
+ % \equiv
+ % [0, \mathcal{U}(q)\mathbf{r}]
+\end{align}
+という変換で得られる. 具体的に計算すると,
+\begin{align}
+  [0,~ \mathbf{r}^{\prime}]
+&=
+  [0, \mathcal{U}(\hat{q}) \mathbf{r}]
+ \notag
+ \\
+&=
+ [0,~ \left\{
+          (q_{0}^{2}  - |\mathbf{q}|^{2}) \mathbf{I}
+        + 2(\mathbf{qq} + q_{0}\mathbf{v} \times \mathbf{I})
+     \right\}
+     \cdot \mathbf{r}
+ ]
+ \\
+&=
+  [0,~ 
+   \{\mathbf{vv} + (\mathbf{I} - \mathbf{vv}) \cos \theta + (\mathbf{v} \times \mathbf{I}) \sin \theta\} \cdot \mathbf{r}]
+\end{align}
+を得る. $3 \times 3$の回転行列は
+\begin{align}
+ \mathcal{U}(q)
+=
+ \left(
+   \begin{array}{ccc}
+      q_{0}^{2} + q_{1}^{2} + q_{2}^{2} - q_{3}^{2} 
+    & 2(q_{1} q_{2} + q_{0} q_{3})
+    & 2(q_{1} q_{3} - q_{0} q_{2})
+    \\
+      2(q_{1} q_{2} - q_{0} q_{3})
+    & q_{0}^{2} - q_{1}^{2} + q_{2}^{2} - q_{3}^{2} 
+    & 2(q_{2} q_{3} + q_{0} q_{1})
+    \\
+      2(q_{1} q_{3} + q_{0} q_{2})
+    & 2(q_{2} q_{3} - q_{0} q_{1})
+    & q_{0}^{2} - q_{1}^{2} - q_{2}^{2} + q_{3}^{2} 
+   \end{array}
+\right).
+\end{align}
+とかける.
+
+\subsection{行列の対角化}
+\subsubsection{ヤコビ法\cite{2019Kaneda}}
+ヤコビ法は実対称行列(エルミート行列)の全ての固有値・固有ベクトルを求めるための数値的な解法である.
+ヤコビ法では固有値が相似変換によって変化しないことを利用して,
+ある直交行列の列$G_{1}, G_{2}, G_{3}$を用いた相似変換
+\begin{align}
+ A_{1} &= G_{1}^{\mathrm{t}} A G_{1} \notag \\
+ A_{2} &= G_{2}^{\mathrm{t}} A G_{2} \notag \\
+ A_{3} &= G_{3}^{\mathrm{t}} A G_{3} \notag 
+\end{align}
+により, 行列$A$が徐々に対角行列に近くようにする.
+$A_{k}$が十分に対角行列に近くなると, (すなわち非対角成分の大きさが無視できる程度)
+その対角成分を固有値とみなせる.
+
+$A_{k}$が与えられた時, $A_{k+1}$を求めるには次のようにする.
+まず, $A_{k}$の絶対値の最大の要素を$a_{pq}$とする.
+$A_{k} \to A_{k+1}$の変形ではこの要素を相似変換により$0$にすることを考える.
+そのため, $G_{k}$として次の行列を用いる.
+\begin{align}
+ G_{k} =
+ \left[
+ \begin{array}{ccc}
+   \begin{array}{ccc}
+     1 &        &    \\
+       & \ddots &    \\
+       &        & 1  \\
+   \end{array}
+   &  &  
+   \\
+   &
+   \begin{array}{ccccc}
+     \cos \theta  &   &        &   & \sin \theta \\
+                  & 1 &        &   &             \\
+                  &   & \ddots &   &             \\
+                  &   &        & 1 &             \\
+     -\sin \theta &   &        &   & \cos \theta \\
+   \end{array}  
+  & 
+  \\
+  & 
+  & 
+  \begin{array}{ccc}
+     1 &        &    \\
+       & \ddots &    \\
+       &        & 1  \\
+  \end{array}
+  \\
+ \end{array}
+ \right]
+\end{align}
+$G_{k}$は単位行列の$pp$成分と$qq$を$\cos\theta$, $pq$成分を$\sin\theta$, $qp$成分を$-\sin\theta$と置き直したものである.
+これは第$p$行第$q$列の2つの変数が作る平面内での回転行列であり, 直交行列である.
+$G_{k}$による相似変換をGivens変換と呼ぶ.
+Givens変換$A_{k+1} = G_{k}^{\mathrm{t}} A_{k} G_{k}$では変化を被る要素を第$p$行
+または第$q$行に属する要素と第$p$列または第$q$列に属する要素のみである.
+$A_{k}$の要素を$a_{ij}$, $A_{k+1}$の要素を$a_{ij}^{\prime}$と書くと,
+$a_{ij}^{\prime}$は次のように表される:
+\begin{alignat}{4}
+ a_{ij}^{\prime} &= a_{ij} & & (i \neq p, q \mathrm{かつ} j \neq p, q) \notag \\
+ a_{pj}^{\prime} &= a_{pj} \cos \theta - a_{pj} \sin \theta & & (j \neq p, q) \notag \\
+ a_{qj}^{\prime} &= a_{pj} \sin \theta + a_{qj} \cos \theta & & (j \neq p, q) \notag \\
+ a_{ip}^{\prime} &= a_{ip} \cos \theta - a_{iq} \sin \theta & & (i \neq p, q) \notag \\
+ a_{iq}^{\prime} &= a_{ip} \cos \theta + a_{iq} \sin \theta & & (i \neq p, q) \notag \\
+ a_{pp}^{\prime} &= a_{pp} \cos^{2}\theta + a_{qq} \sin^{2}\theta - 2 a_{pq} \sin\theta \cos\theta & &\notag \\
+ a_{qq}^{\prime} &= a_{pp} \sin^{2}\theta + a_{qq} \cos^{2}\theta + 2 a_{pq} \sin\theta \cos\theta & &\notag \\
+ a_{pq}^{\prime} &= \frac{1}{2} (a_{pp} - a_{qq}) \sin2\theta + a_{pq} \cos 2\theta \notag
+\end{alignat}
+ここで, $0$にしたい要素は$a_{pq}^{\prime}$である. つまり
+\begin{align}
+ a_{pq}^{\prime} &= \frac{1}{2} (a_{pp} - a_{qq}) \sin2\theta + a_{pq} \cos 2\theta = 0
+\end{align}
+であるから,
+\begin{align}
+ \tan 2\theta = \frac{-2 a_{pq}}{a_{pp} - a_{qq}}
+\end{align}
+となるような回転角$\theta$をえらぶ.
+以上の相似変換を繰り返すことで, 固有値が$A_{k+1}$の対角成分として得られる.
+固有ベクトルは
+\begin{align}
+ G_{1} G_{2} \cdots G_{k+1} E
+\end{align}
+の列ベクトルとして求まる.
+
+%\subsection{特異値分解}
+
+\bibliographystyle{junsrt}
+\bibliography{rmsd}
+\input{../include/end}

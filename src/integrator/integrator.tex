@@ -1,0 +1,984 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+
+\title{運動方程式の時間発展}
+\maketitle
+
+本章では, 分子シミュレーションにおいて運動方程式を数値的に解くための
+アルゴリズムについて述べる\cite{2000Okazaki, 2003Ueda}. 
+また, 運動方程式の数値積分のアルゴリズムを系統的に導くのに有用な時間発展演算子法と, 
+その応用例である時間反転多時間刻み法\cite{1992Tuckerman}を取り上げる. 
+
+\section{時間積分のアルゴリズム}
+ミクロカノニカルアンサンブルにおける運動方程式
+\begin{align}
+ \dot{\bm{v}}_{i} &= \frac{\bm{F}_{i}}{m_{i}} \label{eq:EoM-Newton} \\
+ \dot{\bm{r}}_{i} &= \bm{v}_{i}               \label{eq:EoM-Velocity}
+\end{align}
+の微分を差分におきかえることで, この運動方程式を数値的に解く.
+
+\subsection{運動方程式の差分化: オイラー法, 修正オイラー法}
+\subsubsection{オイラー法}
+座標と運動量を$\Delta t$に関してテイラー展開を行う.
+\begin{align}
+  \bm{r}_{i}(t + \Delta t)
+&=\bm{r}_{i}(t)
+ +\dot{\bm{r}}_{i} (t)\Delta t
+ +\mathcal{O}((\Delta t)^{2})
+  \\
+  \bm{v}_{i}(t + \Delta t)
+&=\bm{v}_{i}(t)
+ +\dot{\bm{v}}_{i} (t)\Delta t
+ +\mathcal{O}((\Delta t)^{2})
+\end{align}
+運動方程式(\ref{eq:EoM-Newton})(\ref{eq:EoM-Velocity})を代入し,
+$\mathcal{O}((\Delta t)^{2})$の部分を無視することで
+\begin{align}
+  \bm{r}_{i}(t + \Delta t)
+&=\bm{r}_{i}(t)
+ +\bm{v}_{i}(t) \Delta t
+  \\
+  \bm{v}_{i}(t + \Delta t)
+&=\bm{v}_{i}(t)
+ +\frac{\bm{F}_{i}(t)}{m_{i}}\Delta t
+\end{align}
+を得る.
+このように座標と速度を次々と更新することで運動方程式の時間発展させることができる.
+この方法を1次のオイラー法という.
+この方法は精度と安定性が悪いため実用的ではない.
+
+\subsubsection{修正オイラー法}
+オイラー法では時刻$t$における座標$\bm{r}(t)$からから計算した力$\bm{F}(t)$に基づいて
+速度を更新してる.
+修正オイラー法では時刻$t+\Delta t$における座標$\bm{r}(t + \Delta t)$から計算した
+力$\bm{F}(t + \Delta t)$に基づいて速度を更新する:
+\begin{align}
+  \bm{r}_{i}(t + \Delta t)
+&=\bm{r}_{i}(t)
+ +\bm{v}_{i}(t) \Delta t
+  \\
+  \bm{v}_{i}(t + \Delta t)
+&=\bm{v}_{i}(t)
+ +\frac{\bm{F}_{i}(t+\Delta t)}{m_{i}}\Delta t
+\end{align}
+わずかな修正だがオイラー法と比較して精度と安定性が大幅に向上する.
+これは修正オイラー法はシンプレクティック性を満たす時間発展法だからである.
+
+\subsection{運動方程式の差分化: ベルレ法, 蛙跳び法, 速度ベルレ法}
+始めに時刻$t$を基準に$t \pm \Delta t/2$における速度$\bm{v}_{i}$のテイラー展開を行う. 
+\begin{align}
+ \bm{v}_{i} \left(t + \frac{\Delta t}{2} \right)
+ &= \bm{v}_{i}(t)
+  + \dot{\bm{v}}_{i}(t)\frac{\Delta t}{2}
+  + \frac{1}{2!} \ddot{\bm{v}}_{i} (t) \left(\frac{\Delta t}{2} \right)^{2}
+  + \mathcal{O}((\Delta t)^3)
+    \label{Eq:TaylorSeries-Velocity1} 
+ \\
+ \bm{v}_{i} \left(t - \frac{\Delta t}{2} \right)
+ &= \bm{v}_{i}(t)
+  - \dot{\bm{v}}_{i}(t)\frac{\Delta t}{2}
+  + \frac{1}{2!} \ddot{\bm{v}}_{i} (t) \left(\frac{\Delta t}{2} \right)^{2}
+  + \mathcal{O}((\Delta t)^3)
+ \label{Eq:TaylorSeries-Velocity2}
+\end{align}
+式(\ref{Eq:TaylorSeries-Velocity1})と式(\ref{Eq:TaylorSeries-Velocity2})の
+和と差をとることで,
+\begin{align}
+    \bm{v}_{i}(t) 
+ &=
+    \frac{1}{2}
+    \left\{
+            \bm{v}_{i}\left(t + \frac{\Delta t}{2} \right)
+          + \bm{v}_{i}\left(t - \frac{\Delta t}{2} \right)
+    \right\}
+  +
+    \mathcal{O}((\Delta t)^{2})
+ \label{Eq:Velocity1}
+ \\
+    \dot{\bm{v}}_{i}(t)
+ &=
+    \frac{1}{\Delta t}
+    \left\{
+            \bm{v}_{i} \left( t + \frac{\Delta t}{2} \right)
+          - \bm{v}_{i} \left( t - \frac{\Delta t}{2} \right)
+          + \mathcal{O}((\Delta t)^3)
+    \right\}
+ \label{Eq:diff_Velocity1}
+\end{align}
+を得る. 式(\ref{Eq:diff_Velocity1})を運動方程式(\ref{eq:EoM-Newton})に代入して
+\begin{equation}
+   \frac{\bm{F}_{i}(t)}{m_{i}}
+ =
+   \frac{1}{\Delta t}
+   \left\{
+           \bm{v}_{i} \left( t + \frac{\Delta t}{2} \right)
+         - \bm{v}_{i} \left( t - \frac{\Delta t}{2} \right)
+         + \mathcal{O}((\Delta t)^3)
+   \right\}
+ \label{Eq:EoM_DiffFormura1}
+\end{equation}
+を得る. 続いて$t \pm \Delta t/2$を基準に時刻$t$と$t \pm \Delta t$における
+$\bm{r}_{i}$のテイラー展開を行う. 
+\begin{align}
+ \bm{r}_{i} (t)
+ &=~ 
+     \bm{r}_{i} \left( t + \frac{\Delta t}{2} \right)
+   - \dot{\bm{r}}_{i} \left( t + \frac{\Delta t}{2} \right)\frac{\Delta t}{2}
+   + \frac{1}{2!} \ddot{\bm{r}}_{i} \left( t + \frac{\Delta t}{2} \right)
+     \left( \frac{\Delta t}{2} \right)^{2}
+   + \mathcal{O} ((\Delta t)^{3})
+ \label{Eq:TaylorSeries-Position1} 
+ \\
+  \bm{r}_{i} (t)
+ &=~ 
+     \bm{r}_{i} \left( t - \frac{\Delta t}{2} \right)
+   + \dot{\bm{r}}_{i} \left( t - \frac{\Delta t}{2} \right) \frac{\Delta t}{2}
+   + \frac{1}{2!} \ddot{\bm{r}}_{i} \left( t - \frac{\Delta t}{2} \right)
+     \left( \frac{\Delta t}{2} \right)^{2}
+   + \mathcal{O} ((\Delta t)^{3})
+ \label{Eq:TaylorSeries-Position2}
+ \\
+   \bm{r}_{i} (t + \Delta t)
+ &=~ 
+    \bm{r}_{i} \left( t + \frac{\Delta t}{2} \right)
+ + \dot{\bm{r}}_{i}
+   \left( t + \frac{\Delta t}{2} \right) \frac{\Delta t}{2}
+ + \frac{1}{2!} \ddot{\bm{r}}_{i} \left( t + \frac{\Delta t}{2} \right)
+   \left( \frac{\Delta t}{2} \right)^{2}
+ + \mathcal{O} ((\Delta t)^{3})
+ \label{Eq:TaylorSeries-Position3} 
+ \\
+  \bm{r}_{i} (t - \Delta t)
+ &=~
+     \bm{r}_{i} \left( t - \frac{\Delta t}{2} \right)
+   - \dot{\bm{r}}_{i} \left( t - \frac{\Delta t}{2} \right)\frac{\Delta t}{2}
+   + \frac{1}{2!} \ddot{\bm{r}}_{i} \left( t - \frac{\Delta t}{2} \right)
+     \left( \frac{\Delta t}{2} \right)^{2}
+   + \mathcal{O} ((\Delta t)^{3})
+ \label{Eq:TaylorSeries-Position4}
+\end{align}
+式(\ref{Eq:TaylorSeries-Position1})と式(\ref{Eq:TaylorSeries-Position3}),
+式(\ref{Eq:TaylorSeries-Position2})と式(\ref{Eq:TaylorSeries-Position4})
+の差をそれぞれ計算すると
+\begin{align}
+  \dot{\bm{r}}_{i} \left( t + \frac{\Delta t}{2} \right) \Delta t
+= \bm{r}_{i} (t + \Delta t) - \bm{r}_{i}(t)
++ \mathcal{O}((\Delta t)^{3})
+  \label{Eq:diff_Position1}
+  \\
+  \dot{\bm{r}}_{i} \left( t - \frac{\Delta t}{2} \right) \Delta t 
+= \bm{r}_{i} (t) - \bm{r}_{i}(t - \Delta t)
++ \mathcal{O}((\Delta t)^{3})
+  \label{Eq:diff_Position2}
+\end{align}
+となる. さらに式(\ref{eq:EoM-Velocity})に代入すると
+\begin{align}
+ \bm{v}_{i} \left(t + \frac{\Delta t}{2} \right)
+&=
+ \frac{1}{\Delta t}
+ \left\{
+        \bm{r}_{i}(t + \Delta t) - \bm{r}_{i}(t) + \mathcal{O}((\Delta t)^{3})
+ \right\}
+ \notag
+ \\
+&=
+ \frac{1}{\Delta t}
+ \left\{
+        \bm{r}_{i}(t + \Delta t) - \bm{r}_{i}(t)
+ \right\}
+ + \mathcal{O}((\Delta t)^{2})
+ \label{Eq:Velocity2}
+ \\
+ \bm{v}_{i} \left(t - \frac{\Delta t}{2} \right)
+ &=
+ \frac{1}{\Delta t}
+ \left\{
+        \bm{r}_{i}(t) - \bm{r}_{i}(t - \Delta t)  + \mathcal{O}((\Delta t)^{3})
+ \right\}
+ \notag
+ \\
+ &=
+ \frac{1}{\Delta t}
+ \left\{
+        \bm{r}_{i}(t) - \bm{r}_{i}(t - \Delta t)
+ \right\}
+ + \mathcal{O}((\Delta t)^{2})
+ \label{Eq:Velocity3}
+\end{align}
+を得る. 式(\ref{Eq:Velocity2}), (\ref{Eq:Velocity3})を
+式(\ref{Eq:EoM_DiffFormura1})に代入すると
+\begin{equation}
+    \frac{\bm{F}_{i}(t)}{m_{i}}
+ =
+   \frac{1}{(\Delta t)^2}
+   \left\{
+            \bm{r}_{i} \left( t + \Delta t \right)
+         - 2\bm{r}_{i} (t)
+         +  \bm{r}_{i} \left( t - \Delta t \right)
+   \right\}
+   + \mathcal{O}((\Delta t)^2)
+ \label{Eq:EoM_DiffFormura2}
+\end{equation}
+となる.
+一見誤差は$\mathcal{O}((\Delta t))$のように思うかもしれない.
+しかし$\bm{r}_{i}$のテイラー展開を$(\Delta t)^{3}$の項まで実行し, 
+速度の差分式(\ref{Eq:Velocity2}), (\ref{Eq:Velocity3})を$(\Delta t)^{3}$の項まで
+求めておけば, 式(\ref{Eq:EoM_DiffFormura1})の大括弧内の誤差は$\mathcal{O}((\Delta t)^{3})$
+となる. 
+したがって式(\ref{Eq:EoM_DiffFormura2})の誤差は$\mathcal{O}((\Delta t)^{2})$である.
+(\ref{Eq:EoM_DiffFormura2})における$(\Delta t)^{2}$の項を無視した差分式による時間発展を
+{\bf{ベルレ法}}という.
+
+\subsubsection{ベルレ法}
+式(\ref{Eq:EoM_DiffFormura2})による時間発展をベルレ法とよぶ.
+\begin{align}
+  \bm{r}_{i}(t + \Delta t) 
+&=
+  2\bm{r}_{i}(t) - \bm{r}_{i}(t - \Delta t) + \frac{\bm{F}_{i}(t)}{m_{i}} (\Delta t)^{2}
+  \label{Eq:Verlet1}
+\end{align}
+ベルレ法は座標だけで時間発展をおこなう.
+このアルゴリズムは時間反転$(\Delta t \to -\Delta t)$に対して対称であることがわかる.
+速度を求める必要がある場合, 式(\ref{Eq:Velocity1}), (\ref{Eq:Velocity2}), (\ref{Eq:Velocity3})から
+\begin{align}
+  \bm{v}_{i}(t)
+&=
+  \frac{1}{2 \Delta t}
+  \left\{
+          \bm{r}_{i} (t + \Delta t) - \bm{r}_{i} (t - \Delta t)
+  \right\}
+  \label{Eq:Verlet2}
+\end{align}
+と計算することができる.
+
+
+実際にベルレ法を用いて時間発展を行う場合, 式(\ref{Eq:Verlet1})の第3項は第1項や第2項に比べて値が
+小さいため, 第3項の加算において桁落ちが起こり, 累積誤差が大きくなる. 
+桁落ちを防ぐためには式(\ref{Eq:Verlet1})を
+\begin{align}
+ \Delta \bm{r}_{i}(t) &= \bm{r}_{i}(t) - \bm{r}_{i}(t - \Delta t)
+ \notag
+ \\
+ \bm{r}_{i}(t + \Delta t) 
+&= \bm{r}_{i}(t) + \Delta \bm{r}_{i}(t)
+ + \frac{\bm{F}_{i}(t)}{m_{i}} (\Delta t)^{2} 
+\end{align}
+と変形して,
+\begin{align}
+   \Delta \bm{r}_{i} (t + \Delta t) 
+&= \Delta \bm{r}_{i} (t) + \frac{\bm{F}_{i}(t)}{m_{i}} (\Delta t)^{2}
+ \notag
+ \\
+   \bm{r}_{i} (t + \Delta t) 
+&= \bm{r}_{i}(t) + \Delta \bm{r}_{i} (t + \Delta t)
+\end{align}
+のように計算を分割する. 
+
+\subsubsection{リープ・フロッグ法}
+式(\ref{Eq:EoM_DiffFormura1}), (\ref{Eq:Velocity2})から以下のように時間発展させることができる.
+このアルゴリズムをリープ・フロッグ法という.
+\begin{align}
+  \bm{v}_{i} \left(t + \frac{\Delta t}{2} \right)
+ &=~
+   \bm{v}_{i} \left(t - \frac{\Delta t}{2} \right)
+ + \frac{\bm{F}_{i}(t)}{m_{i}} (\Delta t)^{2}
+ \label{Eq:LeapFrog1}
+ \\
+ \bm{r}_{i} (t + \Delta t)
+&=~
+ \bm{r}_{i} (t) + \bm{v}_{i} \left( t + \frac{\Delta t}{2} \right) \Delta t
+ \label{Eq:LeapFrog2}
+\end{align}
+リープ・フロッグ法は時刻$t$の速度$\bm{v}_{i}(t)$を飛ばして時間発展が進んでいく.
+時刻$t$の速度$\bm{v}_{i}(t)$を求めるには式(\ref{Eq:Velocity1})を用いて
+\begin{equation}
+    \bm{v}_{i} (t) 
+  = \frac{1}{2} 
+    \left\{
+           \bm{v}_{i} \left(t + \frac{\Delta t}{2}\right) 
+         + \bm{v}_{i} \left(t - \frac{\Delta t}{2}\right)
+    \right\}
+    \label{Eq:LeapFrog3}
+\end{equation}
+と計算する.
+
+\subsubsection{速度ベルレ法}
+式(\ref{Eq:LeapFrog1})と式(\ref{Eq:LeapFrog3})を連立させて
+$\bm{v}_{i}(t - \frac{\Delta t}{2})$を消すと,
+\begin{equation}
+ \bm{v}_{i} \left( t + \frac{\Delta t}{2} \right)
+  = \bm{v}_{i} (t)
+  + \frac{ \bm{F}_{i}(t) }{m_{i}} \frac{\Delta t}{2}
+ \label{Eq:VelocityVerlet_derivation1}
+\end{equation}
+を得る. 
+式(\ref{Eq:LeapFrog1})と式(\ref{Eq:LeapFrog3})をそれぞれ$\Delta t$だけ進めると,
+\begin{align}
+ \bm{v}_{i} \left( t + \frac{3}{2}\Delta t \right)
+ &= \bm{v}_{i} \left( t + \frac{\Delta t}{2} \right)
+  + \frac{\bm{F}_{i} (t + \Delta t)}{m_{i}}\Delta t 
+  + \mathcal{O}((\Delta t)^{3})
+ \label{Eq:VelocityVelret_derivation2}
+ \\
+ \bm{v}_{i} (t + \Delta t)
+ &= \frac{1}{2}
+    \left\{
+             \bm{v}_{i} \left( t + \frac{3}{2}\Delta t \right)
+           + \bm{v}_{i} \left( t + \frac{\Delta t}{2}  \right)
+    \right\}
+  + \mathcal{O}((\Delta t)^2)
+ \label{Eq:VelocityVelret_derivation3}
+\end{align}
+を得る. 
+式(\ref{Eq:VelocityVelret_derivation2})を式(\ref{Eq:VelocityVelret_derivation3})
+に代入して, $\bm{v}_{i}(t + \frac{3}{2}\Delta t)$を消去すると
+\begin{equation}
+ \bm{v}_{i} (t + \Delta t)
+  = \bm{v}_{i} \left( t + \frac{\Delta t}{2} \right)
+  + \frac{\bm{F}_{i} (t + \Delta t)}{m_{i}} \frac{\Delta t}{2}
+  + \mathcal{O}((\Delta t)^{2})
+ \label{Eq:VelocityVelret_derivation4}
+\end{equation}
+を得る. 
+式(\ref{Eq:LeapFrog2}), (\ref{Eq:VelocityVerlet_derivation1}), 
+(\ref{Eq:VelocityVelret_derivation4})をまとめると,
+\begin{alignat}{2}
+ &\bm{v}_{i} \left( t + \frac{\Delta t}{2} \right)
+ &&= \bm{v}_{i} (t)
+  + \frac{\bm{F}_{i} (t) }{m_{i}} \frac{\Delta t}{2}
+  + \mathcal{O}((\Delta t)^{2})
+ \label{eq:1.21}
+ \\
+ &\bm{r}_{i} (t + \Delta t)
+ &&= \bm{r}_{i} (t)
+  + \bm{v}_{i} \left( t + \frac{\Delta t}{2} \right)\Delta t
+  + \mathcal{O} ((\Delta t)^{2})
+ \label{eq:1.22}
+ \\
+ &\bm{v}_{i} \left( t + \Delta t \right)
+ &&= \bm{v}_{i} \left(t + \frac{\Delta t}{2} \right)
+  + \frac{\bm{F}_{i} (t + \Delta t) }{m_{i}} \frac{\Delta t}{2}
+  + \mathcal{O}((\Delta t)^{2})
+ \label{eq:1.23}
+\end{alignat}
+となる. このような時間発展方法を{\bf{速度ベルレ法}}という. 
+
+\section{ベルレ法によるエネルギーの誤差}
+\subsection{エネルギーの誤差}
+時間発展を実装した時にプログラムが正しいか確認するには, エネルギーの誤差を調べると良い.
+つまり, 積分法により予想されるエネルギーの誤差$\Delta \mathcal{H}$が時間ステップ$\Delta t$の
+何乗に比例するのかを調べる.
+\begin{equation}
+ \Delta \mathcal{H} \sim (\Delta t)^{k}
+\end{equation}
+予想された次数が得られれば,　エネルギーと力の計算のつじつまが合っている.
+
+エラーの種類にはローカルエラー$\delta \mathcal{H}$とグローバルエラー$\Delta \mathcal{H}$がある.
+ローカルエラーとは1ステップごとのエラーであり
+\begin{equation}
+ \delta \mathcal{H} = |\mathcal{H}_{n+1} - \mathcal{H}_{n}|
+\end{equation}
+で定義される. 
+後で導出するがベルレ法では$\delta \mathcal{H} = \mathcal{O}((\Delta t)^{3})$である.
+一方, グローバルエラーとは時刻$t = n \Delta t$でのエネルギーの値と$t=0$での値の差
+\begin{equation}
+ \Delta \mathcal{H} = |\mathcal{H}(n \Delta t) - \mathcal{H}(0)|
+\end{equation}
+で定義される.
+$n \Delta t$を一定値に保ったまま$\Delta t$を小さくすると, ステップ数$n$は$\Delta t$に反比例して
+大きくなる. ベルレ法の場合,
+\begin{align}
+  \Delta \mathcal{H} 
+&\propto 
+   n \delta \mathcal{H} \notag \\
+&= n \mathcal{O} ((\Delta t)^{3}) \notag \\
+&=   \mathcal{O} ((\Delta t)^{-1}) \mathcal{O} ((\Delta t)^{3}) \notag \\
+&=   \mathcal{O} ((\Delta t)^{2}) \notag
+\end{align}
+と見積もられる. 
+通常の方法では, グローバルエラーの次数はローカルエラーの次数より1小さい.
+$\Delta \mathcal{H}$の$\Delta t$依存性を調べるときには$t = n\Delta t$を一定に保ちながら$\Delta t$を
+変えてシミュレーションを実行する.
+\begin{align}
+ \log |\Delta \mathcal{H}| = k \log \Delta t + \mathrm{const.}
+\end{align}
+のように$\log |\Delta \mathcal{H}|$と$\log |\Delta t|$の傾きからエラーの次数$k$を計算できる.
+
+\subsection{ベルレ法におけるエネルギーの誤差の導出}
+ハミルトニアンの値を座標と速度のベクトル$\bm{r}=(r_{1}, r_{2}, \cdots, r_{3N})$と
+$\bm{v}=(v_{1}, v_{2}, \cdots, v_{3N})$で表すと
+\begin{align}
+ \mathcal{H} = \frac{m}{2}\bm{v}^{2} + U(\bm{r})
+ \label{Eq:Hamiltonian1}
+\end{align}
+である.
+ローカルエラーは
+\begin{align}
+   \delta \mathcal{H}
+&=
+   \mathcal{H}(\bm{r}_{n+1},~ \bm{v}_{n+1}) - \mathcal{H}(\bm{r}_{n},~ \bm{v}_{n})
+   \notag
+   \\
+&=
+   \frac{m}{2}(\bm{v}_{n+1} - \bm{v}_{n}) \cdot (\bm{v}_{n+1} + \bm{v}_{n})
+  + U(\bm{r}_{n+1}) - U(\bm{r}_{n})
+ \label{Eq:LocalError1}
+\end{align}
+となる. 
+ここで下付きの$n$は$n$ステップ目における変数であることを意味する.
+以下, 式(\ref{Eq:LocalError1})の各項を計算していく.
+ベルレ法における速度の式(\ref{Eq:Verlet2})より
+\begin{align}
+   \bm{v}_{n+1} - \bm{v}_{n}
+ &=
+   % \frac{1}{2\Delta t}
+   % \left\{
+   %        (\bm{r}_{n+2} - \bm{r}_{n}) - (\bm{r}_{n+1} - \bm{r}_{n-1})
+   % \right\}
+   % \notag
+   % \\
+   \frac{1}{2\Delta t}
+   \left\{
+          \bm{r}_{n+2} - \bm{r}_{n+1} - \bm{r}_{n+1} - \bm{r}_{n-1}
+   \right\}
+   \label{Eq:LocalError_term1_derivation1}
+\end{align}
+となる.
+ベルレ法の時間発展式(\ref{Eq:Verlet1})より
+\begin{alignat}{3}
+   &\frac{(\Delta t)^{2}}{m_{i}} \bm{F}_{n}
+&&=
+   \bm{r}_{n+1} - 2 \bm{r}_{n} + \bm{r}_{n-1}
+   \notag
+   \\
+   &\frac{(\Delta t)^{2}}{m_{i}} \bm{F}_{n+1}
+&&=
+   \bm{r}_{n+2} - 2 \bm{r}_{n+1} + \bm{r}_{n}
+\end{alignat}
+であるので, 
+\begin{equation}
+   \frac{(\Delta t)^{2}}{m_{i}} (\bm{F}_{n+1} + \bm{F}_{n})
+ =
+   \bm{r}_{n+2} - \bm{r}_{n+1} - \bm{r}_{n} + \bm{r}_{n-1}
+   \label{Eq:LocalError_term1_derivation2}
+\end{equation}
+を得る. 
+式(\ref{Eq:LocalError_term1_derivation1}), (\ref{Eq:LocalError_term1_derivation2})
+より
+\begin{align}
+   \bm{v}_{n+1} - \bm{v}_{n}
+&=
+   \frac{\Delta t}{2m} (\bm{F}_{n+1} + \bm{F}_{n})
+   \notag
+   \\
+&=
+   \frac{\Delta t}{2m_{i}}
+   \left\{
+           2\bm{F}_{n} 
+         + \frac{d \bm{F}_{n}}{dt} \Delta t
+         + \frac{1}{2!} \frac{d^{2} \bm{F}_{n}}{dt^{2}} (\Delta t)^{2}
+         + \mathcal{O}((\Delta t)^{3})
+   \right\}
+   \notag
+   \\
+&=
+   \frac{\Delta t}{m} 
+   \left\{
+           \bm{F}_{n} 
+         + \frac{\Delta t}{2m} \bm{F}_{n}^{\prime} \bm{v}_{n}
+         + \mathcal{O}((\Delta t)^{2})
+   \right\}
+   \label{Eq:LocalError_term1}
+\end{align}
+となる. 
+1行目から2行目で$\bm{F}_{n+1}$を$\bm{F}_{n}$を基準にテイラー展開した.
+さらに2行目から3行目において
+\begin{align}
+  \frac{d \bm{F}_{n}}{dt}
+= \frac{d \bm{F}_{n}}{d \bm{r}_{n}} \frac{d \bm{r}_{n}}{dt}
+= \frac{d \bm{F}_{n}}{d \bm{r}_{n}} \bm{v}_{n}
+= \bm{F}_{n}^{\prime} \bm{v}_{n}
+\end{align}
+のように連鎖律を利用して書き直した. ここで$\bm{r}_{n}$での微分を$^{\prime}$で表した.
+式(\ref{Eq:LocalError_term1})の第一行目の両辺に$2\bm{v}_{n}$を足し, テイラー展開により
+$\bm{F}_{n+1}$を$\bm{F}_{n}$で近似すると
+\begin{align}
+   \bm{v}_{n+1} + \bm{v}_{n} 
+&=
+   2\bm{v}_{n} + \frac{\Delta t}{2m}(\bm{F}_{n+1} + \bm{F}_{n})
+   \notag
+   \\
+&=
+   2 \left\{
+             \bm{v}_{n} + \frac{\Delta t}{2m} \bm{F}_{n} 
+           + \mathcal{O}((\Delta t)^{2})
+     \right\}
+  \label{Eq:LocalError_term2}
+\end{align}
+を得る.
+
+続いてポテンシャルエネルギー$U(\bm{r}_{n+1})$をテイラー展開する.
+\begin{align}
+  U(\bm{r}_{n+1})
+=
+  U(\bm{r}_{n})
++ \frac{d U(\bm{r}_{n})}{dt} \Delta t
++ \frac{1}{2!} \frac{d^{2} U(\bm{r}_{n})}{dt^{2}} (\Delta t)^{2}
++ \mathcal{O}((\Delta t)^{3})
+\end{align}
+ここで, 
+\begin{align}
+  \frac{d U(\bm{r}_{n})}{dt}
+= \frac{d U(\bm{r}_{n})}{d \bm{r}_{n}} \cdot \frac{d \bm{r}_{n}}{d t} 
+= -\bm{F}_{n} \cdot \bm{v}_{n}
+\end{align}
+と運動方程式
+\begin{align}
+ \frac{d \bm{v}_{n}}{dt} = \frac{\bm{F}_{n}}{m}
+\end{align}
+を用いると
+\begin{align}
+   U(\bm{r}_{n+1})
+&=
+   U(\bm{r}_{n})
+ - \bm{F}_{n} \cdot \bm{v}_{n} \Delta t
+ - \frac{d}{dt}(\bm{F}_{n} \cdot \bm{v}_{n}) \frac{(\Delta t)^{2}}{2}
+ + \mathcal{O}((\Delta t)^{3})
+ \notag
+ \\
+&=
+   U(\bm{r}_{n})
+ - \bm{F}_{n} \cdot \bm{v}_{n} \Delta t
+ - \bm{F}_{n}^{\prime} \bm{v}_{n} \cdot \bm{v}_{n} \frac{(\Delta t)^{2}}{2}
+ - \bm{F}_{n} \cdot \bm{F}_{n} \frac{(\Delta t)^{2}}{2m}
+ + \mathcal{O}((\Delta t)^{3})
+ \label{Eq:LocalError_term3}
+\end{align}
+と展開される. 
+以上で得られた式(\ref{Eq:LocalError_term1}), (\ref{Eq:LocalError_term2}), 
+(\ref{Eq:LocalError_term3})を式(\ref{Eq:LocalError1})に代入すると
+\begin{align}
+    \delta \mathcal{H}
+=&
+   \frac{m}{2}(\bm{v}_{n+1} - \bm{v}_{n}) \cdot (\bm{v}_{n+1} + \bm{v}_{n})
+  + U(\bm{r}_{n+1}) - U(\bm{r}_{n})
+  \notag
+  \\
+=&
+  \frac{m}{2}
+  \frac{\Delta t}{m} 
+  \left\{
+          \bm{F}_{n} 
+        + \frac{\Delta t}{2m} \bm{F}_{n}^{\prime} \bm{v}_{n}
+        + \mathcal{O}((\Delta t)^{2})
+  \right\}
+  \cdot
+     2 \left\{
+             \bm{v}_{n} + \frac{\Delta t}{2m} \bm{F}_{n} 
+           + \mathcal{O}((\Delta t)^{2})
+     \right\}
+ \notag
+ \\
+&+
+   U(\bm{r}_{n})
+ - \bm{F}_{n} \cdot \bm{v}_{n} \Delta t
+ - \bm{F}_{n}^{\prime} \bm{v}_{n} \cdot \bm{v}_{n} \frac{(\Delta t)^{2}}{2}
+ - \bm{F}_{n} \cdot \bm{F}_{n} \frac{(\Delta t)^{2}}{2m}
+ + \mathcal{O}((\Delta t)^{3})
+ \notag
+ \\
+&-
+   U(\bm{r}_{n})
+ \notag
+ \\
+=&
+ \mathcal{O}((\Delta t)^{3})
+\end{align}
+つまり$(\Delta t)^{2}$までの項は完全に打ち消し合い, 誤差のオーダーは
+$\mathcal{O}((\Delta t)^{3})$となる.
+ゆえに, ベルレ法によるエネルギーのローカルエラーは$(\Delta t)^{3}$に比例する.
+グローバルエラーは$(\Delta t)^{2}$に比例する:
+\begin{align}
+ \Delta \mathcal{H} = \mathcal{O}((\Delta t)^{2})
+\end{align}
+リープ・フロッグ法, 速度ベルレ法でも同様にグローバルエラーは$(\Delta t)^{2}$に比例する.
+
+
+\section{時間発展演算子による取り扱い}
+時間発展演算子を用いることで, ここまでに導出してきた時間積分のアルゴリズムを
+見通しよく導くことができる.
+ここではハミルトン形式を考える.
+ハミルトンの正準方程式
+\begin{alignat}{3}
+ &\dot{\bm{r}}_{i}
+   = && \frac{\partial \mathcal{H}}{\partial \bm{p}_{i}}
+ &&= \frac{\bm{p}_{i}}{m_{i}}
+ \label{eq:1.24}
+ \\
+ &\dot{\bm{p}}_{i}
+   = - && \frac{\partial \mathcal{H}}{\partial \bm{r}_{i}}
+ &&= \bm{F}_{i}
+ \label{eq:1.25}
+\end{alignat}
+より, ミクロカノニカルアンサンブルにおける運動は位相空間$(\bm{r}, \bm{p})$で記述できる. 
+任意の物理量$A(\bm{r}, \bm{p})$の時間微分は,
+\begin{equation}
+ \dot{A}(\bm{r}, \bm{p})
+  = \sum_{i} \dot{\bm{r}}_{i} \cdot \frac{\partial A}{\partial \bm{r}_{i}}
+  + \sum_{i} \dot{\bm{p}}_{i} \cdot \frac{\partial A}{\partial \bm{p}_{i}}
+ \label{eq:1.26}
+\end{equation}
+となる. ここで演算子
+\begin{align}
+ \mathcal{D} \equiv
+      \sum_{i} \dot{\bm{r}}_{i} \cdot \frac{\partial}{\partial \bm{r}_{i}}
+    + \sum_{i} \dot{\bm{p}}_{i} \cdot \frac{\partial}{\partial \bm{p}_{i}}
+ \label{eq:1.27}
+\end{align}
+を導入する. 運動方程式(\ref{eq:1.24}), (\ref{eq:1.25})より演算子$\mathcal{D}$は
+\begin{align}
+ \mathcal{D} \equiv
+    \sum_{i} \frac{\bm{p}_{i}}{m_{i}}
+    \cdot \frac{\partial}{\partial \bm{r}_{i}}
+  + \sum_{i} \bm{F}_{i} \cdot \frac{\partial}{\partial \bm{p}_{i}}
+ \label{eq:1.27}
+\end{align}
+とかける. 式(\ref{eq:1.26})に代入することで,微分方程式
+\begin{equation}
+ \dot{A}(\bm{r}, \bm{p}) = \mathcal{D}A
+ \label{eq:1.28}
+\end{equation}
+を得る. この微分方程式は次のように形式的に解くことができる. 
+\begin{equation}
+ A(t + \Delta t ) = e^{\mathcal{D} \Delta t} A(t)
+ \label{eq:1.29}
+\end{equation}
+ここで, $e^{\mathcal{D} \Delta t}$は$A(t)$に作用して$\Delta t$だけ時間発展させることから
+時間発展演算子という. 
+
+続いて,この微分方程式を数値積分できる形にするために,演算子$\mathcal{D}$を次のように分割する. 
+\begin{alignat}{2}
+ &\mathcal{D}     &&= \mathcal{D}_{1} + \mathcal{D}_{2}
+ \label{eq:1.30}
+ \\
+ &\mathcal{D}_{1} &&= \sum_{i} \frac{\bm{p}_{i}}{m_{i}} 
+                      \cdot \frac{\partial}{\partial \bm{r}_{i}}
+ \label{eq:1.31}
+ \\
+ &\mathcal{D}_{2} &&= \sum_{i} \bm{F}_{i}
+                      \cdot \frac{\partial}{\partial \bm{p}_{i}}
+ \label{eq:1.32}
+\end{alignat}
+$e^{\mathcal{D}_{j} \Delta t}$の展開式
+\begin{align}
+ e^{\mathcal{D}_{j} \Delta t}
+ &=   1 + \mathcal{D}_{j} \Delta t
+    + \frac{1}{2!} \mathcal{D}_{j}^{2} (\Delta t)^{2} + \cdots
+\end{align}  
+を用いることで, 時間発展演算子はそれぞれ
+\begin{align}
+ e^{\mathcal{D}_{1} \Delta t}
+ &=   1 + \sum_{i} \frac{\bm{p}_{i} (t)}{m_{i}}
+          \cdot \frac{\partial}{\partial \bm{r}_{i}} \Delta t
+        + \cdots
+ \label{eq:1.34}
+ \\
+ e^{\mathcal{D}_{2} \Delta t}
+ &=   1 + \sum_{i} \bm{F}_{i} (t)
+          \cdot \frac{\partial}{\partial \bm{p}_{i}} \Delta t
+        + \cdots
+\end{align}
+と展開することができる.
+次に, 時間発展演算子を位相空間に作用することを考える.
+各時間発展演算子による位相空間の時間発展は
+\begin{align}
+ e^{\mathcal{D}_{1} \Delta t}
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t) \\
+ \end{bmatrix}
+ &= \left[
+           1 + \sum_{i} \frac{\bm{p}_{i}}{m_{i}}
+               \cdot \frac{\partial}{\partial \bm{r}_{i}} \Delta t + \cdots
+    \right]
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t) \\
+  \end{bmatrix}
+ \notag
+ \\
+ &=
+ \begin{bmatrix}
+  \bm{r}_{i} (t) + \frac{\bm{p}_{i}(t)}{m_{i}} \Delta t \\
+  \bm{p}_{i} (t)                                            \\
+ \end{bmatrix}
+ \label{eq:1.35}
+\end{align}
+
+\begin{align}
+ e^{\mathcal{D}_{2} \Delta t}
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t) \\
+ \end{bmatrix}
+ &= \left[
+          1 + \sum_{i} \bm{F}_{i}
+              \cdot \frac{\partial}{\partial \bm{p}_{i}} \Delta t + \cdots
+    \right]
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t) \\
+ \end{bmatrix}
+ \notag \\
+ &=
+ \begin{bmatrix}
+  \bm{r}_{i} (t)                                            \\
+  \bm{p}_{i} (t) + \bm{F}_{i}(t) \Delta t               \\
+ \end{bmatrix}
+ \label{eq:1.36}
+\end{align}
+である.
+時間発展演算子$e^{\mathcal{D} \Delta t}$を$e^{\mathcal{D}_{2} \Delta t}e^{\mathcal{D}_{1} \Delta t}$
+の順番で位相空間に作用させると, 修正オイラー法と同じ時間発展アルゴリズムを得ることが確認できる.
+
+さらに, 鈴木・トロッター展開を用いると時間発展演算子$e^{\mathcal{D} \Delta t}$
+\begin{align}
+ e^{\mathcal{D} \Delta t}
+  &=  e^{(\mathcal{D}_{1} + \mathcal{D}_{2}) \Delta t}
+ \notag
+ \\ 
+  &=  e^{\mathcal{D}_{2} \frac{\Delta t}{2}}
+      e^{\mathcal{D}_{1} \Delta t}
+      e^{\mathcal{D}_{2} \frac{\Delta t}{2}}
+    + \mathcal{O}((\Delta t)^{3})
+ \label{eq:1.33}
+\end{align}
+と分割できる. 
+式(\ref{eq:1.33})の順に位相空間に時間発展演算子を作用させることで,
+\begin{alignat}{2}
+ &\bm{p}_{i} \left(t + \frac{\Delta t}{2} \right)
+ &&= \bm{p}_{i} (t) + \bm{F}_{i} (t) \frac{\Delta t}{2}
+ \label{eq:1.37}
+ \\
+ &\bm{r}_{i} (t + \Delta t)
+ &&=  \bm{r}_{i} (t)
+    + \frac{\bm{p}_{i} (t + \frac{\Delta t}{2})}{m_{i}} \Delta t
+ \label{eq:1.38}
+ \\
+ &\bm{p}_{i} \left(t + \Delta t \right)
+ &&= \bm{p}_{i} \left(t + \frac{\Delta t}{2}\right) + \bm{F}_{i} (t + \Delta t) \frac{\Delta t}{2}
+ \label{eq:1.39}
+\end{alignat}
+を得る. これは速度ベルレ法と同じ時間発展法である. 
+一方で,
+\begin{equation}
+ e^{\mathcal{D} \Delta t}
+  =  e^{\mathcal{D}_{1} \frac{\Delta t}{2}}
+     e^{\mathcal{D}_{2} \Delta t}
+     e^{\mathcal{D}_{1} \frac{\Delta t}{2}}
+  +  \mathcal{O}((\Delta t)^{3})
+\end{equation}
+のように時間発展演算子を分解すると,
+\begin{alignat}{2}
+ &\bm{r}_{i} \left(t + \frac{\Delta t}{2} \right)
+ &&= \bm{r}_{i} (t) + \frac{\bm{p}_{i}(t)}{m_{i}} \frac{\Delta t}{2}
+ \label{eq:1.40}
+ \\
+ &\bm{p}_{i} (t + \Delta t)
+ &&=  \bm{p}_{i} (t)
+    + \bm{F}_{i} \left( t + \frac{\Delta t}{2} \right) \Delta t
+ \label{eq:1.41}
+ \\
+ &\bm{r}_{i} \left(t + \Delta t \right)
+ &&=  \bm{r}_{i} \left(t + \frac{\Delta t}{2} \right)
+    + \frac{\bm{p}_{i}(t + \Delta t)}{m_{i}} \frac{\Delta t}{2}
+ \label{eq:1.42}
+\end{alignat}
+を得る. この時間発展アルゴリズムは{\bf{位置ベルレ法}}と呼ばれる. 
+位置ベルレ法の場合,半ステップずれた時刻での力を計算することで時間発展させる. 
+そのため,各時間ステップでの力,ポテンシャルエネルギー,ヴィリアルなどの
+座標の関数を求めるには,再度力を計算しなければならない. 
+
+
+
+
+\section{時間反転多時間刻み法(RESPA: Reversible Reference System Propagator Algorithm)}
+\subsection{短距離力と長距離力に対するRESPA法}
+$i$番目の粒子に作用する力$\bm{F}_{i}(\bm{r})$を以下のように, 
+短距離力$\bm{F}_{i}^{\mathrm{s}}(\bm{r})$と
+長距離力$\bm{F}_{i}^{\mathrm{l}}(\bm{r})$に分割することを考える. 
+\begin{equation}
+ \bm{F}(\bm{r})
+  = \bm{F}^{\mathrm{s}}(\bm{r})
+  + \bm{F}^{\mathrm{l}}(\bm{r})
+\end{equation}
+このとき, 演算子$\mathcal{D}$は
+\begin{align}
+ \mathcal{D}
+ &= \sum_{i} \frac{\bm{p}_{i}}{m_{i}}
+    \cdot \frac{\partial}{\partial \bm{r}_{i}}
+  + \sum_{i} \bm{F}^{\mathrm{s}}_{i} \cdot \frac{\partial}{\partial \bm{p}_{i}}
+  + \sum_{i} \bm{F}^{\mathrm{l}}_{i} \cdot \frac{\partial}{\partial \bm{p}_{i}} \\
+ &\equiv
+    \mathcal{D}^{\mathrm{s}}  
+  + \sum_{i} \bm{F}^{\mathrm{l}}_{i} \cdot \frac{\partial}{\partial \bm{p}_{i}}
+\end{align}
+とかける. 鈴木・トロッター分解を用いると時間発展演算子は
+\begin{equation}
+ e^{\mathcal{D}\Delta t}
+  = e^{(\Delta t/2) \sum_{i} \bm{F}^{l}_{i} \cdot \partial/\partial \bm{p}_{i}}
+    e^{\mathcal{D}^{\mathrm{s}} \Delta t}
+    e^{(\Delta t/2) \sum_{i} \bm{F}^{l}_{i} \cdot \partial/\partial \bm{p}_{i}} 
+ \label{eq:2.6}    
+\end{equation}
+と分割することができる. 
+中心にある時間発展演算子$e^{\mathcal{D}^{s} \Delta t}$は鈴木・トロッター展開を用いて
+以下のように分割できる. 
+\begin{equation}
+ e^{\mathcal{D}^{\mathrm{s}} \Delta t}
+  = \left[
+     e^{(\delta t/2) \sum_{i} \bm{F}^{\mathrm{s}}_{i} \cdot \partial/\partial \bm{p}_{i}}
+     e^{\delta t \sum_{i} (\bm{p}_{i}/m_{i}) \cdot \partial/\partial \bm{r}_{i}}
+     e^{(\delta t/2) \sum_{i} \bm{F}^{\mathrm{s}}_{i} \cdot \partial/\partial \bm{p}_{i}}
+    \right]^{n}
+ \label{eq:2.7}
+\end{equation}
+ここで, $\delta t \equiv \Delta t / n$は
+短距離力$\bm{F}_{i}^{\mathrm{s}}(\bm{r})$に対する時間刻みである. 
+$n$はダイナミクスの安定性が保証されるような値を選ぶ. 
+長距離力$\bm{F}_{i}^{\mathrm{s}}(\bm{r})$に関する時間発展演算子は運動量のみに作用する. 
+長距離力は$\Delta t$ごと, 短距離力は$\delta t$ごとに計算する必要がある. 
+したがって, $\Delta t$の間に1回の長距離力の計算と$n$回の短距離力の計算をすることになる. 
+
+式(\ref{eq:2.6})による時間発展は以下のように実行される. 
+\begin{enumerate}
+ \setlength{\leftskip}{0.4cm}
+ \item[Step 1:]
+ 状態$\{\bm{r}_{i}(t), \bm{p}_{i}(t)\}$に時間発展演算子
+ $e^{(\Delta t/2) \sum_{i} \bm{F}^{\mathrm{s}}_{i} \cdot \partial/\partial \bm{p}_{i}}$
+ を作用させることで, 
+ $\{\bm{r}_{i}(t), \bm{p}_{i}(t)+\frac{\Delta t}{2}\bm{F}_{i}^{\mathrm{l}}(\bm{r}(t))\}$
+ という状態を得る. 
+	      
+ \item[Step 2:]
+ Step 1 で得た状態に対して, 式(\ref{eq:2.7})で与えられる時間発展演算子を作用させることで, 位相空間を時間発展させる. 
+ これは, 短距離力$\bm{F}^{\mathrm{s}}(\bm{r})$のみを用いて, 速度ベルレ法による時間発展を$n$回繰り返すことに等しい. 
+	      
+ \item[Step 3:]
+  Step 2 で得た状態に対して, 時間発展演算子
+  $e^{(\Delta t/2) \sum_{i} \bm{F}^{\mathrm{s}}_{i} \cdot \partial/\partial \bm{p}_{i}}$を作用させる. 
+  最終的に$\{\bm{r}_{i}(t + \Delta t), \bm{p}_{i}(t + \Delta t)\}$を得る. 
+
+ \item[Step 4:]
+  Step 1〜Step 3を繰り返す. 
+\end{enumerate}
+ 
+\subsection{時間スケールの異なる運動に対するRESPA法}
+ここでは, 系を速い運動を持つ自由度と, 遅い運動を持つ自由度に分割する. 
+速い運動をするサブシステムをrapid,遅い運動をするサブシステムをslowと呼ぶことにする. 
+例えば, H原子のように軽い原子で構成され速く運動をする系と, 
+CやOのように重い原子で構成され遅い運動をする系に分けることができる. 
+このとき, 演算子$\mathcal{D}$は以下のように分割できる. 
+\begin{equation}
+ \mathcal{D} = \mathcal{D}_{\mathrm{rapid}} + \mathcal{D}_{\mathrm{slow}}
+\end{equation}
+ここで
+\begin{alignat}{2}
+ &\mathcal{D}_{\mathrm{rapid}}
+ &&= \sum_{i \in \mathrm{rapid}} \frac{\bm{p}_{i}}{m_{i}}
+     \cdot \frac{\partial}{\partial \bm{r}_{i}}
+   + \sum_{i \in \mathrm{rapid}} \bm{F}_{i}
+     \cdot \frac{\partial}{\partial \bm{p}_{i}}  \\
+ &\mathcal{D}_{\mathrm{slow}}
+ &&= \sum_{i \in \mathrm{slow}} \frac{\bm{p}_{i}}{m_{i}}
+     \cdot \frac{\partial}{\partial \bm{r}_{i}}
+   + \sum_{i \in \mathrm{slow}} \bm{F}_{i}
+     \cdot \frac{\partial}{\partial \bm{p}_{i}}
+\end{alignat}
+である. 鈴木・トロッター展開を用いると, 時間発展演算子は
+\begin{equation}
+ e^{\mathcal{D} \Delta t}
+  = e^{\mathcal{D}_{\mathrm{rapid}} \frac{\Delta t}{2}}
+    e^{\mathcal{D}_{\mathrm{slow}}  \Delta t}
+    e^{\mathcal{D}_{\mathrm{rapid}} \frac{\Delta t}{2}}
+ \label{eq:3.1}
+\end{equation}
+と分解される. 速い動きに対する時間発展演算子$e^{\mathcal{D}_{\mathrm{rapid}}}$はさらに
+\begin{equation}
+ e^{\mathcal{D}_{\mathrm{rapid}} \frac{\Delta t}{2}}
+  = \left[
+     e^{
+     (\delta t/2) \sum_{i \in \mathrm{rapid}} \bm{F}_{i}
+     \cdot \partial/\partial \bm{p}_{i}
+      }
+     e^{
+     \delta t \sum_{i \in \mathrm{rapid}} (\bm{p}_{i}/m_{i})
+     \cdot \partial/\partial \bm{p}_{i}
+      }
+     e^{
+     (\delta t/2) \sum_{i \in \mathrm{rapid}} \bm{F}_{i}
+     \cdot \partial/\partial \bm{p}_{i}
+     }
+    \right]^{n/2}
+ \label{eq:3.2}
+\end{equation}
+と分解することができる. 
+ここで$\delta t \equiv \Delta t/n$は速い自由度に対する時間刻みである. 
+式(\ref{eq:3.1})の中心にある時間発展演算子$e^{\mathcal{D}_{\mathrm{slow}}}$は
+遅い動きのみが含まれるので, 次のような時間刻みで分割する. 
+\begin{equation}
+ e^{\mathcal{D}_{\mathrm{slow}} \Delta t}
+  = e^{
+       (\Delta t/2) \sum_{i \in \mathrm{slow}} \bm{F}_{i}
+       \cdot \partial/\partial \bm{p}_{i}
+       }
+    e^{
+       \Delta t \sum_{i \in \mathrm{slow}} (\bm{p}_{i}/m_{i})
+       \cdot \partial/\partial \bm{p}_{i}
+       }
+    e^{
+       (\Delta t/2) \sum_{i \in \mathrm{slow}} \bm{F}_{i}
+       \cdot \partial/\partial \bm{p}_{i}
+       }
+ \label{eq:3.3}
+\end{equation}
+式(\ref{eq:3.1})の時間発展演算子では, 速い自由度に対する座標と運動量
+$(\bm{r}_{\mathrm{rapid}},\bm{p}_{\mathrm{rapid}})$については
+速度ベルレ法を$\delta t$刻みで$n$回繰り返しすことで時間発展させる. 
+一方で, 遅い自由度に対する座標と運動量
+$(\bm{r}_{\mathrm{slow}},\bm{p}_{\mathrm{slow}})$については
+速度ベルレ法を用いて$\Delta t$刻みで1回進めることで時間発展させる. 
+
+式(\ref{eq:3.1})の時間発展演算子による時間発展は以下のように記述される. 
+\begin{enumerate}
+ \setlength{\leftskip}{0.4cm}
+ \item[Step 1:]
+  状態$\{\bm{r}_{\mathrm{rapid}}(t), \bm{r}_{\mathrm{slow}}(t), \bm{p}_{\mathrm{rapid}}(t), \bm{p}_{\mathrm{slow}}(t) \}$に対して, 式(\ref{eq:3.2})で書かれる時間発展演算子を作用させる. これは, 速い自由度に対して, 時間刻み$\delta t = \Delta t/n$の速度ベルレ法による時間発展を$n/2$回繰り返すことに相当する. この間, 遅い自由度に対する座標と運動量$\{\bm{r}_{\mathrm{slow}} (t), \bm{p}_{\mathrm{slow}}(t)\}$は変化しない. 結果, 状態$\{\bm{r}_{\mathrm{rapid}}(t+\frac{\Delta t}{2}), \bm{r}_{\mathrm{slow}}(t), \bm{p}_{\mathrm{rapid}}(t+\frac{\Delta t}{2}), \bm{p}_{\mathrm{slow}}(t) \}$を得る. 
+
+ \item[Step 2:]
+  Step 1で得られた状態に対して, 式(\ref{eq:3.3})で書かれる時間発展演算子を作用させる. これは, 遅い自由度に対して, 速度ベルレ法を用いて$\Delta t$だけ時間発展させることに対応する. 
+  ここでは状態 $\{\bm{r}_{\mathrm{rapid}}(t+\frac{\Delta t}{2}), \bm{r}_{\mathrm{slow}}(t+\Delta t), \bm{p}_{\mathrm{rapid}}(t+\frac{\Delta t}{2}), \bm{p}_{\mathrm{slow}}(t+\Delta t) \}$を得る. 
+
+ \item[Step 3:]
+  Step 2で得られた状態に対して, Step 1と同様の手続きを踏むことで
+  速い運動の自由度を$\Delta t/2$だけ時間発展させる. 
+  最終的に, 状態$\{\bm{r}_{\mathrm{rapid}}(t+\Delta t), \bm{r}_{\mathrm{slow}}(t+\Delta t), \bm{p}_{\mathrm{rapid}}(t+\Delta t), \bm{p}_{\mathrm{slow}}(t+\Delta t) \}$を得る. 
+ \item[Step 4:]
+  Step 1〜Step 3を繰り返す. 
+\end{enumerate}
+
+これまで述べてきた方法では, もっとも速い運動に合わせて時間刻みを決定しなければならない. 
+しかし, このアルゴリズムでは, 遅い運動に関する力は各時間ステップ
+$\Delta t = n \delta t$ごとに1回計算し直せば良い. もし速い運動をするサブシステムの次元が
+全系の次元と比較して小さいのであれば, 遅い運動に関する力の計算は通常の方法よりも頻度が少なくすることができる. 
+そのため, 効率よく数値積分を実行することができる. 
+
+\clearpage
+
+\bibliographystyle{junsrt}
+\bibliography{integrator}
+\input{../include/end}

@@ -1,0 +1,113 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{溶媒接触表面積 (SASA: Solvent Accessible Surface Ares)}
+\maketitle
+
+\section{溶媒接触面積について\cite{2010TohHiroyuki}}
+タンパク質と直接接触している水分子の数や, タンパク質の特定の部分と接触している水分子の数に興味があることがある. 
+このような場合に, どの程度溶質が溶媒に露出しているかを測定する手段の一つが, 溶媒接触表面積(Solvent Accessible Surface Area)を計算することである. 
+
+ここでは, 溶質(例えば, タンパク質)が水中に存在している状況を考える. つまり, 溶質分子の周りには多くの水分子が隙間なくギッチリと詰まっている. プローブ球を溶質分子のファンデルワールス表面に接するように, 満遍なく転がした時, プローブ球の中心点の軌跡が描く表面を溶媒接触表面と定義する. 
+その面積が, 溶媒接触表面積である. 
+水分子の半径を1.4 {\AA}とすれば, 溶媒接触表面積は溶質分子に含まれる, 各原子のファンデルワールス半径に1.4{\AA}を加えた半径を持つ球の集合体の表面積と言い換えられる. 
+
+
+\subsection{溶媒接触表面積の計算方法}
+溶媒接触表面積の具体的な計算方法として, 
+\begin{itemize}
+    \item 球面上にランダムに点を打ち, 露出した点を数えることで表面積を推定する, モンテカルロ的な方法
+    \item 球面上に均一に点を割り振り, 球面を多面体で近似し(例えば, 正20面体), 多面体を構成する幾何構造の面積から近似する方法(DSSPプログラム)\cite{1983Kabsch}
+    \item ガウス・ボンネの定理を用いた厳密解による計算法
+    \item 円盤状に切断して近似計算するLee-Richardsの方法(NACCESSプログラム)\cite{1971Lee}
+\end{itemize}
+
+が挙げられる. 
+
+\subsubsection{モンテカルロ法による溶媒接触表面積の計算方法}
+溶媒分子に含まれる原子が球であると仮定して, 原子A, 原子B, 原子C, ...が配置している系を考える. 
+
+\paragraph{Step.1} 原子Aの座標を原点に持ち, 原子Aのファンデルワールス半径にプローブ球の半径を足した, 半径
+$r_{\mathrm{A, probe}} = r_{\mathrm{LJ}}^{\mathrm{A}} + r_{\mathrm{LJ}}^{\mathrm{probe}}$
+を持つ球の球面上にランダムな点を複数打つ. 
+原子Aのファンデルワールス半径にプローブ球の半径を足した半径を, 便利のために溶媒接触半径と呼ぶこととし, その球表面を原子Aの溶媒接触表面と呼ぶことにする. 
+プローブ球として水分子を用いる場合, $r_{\mathrm{LJ}}^{\mathrm{probe}} = 1.4$ {\AA}と設定することが多い. 
+球面座標は
+\begin{align}
+    x &= r \sin\theta \cos\phi \\
+    y &= r \sin\theta \sin\phi \\
+    x &= r \cos\theta
+\end{align}
+であるから, 半径$r$の球面上に一様に分布する点の座標$(x, y, z)$は, $z$軸の$\cos\theta (\equiv u)$と角度$\phi$の値をそれぞれ$-1$から$1$, $0$から$2\pi$の一様分布から取り出すことで決定できる. 
+つまり, 2つの一様乱数
+\begin{align}
+    u    &\in [-1, 1] \\
+    \phi &\in [0, 2\pi)
+\end{align}
+を用いると, 
+\begin{equation}
+    \sin \theta = \sqrt{1 - \cos^{2} \theta} = \sqrt{1 - u^{2}}
+\end{equation}
+であるから, 
+\begin{alignat}{3}
+    x &= r \sin\theta \cos\phi &&= r \sqrt{1 - u^{2}} \cos\phi \\
+    y &= r \sin\theta \sin\phi &&= r \sqrt{1 - u^{2}} \sin\phi \\
+    x &= r \cos\theta          &&= r u
+\end{alignat}
+のように決定できる. 
+
+\paragraph{Step.2} ランダムに打った点が溶媒に対して露出しているかどうかを判定する. 
+判定には, 原子Aと重なり合っている原子のみを考えればよい. 
+つまり, 原子X (X = B, C, ...)に対して, 
+$
+r_{\mathrm{A, X}} \le r_{\mathrm{A, probe}} + r_{\mathrm{X, probe}}
+$
+のとき, 原子Aと原子Xの溶媒接触半径は重なりを持ち, 重なっている領域は溶媒に露出していない. 
+したがって, ランダムに打った点が溶媒接触半径の重なり合う領域に存在しているかどうかを判定すればよい. 
+原子Aの溶媒接触表面上に打った点と原子Xの中心との距離を計算する. 
+この距離が$r_{\mathrm{X, probe}}$よりも小さい時, 原子Aと原子Xとの重なり合っている領域に存在しているため, 溶媒に露出していない点と定義する. そうでない時, 溶媒に露出している点と定義する. 
+なお, 
+$
+r_{\mathrm{A, X}} > r_{\mathrm{A, probe}} + r_{\mathrm{X, probe}}
+$
+である時は, 原子Aと原子Xの溶媒接触半径は重なり合っていないので, 原子Xは考える必要がない. 
+原子Aに関する溶媒接触表面積は
+\begin{equation}
+    \mathrm{SASA} (\mathrm{原子}A)
+    =
+    \frac{\mathrm{原子Aの球面上に打った点の内, 露出している点の数}}{\mathrm{原子Aの球面上に打った点の総数}} \times 4 \pi r_{\mathrm{A, probe}}^{2}
+\end{equation}
+と計算できる. 
+
+\paragraph{Step.3} ある溶質分子の溶媒接触面積は, 溶質分子内の原子の溶媒接触面積の和
+\begin{equation}
+    SASA
+    =
+    \sum_{i=1}^{N} SASA(i)
+\end{equation}
+で計算される. 
+
+\subsection{疎水性相互作用エネルギーとの関係性}
+実験的に, 炭化水素など疎水的な水分子の疎水性相互作用エネルギーが溶媒接触表面積によい近似で比例することが知られている\cite{1970Nozaki, 2010TohHiroyuki}. 
+
+\subsection{溶媒露出度(Solvent Accessibility)}
+溶媒接触面積を用いて, 分子がどれだけ溶媒に露出しているかを定量化する場合, 大きいアミノ酸残基ほど溶媒接触面積への寄与が大きくなってしまう. 
+そこで, 各アミノ酸の溶媒への露出度を評価するときには, 溶媒露出度(Solvent Accessibility)あるいは相対溶媒露出度(Relative Solvent Accessibility)と呼ばれる規格化された値が使用されることがある. 
+溶媒露出度は, 
+\begin{equation}
+    Solvent~Accessibility (i_{\mathrm{res}}) =
+    \frac{SASA(i_{\mathrm{res}})}{SASA(i_{\mathrm{res}_{\max}})} \in [0,~1]
+\end{equation}
+と計算される. 
+ここで, $SASA(i_{\mathrm{res}_{\max}})$はアミノ酸の最大溶媒接触面積である. 
+通常, アミノ酸の最大溶媒接触面積は, 二面角$\phi$と$\psi$を$\beta$シート領域になるように設定したペプチドGly-X-Gly(Xは目的のアミノ酸残基)から見積もる. 
+溶媒露出度が大きい値(1に近い)ほど, その残基が溶媒に露出していることを意味し, 小さい値(0に近い)ほど他の残基と接触していることを意味する. 
+また, 溶媒露出度の減少は他の残基との接触が増加していることを意味する. 
+
+
+\bibliographystyle{junsrt}
+\bibliography{solvent-accessible-surface-area}
+\input{../include/end}

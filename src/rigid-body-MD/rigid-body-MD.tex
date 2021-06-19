@@ -1,0 +1,630 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{剛体系の分子動力学法}
+\maketitle
+
+本章では剛体分子に対する分子動力学シミュレーションについて解説する\cite{Miller2002}.
+分子シミュレーションではしばしば水分子やメチル基(-CH$_{3}$)など, 水素を含む部分の原子間の距離や角度を固定する.
+このようなモデルを剛体回転子モデルという.
+水素の伸縮運動といった速い運動を取り扱う必要がなるので数値積分の時間刻みを長く取ることができるため,
+効率的なシミュレーションが可能となる.
+% 剛体の運動は重心の並進運動と重心の回転運動に分離することができる.
+
+\section{空間座標と剛体座標}
+剛体の運動を考えるには, 剛体に固定された座標を用いるのが便利である. 
+そこで, 空間座標と剛体座標の変換を考える. 
+空間座標とは空間に固定された座標系である. 
+剛体座標とは剛体の重心$G$を座標原点とする剛体に固定された座標系である. 
+空間座標に対する剛体座標の配向はオイラー角$(\phi,\theta,\psi)$で決めることができる. 
+空間座標から剛体座標への変換はこのオイラー角を用いて, 以下の手続きによって行う. 
+ここで, 空間座標系と剛体座標系の原点$O$, $G$は一致させるものとする. 
+\begin{enumerate}
+ \item 座標系$O_{xyz}$を$z$軸を回転軸として逆時計周りに$\phi$だけ回転させる. 
+       \\回転後の座標系を$O^{\prime}_{x^{\prime}y^{\prime}z^{\prime}}$とする. 
+ \item 座標系$O^{\prime}_{x^{\prime}y^{\prime}z^{\prime}}$を
+       $x^{\prime}$軸を回転軸として逆時計周りに$\theta$だけ回転させる. 
+       \\回転後の座標系を
+       $O^{\prime \prime}_{x^{\prime \prime} y^{\prime \prime} z^{\prime \prime}}$
+       とする.
+
+ \item 座標系$O^{\prime \prime}_{x^{\prime \prime} y^{\prime \prime} z^{\prime \prime}}$を$z^{\prime \prime}$軸を回転軸として逆時計周りに$\psi$だけ回転させる. 
+       \\回転後の座標系を$\tilde{O}_{\tilde{x} \tilde{y} \tilde{z}}$とする. 
+\end{enumerate}
+以上の操作においてオイラー角$(\phi,\theta,\psi)$の変域は
+\begin{align}
+ 0 \leq \phi,\psi \leq 2\pi && 0 \leq \theta \leq \pi
+ \label{eq:RigidBodyMD1}
+\end{align}
+空間座標$\bm{r}^{\mathrm{s}}$から剛体座標$\bm{r}^{\mathrm{b}}$
+への変換は行列$\bm{A}$を用いて
+\begin{align}
+ \bm{r}^{\mathrm{b}} &= \bm{A} \bm{r}^{\mathrm{s}}
+ \label{eq:RigidBodyMD2}
+ \\
+ \bm{r}^{\mathrm{s}} &= \bm{A}^{\mathrm{t}} \bm{r}^{\mathrm{b}}
+ \label{eq:RigidBodyMD3}
+\end{align}
+とかける. ここで変換行列$\bm{A}$は
+\begin{align}
+ \bm{A(\phi,\theta,\psi)}
+ &= \bm{R_{\psi}}\bm{R_{\theta}}\bm{R_{\phi}}
+ \notag
+ \\
+ & =
+ \begin{pmatrix}
+    \cos\psi & \sin\psi & 0 \\ -\sin\psi & \cos\psi & 0 \\ 0 & 0 & 1
+ \end{pmatrix}
+ \begin{pmatrix}
+    1 & 0 & 0 \\ 0 & \cos\theta & \sin\theta \\ 0 & -\sin\theta & \cos\theta
+ \end{pmatrix}
+ \begin{pmatrix}
+    \cos\phi & \sin\phi & 0 \\ -\sin\phi & \cos\phi & 0 \\ 0 & 0 & 1
+ \end{pmatrix}
+ \notag
+ \\
+ & =
+ \begin{pmatrix}
+   \cos\psi \cos\phi - \cos\theta \sin\phi \sin\psi &  \cos\psi \sin\phi + \cos\theta \cos\phi \sin\psi  & \sin\psi \sin\theta \\
+  -\sin\psi \cos\phi - \cos\theta \sin\phi \cos\psi & -\sin\psi \sin\phi + \cos\theta \cos\phi \cos\psi & \cos\psi \sin\theta  \\
+  \sin\theta \sin\phi & -\sin\theta\cos\phi & \cos\theta
+ \end{pmatrix}
+ \label{eq:RigidBodyMD4}
+\end{align}
+と求まる. 
+
+続いて, 剛体座標における角速度$\tilde{\bm{\omega}}$を
+オイラー角$(\phi,\theta,\psi)$を用いて表す. 
+$\dot{\phi}$は座標系$O^{\prime}$の$z^{\prime}$軸まわり,
+$\dot{\theta}$は座標系$O^{\prime \prime}$の$x^{\prime \prime}$まわり, 
+$\dot{\psi}$は座標系$\tilde{O}$の$\tilde{z}$まわりの変化であるから, 各座標系における各速度は
+\begin{align}
+ \omega_{\phi}^{\prime}
+ =
+ \begin{pmatrix}
+  0 \\ 0 \\ \dot{\phi}
+ \end{pmatrix}
+ , &&
+  \omega_{\theta}^{\prime \prime}
+ =
+ \begin{pmatrix}
+  \dot{\theta} \\ 0 \\ 0
+ \end{pmatrix}
+ , &&
+  \tilde{\omega}_{\psi}
+ =
+ \begin{pmatrix}
+  0 \\ 0 \\ \dot{\psi}
+ \end{pmatrix}
+ \label{eq:RigidBodyMD5}
+\end{align}
+とかける. 
+したがって, 各座標系の角速度を剛体座標系に変換することで, 剛体座標の角速度$\Tilde{\bm{\omega}}$
+\begin{align}
+ \tilde{bm{\omega}}
+ =
+ \begin{pmatrix}
+  \omega_{\tilde{x}} \\
+  \omega_{\tilde{y}} \\
+  \omega_{\tilde{z}} \\
+ \end{pmatrix}
+ &=
+   \bm{R}_{\psi}\bm{R}_{\theta}\omega_{\phi}^{\prime}
+ + \bm{R}_{\psi}\omega_{\theta}^{\prime \prime}
+ + \tilde{\omega}_{\psi}
+ \notag
+ \\
+ &=
+ \begin{pmatrix}
+  \dot{\phi}\sin\theta \sin\psi + \dot{\theta}\cos\psi \\
+  \dot{\phi}\sin\theta \cos\psi - \dot{\theta}\sin\psi \\
+  \dot{\phi}\cos\theta + \dot{\psi}
+ \end{pmatrix}
+ % \notag
+ % \\
+ % &=
+ % \begin{pmatrix}
+ %   \cos\psi & \sin\theta \sin\psi & 0 \\
+ %  -\sin\psi & \sin\theta \cos\psi & 0 \\
+ %  0 & \cos\theta & 1
+ % \end{pmatrix}
+ % \begin{pmatrix}
+ %  \dot{\theta} \\
+ %  \dot{\phi}   \\
+ %  \dot{\psi}   \\
+ % \end{pmatrix}
+ \label{eq:RigidBodyMD6}
+\end{align}
+を得られる. これを逆に解くと
+\begin{align}
+ \dot{\theta} &= \omega_{\tilde{x}}\cos\psi - \omega_{\tilde{y}}\sin\psi
+\label{eq:RigidBodyMD7}
+ \\
+ \dot{\phi}   &= \frac{1}{\sin\theta}\left(\omega_{\tilde{x}}\sin\psi + \omega_{\tilde{y}} \cos\psi \right)
+\label{eq:RigidBodyMD8}
+ \\
+ \dot{\psi}   &= \omega_{\tilde{z}}- \frac{\cos\theta}{\sin\theta}\left(\omega_{\tilde{x}}\sin\psi + \omega_{\tilde{y}} \cos\psi \right)
+ \label{eq:RigidBodyMD9}
+\end{align}
+を得る. 
+
+オイラー角の時間変化には$1/\sin \theta$という特異的な項が存在する. 
+この発散を避けるために, ここで以下のように４元数を導入する. 
+\begin{align}
+ q_0 & = \cos\left(\frac{\theta}{2}\right)\cos\left(\frac{\phi+\psi}{2}\right)
+ \label{eq:RigidBodyMD10}
+ \\
+ q_1 & = \sin\left(\frac{\theta}{2}\right)\cos\left(\frac{\phi-\psi}{2}\right)
+ \label{eq:RigidBodyMD11}
+ \\
+ q_2 & = \sin\left(\frac{\theta}{2}\right)\sin\left(\frac{\phi-\psi}{2}\right)
+\label{eq:RigidBodyMD12}
+ \\
+ q_3 & = \cos\left(\frac{\theta}{2}\right)\sin\left(\frac{\phi+\psi}{2}\right) 
+\label{eq:RigidBodyMD13}
+\end{align}
+４元数には$\sum_{i}q_{i}^{2}=1$が成り立つため自由度は３であることに注意する. \\
+オイラー角の時間変化を4元数を用いて表すと, 
+\begin{align}
+ \dot{\bm{q}}
+  &=
+  \frac{1}{2}
+    \begin{pmatrix}
+     q_{0} & -q_{1} & -q_{2} & -q_{3} \\
+     q_{1} &  q_{0} & -q_{3} &  q_{2} \\
+     q_{2} &  q_{3} &  q_{0} & -q_{1} \\
+     q_{3} & -q_{2} &  q_{1} &  q_{0} \\
+    \end{pmatrix}
+ \begin{pmatrix}
+  0                  \\
+  \omega_{\Tilde{x}} \\
+  \omega_{\Tilde{y}} \\
+  \omega_{\Tilde{z}} \\
+ \end{pmatrix}
+\label{eq:RigidBodyMD14}
+ \\
+ &\equiv
+ \frac{1}{2} \bm{S}(\bm{q}) \Tilde{\bm{\bm{\omega}}}^{(4)}
+\label{eq:RigidBodyMD15}
+\end{align}
+となる. ここで, 
+\begin{equation}
+ \left[
+  \bm{S}(\bm{q})\bm{S}^{\mathrm{t}}(\bm{q})
+ \right]_{\alpha \beta}
+ =
+ |q^{2}| \delta_{\alpha \beta}
+ =
+ \delta_{\alpha \beta}
+\label{eq:RigidBodyMD16}
+\end{equation}
+の関係式が成り立つ. 
+
+% また, ４元数を用いると変換行列$\bm{A}$は以下のように表せる. 
+% \begin{align}
+%  \bm{A(\bm{q})} =
+% \begin{pmatrix}
+%  q_0^2 + q_1^2 - q_2^2 - q_3^2 & 2(q_1q_2 + q_0q_3)            & 2(q_1q_3 - q_0q_2) \\
+%  2(q_1q_2 - q_0q_3)            & q_0^2 - q_1^2 + q_2^2 - q_3^2 & 2(q_2q_3 + q_0q_1) \\
+%  2(q_1q_3 + q_0q_2)            & 2(q_2q_3 - q_0q_1)            & q_0^2 - q_1^2 - q_2^2 + q_3^2 
+% \end{pmatrix} 
+% \end{align}
+
+% \section{剛体の運動方程式}
+% オイラーの運動方程式は以下のようにかける. 
+% \begin{align}
+%  & I_{xx}  \frac{d\omega_{\tilde{x}}}{dt} - \omega_{\tilde{y}} \omega_{\tilde{z}} \left(I_{yy} - I_{xx}\right) = \tau_{\tilde{x}} \\
+%  & I_{yy}  \frac{d\omega_{\tilde{y}}}{dt} - \omega_{\tilde{z}} \omega_{\tilde{x}} \left(I_{zz} - I_{xx}\right) = \tau_{\tilde{y}}  \\
+%  & I_{zz}  \frac{d\omega_{\tilde{z}}}{dt} - \omega_{\tilde{x}} \omega_{\tilde{y}} \left(I_{xx} - I_{yy}\right) = \tau_{\tilde{z}}
+% \end{align}
+% 但し
+% \begin{align}
+%  I_{\alpha \beta} = \sum_{k=1}^{N}m_k \left(|\bm{r}_k|^2\delta_{\alpha \beta} - \bm{r}_{k_{\alpha}}\bm{r}_{k_{\beta}}\right)
+% \end{align}
+% $\bm{r}_k$はk番目の原子の座標, $m_k$はk番目の原子の質量を表す. 
+ 
+ \section{剛体の回転運動に対するハミルトニアン}
+剛体座標上の重心位置からの相対位置ベクトルを$\bm{d}_{k}$とする. 
+このとき, 分子の重心周りの回転の運動エネルギーは, 
+\begin{align}
+ T(\bm{\omega})
+ &=
+ \sum_{k} \frac{1}{2} m_{k} \dot{\bm{d}}_{k}^{2}
+ \notag
+ \\
+ &=
+ \sum_{k} \frac{1}{2} m_{k}
+ (\tilde{\bm{\omega}} \times \bm{d}_{k})
+ \cdot (\tilde{\bm{\omega}} \times \bm{d}_{k})
+ \notag
+ \\
+ &=
+ \frac{1}{2}
+ (
+ I_{xx} \omega_{\Tilde{x}}^{2}
++I_{xy} \omega_{\Tilde{x}}\omega_{\Tilde{y}}
++I_{xz} \omega_{\Tilde{x}}\omega_{\Tilde{z}}
++I_{yy} \omega_{\Tilde{y}}^{2}
+\notag
+\\ &~~~~
++I_{yx} \omega_{\Tilde{y}}\omega_{\Tilde{x}}
++I_{yz} \omega_{\Tilde{y}}\omega_{\Tilde{z}}
++I_{zz} \omega_{\Tilde{z}}^{2}
++I_{zx} \omega_{\Tilde{z}}\omega_{\Tilde{x}}
++I_{zy} \omega_{\Tilde{z}}\omega_{\Tilde{y}}
+ )
+\label{eq:RigidBodyMD17}
+\end{align}
+と計算される. 剛体座標系の座標軸を剛体の慣性主軸に一致するように選ぶと
+\begin{align}
+ T(\bm{\omega})
+ &=
+ \frac{1}{2}
+ (
+ I_{xx} \omega_{\Tilde{x}}^{2}
++I_{yy} \omega_{\Tilde{y}}^{2}
++I_{zz} \omega_{\Tilde{z}}^{2}
+ )
+\label{eq:RigidBodyMD18}
+\end{align}
+となる. 以後, 剛体座標系の座標軸は慣性主軸に一致するように選ぶことにする. \\
+ここで, 回転の運動エネルギーの4元数表示を導入する. 
+\begin{equation}
+ T(\bm{\omega}^{(4)})
+  =
+  \frac{1}{2}I_{00}\omega_{\Tilde{0}}^{2} + T(\bm{\omega})
+  =
+  \frac{1}{2} \bm{\omega}^{(4) \mathrm{t}} \bm{D}^{-1} \bm{\omega}^{(4)}
+\label{eq:RigidBodyMD19}
+\end{equation}
+ただし, 
+\begin{equation}
+ \bm{\omega}^{(4)}
+  \equiv
+  (\omega_{0},\omega_{\Tilde{x}},\omega_{\Tilde{y}},\omega_{\Tilde{z}})^{\mathrm{t}}
+  =
+ 2\bm{S}^{\mathrm{t}} (\bm{q}) \dot{\bm{q}}
+\label{eq:RigidBodyMD20}
+\end{equation}
+\begin{equation}
+ \bm{D}
+ \equiv
+ \begin{pmatrix}
+  I^{-1}_{00} & 0           & 0           & 0           \\
+  0           & I^{-1}_{xx} & 0           & 0           \\
+  0           & 0           & I^{-1}_{yy} & 0           \\
+  0           & 0           & 0           & I^{-1}_{zz} \\
+ \end{pmatrix}
+\label{eq:RigidBodyMD21}
+\end{equation}
+で定義される. 4元数を用いた剛体の回転運動に対するラグランジアンは
+\begin{align}
+ \mathcal{L}(\bm{q},\dot{\bm{q}})
+ &=
+ T(\bm{\omega}^{(4)}) - \phi(\bm{q})
+ \notag
+ \\
+ &=
+ \frac{1}{2} {\bm{\omega}^{(4)}}^{\mathrm{t}} \bm{D}^{-1} \bm{\omega}^{(4)} - \phi(\bm{q})
+ \notag
+ \\
+ &=
+ 2 \left\{
+         \bm{S}^{\mathrm{t}} (\bm{q}) \dot{\bm{q}}
+ \right\}^{\mathrm{t}}
+ \bm{D}^{-1}
+ \left\{
+        \bm{S}^{\mathrm{t}}(\bm{q}) \dot{\bm{q}}
+ \right\}
+ - \phi(\bm{q})
+ \notag
+ \\
+ &=
+ 2 \dot{\bm{q}}^{\mathrm{t}} \bm{S}(\bm{q})
+ \bm{D}^{-1}
+ \bm{S}^{\mathrm{t}}(\bm{q}) \dot{\bm{q}}
+ - \phi(\bm{q})
+\label{eq:RigidBodyMD22}
+\end{align}
+と導出される. 
+$\bm{q}$に共役な運動量$\bm{p}$は
+\begin{align}
+ \bm{p}
+ =
+ \frac{\partial \mathcal{L}(\bm{q},\dot{\bm{q}})}{\partial \dot{\bm{q}}}
+ =
+ 4 \bm{S}(\bm{q}) \bm{D}^{-1}
+ \bm{S}^{\mathrm{t}}(\bm{q})
+ \dot{\bm{q}}
+ =
+ 2 \bm{S}(\bm{q}) \bm{D}^{-1} \bm{\omega}^{(4)}
+\label{eq:RigidBodyMD23}
+\end{align}
+であることから, 剛体の回転に対するハミルトニアンは
+\begin{align}
+ \mathcal{H}(\bm{q},\bm{p})
+ &=
+ \dot{\bm{q}} \cdot \bm{p} - \mathcal{L}(\bm{q},\dot{\bm{q}})
+ \\
+ &=
+ \dot{\bm{q}} \cdot
+  4 \bm{S}(\bm{q}) \bm{D}^{-1} \bm{S}^{\mathrm{t}}(\bm{q})
+ \dot{\bm{q}}
+ - \left\{
+ 2 \dot{\bm{q}}^{\mathrm{t}} \bm{S}(\bm{q}) \bm{D}^{-1}
+ \bm{S}^{\mathrm{t}}(\bm{q}) \dot{\bm{q}}
+ - \phi(\bm{q})
+ \right\}
+ \\
+ &=
+ 2 \dot{\bm{q}}^{\mathrm{t}} \bm{S}(\bm{q}) \bm{D}^{-1}
+ \bm{S}^{\mathrm{t}}(\bm{q}) \dot{\bm{q}}
+ + \phi(\bm{q})
+ \\
+ &=
+ \frac{1}{8}
+ \bm{p}^{\mathrm{t}} \bm{S}(\bm{q}) \bm{D}
+ \bm{S}^{\mathrm{t}} (\bm{q}) \bm{p}
+ + \phi(\bm{q})
+\label{eq:RigidBodyMD24}
+\end{align}
+と導出できる. ただし, 最後の変形には式(\ref{eq:RigidBodyMD23})から導かれる
+$\dot{\bm{q}}
+ = \frac{1}{4} \bm{S}(\bm{q}) \bm{D}
+ \bm{S}^{\mathrm{t}} (\bm{q}) \bm{p}$, 
+$\dot{\bm{q}}^{\mathrm{t}}
+ = \frac{1}{4} \bm{p}^{\mathrm{t}} \bm{S}(\bm{q})
+ \bm{D} \bm{S}^{\mathrm{t}} (\bm{q})$
+を使用した. 
+
+%  \section{オイラーの運動方程式の導出}
+% 剛体分子の角速度の時間微分は
+% \begin{align}
+%  \dot{\bm{\omega}}^{(4)}
+%  &=
+%  \frac{d}{d t}
+%  \left\{
+%  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\bm{q}) \bm{p}
+%  \right\}
+%  \\
+%  &=
+%  |q||\dot{q}| \bm{D} \bm{S}^{\mathrm{t}}(\bm{q}) \bm{p}
+%  +
+%  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\dot{\bm{q}}) \bm{p}
+%  +
+%  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\bm{q}) \dot{\bm{p}}
+%  \\
+%  &=
+%  \omega_{0} \omega^{(4)}
+%  +
+%  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\dot{\bm{q}}) \bm{p}
+%  +
+%  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\bm{q}) \dot{\bm{p}}
+% \end{align}
+% である. 
+% % このハミルトニアンは以下のように分割することができる. 
+% % \begin{equation}
+% %  \mathcal{H}(\bm{p},\bm{q})
+% %   =
+% %   \sum_{k=0}^{3} h_{k}(\bm{p}, \bm{q}) + \phi(\bm{q})
+% % \end{equation}
+% % \begin{align}
+% %  h_{k}(\bm{p}, \bm{q})
+% %  &= \frac{1}{8 I_{k}}
+% %  \left[
+% %  \bm{p}^{\mathrm{t}} \bm{P}_{k} \bm{q}
+% %  \right]^{2}
+% %  \\
+% %  \bm{P}_{0} \bm{q}
+% %  &= (q_{0}, q_{1}, q_{2}, q_{3})^{\mathrm{t}}
+% %   \\
+% %  \bm{P}_{1} \bm{q}
+% %  &= (-q_{1}, q_{0}, q_{3}, -q_{2})^{\mathrm{t}}
+% %   \\
+% %  \bm{P}_{2} \bm{q}
+% %  &= (-q_{2}, -q_{3}, q_{0}, q_{1})^{\mathrm{t}}
+% %   \\
+% %  \bm{P}_{3} \bm{q}
+% %  &= (-q_{3}, q_{2}, -q_{1}, q_{0})^{\mathrm{t}}
+% % \end{align}
+% % ここで, $I_{0}=I_{00}$,$I_{1}=I_{xx}$,$I_{2}=I_{yy}$,$I_{3}=I_{zz}$である. 
+% Hamiltonの正準方程式より, 
+% \begin{alignat}{3}
+%  \dot{q}_{i}
+%  &=&&
+%  \frac{\partial \mathcal{H}(\bm{q}, \bm{p})}{\partial p_{i}}
+%  =&&
+%  \frac{1}{2 |q|^{2}}
+%  \sum_{k=0}^{3} \omega_{k} \frac{\partial}{\partial p_{i}}
+%  \left[ \bm{p}^{\mathrm{t}} \bm{P}_{k} \bm{q} \right]
+%  \\
+%  \dot{p}_{i}
+%  &= -&&
+%  \frac{\partial \mathcal{H}(\bm{q}, \bm{p})}{\partial q_{i}}
+%  =&&
+%  \frac{1}{2 |q|^{2}}
+%  \sum_{k=0}^{3} \omega_{k} \frac{\partial}{\partial q_{i}}
+%  \left[ \bm{p}^{\mathrm{t}} \bm{P}_{k} \bm{q} \right]
+%  - \frac{\partial \phi(\bm{q})}{\partial q_{i}}
+% \end{alignat}
+% である. 各成分について計算すると, 
+% \begin{alignat}{2}
+%  \dot{q}_{0}
+%  &=&&
+%  \frac{1}{2} (q_{0}\omega_{0} - q_{1}\omega_{x} - q_{2}\omega_{y} - q_{3}\omega_{z})
+%  \\
+%  \dot{q}_{1}
+%  &=&&
+%  \frac{1}{2} (q_{1}\omega_{0} + q_{0}\omega_{x} - q_{3}\omega_{y} + q_{2}\omega_{z})
+%  \\
+%  \dot{q}_{2}
+%  &=&&
+%  \frac{1}{2} (q_{2}\omega_{0} + q_{3}\omega_{x} + q_{0}\omega_{y} - q_{1}\omega_{z})
+%  \\
+%  \dot{q}_{3}
+%  &=&&
+%  \frac{1}{2} (q_{3}\omega_{0} - q_{2}\omega_{x} + q_{1}\omega_{y} + q_{0}\omega_{z})
+%  \dot{p}_{0}
+%  &= -&&
+%  \frac{1}{2} (p_{0}\omega_{0} + p_{1}\omega_{x} + p_{2}\omega_{y} + p_{3}\omega_{z})
+%  - \frac{\partial \phi(\bm{q})}{\partial q_{0}}
+%  \\
+%  \dot{p}_{1}
+%  &= -&&
+%  \frac{1}{2} (p_{1}\omega_{0} - p_{0}\omega_{x} + p_{3}\omega_{y} - p_{2}\omega_{z})
+%  - \frac{\partial \phi(\bm{q})}{\partial q_{1}}
+%  \\
+%  \dot{p}_{2}
+%  &= -&&
+%  \frac{1}{2} (p_{2}\omega_{0} - p_{3}\omega_{x} - p_{0}\omega_{y} + p_{1}\omega_{z})
+%  - \frac{\partial \phi(\bm{q})}{\partial q_{2}}
+%  \\
+%  \dot{p}_{3}
+%  &= -&&
+%  \frac{1}{2} (p_{3}\omega_{0} + p_{2}\omega_{x} - p_{1}\omega_{y} - p_{0}\omega_{z})
+%  - \frac{\partial \phi(\bm{q})}{\partial q_{3}}
+%  \end{alignat}
+
+% 式(refs)を代入すると以下の運動方程式が導出される
+% \begin{align}
+%  \dot{\omega}_{0}
+%  &=
+%  \omega_{0}^{2}
+%  \\
+%  \dot{\omega}_{x}
+%  &=
+%  \omega_{0} \omega_{x} + |q|^{2} \frac{\tau_{x}}{I_{xx}}
+%  + \frac{I_{yy} - I_{zz}}{I_{xx}} \omega_{y} \omega_{z}
+%  \\
+%  \dot{\omega}_{y}
+%  &=
+%  \omega_{0} \omega_{y} + |q|^{2} \frac{\tau_{y}}{I_{yy}}
+%  + \frac{I_{zz} - I_{xx}}{I_{yy}} \omega_{x} \omega_{z}
+%  \\
+%  \dot{\omega}_{z}
+%  &=
+%  \omega_{0} \omega_{z} + |q|^{2} \frac{\tau_{z}}{I_{zz}}
+%  + \frac{I_{xx} - I_{yy}}{I_{zz}} \omega_{x} \omega_{y}
+% \end{align}
+% $\omega_{0}(t=0)=0$,$|q(t=0)|^{2}=1$となるようにシミュレーションを始めれば, $\omega_{0}=0, |q|^{2}=1 (t\ge0)$となる. 
+% この時, オイラーの運動方程式と一致する式を得られる. 
+% \clearpage
+
+\section{剛体の回転運動の時間発展}
+ハミルトニアン(\ref{eq:RigidBodyMD24})を5つの部分に分割する. 
+\begin{align}
+ \mathcal{H}(\bm{p}, \bm{q})
+ &=
+ \sum_{k=0}^{4} h_{k} (\bm{p}, \bm{q})
+\end{align}
+ただし, 
+\begin{align}
+ h_{k} (\bm{p}, \bm{q}) &=
+ \begin{cases}
+  \frac{1}{8 I_{k}} [\bm{p}^{\mathrm{t}}\bm{P}_{k}\bm{q}]^{2}, &\text{for $k=0,1,2,3$} \\
+  \phi(\bm{q}),& \text{for $k=4$}
+ \end{cases}
+ \\
+  \bm{P}_{0} \bm{q}
+ &= (q_{0}, q_{1}, q_{2}, q_{3})^{\mathrm{t}}
+  \\
+ \bm{P}_{1} \bm{q}
+ &= (-q_{1}, q_{0}, q_{3}, -q_{2})^{\mathrm{t}}
+  \\
+ \bm{P}_{2} \bm{q}
+ &= (-q_{2}, -q_{3}, q_{0}, q_{1})^{\mathrm{t}}
+  \\
+ \bm{P}_{3} \bm{q}
+ &= (-q_{3}, q_{2}, -q_{1}, q_{0})^{\mathrm{t}}
+\end{align}
+である. ここで, 演算子$\mathcal{D}_{k}$を導入する. 
+\begin{align}
+ \mathcal{D}_{k}
+ =
+ \nabla_{p} h_{k} (\bm{p},\bm{q}) \cdot \nabla_{q}
+ -
+ \nabla_{q} h_{k} (\bm{p},\bm{q}) \cdot \nabla_{p}
+\end{align}
+$k=0,1,2,3$に対して
+\begin{align}
+ \nabla_{p} h_{k} (\bm{p},\bm{q})
+ &=
+  \zeta_{k} \bm{P}_{k} \bm{q}
+ \\
+ \nabla_{q} h_{k} (\bm{p},\bm{q})
+ &=
+ \begin{cases}
+  -  \zeta_{k} \bm{P}_{k} \bm{p} &\text{for $k \neq 0$} \\
+     \zeta_{k} \bm{P}_{k} \bm{p} &\text{for $k =    0$} 
+ \end{cases}
+\end{align}
+と計算される. ただし
+\begin{equation}
+ \zeta_{k} = \frac{1}{4I_{k}}
+  \bm{p}^{\mathrm{t}} \bm{P}_{k} \bm{q}
+\end{equation}
+を定義した. 
+鈴木・トロッター展開を用いると, 時間発展演算子$e^{\mathcal{D} \Delta t}$は
+\begin{equation}
+ e^{\mathcal{D} \Delta t}
+  =
+  e^{\mathcal{D}_{4} \frac{\Delta t}{2}}
+  \left[
+   e^{\mathcal{D}_{3} \frac{\delta t}{2}}
+   e^{\mathcal{D}_{2} \frac{\delta t}{2}}
+   e^{\mathcal{D}_{1} \delta t}
+   e^{\mathcal{D}_{2} \frac{\delta t}{2}}
+   e^{\mathcal{D}_{3} \frac{\delta t}{2}}
+  \right]^{n}
+  e^{\mathcal{D}_{4} \frac{\Delta t}{2}}
+  +
+  \mathcal{O}\left( (\Delta t)^{3}\right)
+\end{equation}
+と分割できる. ここで, $\delta t = \Delta t / n$である. 
+演算子$\mathcal{D}_{k}$($k=1,2,3$)に対して
+\begin{align}
+ &\mathcal{D}_{k} \zeta_{k} = 0
+ \\
+ &\mathcal{D}_{k} \bm{q} = \zeta_{k} \bm{P}_{k} \bm{q}
+ \\
+ &\mathcal{D}_{k} \bm{p} = \zeta_{k} \bm{P}_{k} \bm{p}
+ \\
+ &\mathcal{D}_{k} (\bm{P}_{k} \bm{q}) = - \zeta_{k} \bm{q}
+ \\
+ &\mathcal{D}_{k} (\bm{P}_{k} \bm{p}) = - \zeta_{k} \bm{p}
+\end{align}
+の関係式が成立することを用いると, $k=1,2,3$に対して位相空間の時間発展は
+\begin{align}
+ e^{\mathcal{D}_{k} \Delta t} \bm{q}
+ &=
+ \cos(\zeta_{k} \Delta t) \bm{q} + \sin(\zeta_{k} \Delta t) \bm{P}_{k} \bm{q}
+ \\
+ e^{\mathcal{D}_{k} \Delta t} \bm{p}
+ &=
+ \cos(\zeta_{k} \Delta t) \bm{p} + \sin(\zeta_{k} \Delta t) \bm{P}_{k} \bm{p} \\
+\end{align}
+で計算されることが示される. また, $k=4$に対する時間発展は
+\begin{align}
+ e^{\mathcal{D}_{4} \Delta t} \bm{p}
+ &=
+ \bm{p} + \bm{F}^{(4)} \Delta t 
+\end{align}
+と計算される. ここで, 
+\begin{equation}
+ \bm{F}^{(4)} = 2 \bm{S}(\bm{q}) \tau^{(4)}
+\end{equation}
+である. $\tau^{(4)}$は4元数表示したトルクで
+\begin{equation}
+ \tau^{(4)}
+  = \left\{\sum_{k} \bm{F}_{k} \cdot \bm{d}_{k},
+           \sum_{k} \bm{d}_{k} \times \bm{F}_{k} \right\}
+  + \tau_{\mathrm{int}}^{(4)}
+  = \{0, \tau_{x}, \tau_{y}, \tau_{z} \}
+\end{equation}
+とかかれる. 
+\clearpage
+
+\input{../include/end}

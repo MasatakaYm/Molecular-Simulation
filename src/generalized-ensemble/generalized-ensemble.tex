@@ -1,0 +1,965 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{拡張アンサンブル法}
+\maketitle
+
+本章では, まずはじめにマルコフ連鎖モンテカルロ法の基礎を述べる.
+続いて, 拡張アンサンブル法について解説する.
+
+\section{\label{sec:level2-1}マルコフ連鎖モンテカルロ法}
+まずはじめに, マルコフ連鎖モンテカルロ法の基礎について述べる.
+マルコフ連鎖とは, 次の状態$j$をとる確率が直前の状態$i$のみで決定されるようにして状態を変化させていく過程のことをいう.
+
+ここでは$n$個の状態を持つ系を考えることにする. 状態$i$は重み$w_{i}$をもち, 確率$P(i \to j)$で状態$j$に遷移する.
+ここで, 状態$i$から状態$j$への確率流$v(i \to j)$を次のように定義する.
+\begin{equation}
+ v(i \to j) = w_{i} P( i \to j )
+ \label{eqn:def_nu}
+\end{equation}
+定常状態を実現するには, 系は釣り合い条件
+\begin{equation}
+ \sum_{i=1}^{n} v(i \to j) = \sum_{i=1}^{n} v(j \to i)
+ \label{eqn:GBC}
+\end{equation}
+を満たさなければならない.
+式~(\ref{eqn:GBC})を満たすような確率流$v(i \to j)$にしたがって状態を遷移させることで, 必要なアンサンブル(例えば, カノニカルアンサンブルや定温定圧アンサンブル)を得ることができる.
+
+メトロポリス法や熱浴法は, 式~(\ref{eqn:GBC})の十分条件である詳細釣り合い条件
+\begin{equation}
+ v(i \to j) = v(j \to i)
+  \label{eqn:DBC}
+\end{equation}
+を満たすようなアルゴリズムである.
+メトロポリスの方法では, 状態$i$から状態$j$への確率流と遷移確率は次のように与えられる.
+\begin{align}
+	 v(i \to j) &=
+	 \frac{1}{n-1} \mathrm{min} \left( w_i,w_j \right),~ j \neq i
+	 \label{eqn:nu_MP}
+	 \\
+	 P(i \to j) &=
+	 \frac{v(i \to j)}{w_{i}} = \frac{1}{n-1}\mathrm{min}\left(1,\frac{w_{j}}{w_{i}}\right), ~j \neq i
+	 \label{eqn:MP_P}
+\end{align}
+ここで, 係数 $1/(n-1)$ は状態$i$を除く$n-1$個の状態の中からランダムに状態$j$を選ぶことに由来している.
+一方で, 熱浴法では状態$i$から状態$j$への確率流と遷移確率は次のように与えられる.
+\begin{align}
+	 v(i \to j) &=
+	 \frac{w_{i}w_{j}}{\sum_{k=1}^{n} w_{k}},~ \forall i, j
+	 \label{eqn:nu_HB}
+	 \\
+	 P(i \to j) &=
+	 \frac{v(i \to j)}{w_{i}} = \frac{w_{j}}{\sum_{k=1}^{n} w_{k}}, ~ \forall i, j \label{eqn:HB_P}
+\end{align}
+メトロポリス法と熱浴法の確率流の計算の模式図を図~\ref{fgr:Metropolis}, 図~\ref{fgr:HeatBath}に示す.
+図からわかるように, これらの方法では同じ状態に留まる確率流$v(i \to i)$が存在する.
+$v(i \to i)$が大きいほど状態を遷移させることができないため, マルコフ連鎖モンテカルロシミュレーションとしては非効率になってしまう.
+
+続いて, 諏訪・藤堂の方法について説明する.
+諏訪・藤堂の方法は詳細釣り合い条件~(\ref{eqn:DBC})を破っており, 釣り合い条件~(\ref{eqn:GBC})のみ満たすアルゴリズムである.
+諏訪・藤堂のアルゴリズムは図~\ref{fgr:SuwaTodo}に示した通り, 以下の手続きで説明される.
+ここでの手続きは, $w_{j}$の容量を持つ箱$j$に, もともと箱$i$を満たしていた液体$i$を流し込むような操作である.
+状態$i$の重み$w_{i}$は箱$i$の容量, 状態$i$から状態$j$への確率流$v(i \to j)$は箱$i$から箱$j$に移す液体の量に対応する.
+
+% Figure
+% \begin{figure}
+%  \begin{center}
+%   \includegraphics[width=0.9\hsize]{figure/Metropolis.eps}
+%   \caption{メトロポリスの方法の概念図}
+%   \label{fgr:Metropolis}
+%  \end{center}
+% % \end{figure}
+% % \begin{figure}
+%  \begin{center}
+%   \includegraphics[width=0.9\hsize]{figure/HeatBath.eps}
+%   \caption{熱浴法の概念図}
+%   \label{fgr:HeatBath}
+%  \end{center}
+% % \end{figure}
+% % \begin{figure}
+%  \begin{center}
+%   \includegraphics[width=0.9\hsize]{figure/SuwaTodo.eps}
+%   \caption{諏訪・藤堂の方法の概念図}
+%   \label{fgr:SuwaTodo}
+%  \end{center}
+% \end{figure}
+
+\begin{enumerate}
+ \setlength{\leftskip}{0.4cm}
+ \item[Step 1]
+ 	もっとも大きい重みを持つ状態を選ぶ.
+	もし, もっとも大きい重みを持つ状態が2つ以上あった場合, そのうちの1つを選ぶ.
+	ここでは, 状態1がもっとも大きい重み$w_{1}$を持つと仮定する.
+	このような仮定をしても, 一般性は失われない.
+
+ \item[Step 2]
+ 	液体1を可能な限り箱2に移す.
+	箱2に移される液体の量は$v(1 \to 2)$である.
+	もし, 液体1がまだ残っているならば, さらに次の箱3に可能な限り液体1を移す.
+	次の箱へ液体1を流し込む操作を, 全ての液体1が移動されるまで続ける.
+	最後に液体1が注がれた箱を$k$とする.
+	ここでは確率流$v(1 \to 2),~\dots~, v(1 \to k)$を得る.
+
+ \item[Step 3]
+ 	次に液体2を, 部分的に液体が入っている箱$k$に可能な限り注ぐ. もし, 箱$k$が満杯になったら,
+	続いて箱$k+1$に液体2を注ぐ. すべての液体2が他の箱$k+1$,
+	$\dots$, 箱$l$に移すまで操作を続ける.
+	ここでは確率流$v(2 \to k),　~\dots~, v(2 \to l)$を得る.
+
+ \item[Step 4]
+ 	他の液体についても順次, 次の箱に液体を流し込む操作を行う.
+	もし最後の箱$n$が一杯になってしまったら, 一番初めの箱1を残りの液体で埋める.
+	以上のようにしてすべての液体を他の箱に移すことができる.
+\end{enumerate}
+
+以上の操作で得られる確率流$v(i \to j)$を式で表すと,
+\begin{equation}
+	 v(i \to j) =
+	 \mathrm{max} \left(0, \mathrm{min} \left(\Delta_{ij}, w_i + w_j - \Delta_{ij} ,w_i, w_j \right) \right)
+ \label{eq:SuwaTodo}
+\end{equation}
+となる. ただし,
+\begin{align} \notag
+ \Delta_{ij} &\equiv S_{i} - S_{j-1} + w_{1}
+ \notag
+ \\
+ S_{i} &\equiv \sum_{k=1}^{i} w_{k}
+ \notag
+ \\
+ S_{0} &\equiv S_{n}
+ \notag
+\end{align}
+と定義した.
+式~(\ref{eq:SuwaTodo})を使うことで, 遷移確率$P(i \to j) = v(i \to j)/w_{i}$を得ることができる.
+ここで, 諏訪・藤堂の方法での遷移確率を議論する.
+状態$i$から状態$i$, つまりリジェクトされるような確率流は
+\begin{equation}
+ v (i \to i) = \begin{cases}
+		\mathrm{max}(0, 2w_1 - S_n)  ,&\text{$i =1$} \\
+		0                            ,&\text{$i \ge 2$}
+	       \end{cases}
+\end{equation}
+と計算される. この式は, $w_{1} \le S_{n}/2$のとき, リジェクト率は0であることを意味している.
+したがって, 諏訪・藤堂の方法はリジェクト率を最小化するため, 効率的にシミュレーションを行うことができる.
+ここで, 系の状態の数が2つ($n=2$)のとき, 諏訪・藤堂の方法はメトロポリスの方法と等価な方法になることに注意する.
+
+
+\section{マルチカノニカル法}
+カノニカルアンサンブルシミュレーションでは, ボツルマン因子$\exp[-\beta_{0}U]$に基づいたサンプリングを実現する. 
+ポテンシャルエネルギー$U$の確率分布は, 
+\begin{equation}
+  P_{NVT}(U) = n(U) \exp[-\beta_{0}U]
+\end{equation}
+である. ここで, $\beta_{0} = 1/k_{\mathrm{B}}T_{0}$, $k_{\mathrm{B}}$はボルツマン定数, $T_{0}$はシミュレーションの温度, 
+$n(U)$は状態密度である. 状態密度は本来, 体積$V$と粒子数$N$にも依存するが, カノニカルシミュレーションでは体積・粒子数ともに一定であるので, 省略することができる. 
+状態密度は$U$の増加に伴って急激に増加する関数であり, 一方でボルツマン因子$\exp[-\beta_{0}U]$は減少する関数のため, 確率分布はベル型の分布をしている. 
+このため, 特に低温におけるシミュレーションでは限られたポテンシャルエネルギー空間からしかサンプルすることができない. 
+
+この問題を解決するためにマルチカノニカル法~\cite{Berg1991,Berg1992a,Hansmann1996,Nakajima1997}が提案されている. 
+マルチカノニカル法では, ポテンシャルに関して平坦な確率分布(一様分布)に基づいたシミュレーションを実行する. 
+平坦なポテンシャル分布$P_{\mathrm{MUCA}}(U)$は, 状態密度$n(U)$と非ボルツマン重み因子$W_{\mathrm{MUCA}}(U)$の積でかかれる. 
+\begin{align}
+    \begin{split}
+    P_{\mathrm{MUCA}}(U) &=
+    n(U) W_{\mathrm{MUCA}} (U) \\ &=
+    n(U) \exp[-\beta_{0} U_{\mathrm{MUCA}}(U;~T_{0})] = \mathrm{constant},
+    \end{split}
+    \label{Eq:ProbDist-MUCA}
+\end{align}
+ここで, $T_{0}$は参照温度であり, $\beta_{0}$はその逆温度, $U_{\mathrm{MUCA}}$はマルチカノニカルポテンシャルエネルギーである. 
+マルチカノニカルポテンシャルエネルギーは, 元々のポテンシャルエネルギーからのずれ$\delta U(U)$を用いて
+\begin{equation}
+  U_{\mathrm{MUCA}}(U;T_{0}) = U + \delta U(U)
+\end{equation}
+と書くこともできる. 
+また, 式(\ref{Eq:ProbDist-MUCA})より, 重み因子$W_{\mathrm{MUCA}}(U)$は状態密度$n(U)$に逆比例することがわかる. 
+この非ボルツマン因子に基づく統計アンサンブルでは, ポテンシャルエネルギー空間上のランダムウォークが実現するため, エネルギー極少状態に留まりにくくなる. 
+そのため, 効率的に構造をサンプルすることが可能である. 
+
+\subsection{マルチカノニカルMC法}
+マルチカノニカルMCシミュレーションを実行するには, メトロポリス法の重み因子として$W_{\mathrm{MUCA}}(U)$を用いる. 
+ポテンシャルエネルギー$U$を持つ状態$x$から, ポテンシャルエネルギー$U^{\prime}$を持つ状態$x^{\prime}$への遷移確率は, 
+\begin{align}
+  P(x \to x^{\prime}) &=
+  \frac{1}{W_{\mathrm{MUCA}}(U)} \min \left[W_{\mathrm{MUCA}}(U),~W_{\mathrm{MUCA}}(U^{\prime}) \right] \\ &=
+  \min \left[1, \frac{W_{\mathrm{MUCA}}(U^{\prime})}{W_{\mathrm{MUCA}}(U)} \right] \\ &=
+  \min \left[1, \exp\left\{-\beta_{0}( U_{\mathrm{MUCA}}(U^{\prime};T_{0}) - U_{\mathrm{MUCA}}(U;T_{0})\right\} \right] \\ &=
+  \min \left[1, exp\left\{-\beta_{0} \Delta U_{MUCA} \right\}\right]
+\end{align}
+と計算される. 
+
+\subsection{マルチカノニカルMD法}
+マルチカノニカル分子動力学シミュレーションを実行するには, ハミルトニアンのポテンシャルエネルギーとしてマルチカノニカルポテンシャルエネルギーを使用する. 
+例えば, 能勢の熱浴を使用する場合, ハミルトニアンは
+\begin{align}
+  \mathcal{H}_{\mathrm{Nose-MUCA}} &=
+  \sum_{i=1}^{N} \frac{\bm{p}_{i}^{\prime 2}}{2 m_{i} s^{2}} +
+  U(\bm{r}) +
+  \frac{p_{s}^{\prime 2}}{2Q} +
+  g k_{\mathrm{B}}T_{\mathrm{eq}} \ln s +
+  \delta U(U(\bm{r}))
+  \label{Eq:Hamiltonian-Nose-MUCA}
+\end{align}
+となる. このハミルトニアンから正準方程式により運動方程式を導く. 実時間$t$での時間発展方程式は, 
+\begin{alignat}{3}
+  &
+  \frac{d \bm{r}_{i}}{d t} &&=
+  \frac{\bm{p}_{i}}{m_{i} }
+  \label{Eq:Nose-MUCA1}
+  \\
+  &
+  \frac{d \bm{p}_{i}}{d t} &&=
+  \left(1 + \frac{\partial \delta U}{\partial U}\right)\bm{F}_{i} - \frac{\dot{s}}{s} \bm{p}_{i}
+  \label{Eq:Nose-MUCA2}
+  \\
+  &
+  \frac{d s}{d t} &&=
+  s \frac{p_{s}}{Q}
+  \label{Eq:Nose-MUCA3}
+  \\
+  &
+  \frac{d p_{s}}{d t} &&=
+  \sum_{i=1}^{N} \frac{{\bm{p}_{i}}^{2}}{m_{i}} -g k_{\mathrm{B}} T_{\mathrm{eq}}
+  \label{Eq:Nose-MUCA4}
+\end{alignat}
+である. この運動方程式(\ref{Eq:Nose-MUCA1})--(\ref{Eq:Nose-MUCA4})にしたがって時間発展させることで, 
+マルチカノニカルMDシミュレーションを行うことができる. 
+
+\subsection{再重法: 単ヒストグラム再重法}
+
+任意の物理量$A$の温度$T$における平均値$\langle A \rangle_{T}$を考える. 
+ここで, 物理量$A$は運動量に依存しないとする. 
+厳密な状態密度(あるいはマルチカノニカル重み因子)がわかっている場合, 温度$T$における物理量$A(U)$の期待値は
+\begin{equation}
+  \langle A \rangle_{T} =
+  \frac{\int dU ~A(U) n(U) e^{-\beta U}}{\int dU~ n(U) e^{-\beta U}}
+\end{equation}
+あるいは状態が離散化されている場合は, 
+\begin{equation}
+  \langle A \rangle_{T} =
+  \frac{\sum_{U} A(U) n(U) e^{-\beta U}}{\sum_{U} n(U) e^{-\beta U}}
+\end{equation}
+と計算される. 
+
+しかし, 一般的には系の厳密な状態密度は事前に分からない. 
+マルチカノニカルシミュレーションでは, 短いシミュレーションを繰り返し実行することでマルチカノニカル重み因子$W_{\mathrm{MUCA}}$を前もって決定しておき, その重み因子に基づいてシミュレーションを行う. 
+長いマルチカノニカルシミュレーションを実行した後, 単ヒストグラム再重法~\cite{Ferrenberg1988}によって状態密度$n(U)$の最適解を得ることができる:
+\begin{equation}
+  n(U) = \frac{H_{\mathrm{MUCA}}(U)}{W_{\mathrm{MUCA}}(U)} = H_{\mathrm{MUCA}}(U) \exp\left[\beta_{0} U_{\mathrm{MUCA}}(U)\right]
+\end{equation}
+ここで, $H_{\mathrm{MUCA}}(U)$はマルチカノニカルシミュレーションから得られたポテンシャルエネルギー$U$に関するヒストグラムである. 
+
+\section{焼き戻し法}
+焼き戻し法では温度を動的変数として扱い, 温度に関する一様分布を実現させる. 
+したがってシミュレーション中に座標と運動量だけでなく, 温度が変更されていく. 
+
+焼き戻し法では, 重み関数
+\begin{equation}
+    W_{\mathrm{ST}}(U;~T) \equiv \exp\{-\beta U + f(T)\}
+\end{equation}
+に比例した確率で各状態を発生させる. 
+ここで, $f(T)$は温度の一様分布が得られるように導入された関数である. 
+つまり, 以下の式が成り立つように決定される:
+\begin{align}
+    \begin{split}
+    P_{\mathrm{ST}}(T) &=
+    \int dU~ n(U) W_{\mathrm{ST}}(U;~T) \\ &=
+    \int dU~ n(U) \exp\{-\beta U + f(T)\} =
+    \mathrm{constant}.
+    \end{split}
+\end{align}
+したがって, $f(T)$は形式的に
+\begin{equation}
+  f(T) \propto
+  - \ln\left[\int dU n(U) e^{-\beta U}\right]
+\end{equation}
+と求められる. $f(T)$は無次元化されたヘルムホルツのの自由エネルギーに対応する. 
+
+実際のシミュレーションでは温度を離散化する. 
+ここでは$M$個の温度を使用すると考える. 
+それぞれの温度を$T_{1} < T_{2} < \ldots < T_{M}$の順になっているとしても一般性は変わらない. 
+ある温度に対する無次元化されたヘルムホルツの自由エネルギー$f_{m} \equiv f(T_{m})$を用いると, 焼き戻し法の重み因子は, 
+\begin{equation}
+  W_{\mathrm{ST}}(U;~T_{m}) \equiv \exp\{-\beta U + f_{m}\}
+\end{equation}
+である. したがって無次元化されたヘルムホルツの自由エネルギーは
+\begin{equation}
+  f(T_{m}) \propto
+  - \ln\left[\int dU n(U) e^{-\beta_{m} U}\right]
+\end{equation}
+とかける. 
+焼戻しシミュレーションは以下の手順で実行される.
+\begin{enumerate}
+ \item ある温度$T_{m}$を持つ重み因子$e^{-\beta_{0} U}$に基づいて, モンテカルロあるいは分子動力学シミュレーションを実行する. 
+ \item 状態を固定したまま,  温度$T_{m}$をあらたな値$(T_{n}$に更新する. 通常, 温度交換の受諾率を高めるために, 隣の温度$n = m \pm 1$に更新することを試す. パラメータの遷移確率は多くの場合メトロポリスの方法を用いて計算される. サンプリング効率を向上させるために熱浴法, Suwa-Todoの方法を用いる方法も提案されている.
+\end{enumerate}
+
+\section{\label{sec:level2-2}レプリカ交換法}
+続いて, カノニカルアンサンブルにおけるレプリカ交換法\cite{Sugita1999}を説明する.
+ここでは$N$個の粒子を持つ系を考える. レプリカ交換法では, 互いに相互作用をしない, 系のコピー(レプリカ)を$M$個用意する.
+各レプリカは, それぞれ異なる温度 $T_m$ ($m=1,2,\dots,M$) でのカノニカルアンサンブルを実現している.
+レプリカ交換法では, 温度とレプリカは1対1に対応している.
+したがって, レプリカラベル$i$ ($i=1,\dots,M$) と温度ラベル$m$ ($m=1,2\dots,M$)は置換関係にある.
+\begin{equation}
+ \begin{cases}
+   i = i(m) \equiv f(m)      \\
+   m = m(i) \equiv f^{-1}(i)
+ \end{cases}
+\end{equation}
+ここで, $f(m)$ は温度ラベルからレプリカラベルへの置換関数,  $f^{-1}(i)$はレプリカラベルから温度ラベルへの置換関数である.
+レプリカ交換法における状態$X_{\alpha}$を以下のように, 温度ラベルとレプリカラベルの組み合わせで表す.
+\begin{align}
+ X_{\alpha} &= \left[x_{1}^{[i(1)]},x_{2}^{[i(2)]},\dots,x_{M}^{[i(M)]}\right] \\
+            &= \left[x_{m(1)}^{[1]},x_{m(2)}^{[2]},\dots,x_{m(M)}^{(M)}\right]
+\end{align}
+したがって, 状態${X_{\alpha}}$は$M$個のレプリカによって指定される.
+ここで, 各レプリカの状態は座標と運動量の組み合わせ
+\begin{equation}
+ x_{m}^{[i]} \equiv (q^{[i]},p^{[i]})_{m}
+\end{equation}
+で指定される.
+状態 $x_{m}^{[i]}$ のハミルトニアン$\mathcal{H}$は系の運動エネルギー$K$とポテンシャルエネルギー$U$を用いて
+\begin{equation}
+ \mathcal{H}(x_{m}^{[i]}) = K(p_{m}^{[i]}) + U(q_{m}^{[i]})
+\end{equation}
+とかける.
+温度$T_{m}$におけるカノニカルアンサンブルでは, 各状態$x_{m}^{[i]}$の重みはボルツマン因子
+\begin{equation}
+ w_{B} = \exp[-\beta_{m} \mathcal{H}(x_m^{[i]})]
+\end{equation}
+で計算することができる.
+ここで, $k_{B}$はボルツマン定数, $\beta_{m} = 1/k_{B}T_{m}$は逆温度である.
+各レプリカは相互作用をしないので, 状態$X_{\alpha}$の重み因子は, 各レプリカ$i$のボルツマン因子の積
+\begin{align}
+ w_{R}(X_{\alpha}) &= \prod_{i=1}^{M} \exp [-\beta_{m(i)} \mathcal{H}(x_{m(i)}^{[i]})] \\
+                   &= \prod_{m=1}^{M} \exp [-\beta_{m} \mathcal{H}(x_m^{[i(m)]})]
+ \label{eqn:weightREMH}
+\end{align}
+で与えられる.
+
+レプリカ交換法では, シミュレーションの途中に温度$T_{m}$を持つレプリカ$i=f(m)$と
+温度$T_{n}$を持つレプリカ$j=f(n)$の温度を交換することを考える.
+つまり, 状態を以下のように変化させる.
+\begin{equation}
+  X_{\alpha} = [\dots, x_{m}^{[i]},\dots, x_{n}^{[j]}, \dots] \to
+  X_{\beta}  = [\dots, x_{m}^{[j^{\prime}]},\dots, x_{n}^{[i^{\prime}]}, \dots]
+\end{equation}
+いま, 新しい置換関数$f^{\prime}$
+\begin{alignat}{2}
+ j^{\prime} &\equiv f^{\prime}(m) &&= j \\
+ i^{\prime} &\equiv f^{\prime}(n) &&= i
+\end{alignat}
+を導入した.
+2つのレプリカ間の温度交換の確率流はメトロポリスの方法を用いて計算される. 式(\ref{eqn:nu_MP})より
+\begin{equation}
+ v(X_{\alpha} \to X_{\beta}) = C \mathrm{min}(w_{R}(X_{\alpha}), w_{R}(X_{\beta}))
+\end{equation}
+となる. また, 遷移確率は
+\begin{align}
+ P(X_{\alpha} \to X_{\beta}) = C \mathrm{min} \left(1, \frac{w_{R}(X_{\beta})}{w_{R}(X_{\alpha})}\right)
+\end{align}
+と計算される. ここで, $C=1/_{M}C_{2}$である.
+各レプリカにおける各状態の更新がモンテカルロ法に基づく場合は,
+座標$q$(ポテンシャルエネルギー$U(q)$)のみを考慮すればよいが, 分子動力学法に基づいて各状態を更新する場合は運動量$p$も考慮する必要がある.
+レプリカ交換分子動力学法では, 温度を交換するときに,
+条件$\langle K(p_m^{[i]}) \rangle _{T_{m}} = \frac{3}{2}N k_{B} T_{m}$
+を満たすように運動量を次のようにスケールする.
+\begin{equation}
+ p_{n}^{[i^{\prime}]} = \sqrt{\frac{T_n}{T_m}}p_{m}^{[i]},~  p_{m}^{[j^{\prime}]} = \sqrt{\frac{T_m}{T_n}}p_{n}^{[j]}
+ \label{eqn:rescale}
+\end{equation}
+したがって, 遷移確率を計算する際に運動量エネルギー$K$は打ち消されるため, 重み因子は式~(\ref{eqn:weightREMH})の代わりに
+\begin{equation}
+ w_{R}(X_{\alpha}) = \prod_{m=1}^{M} \exp[-\beta_{m}U(q_{m}^{[i(m)]})] \label{eqn:weightREM}
+\end{equation}
+を用いればよい.
+遷移確率は具体的に次のように計算される.
+\begin{equation}
+ P(X_{\alpha} \to X_{\beta}) = C \mathrm{min} (1,\exp(-\Delta)) \\ \label{eqn:PREM}
+\end{equation}
+ここで, $\Delta$は
+\begin{equation}
+ \Delta = (\beta_{m} - \beta_{n})(U(q^{[j]})-U(q^{[i]}))
+\end{equation}
+で与えられる.
+
+レプリカ交換シミュレーションは, 次の2つのステップを交互に繰り返すことで実行される. その様子を模式的に示したのが図\ref{fgr:ReplicaExchange}である.
+% Figure
+% \begin{figure}[t]
+%  \begin{center}
+%   \includegraphics[width=0.8\hsize]{figure/ReplicaExchange.eps}
+%   \caption{レプリカ交換法の概念図}
+%   \label{fgr:ReplicaExchange}
+%  \end{center}
+% \end{figure}
+
+\begin{enumerate}
+ \setlength{\leftskip}{0.4cm}
+ \item[Step 1:]
+ 	各レプリカ独立に, 温度$T_{m}$におけるカノニカルアンサンブルに従うモンテカルロあるいは 分子動力学シミュレーションを実行する.
+
+ \item[Step 2:]
+ 	適当なステップごとに, 隣接した温度$T_{m}$と$T_{m+1}$に対応するレプリカ対$i$, $j$間で温度交換を試みる.
+	式(\ref{eqn:PREM})を用いて遷移確率を計算し, 遷移確率にしたがってレプリカ間で温度を交換する.
+\end{enumerate}
+
+レプリカ交換法における温度の設定は, どの隣合う温度対に対しても, アクセプト率が一定になるように分布させる.
+経験的に以下のように指数関数的に決定するとうまくいくことが多い.
+すなわち, $m$番目の温度を
+\begin{equation}
+ T_{m} = T_{1} \left( \frac{T_{M}}{T_{1}} \right)^{\frac{m-1}{M-1}}
+\end{equation}
+で与える. ここで, $T_{1}$は最も低い温度, $T_{M}$は最も高い温度である.
+
+\section{\label{sec:level2-3}レプリカ置換法}
+続いてレプリカ置換法\cite{Itoh2013JCTC}について説明していく.
+レプリカ置換法では, $M$個すべてのレプリカ間で温度の値を置換することを考える. つまり,
+\begin{equation}
+ X_{\alpha} = \left[x_{1}^{[i(1)]},\dots,x_{M}^{[i(M)]} \right] \to  X_{\beta} = \left[x_{1}^{[j(1)]},\dots,x_{M}^{[j(M)]}\right]
+\end{equation}
+あるいは
+\begin{equation}
+ X_{\alpha} = \left[x_{m(1)}^{[1]},\dots,x_{m(M)}^{(M)} \right] \to  X_{\beta} = \left[x_{n(1)}^{[1]},\dots,x_{n(M)}^{(M)}\right]
+\end{equation}
+と状態を遷移させる.
+ここで, $i$, $j$は温度ラベルからレプリカラベルへの置換関数,  $m$, $n$はレプリカラベルから温度ラベルへの置換関数である.
+レプリカ交換法では2つのレプリカ間で温度を交換するだけであったが, レプリカ置換法では2つ以上のレプリカ間で温度を置換させる.
+温度とレプリカの組み合わせは, $M!$個だけあるので, 状態を表す$\alpha$や$\beta$は1から$M!$の値をとる.
+例として, 3つのレプリカを置換する場合の状態の候補を表~\ref{tbl:RPMalpha}に示す.
+
+\begin{table}
+ \caption{レプリカが3つの場合のレプリカ置換状態ラベルの割り当ての例}
+ \centering
+ \begin{tabular}{c|c c c}
+ 状態ラベル$\alpha$ & レプリカ 1 & レプリカ2 & レプリカ3 \\
+ \hline
+ 1 & $T_{1}$ & $T_{2}$ & $T_{3}$ \\
+ 2 & $T_{1}$ & $T_{3}$ & $T_{2}$ \\
+ 3 & $T_{2}$ & $T_{1}$ & $T_{3}$ \\
+ 4 & $T_{2}$ & $T_{3}$ & $T_{1}$ \\
+ 5 & $T_{3}$ & $T_{1}$ & $T_{2}$ \\
+ 6 & $T_{3}$ & $T_{2}$ & $T_{1}$ \\
+ \end{tabular}
+ \label{tbl:RPMalpha}
+\end{table}
+
+レプリカ置換分子動力学法において温度置換が実行される時, 各レプリカの運動量を
+\begin{equation}
+ p_{n(i)}^{[i]} = \sqrt{\frac{T_{n(i)}}{T_{m(i)}}} p_{m(i)}^{[i]}
+\end{equation}
+とスケールする必要がある.
+したがってレプリカ置換法において各状態$X_{\alpha}$の重み因子は, 式~(\ref{eqn:weightREM})を用いて計算することができる.
+レプリカ置換法では遷移確率を計算する際に, メトロポリスの方法を用いると遷移確率
+$P(X_{\alpha} \to X_{\beta})$は非常に小さい値をとってしまう\cite{Itoh2013JCTC}.
+つまり, リジェクト率が非常に高くなってしまう.
+そこで, レプリカ置換法では, メトロポリスの方法に変わって諏訪・藤堂の方法を用いて遷移確率を計算する.
+諏訪・藤堂の方法はリジェクト率を最小化するためレプリカ置換に適したアルゴリズムである.
+確率流 $v(X_{\alpha} \to X_{\beta})$ は, 式~(\ref{eq:SuwaTodo})中の重み因子$w_{i}$を
+$w_{R}(X_{\alpha})$に置き換えることで計算される. つまり,
+\begin{equation}
+ v(X_{\alpha} \to X_{\beta}) = \mathrm{max} (0,\mathrm{min}(\Delta_{\alpha \beta},w_{R}(X_{\alpha})+w_{R}(X_{\beta})-\Delta_{\alpha \beta},w_{R}(X_{\alpha}),w_{R}(X_{\beta}))) \label{eqn:STRPMD}
+\end{equation}
+で与えられる. ただし,
+\begin{align}
+ \Delta_{\alpha \beta} &\equiv S_{\alpha} -S_{\beta - 1} + w_{R}(X_{1})
+ \label{eqn:RPMD_ST_Delta}
+ \\
+ S_{\alpha} &\equiv \sum_{\beta=1}^{\alpha} w_{R} (X_{\beta})
+ \label{eqn:RPMD_ST_Salpha}
+ \\
+ S_{0}&\equiv S_{M!}
+\end{align}
+である.
+より一般的に, $w_{R}(X_{\gamma})$ が最大の重みを持つとすると, 式~(\ref{eqn:RPMD_ST_Delta}), (\ref{eqn:RPMD_ST_Salpha})は
+\begin{align}
+	\Delta_{\alpha \beta} &\equiv
+	S_{\alpha} -S_{\beta - 1} + w_{R}(X_{\gamma})
+ 	\\
+	S_{\alpha} &\equiv
+		\begin{cases}
+		   \displaystyle \sum_{\beta=\gamma}^{\alpha} w_{R}(X_{\beta}) &\text{for $\alpha \geq \gamma$} \\
+		   \displaystyle \sum_{\beta=\gamma}^{M!} w_{R}(X_{\beta})+ \sum_{\beta=1}^{\alpha} w_{R}(X_{\beta}) &\text{for $\alpha < \gamma$}
+		  \end{cases}
+\end{align}
+のように修正される.
+
+レプリカ置換シミュレーションは, 次の手順で実行することができる.
+\begin{enumerate}
+  \setlength{\leftskip}{0.4cm}
+ \item[Step 0:]
+ 	表\ref{tbl:RPMalpha}のように, 温度とレプリカラベルの組み合わせ全てに対して状態ラベル$\alpha$を割りあてる.
+ \item[Step 1:]
+ 	各レプリカに温度を割り当てて, 各レプリカ独立に温度$T_{m}$におけるカノニカルアンサンブルに
+	      従うモンテカルロあるいは分子動力学シミュレーションを実行する.
+
+ \item[Step 2:]
+ 	適当なステップごとに, 諏訪・藤堂の方法を用いることで温度置換を試みる.
+	式~(\ref{eqn:weightREM})と式~(\ref{eqn:STRPMD})を用いることで,
+	$\beta = 1,\dots,M!$に対する遷移確率
+	$P(X_{\alpha} \to X_{\beta}) = v(X_{\alpha} \to X_{\beta})/w(X_{\alpha})$を計算することができる.
+	遷移確率$P(X_{\alpha} \to X_{\beta})$にしたがって, 状態$X_{\alpha}$から$X_{\beta}$へとレプリカを置換させる.
+
+ \item[Step 3:]
+ 	Step 1とStep 2を繰り返す.
+\end{enumerate}
+レプリカ置換シミュレーションの様子を模式的にしたものを図\ref{fgr:ReplicaPermutation}に示した.
+レプリカ置換法では 3つ以上のレプリカ間での入れ替わりや, 離れた温度への遷移が発生し, 効率的なシミュレーションを実現する.
+
+
+\subsection{置換関数の構築方法}
+
+レプリカ置換法を実行するには, 置換関数を構築する必要がある. 
+ここでは, 置換をどのようにすれば組み立てることができるかを説明する. 
+まず, $M$個の要素を持つ置換$P_{i}^{(M)}$を次のように定義する. 
+上付の添字は要素の数を表す. 
+\begin{align}
+ P_{i}^{(M)}
+&\equiv
+ \left[
+ \begin{array}{ccccc}
+  \sigma_{i}(1), & \sigma_{i}(2), & \sigma_{i}(3), & \cdots, & \sigma_{i}(M) \\
+ \end{array}
+ \right]
+ \notag
+ \\
+&=
+ \left(
+ \begin{array}{ccccc}
+  1,             & 2,             & 3,             & \cdots, & M             \\
+  \sigma_{i}(1), & \sigma_{i}(2), & \sigma_{i}(3), & \cdots, & \sigma_{i}(M) \\
+ \end{array}
+ \right).
+ \label{Eq:Permutation-Function}
+\end{align}
+次に, 全ての置換の集合を次のように表す. 
+\begin{align}
+	\left\{P^{(M)}\right\}
+ 	\equiv
+	 \left\{
+    	\begin{array}{c}
+			P_{1}^{(M)} \\ P_{2}^{(M)} \\ P_{3}^{[M]} \\ \vdots \\ P_{M!}^{(M)}
+        \end{array}
+ 	\right\}
+	=
+ 	\left\{
+		\begin{array}{c}
+		\left[
+				\begin{array}{ccccc} 1, & 2,   & 3,   & \cdots, & M \\ \end{array}
+		\right] \\
+		\left[
+				\begin{array}{ccccc} 2, & 1,   & 3,   & \cdots, & M \\ \end{array}
+		\right] \\
+		\left[
+			\begin{array}{ccccc} 1, & 3,   & 2,   & \cdots, & M \\ \end{array}
+		\right] \\
+		\vdots \\
+	  	\left[
+			\begin{array}{ccccc} M, & M-1, & M-2, & \cdots, & 1 \\ \end{array}
+		\right]
+ 		\end{array}
+ 	\right\} ,
+\end{align}
+ここで, $\{P^{(M)}\}$は$M! \times M$の行列である. 
+$M$個の要素を持つ置換の集合$\{P^{(M)}\}$は, 一つ要素の少ない置換の集合$\{P^{[M-1]}\}$に基づいて構築することができる. 
+最初のステップは, $\{P^{(M-1)}\}$に$M$列目の要素として, $M$を付け加えることである. 
+すなわち, 
+\begin{align}
+	\left\{P^{(M)}\right\}_{M} &\equiv
+	\left\{[P_{i}^{(M-1)},~ M] \mathrm{ : for }~ i = 1, \cdots, (M-1)! \right\}
+ 	\notag
+	\\
+	&=
+ 	\left\{
+	\begin{array}{c}
+  		\left[ \begin{array}{cccccc} 1,   & 2,   & 3,   & \cdots, & M-1, & M \\ \end{array} \right]  \\
+  		\left[ \begin{array}{cccccc} 2,   & 1,   & 3,   & \cdots, & M-1, & M \\ \end{array} \right]  \\
+  		\left[ \begin{array}{cccccc} 1,   & 3,   & 2,   & \cdots, & M-1, & M \\ \end{array} \right]  \\
+  		\vdots \\
+  		\left[ \begin{array}{cccccc} M-1, & M-2, & M-3, & \cdots, & 1,   & M \\ \end{array} \right]
+ 	\end{array}
+ \right\} ,
+\end{align}
+ここで, $\{P^{(M)}\}_{i}$の中括弧に対する下付きの添字$i$は, 追加した数字$M$が$i$列目にいる置換の集合であることを示す. 
+ここで, 転置$\tau_{j, k}$を考える. 
+この転置は, 置換$P_{i}^{(M)}$の$j$番目の列と$k$番目の列を入れ替える. 
+すなわち, 
+\begin{align}
+  \tau_{j, k}
+  \left[
+        \begin{array}{ccccccc}
+         1, & \cdots, & j, & \cdots, & k, & \cdots, & M \\
+        \end{array}
+  \right]
+  =
+  \left[
+        \begin{array}{ccccccc}
+         1, & \cdots, & k, & \cdots, & j, & \cdots, & M \\
+        \end{array}
+  \right].
+\end{align}
+となる. 
+次のステップは, $\{P^{(M)}\}_{M}$の$M$列目について, 要素$M$が1番目の列に降りてくるまで, 隣接する列との転置を順次繰り返していくことである. 
+つまり, 
+\begin{alignat}{4}
+ &\left\{P^{(M)}\right\}_{M-1} &~ = ~& \tau_{M-1, M} \left\{P^{(M)}\right\}_{M} ,
+  \notag
+  \\
+ &\left\{P^{(M)}\right\}_{M-2} &~ = ~& \tau_{M-2, M-1} \left\{P^{(M)}\right\}_{M-1} ,
+  \notag
+  \\
+ &                       &\vdots  &
+  \notag
+  \\
+ &\left\{P^{(M)}\right\}_{2}   &~ = ~& \tau_{2, 3}     \left\{P^{(M)}\right\}_{3} ,
+  \notag
+  \\
+ &\left\{P^{(M)}\right\}_{1}   &~ = ~& \tau_{1, 2}     \left\{P^{(M)}\right\}_{2} .
+  \notag
+\end{alignat}
+最終的に$M$個の要素を持つ置換を次のように得ることができる. 
+\begin{align}
+ \left\{P^{(M)}\right\} = ~
+ \left\{
+        \left\{P^{(M)}\right\}_{i}
+        \mathrm{ : for } ~i = M, M-1, \cdots, 1
+ \right\}.
+\end{align}
+
+
+% Figure
+% \begin{figure}[t]
+%  \begin{center}
+%  \includegraphics[width=0.8\hsize]{figure/ReplicaPermutation.eps}
+%  \caption{レプリカ置換法の概念図}
+%  \label{fgr:ReplicaPermutation}
+%  \end{center}
+% \end{figure}
+
+\clearpage
+
+\subsection{部分置換の構築方法}
+レプリカ部分置換の構築方法について述べる~\cite{Yamauchi2019}. 
+$M$個の要素を持つ部分置換関数$S_{i}^{(M)}$を
+\begin{alignat}{5}
+    S_{i}^{(M)}
+   &\equiv
+    \left[
+    \begin{array}{ccccc}
+     \sigma_{i}(1), & \sigma_{i}(2), & \sigma_{i}(3), & \cdots, & \sigma_{i}(M) \\
+    \end{array}
+    \right]
+    \notag
+    \\
+   &=
+    \left(
+    \begin{array}{ccccc}
+     1,             & 2,             & 3,             & \cdots, & M             \\
+     \sigma_{i}(1), & \sigma_{i}(2), & \sigma_{i}(3), & \cdots, & \sigma_{i}(M) \\
+    \end{array}
+    \right),
+\end{alignat}
+とかく. ここで, 
+\begin{align}
+    \sigma_{i}(l)
+    =
+    \begin{cases}
+      l-1,~ l, \text{ or } l+1  &\text{when $1 < l < M$}, \\
+        1      \text{ or } 2    &\text{when $l = 1$},     \\
+      M-1      \text{ or } M    &\text{when $l = M$}.     \\
+    \end{cases}
+\end{align}
+のように写像を限定した置換の集合を部分置換と定義する. 
+レプリカ部分置換は, 置換関数の式(\ref{Eq:Permutation-Function})と似ているが, 写像$\sigma_{i}(l)$に制限課していることが特徴である. 
+部分置換の集合を
+\begin{equation}
+	\left\{S^{(M)}\right\}
+    \equiv
+    \left\{S_{i}^{(M)}: \text{for $i = 1, \cdots, N_{\{S^{(M)}\}}$} \right\},
+\end{equation}
+と定義する. 
+ここで, $N_{\{S^{(M)}\}}$は$\{S^{(M)}\}$に含まれる全置換数を表し, 
+$\{S^{(M)}\}$は$N_{\{S^{(M)}\}} \times M$の行列である. 
+
+$M$個の要素を持つ部分置換$\{S^{(M)}\}$は, $\{S^{(M-1)}\}$と$\{S^{(M-2)}\}$から構築することができる:
+\begin{align}
+  \left\{S^{(M)}\right\}
+  =
+  \left\{
+  \begin{array}{cc}
+   \left[ S_{i}^{(M-1)},~ M \right]
+         &\mathrm{ : for }~ i = 1, \cdots, N_{\{S^{(M-1)}\}}  \\
+   \left[ S_{i}^{(M-2)},~ M ,~ M-1 \right]
+         &\mathrm{ : for }~ j = 1, \cdots, N_{\{S^{(M-2)}\}}
+  \end{array}
+  \right\}
+\end{align}
+ただし, 
+\begin{align}
+    \left\{S^{(1)}\right\} &= [1] ,\notag \\
+    \left\{S^{(2)}\right\} &= \left\{
+                    \begin{array}[tb]{cc}
+                    \left[\begin{array}{cc} 1, & 2 \end{array} \right] \\
+                    \left[\begin{array}{cc} 2, & 1 \end{array} \right] \\
+                    \end{array}
+            \right\} .
+ \notag
+\end{align}
+例えば$M=3$の場合, 部分置換は次のように構築することができる. 
+\begin{align}
+  \left\{
+          [S_{i}^{(M-1)},~ M] \mathrm{ : for }~ i = 1, \cdots, N_{\{S^{(M-1)}\}}
+  \right\}
+ &=
+  \left\{
+         \begin{array}[tb]{cc}
+          \left[\begin{array}{ccc} 1, & 2, & 3 \end{array} \right] \\
+          \left[\begin{array}{ccc} 2, & 1, & 3 \end{array} \right]
+         \end{array}
+  \right\},
+  \notag
+  \\
+  \left\{ [S_{j}^{(M-2)},~ M ,~ M-1]
+          \mathrm{ : for }~ j = 1, \cdots, N_{\{S^{(M-2)}\}} \right\}
+ &=
+  \left\{
+         \begin{array}[tb]{cc}
+          \left[\begin{array}{ccc} 1, & 3, & 2 \end{array} \right]
+         \end{array}
+  \right\}.
+  \notag
+\end{align}
+同様にして, $M=4$の場合の部分置換を以下のようにして組み立てることができる. 
+\begin{align}
+  \left\{ [S_{i}^{(M-1)},~ M] \mathrm{ : for }~ i = 1, \cdots, N_{\{S^{(M-1)}\}}\right\}
+ &=
+  \left\{
+         \begin{array}[tb]{cc}
+          \left[\begin{array}{cccc} 1, & 2, & 3, & 4 \end{array} \right] \\
+          \left[\begin{array}{cccc} 2, & 1, & 3, & 4 \end{array} \right] \\
+          \left[\begin{array}{cccc} 1, & 3, & 2, & 4 \end{array} \right]
+         \end{array}
+  \right\},
+  \notag
+  \\
+  \left\{ [S_{j}^{(M-2)},~ M ,~ M-1]
+		  \mathrm{ : for }~ j = 1, \cdots, N_{\{S^{(M-2)}\}}
+  \right\}
+ &=
+  \left\{
+         \begin{array}[tb]{cc}
+          \left[\begin{array}{cccc} 1, & 2, & 4, & 3 \end{array} \right] \\
+          \left[\begin{array}{cccc} 2, & 1, & 4, & 3 \end{array} \right]
+         \end{array}
+  \right\} .
+ \notag
+\end{align}
+部分置換関数の数$N_{\{S^{(M)}\}}$については, 明らかに次の漸化式を満たす. 
+\begin{equation}
+	N_{\{S^{(M)}\}} = N_{\{S^{(M-1)}\}} + N_{\{S^{(M-2)}\}}
+\end{equation}
+ただし, $N_{\{S^{(1)}\}} = 1$と$N_{\{S^{(2)}\}} = 2$である. 
+この漸化式は解くことができ, 次のように$M$個の成分を持つ部分置換の数が求まる. 
+\begin{equation}
+	N_{\{S^{(M)}\}} = \frac{1}{\sqrt{5}}
+          \left\{
+                  \left(\frac{1+\sqrt{5}}{2}\right)^{M+1}
+                - \left(\frac{1-\sqrt{5}}{2}\right)^{M+1}
+          \right\}.
+\end{equation}
+よく知られているように, これはフィボナッチ数列である. 
+$N_{\{S^{(M)}\}} = 1, 2, 3, 5, 8, 13, 21, \cdots$.
+部分置換の数$N_{\{S^{(M)}\}}$は全置換の数$M!$に比べて常に小さい. 
+例えば, 全置換の数は8個の要素を持つときは$8! = 40,320$, 10個の要素を持つときは$10! = 3,628,800$である. 
+一方, それと同じくらいの部分置換の数を持つ要素数は$M=23$あるいは$M=32$となる($N_{\{S^{(23)}\}} = 46,368$, $N_{\{S^{(32)}\}} = 3,524,578$). 
+
+ここまでは, 部分置換は要素$l$が$l-1$から$l+1$のみに移る置換のみを考えていたが, より一般的な部分置換を構築することも可能である. 
+例えば, 隣の値のみの遷移だけでなく, 2つあるいは3つ離れた値への遷移を含む部分置換の集合を構築することもできる. 
+ここで, 部分置換の範囲を表す$\epsilon$を導入し, 要素$l$は, 
+(1)$\epsilon+1 \le M \le M-\epsilon$の時, $M-\epsilon$から$M+\epsilon$の間の値に遷移, 
+(2)$M < \epsilon+1$の時, $1$から$M+\epsilon$の間の値に遷移, 
+(3)$M > M-\epsilon$の時, $M-\epsilon$から$M$の間の値に遷移, 
+するような部分置換を考える. 
+
+範囲$\epsilon$を持つ部分置換$\{S^{(M)}\}$は$\{S^{(M-1)}\}$を基に構築することができる. 
+最初のステップは, 部分置換$\{S^{(M-1)}\}$の$M$列目に要素$M$を追加することである:
+$\{S^{(M)}\}_{M} \equiv \{ [S_{i}^{(M-1)},~ M] \mathrm{ : for }~ i = 1, \cdots, N_{\{S^{(M-1)}\}} \}$.
+ここで$\{S^{(M)}\}_{i}$の下付きの$i$は, $i$列目に$M$がある部分置換の集合であることを表している. 
+次のステップでは, 部分置換$\{S^{(M)}\}_{M}$の$M$に対して, 隣接する要素との転置を実行する:
+$\tau_{M-1, M} \{S^{(M-1)}\}_{M}$. 
+この時, $N_{\{S^{(M)}\}_{M}}$個の置換が生成される. 
+生成された置換のうち, $M$番目の列の要素が$M-\epsilon$より小さいもの以外を部分置換$\{S^{(M)}\}_{M-1}$と定義する. 
+同様にして, $\{S^{(M)}\}_{i}$ ($i = M-1,\dots,2$)に対して$M$に関する隣接要素との転置試行(i.e., $\tau_{i-1,i} \{S^{(M)}\}_{i}$)を繰り返していく. 
+全ての転置操作の後, $M$列目に$M-\epsilon$より小さい要素を持つ置換を削除し, 残りの置換を部分置換$\{S^{(M)}\}_{i-1}$と定義する. 
+このような隣接要素との置換試行と部分置換の選択は, 要素$M$が$(M-\epsilon)$列目に移動するまで繰り返す. 
+このようにして, 範囲$\epsilon$を持つ部分置換の集合
+\begin{align}
+	\left\{S^{(M)}\right\} = ~
+	\left\{
+			\{S^{(M)}\}_{i}
+			 \mathrm{ : for } ~i = M,~ M-1,~ \cdots,~ M-\epsilon
+	\right\}.
+\end{align}
+を得る. $\epsilon = M$の時の部分置換は, 全置換と同じである. 
+
+\section{定温定圧アンサンブルにおける拡張アンサンブル法}
+\subsection{定温定圧アンサンブル}
+定温定圧アンサンブルでは, 粒子数$N$, 圧力$P$, 温度$T$がパラメータとして指定され, 
+一定に保たれる.
+つまり, 圧力$P$の共役な量である体積$V$は, 圧力にしたがって変動する.
+有限体積$V$の箱に入った$N$の粒子を考える.
+この系は, 粒子の座標$q \equiv \{\mathbf{q}_{1}, \cdots, \mathbf{q}_{N}\}$, 
+運動量$p \equiv \{\mathbf{p}_{1}, \cdots, \mathbf{p}_{N}\}$,
+系の体積$V$により指定される.
+系のポテンシャルエネルギー$U(q, V)$は$q$と$V$の関数として与えられる.
+粒子数$N$, 圧力$P$, 温度$T$一定の系である定温定圧アンサンブルにおいて, 圧力$P$が
+パラメータとして指定され, それに従って系の体積$V$が変動する.
+ここでは簡単のため, 系の一辺の長さが$V^{1/3}$の立方体の箱の中にあるとする.
+
+定温定圧アンサンブルでは, 温度$T$と圧力$P$におけるポテンシャルエネルギー$E$と体積$V$の
+確率分布$P_{NPT}(E, V; T, P)$は以下のように与えられる:
+\begin{align}
+  P_{NPT} (E, V; T, P) 
+=
+  n(E, V) W_{NPT} (E, V; T, P)
+\end{align}
+ここで, $n(E, V)$は状態密度, $W_{NPT}(E, V; T, P)$は分布関数であり,
+\begin{align}
+  W_{NPT} (E, V; T, P)
+=
+  \exp\{-\beta(E+PV) \}
+\end{align}
+あるいは
+\begin{align}
+  W_{NPT} (q, V, P)
+=
+  \exp
+  \left[-\beta 
+         \left\{ 
+                 \sum_{i=1}^{N} \frac{\mathbf{p}_{i}^{2}}{2 m_{i}}
+                + U(q, V) + PV
+         \right\} 
+  \right]
+\end{align}
+と書かれる.
+立方体の体積でスケールされた座標 $\sigma = V^{-1/3} \mathbf{q}_{k}$を導入すると,
+ \begin{align}
+  \exp[-\beta\{U(q, V) + PV\}] dq
+ &=
+  \exp[-\beta\{U(\sigma, V) + PV\}] V^{N} d\sigma
+ \notag
+ \\
+ &=
+  \exp[-\beta \{U(\sigma, V) + PV -Nk_{B}T \log V \}] V^{N} d\sigma .
+ \end{align}
+となる.
+
+
+\subsection{マルチサーマル・マルチバリック法}
+マルチカノニカル法の拡張としてマルチバーリック・マルチサーマル法が提案されている\ref{}.
+マルチバーリック・マルチサーマル法ではポテンシャルエネルギーと体積で張られる空間における
+一様分布を実現させるため, ポテンシャルエネルギー空間と体積空間のランダムウォークをする.
+そのため, 広い範囲の温度・圧力における定温定圧アンサンブルを得ることができる.
+
+ここでは通常の定温定圧アンサンブルの分布関数$W = \exp[-\beta\{U(q,V) +PV\}]$の代わりに,
+マルチバーリック・マルチサーマルエンタルピー$\mathcal{H}_{\mathrm{MBT}}$を導入し, 重み関数
+$W_{\mathrm{MBT}} \{U(q,V), V\} \equiv  \exp [ -\beta_{0} \mathcal{H}_{\mathrm{MBT}} \{U(q,V), V\}]$
+を使用する. ここで$\beta_{0} = 1/(k_{B} T_{0})$は参照温度である.
+$\mathcal{H}_{\mathrm{MBT}}$はポテンシャルエネルギーと体積についての確率分布が一様になるように与えられる:
+\begin{align}
+  P_{\mathrm{MBT}} (E, V)
+&=
+  n(E, V) W_{\mathrm{MBT}} (E, V)
+\\
+&=
+   n(E, V) \exp [ -\beta_{0} \mathcal{H}_{\mathrm{MBT}} \{U(q,V), V\}]
+\\
+&= \mathrm{const}
+\end{align}
+また上の式より, 定数を除き形式的に
+\begin{align}
+ \mathcal{H}_{\mathrm{MBT}}
+=
+ k_{B} T_{0} \ln n(U, V)
+\end{align}
+が得られる. つまり, 状態密度を得ることができればマルチバーリック・マルチサーマルエンタルピーは決定される.
+\subsubsection{モンテカルロ・シミュレーション}
+モンテカルロ シミュレーションは, エンタルピー$\mathcal{H}$をマルチバーリック・マルチサーマルエンタルピー
+$\mathcal{H}_{\mathrm{MBT}}$に置き換えることで実行される.
+\subsubsection{MDシミュレーション}
+一方, MDシミュレーションを行う際には運動方程式の$\mathcal{H}$を$\mathcal{H}_{\mathrm{MBT}}$に置き換えて
+数値積分を実行すればよい.
+\subsubsection{重み因子の決定}
+重み因子は, 短いシミュレーションを繰り返し行う逐次計算法や, ワン・ランダウの方法を用いることが多い. 十分分布を広げることができたら, 重み因子を固定して, 長いマルチカノニカルシミュレーションを行う.
+
+
+\subsection{定温定圧アンサンブルにおける焼戻し法}
+定温定圧アンサンブルにおける焼戻し法では, 温度と圧力自体を動的変数として扱い,
+温度と圧力空間における一様分布を実現させる.
+したがって, シミュレーション中に座標と運動量だけでなく, 温度と圧力が変更されていく.
+
+焼戻し法では, 重み関数
+\begin{align}
+ W_{\mathrm{ST}} (U, V; T, P)
+ \equiv
+ \exp \{ -\beta (U +PV) + g(T,P) \}
+\end{align}
+に比例した確率で各状態を発生させる.
+ここで, $g(T,P)$は温度と圧力の一様分布が得られるように導入された関数である.
+つまり, 以下の式が成り立つように決定される:
+\begin{align}
+ P_{\mathrm{ST}}
+ =
+ \int_{0}^{\infty} dV
+ \int_{V} dq~
+ W_{\mathrm{PTST}} \{ E(q,V), V; T, P \}
+ =
+ \mathrm{const}
+\end{align}
+したがって, $g(T,P)$は形式的に
+\begin{align}
+ g(T,P)
+ =
+ - \ln \left[ \int_{0}^{\infty} \int_{V} dq~
+              \exp [ -\beta \{ U(q,V) + PV \} ]
+       \right]
+\end{align}
+と求められる.
+これは, 定数を除いた無次元化されたGibbsの自由エネルギーである.
+
+実際のシミュレーションでは, 温度と圧力を離散化する.
+温度を$M_{0}$個, 圧力を$M_{1}$個使用すると考える.
+温度は$T_{1} < \cdots < T_{M_{0}}$, 圧力は$P_{1} < \cdots < P_{M_{0}}$
+の順になっていると仮定しても一般性は変わらない.
+ある温度・圧力$(T_{m_{0}}, P_{m_{1}})$における無次元化されたGibbsの自由エネルギー
+$g_{m} = g (T_{m_{0}}, P_{m_{1}})$を用いると重み関数は
+\begin{align}
+ W_{\mathrm{ST}} (U, V, T_{m_{0}}, P_{m_{1}})
+ =
+ \exp \{ - \beta_{m_{0}} (U + P_{m_{1}} V) + g_{m} \}
+\end{align}
+とかけるので, 形式的に
+\begin{align}
+ g(T_{m_{0}}, P_{m_{1}})
+ =
+ - \ln \left[ \int_{0}^{\infty} \int_{V} dq~
+              \exp [ -\beta_{m_{0}} \{ U(q,V) + P_{m_{1}}V \} ]
+       \right]
+\end{align}
+定温低圧焼戻しシミュレーションは以下の手順で実行される.
+\begin{enumerate}
+ \item ある温度・圧力$(T_{m_{0}}, P_{m_{1}})$を持つ重み因子
+       $e^{-\beta_{0} (U + P_{m_{1}} V)}$に基づいてモンテカルロあるいは分子動力学シミュレーションを実行する.
+ \item 状態を固定したまま, 温度・圧力$(T_{m_{0}}, P_{m_{1}})$を
+       あらたな値$(T_{n_{0}}, P_{n_{1}})$に更新する.
+       パラメータの遷移確率は多くの場合メトロポリスの方法を用いて計算される.
+       サンプリング効率を向上させるために熱浴法, 
+       Suwa-Todoの方法を用いる方法も提案されている.
+\end{enumerate}
+
+
+\bibliographystyle{junsrt}
+\bibliography{generalized-ensemble}
+\input{../include/end}

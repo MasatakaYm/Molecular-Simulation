@@ -1,0 +1,642 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{解析力学の復習}
+\maketitle
+
+ここでは解析力学について簡単にまとめる.
+詳しくは解析力学の教科書を参照のこと\cite{Goldstein1, Goldstein2, 1986LandauLifshitz, 1959Yamauchi, 2014Hata, 1998Yamamoto1, 1998Yamamoto2, 2010Tuckerman, 2010Hoover}.
+
+\section{ラグランジュ形式}
+\subsection{一般化座標}
+空間における粒子の位置は直交座標での位置ベクトル$\bm{r}$であらわすことができる.
+一般に$N$個の粒子の位置を決めるには$N$個の位置ベクトル
+\begin{equation}
+ \bm{r} \equiv (x_{1}, x_{2}, \cdots, x_{3N})^{t}
+\end{equation}
+が必要になる. ここで上付きの$t$は転置を表す. $N$個の粒子の位置ベクトルを表す方法は
+一つではない. 例えば極座標や曲線座標などを用いても良い.
+粒子系の座標を決めるのに必要な$g$個の量
+\begin{equation}
+ \bm{q} \equiv (q_{1}, q_{2}, \cdots, q_{g})^{t}
+\end{equation}
+をその系の一般化座標といい, $g$を自由度という.
+もし拘束条件が$k$ 個ある場合, $g = 3N - k$となる.
+一般化座標$\bm{q}$の時間微分
+\begin{equation}
+ \dot{\bm{q}} = \frac{d \bm{q}}{d t}
+\end{equation}
+を一般速度と言う.
+ここで, 運動エネルギー$K$とポテンシャルエネルギー$U$の差としてラグランジアン$\mathcal{L}$を以下のように定義する:
+\begin{equation}
+ \mathcal{L} = K - U
+\end{equation}
+一般にラグランジアン$\mathcal{L}$は$q$, $\dot{q}$, $t$の関数である.
+
+ラグランジュ形式の利点は拘束があるような系に対して特に発揮される.
+Newton形式で拘束がある系を考える場合, (i)そのままでは運動方程式が独立ではないこと,
+(ii)拘束を生み出す力は問題を解かないと決まらないという問題点がある.
+一方でラグランジュ形式では一般化座標を扱うため,
+拘束力が消えるように定式化することができるという利点がある.
+
+系はラグランジアンにより特徴づけられる.
+その運動の与え方には2つの方法がある.
+1つ目は, 系の瞬間的な状態の微小変化を考える微分原理に基づく方法である.
+この方法ではD'Alembertの原理$\sum_{i} (\bm{F}_{i}^{\mathrm{(ex)}} - \dot{\bm{p}}) \cdot \delta \bm{r}_{i}$
+から運動を与える.
+2つ目は, 時刻$t_{1}$から$t_{2}$までの系の運動全体から力学法則を導く積分原理に基づく方法である.
+この方法では最小作用の原理(ハミルトンの原理)により運動が与えられる.
+
+\subsection{ラグランジュの運動方程式}
+\subsubsection{最小作用の原理とラグランジュ運動方程式}
+時刻$t = t_{1}$および$t = t_{2}$において系の座標がそれぞれ$\bm{q}_{1}$, $\bm{q}_{2}$であるとする.
+作用$S$を
+\begin{equation}
+ S \equiv \int_{t_{1}}^{t_{2}}~dt~\mathcal{L}(\bm{q}, \dot{\bm{q}}, t)
+\end{equation}
+と定義する.
+作用$S$は関数の関数であることから汎関数と呼ばれる.
+2点$\bm{q}_{1}$, $\bm{q}_{2}$間の可能な経路のうち作用$S$が最小(極小)になるような運動が実際に起こる.
+これを最小作用の原理という. 
+最小作用の原理からラグランジュ運動方程式
+\begin{equation}
+ \frac{d}{d t}
+ \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}}
+-\frac{\partial \mathcal{L}}{\partial q_{i}}
+= 0
+\end{equation}
+が得られる.
+
+\subsubsection{運動方程式の導出}
+最小作用の原理から運動方程式を導く. 
+$q=q(t)$を作用$S$を最小にするような経路とする.
+微小変位$\delta q(t)$を加えた経路
+\begin{equation}
+ q(t) + \delta q(t)
+\end{equation}
+を考える.
+この経路では作用$S$の値は増加する.
+ここで$\delta q(t_{1}) = \delta q(t_{2}) = 0$とする.
+\begin{align}
+  \delta S
+&=\int_{t_{1}}^{t_{2}} ~dt~ \mathcal{L} (q+\delta q, \dot{q} + \delta \dot{q}, t)
+ -\int_{t_{1}}^{t_{2}} ~dt~ \mathcal{L} (q, \dot{q}, t)
+ \notag
+ \\
+&=\int_{t_{1}}^{t_{2}} ~dt
+  \left\{ \mathcal{L} (q, \dot{q}, t)
+         +\frac{\partial \mathcal{L}}{\partial q} \delta q
+         +\frac{\partial \mathcal{L}}{\partial \dot{q}} \delta \dot{q}
+  \right\}
+ -\int_{t_{1}}^{t_{2}} ~dt~ \mathcal{L} (q, \dot{q}, t)
+ \notag
+ \\
+&=\int_{t_{1}}^{t_{2}}~dt
+ \left\{
+         \frac{\partial \mathcal{L}}{\partial q} \delta q
+        +\frac{\partial \mathcal{L}}{\partial \dot{q}} \delta \dot{q}
+ \right\}
+ \notag
+\end{align}
+ここで第1式から第2式で1次のテイラー展開をした.
+作用$S$が最小であるためには$\delta S = 0$が必要条件である.
+第2項について計算を進めて部分積分をすると
+\begin{align}
+  \int_{t_{1}}^{t_{2}}~dt
+  \frac{\partial \mathcal{L}}{\partial \dot{q}} \delta \dot{q}
+&=\int_{t_{1}}^{t_{2}}~dt
+  \frac{\partial \mathcal{L}}{\partial \dot{q}} \frac{d}{dt} (\delta q)
+  \notag
+  \\
+&=\left[
+  \frac{\partial \mathcal{L}}{\partial \dot{q}} \delta q
+  \right]_{t_1}^{t_{2}}
+ -\int_{t_{1}}^{t_{2}}~dt \frac{d}{dt}
+  \left(\frac{\partial \mathcal{L}}{\partial \dot{q}}\right) \delta q
+  \notag
+\end{align}
+となる.
+$\delta q(t_{1}) = \delta q(t_{2}) = 0$から第1項目はゼロとなる.
+ゆえに
+\begin{equation}
+ \delta S
+=\int_{t_{1}}^{t_{2}} ~dt
+ \left[
+       \frac{\partial \mathcal{L}}{\partial q}
+      -\frac{d}{dt}
+       \left(\frac{\partial \mathcal{L}}{\partial \dot{q}} \right)
+ \right] \delta q
+=0
+\end{equation}
+を得る.
+任意の$\delta q$に対してこの恒等式が成り立つには, 被積分関数が常にゼロである.
+したがって
+\begin{equation}
+ \frac{d}{dt} \left( \frac{\partial \mathcal{L}}{\partial \dot{q}} \right)
+-\frac{\partial \mathcal{L}}{\partial q}
+=0
+\end{equation}
+を得る.
+これをLegendreの運動方程式という.
+自由度の数が1以上の場合にも,　経路の成分$q_{i}(t)$を独立に変えることで
+\begin{equation}
+  \frac{d}{dt} \left( \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}} \right)
+-\frac{\partial \mathcal{L}}{\partial q_{i}}
+=0
+\end{equation}
+となる.
+
+ここで例として, 粒子間に相互作用があるが, 他の物体とは相互作用しないような孤立系を
+考える.
+ラグランジアンは直交座標を用いて
+\begin{equation}
+ \mathcal{L}
+=\sum_{i} \frac{1}{2} m_{i} \bm{r}_{i}^{2}
+-U(\bm{r}_{1}, \bm{r}_{2}, \cdot)
+\end{equation}
+となる. ルジャンドルの運動方程式に代入すると
+\begin{equation}
+ m_{i} \ddot{\bm{r}}_{i} = - \frac{\partial U}{\partial \bm{r}_{i}}
+\end{equation}
+を得る.
+これはニュートンの運動方程式と一致する.
+
+\subsection{保存量}
+ラグランジュの運動方程式から, 系がある条件を満たしている時には保存量が存在することを示す.
+
+\subsubsection{エネルギー}
+ラグランジアンが時間を陽に含んでいない時,
+\begin{equation}
+ \mathcal{L} = \mathcal{L}(\bm{q}, \dot{\bm{q}})
+\end{equation}
+とかける.
+ラグランジアンの時間についての全微分は
+\begin{equation}
+ \frac{d \mathcal{L}}{d t}
+=\sum_{i}\frac{\partial \mathcal{L}}{\partial q_{i}} \dot{q}_{i}
++\sum_{i}\frac{\partial \mathcal{L}}{\partial q_{i}} \ddot{q}_{i}
+\end{equation}
+である.
+ラグランジュの運動方程式
+\begin{equation}
+ \frac{d}{dt}
+ \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}}
+=\frac{\partial \mathcal{L}}{\partial q_{i}}
+\end{equation}
+を用いると,
+\begin{align}
+  \frac{d \mathcal{L}}{dt}
+&=\sum_{i} \frac{d}{dt} \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}}
+ +\sum_{i} \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}} \ddot{q}_{i}
+  \notag
+  \\
+ &=\frac{d}{dt} \left(\sum_{i} \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}} \dot{q}_{i} \right)
+\end{align}
+を得る.
+これより
+\begin{equation}
+ \frac{d}{dt}
+ \left(
+        \sum_{i} \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}} \dot{q}_{i} - \mathcal{L}
+ \right)
+=0
+\end{equation}
+を得る.
+したがって, $()$の中の量
+\begin{equation}
+ E \equiv \sum_{i} \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}} \dot{q}_{i} - \mathcal{L}
+\end{equation}
+は一定に保たれる.
+$E$をこの系のエネルギーという.
+$E$の時間微分がゼロであることからエネルギーが保存される(エネルギー保存則)ことがわかる.
+では
+$\sum_{i}\frac{\partial \mathcal{L}}{\partial \dot{q}_{i}} \dot{q}_{i} -\mathcal{L} = E$
+はどのように確認できるのであろうか?
+ポテンシャルエネルギーが陽に速度$\dot{\bm{q}}$に依存していない場合, ラグランジアンは
+\begin{equation}
+ \mathcal{L}
+= K(\bm{q}, \dot{\bm{q}}) - U(\bm{q})
+\end{equation}
+とかける. 直交座標における運動エネルギーは
+\begin{equation}
+ K = \sum_{i} \frac{1}{2} m_{i} \dot{x}_{i}^{2}
+\end{equation}
+である.
+ここで$x_{i}$と$q_{i}$(直交座標と一般座標は)
+\begin{equation}
+ x_{i} = x_{i} (q_{1}, q_{2}, \cdots, q_{g})
+\end{equation}
+より, 連鎖律より
+\begin{equation}
+ \frac{d x_{i}}{d t}
+=\dot{x}_{i}
+=\sum_{j}\frac{\partial x_{i}}{\partial q_{j}} \dot{q}_{j}
+\end{equation}
+となる. これを運動エネルギーに代入すると
+\begin{align}
+  K
+&=\sum_{i} \frac{1}{2} m_{i}
+  \left(\sum_{j} \frac{\partial x_{i}}{\partial q_{j}} \dot{q}_{j} \right)
+  \left(\sum_{k} \frac{\partial x_{i}}{\partial q_{k}} \dot{q}_{k} \right)
+  \\
+&=\sum_{i} \sum_{j} \sum_{k} \frac{1}{2} m_{i}
+  \frac{\partial x_{i}}{\partial q_{j}}
+  \frac{\partial x_{i}}{\partial q_{k}}
+  \dot{q}_{j} \dot{q}_{k}
+  \\
+&=\sum_{j} \sum_{k}
+  \left\{
+          \sum_{i} \frac{1}{2} m_{i}
+          \frac{\partial x_{i}}{\partial q_{j}}
+          \frac{\partial x_{i}}{\partial q_{k}}
+  \right\}
+  \dot{q}_{j} \dot{q}_{k}
+\end{align}
+と計算される.
+\begin{equation}
+ A \equiv
+ \sum_{i} \frac{1}{2} m_{i}
+ \frac{\partial x_{i}}{\partial q_{j}}
+ \frac{\partial x_{i}}{\partial q_{k}}
+\end{equation}
+を定義すると, 運動エネルギー$K$は
+\begin{equation}
+ K = \sum_{j} \sum_{k} A_{jk} \dot{q}_{j} \dot{q}_{k}
+\end{equation}
+のように2次形式で書くことができる.
+更に
+\begin{align}
+  \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}}
+&=\frac{\partial K}{\partial \dot{q}_{i}}
+  \notag
+  \\
+&=\frac{\partial}{\partial \dot{q}_{i}}
+  \left\{
+          \sum_{i} \sum_{k} A_{jk} \dot{q}_{j} \dot{q}_{k}
+  \right\}
+  \notag
+  \\
+&=\sum_{k} A_{ik} \dot{q}_{k} + \sum_{j} A_{ji} \dot{q}_{j}
+  \notag
+  \\
+&=2\sum_{k} A_{ik} \dot{q}_{k}
+\end{align}
+であるから
+\begin{align}
+  \sum_{i} \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}} \dot{q}_{i}
+&=2\sum_{i} \left\{ \sum_{k} A_{ik} \dot{q}_{k} \right\} \dot{q}_{i}
+  \notag
+  \\
+&=2\sum_{i}\sum_{k} A_{ik} \dot{q}_{k} \dot{q}_{i}
+  \notag
+  \\
+&=2K
+\end{align}
+となる.
+故に
+\begin{align}
+ \sum_{i} \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}} \dot{q}_{i} - \mathcal{L}
+=\sum_{i} \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}} \dot{q}_{i} - (K-U)
+=K+U=E
+\end{align}
+を得る.
+
+\subsubsection{運動量}
+孤立系(系に外場がかかっていない場合), 平行移動に対してラグランジアンは不変である.
+平行移動とは系の全粒子を同じ方向に同じ距離だけ変位させることである:
+\begin{equation}
+ \bm{r}_{i} \to \bm{r}_{i} + \epsilon
+\end{equation}
+速度を変えずに座標を変化させたときのラグランジアンの変化は
+\begin{align}
+  \delta \mathcal{L}
+&=\mathcal{L}(\bm{r}_{i} + \epsilon) - \mathcal{L}(\bm{r}_{i})
+  \notag
+  \\
+&=\mathcal{L}(\bm{r}_{i})
+ +\sum_{i} \frac{\partial \mathcal{L}}{\partial \bm{r}_{i}} \cdot \epsilon
+ -\mathcal{L}(\bm{r}_{i})
+  \notag
+  \\
+&=\sum_{i} \frac{\partial \mathcal{L}}{\partial \bm{r}_{i}} \cdot \epsilon
+\end{align}
+である.
+任意の変位$\epsilon$に対してラグランジアンは不変($\delta \mathcal{L} = 0$)なので
+\begin{equation}
+ \sum_{i} \frac{\partial \mathcal{L}}{\partial \bm{r}_{i}} = 0
+\end{equation}
+である.
+ラグランジュの運動方程式を用いると
+\begin{equation}
+ \sum_{i} \frac{d}{dt}
+ \left(\frac{\partial \mathcal{L}}{\partial \dot{\bm{r}}_{i}} \right)
+=\frac{d}{dt} \sum_{i} \left(\frac{\partial \mathcal{L}}{\partial \dot{\bm{r}}_{i}}\right)
+=0
+\end{equation}
+よって, 孤立系であはベクトル量
+\begin{equation}
+ \bm{P} \equiv \sum_{i} \frac{\partial \mathcal{L}}{\partial \dot{\bm{r}}_{i}}
+\end{equation}
+は一定となる.
+$\bm{P}$は系の全運動量であるから,
+これは全運動量が保存することを意味する.
+
+運動が一般座標$\bm{q}$で表されている時には
+\begin{equation}
+ p_{i} \equiv \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}}
+\end{equation}
+を一般運動量といい,
+\begin{equation}
+ F_{i} \equiv \frac{\partial \mathcal{L}}{\partial q_{i}}
+\end{equation}
+を一般力という.
+これらを使うとラグランジュの運動方程式は
+\begin{equation}
+ \dot{p}_{i} = F_{i}
+\end{equation}
+とかける.
+
+\section{ハミルトン形式}
+ラグランジュ形式では一般座標と一般速度を使って運動を記述した.
+ハミルトン形式では一般座標と一般運動量(=位相空間)を使って運動を記述する.
+
+時刻$t$を一定としてラグランジアンの微分を計算すると
+\begin{align}
+  d \mathcal{L}
+&=\sum_{i} \frac{\partial \mathcal{L}}{\partial q_{i}} dq_{i}
+ +\sum_{i} \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}} d \dot{q}_{i}
+  \notag
+  \\
+&=\sum_{i} \dot{p}_{i} dq_{i} + \sum_{i} p_{i} d \dot{q}_{i}
+\end{align}
+となる.
+ここでラグランジュの運動方程式と一般運動量の表式を利用した.
+右辺第2項は
+\begin{equation}
+ \sum_{i} p_{i} d \dot{q}_{i}
+ = d \left(\sum_{i} p_{i} q_{i}\right) - \sum_{i} \dot{q}_{i} dp_{i}
+\end{equation}
+であるから
+\begin{equation}
+ d \left(\sum_{i} p_{i} q_{i} - \mathcal{L}\right)
+=\sum_{i} \dot{q}_{i} d p_{i} - \sum_{i} \dot{p}_{i} d q_{i}
+ \label{eq:dLagarangian}
+\end{equation}
+となる.
+左辺の()の中はエネルギーの量であり, かつ$\mathcal{L}$に対して
+独立な変数を$(q, \dot{q}, t)$から$(q, p, t)$にするLegendre変換である.
+右辺は独立変数が$p$と$q$であることを表している.
+式(\ref{eq:dLagarangian})の左辺はラグランジアンのLegendre変換であり,
+これがハミルトニアンの定義となる:
+\begin{equation}
+ \mathcal{H} \equiv \sum_{i} p_{i} \dot{q}_{i} - \mathcal{L}
+\end{equation}
+ハミルトニアンを用いると式(\ref{eq:dLagarangian})は
+\begin{equation}
+ d \mathcal{H}
+=\sum_{i} \dot{q}_{i} d p_{i} - \sum_{i} \dot{p}_{i} d q_{i}
+\end{equation}
+となるので,
+
+\begin{alignat}{3}
+ & \dot{\bm{q}}_{i}
+ =&& \frac{\partial \mathcal{H}}{\partial \bm{p}_{i}}
+ \\
+ & \dot{\bm{p}}_{i}
+ =-&&\frac{\partial \mathcal{H}}{\partial \bm{q}_{i}}
+\end{alignat}
+が導かれる.
+この式はハミルトンの運動方程式あるいは正準方程式と呼ばれる.
+ラグランジュ方程式は$g$個の一般座標$q$についての2階微分方程式で記述されていた.
+これに対し, ハミルトンの運動方程式では$2g$個の$p$, $q$についての1階微分方程式から成り立っている.
+ハミルトンの変分原理からハミルトンの正準方程式を導くこともできる.
+ラグランジアンをハミルトニアンを用いて
+\begin{equation}
+ \mathcal{L} = \sum_{i} p_{i} \dot{q}_{i} - \mathcal{H}
+\end{equation}
+と表す. 作用$S$は
+\begin{equation}
+ S[q, p]
+=\int_{t_{1}}^{t_{2}}~ dt~\mathcal{L}
+=\int_{t_{1}}^{t_{2}}~ dt~ \left(\sum_{i} p_{i} \dot{q}_{i} - \mathcal{H}(q, p, t) \right)
+\end{equation}
+とかける.
+ここで$q(t_{1})$と$q(t_{2})$は固定されているとする.
+作用$S$を関数$q(t)$と$p(t)$について変分を計算し, 部分積分をすると
+\begin{align}
+ \delta S
+&=\int_{t_{1}}^{t_{2}}~dt
+  \left(
+         \delta p_{i} \dot{q_{i}} + p_{i} \delta \dot{q_{i}}
+        -\frac{\partial \mathcal{H}}{\partial q_{i}} \delta q_{i}
+        -\frac{\partial \mathcal{H}}{\partial p_{i}} \delta p_{i}
+  \right)
+  \notag
+  \\
+&=\left[p_{i} \delta q_{i}\right]_{t=t_{1}}^{t=t_{2}}
+ +\int_{t_{1}}^{t_{2}} ~dt
+  \left\{
+          \left(\dot{q}_{i} - \frac{\partial \mathcal{H}}{\partial p_{i}} \right) \delta p_{i}
+         -\left(\dot{p}_{i} - \frac{\partial \mathcal{H}}{\partial q_{i}} \right) \delta q_{i}
+  \right\}
+\end{align}
+を得る.
+$q(t_{1})$と$q(t_{2})$は固定されていることから, 第1項目はゼロとなる.
+また, 任意の$\delta q(t)$と$\delta p(t)$に対して作用の停留条件$\delta S = 0$となるべきであることから,
+ハミルトンの正準方程式が導かれる.
+
+ハミルトニアンの時間についての全微分は
+\begin{equation}
+ \frac{d \mathcal{H}}{d t}
+=\frac{\partial \mathcal{H}}{\partial t}
++\sum_{i}\frac{\partial \mathcal{H}}{\partial q_{i}} \dot{q}_{i}
++\sum_{i}\frac{\partial \mathcal{H}}{\partial p_{i}} \dot{p}_{i}
+=\frac{\partial \mathcal{H}}{\partial t}
+\end{equation}
+となる.
+第2式から第3式の変形においてハミルトンの運動方程式を利用した
+もしハミルトニアン$\mathcal{H}$が時間$t$に陽に依存していなければ
+\begin{equation}
+ \frac{d \mathcal{H}}{dt} = 0
+\end{equation}
+である. これはエネルギー保存則である.
+
+
+\section{拘束条件付きの運動方程式}
+
+\subsection{拘束条件について}
+拘束条件は, 位相空間に関する変数間の数学的関係として記述することができる. 
+$N_{\mathrm{c}}$個の拘束を持つ系は, $3N - N_{\mathrm{c}}$の自由を持ち, $N_{\mathrm{c}}$個の位相空間中の変数についての拘束を記述する関数を満たしながら運動する. 
+拘束条件は, ホロノミックな拘束と非ホロノミックな拘束の2つに分類することができる. 
+
+
+\subsubsection{ホロノミックな拘束}
+
+拘束条件が質点の座標(時間を含む場合もあり得る)の間での等式
+\begin{equation}
+  \sigma(q_1, \cdots, q_{3N}, t) = 0
+\end{equation}
+で表される拘束を\textbf{ホロノミックな拘束}と呼ぶ. 
+単純な例として剛体があげられる. 剛体内部の２質点間の拘束は, 
+\begin{eqnarray}
+  (\bm{r}_{i} - \bm{r}_{j})^{2} - d_{ij}^{2} = 0
+\end{eqnarray}
+で記述できる. ここで$d_{ij}$は2質点間の距離である. 
+
+
+\subsubsection{非ホロノミックな拘束}
+
+ホロノミックな拘束条件でない拘束を\textbf{非ホロノミックな拘束}と呼ぶ. 
+例えば, 
+\begin{equation}
+  r^2 - a^2 \ge 0
+\end{equation}
+のような拘束条件は不等式を含むためホロノミックではない. 
+他の例として, 平面上を滑らずに転がる球の運動なども挙げられる. 
+この場合, 球には中心の平面運動と中心と接触点とを結ぶ直線の周りの回転運動の３個の自由度を持っている. 
+しかし, その可能な位置を表すには, 中心の座標2個と, 3個のオイラー角の計５つの変数を必要とする. 5個の変数は独立ではなく, 球が滑らず転がることを表す2個の束縛条件がある. 
+
+温度, 圧力, 熱流のような粒子の速度を含む複雑な束縛条件なども非ホロノミックな拘束条件であり, 多体シミュレーションによって力学を巨視的統計力学と流体力学に結びつけるために課すことがある. 
+このように非ホロノミックな拘束条件の中でも, 粒子の座標と速度を共に含むような拘束
+\begin{equation}
+  \zeta(q_1, \cdots, q_{3N}, \dot{q}_{1}, \cdots, \dot{q}_{3N}, t) = 0
+\end{equation}
+は\textbf{半ホロノミックな拘束}とも呼ばれる. 
+半ホロノミックな拘束の代表的な例である運動量の拘束(温度の拘束)は
+
+\begin{equation}
+  \sum_{i = 1}^{N} \frac{1}{2} m_{i} \dot{\bm{r}}_{i}^{2} - C = 0
+\end{equation}
+と記述される. ここで$C$は拘束条件である. 
+
+\subsubsection{拘束の式}
+拘束条件は一般に, 変数$q_{1}, \cdots, q_{3N}$の微小変化に関する微分形式の関係式
+
+\begin{equation}
+  \sum_{i = 1}^{3N} a_{ki} dq_{i} + a_{kt} dt = 0,~~~~~~ k = 1,\cdots, N_{\mathrm{c}}
+  \label{eq:eq-of-constrain}
+\end{equation}
+で書くことができる. これを拘束の式という. 係数$a_{ki}, a_{kt}$は$q_{1}, \cdots, q_{3N}, t$の関数であり, 添字$\alpha$は拘束の式の番号を表す. 
+
+ホロノミックな拘束の場合, 拘束条件の全微分
+\begin{equation}
+  \frac{d}{d t} \sigma_{k} (q_1, \cdots, q_{3N}, t)
+  =
+  \sum_{i = 1}^{3N} \frac{\partial \sigma_{k}}{\partial q_{i}} d q_{i}
+  + \frac{\partial \sigma_{k}}{\partial t} dt
+  = 0
+\end{equation}
+から, 拘束の式(\ref{eq:eq-of-constrain})の係数が以下のように得られる:
+
+\begin{align}
+  a_{ki} &= \frac{\partial \sigma_{k}}{\partial q_{i}}, \\
+  a_{kt} &= \frac{\partial \sigma_{k}}{\partial t}
+\end{align}
+つまり, 拘束の式(\ref{eq:eq-of-constrain})の左辺が, 完全導関数となっており, この拘束の式は積分可能である. 
+
+一方, 非ホロノミックな拘束の多くの場合, 拘束の式(\ref{eq:eq-of-constrain})の左辺は, ある座標の関数の時間についての完全導関数にならず, この方程式は積分不可能な関係式となる. 非ホロノミックな拘束条件は, いくつかの座標の間の関係式に還元して, 現実の自由度の数よりも少数の自由度で物体の位置を表現するということはできない. このように非ホロノミックな拘束は座標の数を減らすのに使うことができないため, 全てが独立とは言えない座標を使うことが避けられない. この場合に対応するラグランジュの運動方程式を求めるには, 最小作用の原理を使わなければならない. 例外として, 運動量の拘束が挙げられる. 運動量の拘束条件は
+\begin{equation}
+  \zeta(\bm{r}, \dot{\bm{r}}, t)
+  = \sum_{i = 1}^{N} \frac{1}{2} m_{i} \dot{\bm{r}}_{i}^{2} - C
+  = \sum_{i = 1}^{N} \frac{1}{2} m_{i} \dot{\bm{r}}_{i} \cdot \frac{d \bm{r}_{i}}{dt} - C
+  = 0
+\end{equation}
+であることから, 微分形式
+\begin{equation}
+  \sum_{i = 1}^{N} \frac{1}{2} m_{i} \dot{\bm{r}}_{i} \cdot d \bm{r} - C dt = 0
+\end{equation}
+を得る. したがって, 拘束の式(\ref{eq:eq-of-constrain})の係数は
+\begin{align}
+  \bm{a}_{1i} &= \frac{1}{2} m_{i} \dot{\bm{r}}_{i}, \\
+  a_{1t} &= C
+\end{align}
+と求められる. 
+
+\subsubsection{拘束条件付き運動方程式の導出}
+非ホロノミックな拘束に最小作用を適用するには, 座標の変分の可能な値に対して一定の制限を課す必要がある. これは, 摂動を受けた経路$Q(t) + \delta Q(t)$が拘束を満たすことが保証されていないためである. 
+拘束の式に$\delta t$をかけると, 変分$\delta q_{i}$は独立ではなく, 
+
+\begin{equation}
+  \sum_{i = 1}^{3N} a_{ki} \delta q_{i} = 0, ~~~~~~~~ k = 1,\cdots, N_{\mathrm{c}}
+  \label{eq:delta-q}
+\end{equation}
+という関係式で互いに結ばれていることがわかる. 
+$a_{kt}$は時間に対して変位しないため, この変分形式には表れない. 
+続いて, 条件付き極地を見つけるためにラグランジュの未定乗数法を使う. 
+式(\ref{eq:delta-q})にラグランジュの不定乗数(座標の関数)$\lambda_{k}$を作用の変分$\delta S$を計算する際に考慮すると
+\begin{align}
+  \delta S
+  &=
+  \int_{t_1}^{t_2}
+  \left[ \mathcal{L} +
+         \sum_{k=1}^{N_{\mathrm{c}}}
+         \lambda_{k} \sum_{i = 1}^{3N} a_{ki} \delta q_{i}(t)
+  \right] dt
+  \\
+  &=
+  \int_{t_1}^{t_2}
+  \sum_{i=1}^{3N}
+  \left[
+         \frac{\partial \mathcal{L}}{\partial q_{i}}
+       - \frac{d}{dt} \left( \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}}\right)
+       + \sum_{k=1}^{N_{\mathrm{c}}} \lambda_{k} a_{ki}
+  \right] \delta q_{i}(t) ~dt
+\end{align}
+となる. 作用の変分$\delta S$がゼロになる条件から, 拘束条件付き運動方程式が得られる:
+\begin{equation}
+  \frac{d}{dt} \left( \frac{\partial \mathcal{L}}{\partial \dot{q}_{i}}\right)
+ -\frac{\partial \mathcal{L}}{\partial q_{i}}
+ =
+ \sum_{k=1}^{N_{\mathrm{c}}} \lambda_{k} a_{ki}
+\label{eq:lagrange-eq-constrains}
+\end{equation}
+拘束の式(\ref{eq:eq-of-constrain})と拘束条件付き運動方程式(\ref{eq:lagrange-eq-constrains})は, $3N+N_{\mathrm{c}}$個の未知の量$q_{1},\cdots,q_{3N}, \lambda{1}, \cdots, \lambda_{N_{\mathrm{c}}}$に対する方程式の完全な系を構成する. 
+
+物理系が時間に依存しないホロノミックな拘束を課されている場合($a_{kt} = 0)$, ハミルトニアン保存する. 実際, この時の拘束の式(\ref{eq:eq-of-constrain})と拘束条件付き運動方程式(\ref{eq:lagrange-eq-constrains})のハミルトン形式は
+
+\begin{align}
+  \dot{q}_{i} &=  \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \\
+  \dot{p}_{i} &= -\frac{\partial \mathcal{H}}{\partial q_{i}}
+                 -\sum_{k=1}^{N_{\mathrm{c}}} \lambda_{k} a_{ki}
+  \\
+  0 &= \sum_{i=1}^{3N} a_{ki} \frac{\partial \mathcal{H}}{\partial p_{i}}
+\end{align}
+であるため, ハミルトニアンの時間微分は
+
+\begin{align}
+  \frac{d \mathcal{H}}{dt}
+  &=
+  \sum_{i=1}^{3N}
+  \left[
+      \frac{\partial \mathcal{H}}{\partial q_{i}} \dot{q}_{i}
+    + \frac{\partial \mathcal{H}}{\partial p_{i}} \dot{p}_{i}
+  \right]
+  \\
+  &=
+  \sum_{i=1}^{3N}
+  \left[
+      \frac{\partial \mathcal{H}}{\partial q_{i}}
+      \frac{\partial \mathcal{H}}{\partial p_{i}}
+    - \frac{\partial \mathcal{H}}{\partial p_{i}}
+      \left(
+              \frac{\partial \mathcal{H}}{\partial q_{i}}
+            + \sum_{k=1}^{N_{\mathrm{c}}} \lambda_{k} a_{ki}
+      \right)
+  \right]
+  \\
+  &=
+  \sum_{k=1}^{N_{\mathrm{c}}} \lambda_{k}
+  \sum_{i=1}^{3N} \frac{\partial \mathcal{H}}{\partial p_{i}} a_{ki}
+  \\
+  &=
+  0
+\end{align}
+と計算され, ハミルトニアンが時間に依存しないことが確認できる. 
+\bibliographystyle{junsrt}
+\bibliography{analytical-mechanics}
+
+\input{../include/end}

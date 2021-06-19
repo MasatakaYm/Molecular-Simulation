@@ -1,0 +1,466 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{拘束条件付き分子動力学法}
+\maketitle
+
+分子動力学シミュレーションでは, しばしば, 水分子のO原子とH原子の距離を固定して剛体として取り扱ったり, 水素原子など軽い原子の伸縮を平衡距離に拘束することで, 時間刻みを長く設定し, 長時間のシミュレーションを実現したりする. 
+本章では拘束条件を満たしながら運動方程式の数値積分を実行するためのアルゴリズムを説明する. 
+ここでは, 拘束条件として時間に依存しないホロノミックな拘束条件
+\begin{equation}
+    \sigma_{k} (\bm{r}_{1},\cdots, \bm{r}_{N}) = 0
+\end{equation}
+を考える. 
+この時, デカルト座標でのラグランジュの運動方程式と微分形式の拘束条件はそれぞれ
+\begin{equation}
+    \frac{d}{dt} \left(\frac{\partial \mathcal{L}}{\partial \dot{\bm{r}}_{i}} \right) -\frac{\partial \mathcal{L}}{\partial \bm{r}_{i}} = \sum_{k=1}^{N_{\mathrm{c}}} \lambda_{k} \bm{a}_{ki},
+\end{equation}
+
+\begin{equation}
+    \sum_{i=1}^{N} \bm{a}_{ki} \cdot \dot{\bm{r}}_{i} = 0
+    \label{Eq:constrain-eq}
+\end{equation}
+である. 
+ここで$\lambda_{k}$はラグランジュの未定乗数である. また, 拘束条件の中の係数は
+\begin{equation}
+    \bm{a}_{ki} = \nabla_{i} \sigma_{k} (\bm{r}_{1}, \cdots, \bm{r}_{N})
+    \label{Eq:constrain-eq-position}
+\end{equation}
+であり, これは座標に関する拘束条件に関連している. 
+ラグランジアンが$\mathcal{L}=\sum_{i=1}^{N} \dot{\bm{r}}_{i}^{2}/(2m_{i}) + U(\bm{r})$で記述されるとすると, ラグランジュの運動方程式と拘束条件は
+\begin{equation}
+    m_{i} \ddot{\bm{r}}_{i}
+    =
+    \bm{F}_{i} + \sum_{k=1}^{N_{\mathrm{c}}} \lambda_{k} \nabla_{i} \sigma_{k}
+    \label{eq:eom-constrain}
+\end{equation}
+
+\begin{equation}
+    \frac{d}{dt} \sigma_{k} (\bm{r}_{1},\cdots, \bm{r}_{N}) = 0
+    \label{Eq:timederiv-constrain-eq}
+\end{equation}
+と等価であることが確認できる. 拘束条件付き運動方程式(\ref{eq:eom-constrain})の右辺二項目$\sum_{k=1}^{N_{\mathrm{c}}} \lambda_{k} \nabla_{i} \sigma_{k}$は拘束条件に由来する力であり, 拘束力と呼ばれる. つまり, 粒子$i$の速度は原子・分子間力に加え, 拘束に由来する力によって変化することを意味している. 
+式(\ref{Eq:timederiv-constrain-eq})は拘束条件の時間に関する全微分で, 拘束条件は時間発展に大して不変であることを意味する. 
+
+以下では, まず初めにホロノミックな拘束の具体例を紹介する. 
+続いて, 拘束条件を満たしながら時間発展を記述するためのアルゴリズムを述べる. 
+拘束条件付き運動方程式(\ref{eq:eom-constrain})を数値積分するには, 時刻$t$で満たしていた拘束が時刻$t + \Delta t$でも満たすように未定乗数$\lambda_{k}$を決定していく必要がある. 
+一般に拘束条件は未定乗数$\lambda_{k}$に関する非線形連立方程式の形で書かれ, その解法は大きく二つに分類される. 
+一つは, 未定乗数$\lambda_{k}$に関する非線形連立方程式を行列方程式の形に直し, 逆行列を作用させることで$\lambda_{k}$を直接求める方法である. 
+もう一つは非線形連立方程式の近似式から未定乗数$\gamma_{k}$を推定し, 反復法によって未定乗数$\gamma_{k}$が必要な精度になるまで未定時乗数の見積もりを繰り返す方法である. 
+二つ目の方法の代表的なアルゴリズムとしてSHAKE法\cite{1977Ryckaert}やRATTLE法\cite{1980Andersen}が挙げられる. 
+
+
+\section{ホロノミックな拘束条件の具体的な例}
+\subsection{二粒子間の距離に対する拘束の式}
+二粒子間の距離の拘束条件は
+
+\begin{equation}
+    \sigma(t)  \equiv [\bm{r}_{i}(t) - \bm{r}_{j}(t)]^{2} - d_{ij}^2 = 0
+    \label{Eq:distance-constrain}
+\end{equation}
+とかける. $d_{ij}$は原子$i$と原子$j$の間の距離である. 拘束力は, 
+\begin{equation}
+    \frac{d\sigma(t)}{d\bm{r}_{i}} =
+    \begin{cases}
+        2 \left[ \bm{r}_{i}(t) - \bm{r}_{j} (t) \right], ~~~&\mathrm{(拘束に原子}i\mathrm{が関与している時)} \\
+        0 ~~~&\mathrm{(それ以外)}
+    \end{cases}
+\end{equation}
+と計算される. 
+一方, 拘束条件(\ref{Eq:distance-constrain})に対して時間微分すると
+\begin{equation}
+    \frac{d\sigma(t)}{dt} =
+    \left[\bm{r}_{i}(t) - \bm{r}_{j} (t)\right] \cdot
+    \left[\dot{\bm{r}}_{i}(t) - \dot{\bm{r}}_{j} (t)\right]
+\end{equation}
+を得る. これは相対速度が位置ベクトルの差に直交することを意味し, 拘束力は仕事しないことが分かる. 
+
+%\subsection{角度に対する拘束の式}
+
+\section{座標に対する拘束動力学: ベルレ法による時間発展とSHAKE法}
+拘束条件を含む場合, ベルレ法を用いた時間発展は
+\begin{equation}
+    \bm{r}_{i} (t + \Delta t) = 2 \bm{r}_{i} (t) - \bm{r}_{i} (t - \Delta t) + \frac{1}{m_{i}}\left[ \bm{F}_{i}(t) + \sum_{k=1}^{N_{\mathrm{c}}} \lambda_{k} \nabla_{i} \sigma_{k}(t) \right] (\Delta t)^{2}
+\end{equation}
+となる. 
+ここで元々の分子間ポテンシャルによる座標の時間発展を
+\begin{equation}
+    \bm{r}_{i}^{\prime} (t + \Delta t) = 2 \bm{r}_{i} (t) - \bm{r}_{i} (t - \Delta t) +  \frac{\bm{F}_{i}(t)}{m_{i}}  (\Delta t)^{2}
+\end{equation}
+とおき, 拘束力による座標補正について$\gamma_{k} = \lambda_{k}(\Delta t)^{2}$を用いて
+\begin{equation}
+    \Delta \bm{r}_{i}(t + \Delta t) = \frac{1}{m_{i}} \sum_{k=1}^{N_{\mathrm{c}}} \gamma_{k} \nabla_{i} \sigma_{k}(t)
+\end{equation}
+とおくと, ベルレ法による拘束条件付きの時間発展は
+\begin{align}
+    \bm{r}_{i} (t + \Delta t)
+    &= \bm{r}_{i}^{\prime} (t + \Delta t) + \frac{1}{m_{i}} \sum_{k=1}^{N_{\mathrm{c}}} \gamma_{k} \nabla_{i} \sigma_{k}(t)
+    \\
+    &= \bm{r}_{i}^{\prime} (t + \Delta t) + \Delta \bm{r}_{i}(t + \Delta t)
+\end{align}
+と書くことができる. 
+時刻$t$で満たしていた拘束条件が時刻$t + \Delta t$でも満たすように未定乗数$\lambda_{k}$を決定する必要がある. 
+つまり, 各拘束条件$\sigma_{k} (\bm{r}_{1}, \cdots, \bm{r}_{N})=0$は時刻$t + \Delta t$でも成立するので, 
+
+\begin{equation}
+    \sigma_{k} (\bm{r}_{1}(t + \Delta t), \cdots, \bm{r}_{N}(t + \Delta t)) = 0
+\end{equation}
+が成り立つ. $\bm{r}_{i} (t + \Delta t)$を具体的に代入すると, 
+\begin{equation}
+    \sigma_{k} \left( \bm{r}_{1}^{\prime} (t + \Delta t) + \frac{1}{m_{1}} \sum_{k=1}^{N_{\mathrm{c}}} \gamma_{k} \nabla_{1} \sigma_{k}(t), \cdots, \bm{r}_{N}^{\prime} (t + \Delta t) + \frac{1}{m_{N}} \sum_{k=1}^{N_{\mathrm{c}}} \gamma_{k} \nabla_{N} \sigma_{k}(t) \right) = 0
+\end{equation}
+を得る. 
+これは, $N_{\mathrm{c}}$個の未定乗数$\gamma_{k}$に対する$N_{\mathrm{c}}$個の非線形方程式である. 
+この方程式を解いて$\gamma_{k}$を得ることができれば, 拘束条件を満たすように座標を更新することができる. 
+拘束の式が単純な形式であれば代数的に$\gamma_{k}$を求めることができるが, そうでない場合は, 反復的に方程式を解いて$\gamma_{k}$を求める必要がある. 
+反復的に解く方法として\textbf{SHAKE法}\cite{1977Ryckaert}がよく用いられる. 
+
+
+\subsection{未定乗数$\gamma_{k}$が代数的に求まる例: 距離の拘束が単独で存在する場合}
+
+距離の拘束が単独で存在する場合, 拘束に関する未定乗数が代数的に求められる. 
+例えば, 原子$i$と原子$j$には距離の拘束$d_{ij}$のみが課せられており, その他の拘束が存在しない場合を考える:
+\begin{equation}
+    \sigma(t)  \equiv [\bm{r}_{i}(t) - \bm{r}_{j}(t)]^{2} - d_{ij}^2 = 0.
+\end{equation}
+時刻$t + \Delta t$における拘束条件は
+\begin{align}
+    \sigma（t＋\Delta t)
+    &=
+    \left[ \bm{r}_{i} (t + \Delta t) - \bm{r}_{i} (t + \Delta t) \right]^{2}
+    - d_{ij}^{2}
+    \\ \notag
+    &=
+    \left\{
+        \left[
+            \bm{r}_{i}^{\prime}(t + \Delta t) + \Delta \bm{r}_{i}(t + \Delta)
+        \right]
+        -
+        \left[
+            \bm{r}_{j}^{\prime}(t + \Delta t) + \Delta \bm{r}_{j}(t + \Delta t)
+        \right]
+    \right\}^{2} - d_{ij}^{2}
+    = 0
+    \label{eq:dist-constrain-delt}
+\end{align}
+である. 
+拘束力による座標補正は具体的に
+\begin{alignat}{5}
+\Delta \bm{r}_{i}(t + \Delta t)
+&=   \frac{\gamma}{m_{i}}\nabla_{i} \sigma(t)
+&&= &\frac{2\gamma}{m_{i}} \left[ \bm{r}_{i}(t) - \bm{r}_{j}(t) \right]
+&= &&\frac{\tilde{\gamma}}{m_{i}} \left[ \bm{r}_{i}(t) - \bm{r}_{j}(t) \right]
+\\
+\Delta \bm{r}_{j}(t + \Delta t)
+&=    \frac{\gamma}{m_{j}}\nabla_{j} \sigma(t)
+&&= -&\frac{2\gamma}{m_{j}} \left[ \bm{r}_{i}(t) - \bm{r}_{j}(t) \right]
+&= -&&\frac{\tilde{\gamma}}{m_{j}} \left[ \bm{r}_{i}(t) - \bm{r}_{j}(t) \right]
+\end{alignat}
+と計算される. 
+ここで未定乗数を$\tilde\gamma \equiv 2\gamma$と置き直した. 
+これらを拘束条件式(\ref{eq:dist-constrain-delt})に代入すると$\tilde\gamma$に関する二次方程式
+\begin{align}
+    &\left[
+        \left(\frac{1}{m_{i}} + \frac{1}{m_{j}} \right)
+        \left[\bm{r}_{i}(t) - \bm{r}_{j}(t)\right]
+    \right]^{2} \tilde{\gamma}^{2}
+    \\ \notag
+    +
+    &\left\{
+        2\left(\frac{1}{m_{i}} + \frac{1}{m_{j}} \right)
+        \left[
+            \bm{r}_{i}(t) - \bm{r}_{j}(t)
+        \right]
+        \cdot
+        \left[
+            \bm{r}_{i}^{\prime}(t + \Delta t) - \bm{r}_{j}^{\prime}(t + \Delta t)
+        \right]
+    \right\} \tilde{\gamma}
+    \\ \notag
+    +
+    &\left[
+        \bm{r}_{i}^{\prime}(t + \Delta t) - \bm{r}_{j}^{\prime}(t + \Delta t)
+    \right]^{2}
+    - d_{ij}^{2} = 0
+\end{align}
+が得られ, 代数的に未定乗数が求まる. 
+
+
+\subsection{未定乗数$\gamma_{k}$の反復的解法: SHAKEアルゴリズム\cite{1977Ryckaert}}
+原子$i$に対して拘束が複数存在するなど拘束条件が干渉しあって複雑な場合や, 数値積分法よりも高精度な解が必要な場合は反復法によって未定乗数を決定する. このような反復法のことをSHAKE法と呼ぶ. 
+SHAKE法の基本的なアルゴリズムは以下の通りである:
+\begin{enumerate}
+    \item 系に一番目の拘束力だけが働いているとして$\gamma_{1}$を求め, 一番目の拘束条件が満足するように, 一番目の拘束に関与している粒子の座標を補正する. 
+    \item 一番目の拘束を満足している新たな座標を$\bm{r}_{i}^{\prime}(t + \Delta t)$と置き直し, 次に二番目の拘束力だけが働いているとして$\gamma_{2}$を求めて, 二番目の拘束条件が満足するように, 二番目の拘束に関与している粒子の座標を補正する. 
+    \item 三番目, 四番目,,,,$N_{\mathrm{c}}$番目の拘束についても同様に, その拘束力だけ働いているとして$\gamma_{k}$を求め, その拘束条件が満足するように, 拘束に関与している粒子の座標補正を繰り返す. 
+    \item 手順1--3を繰り返し, 全ての拘束が十分な精度で満たされるまで座標の補正操作を繰り返す. 
+\end{enumerate}
+
+二粒子間の距離拘束のように, 未定乗数$\gamma_{k}$が代数的に求まる場合は, 以上の手順で座標補正を繰り返し実行すれば良い. 
+しかし, 一般に$\gamma_{k}$は非線形連立方程式を解く必要がある. 拘束の数が多い場合や拘束が互いに干渉している場合など, 拘束が複雑な場合は$\gamma_{k}$の求め方自体が問題となる. 
+このような場合は, 非線形連立方程式の近似式から$\gamma_{k}$を推定し, 拘束条件が満たされるまで, $\gamma_{k}$の推定と座標補正を繰り返す. 
+具体的には, もし前ステップで得られた未定乗数など, 未定乗数の初期推定値$\{\gamma_{k}^{(1)}\}$が利用可能である場合, この推定値を用いて座標を次のように更新する:
+\begin{equation}
+    \bm{r}_{i}^{(1)} =
+    \bm{r}_{i}^{\prime} + \frac{1}{m_{i}} \sum_{k=1}^{N_{\mathrm{c}}} \gamma_{k}^{(1)} \nabla_{i} \sigma_{k}(t)
+\end{equation}
+未定乗数の厳密な解$\gamma_{k}$は推定値$\gamma_{k}^{(1)}$と厳密解からのずれ$\delta \gamma_{k}^{(1)}$を用いて, 
+\begin{equation}
+    \gamma_{k} = \gamma_{k}^{(1)} + \delta \gamma_{k}^{(1)}
+\end{equation}
+とおくと, 時刻$t + \Delta t$での座標は
+\begin{equation}
+    \bm{r}_{i} (t + \Delta t) =
+    \bm{r}_{i}^{\prime} + \frac{1}{m_{i}} \sum_{k=1}^{N_{\mathrm{c}}} \delta \gamma_{k}^{(1)} \nabla_{i} \sigma_{k}(t)
+\end{equation}
+であるので, 拘束条件は, 
+\begin{equation}
+    \sigma_{k} \left( \bm{r}_{1}^{(1)} + \frac{1}{m_{1}} \sum_{k=1}^{N_{\mathrm{c}}} \delta \gamma_{k} \nabla_{1} \sigma_{k}(t), \cdots, \bm{r}_{N}^{(1)} + \frac{1}{m_{N}} \sum_{k=1}^{N_{\mathrm{c}}} \delta \gamma_{k} \nabla_{N} \sigma_{k}(t) \right) = 0
+\end{equation}
+とかかれる. 
+次に, この拘束条件を$\delta \gamma_{k}^{(1)} = 0$の周りで, 一次までの多変数テイラー展開を実行する:
+\begin{align}
+    \sigma_{l}(\bm{r}_{1}^{1}, \cdots, \bm{r}_{N}^{(1)}) +
+    \sum_{i=1}^{N} \sum_{k=1}^{N_{\mathrm{c}}} \frac{1}{m_{i}}
+    \nabla_{i} \sigma_{l} (\bm{r}_{1}^{1}, \cdots, \bm{r}_{N}^{(1)}) \cdot
+    \nabla_{i} \sigma_{k} (\bm{r}_{1}^{1}(t), \cdots, \bm{r}_{N}^{(1)}(t))
+    \delta \gamma_{k}^{(1)}
+    \simeq 0 ~~~~ (l = 1,\cdots,N_{\mathrm{c}})
+\end{align}
+便利のため
+\begin{equation}
+A_{lk} \equiv \sum_{i=1}^{N}\frac{1}{m_{i}}\nabla_{i} \sigma_{l} (\bm{r}_{1}^{1}, \cdots, \bm{r}_{N}^{(1)}) \cdot \nabla_{i} \sigma_{k} (\bm{r}_{1}^{1}(t), \cdots, \bm{r}_{N}^{(1)}(t))
+\end{equation}
+を定義すると
+\begin{equation}
+    \sigma_{l}(\bm{r}_{1}^{1}, \cdots, \bm{r}_{N}^{(1)}) + \sum_{k=1}^{N_{\mathrm{c}}} A_{lk}  \delta \gamma_{k}^{(1)} \simeq 0, ~~~~ (l = 1,\cdots,N_{\mathrm{c}})
+    \label{Eq:mshake-equtation}
+\end{equation}
+となる. 
+この式は行列方程式であることが分かる. 
+この方程式の次元が大きくない場合は, 逆行列を作用させることで直ちに$\delta \gamma_{k}^{(1)}$が求まる. 
+この方法はmatrix-SHAKEあるいはM-SHAKEと呼ばれる\cite{2001Krautler}. 
+しかしながら, この方程式は線形近似であるため, 得られた$\gamma_{k}^{(1)}$を用いて座標を補正しても, 拘束条件を満たした座標$\bm{r}_{i}(t + \Delta t)$に一致するとは限らない. 
+そのため, 次に
+\begin{equation}
+    \bm{r}_{i}^{(2)} =
+    \bm{r}_{i}^{(1)} + \frac{1}{m_{i}} \sum_{k=1}^{N_{\mathrm{c}}} \delta \gamma_{k}^{(1)} \nabla_{i} \sigma_{k}(t)
+\end{equation}
+\begin{equation}
+    \bm{r}_{i} (t + \Delta t) =
+    \bm{r}_{i}^{(2)} + \frac{1}{m_{i}} \sum_{k=1}^{N_{\mathrm{c}}} \delta \gamma_{k}^{(2)} \nabla_{i} \sigma_{k}(t)
+\end{equation}
+を定義し, $\gamma_{k}^{(1)}$を求めたのと同様の手順で$\gamma_{k}^{(2)}$を求めて座標を補正する. 
+この手順を拘束条件が満たされるまで繰り返す. 
+
+課せられている拘束条件の数が多く, 行列方程式の次元が大きい場合, 計算時間を節約するために, さらに近似を進めることも可能である. 
+行列方程式(\ref{Eq:mshake-equtation})の対角成分だけを考えると
+\begin{equation}
+    \sigma_{l}(\bm{r}_{1}^{1}, \cdots, \bm{r}_{N}^{(1)}) +
+    \sum_{i=1}^{N}  \frac{1}{m_{i}}
+    \nabla_{i} \sigma_{l} (\bm{r}_{1}^{1}, \cdots, \bm{r}_{N}^{(1)}) \cdot
+    \nabla_{i} \sigma_{l} (\bm{r}_{1}^{1}(t), \cdots, \bm{r}_{N}^{(1)}(t))
+    \delta \gamma_{l}^{(1)}
+    \simeq 0, ~~~~ (l = 1,\cdots,N_{\mathrm{c}})
+\end{equation}
+のように一次方程式に近似され, 未定乗数からの差分は
+\begin{equation}
+    \delta \gamma_{l}^{(1)} =
+    \frac{\sigma_{l} (\bm{r}_{1}^{1}, \cdots, \bm{r}_{N}^{(1)})}{\sum_{i=1}^{N} \frac{1}{m_{i}} \nabla_{i} \sigma_{l} (\bm{r}_{(1)}^{1}, \cdots, \bm{r}_{N}^{(1)}) \cdot \nabla_{i} \sigma_{l} (\bm{r}_{1}^{(1)}(t), \cdots, \bm{r}_{N}^{(1)}(t))}
+    ,~~~~
+    (l = 1,\cdots,N_{\mathrm{c}})
+\end{equation}
+と計算される. 
+
+%\subsection{水分子への応用例}
+
+\section{速度と座標に対する拘束動力学: 速度ベルレ法による時間発展とRATTLE法}
+前節で紹介したSHAKE法では, 拘束の式(\ref{Eq:constrain-eq})の座標部分(\ref{Eq:constrain-eq-position})を満たすが, 速度の拘束条件については満たしていない. 
+ベルレ法は座標の更新のみで時間発展を記述するためSHAKE法で十分であったが, 時間発展に速度が含まれる場合, 速度の拘束も考慮する必要がある. 
+例えば, 速度ベルレ法では
+\begin{alignat}{2}
+    &\bm{v}_{i} \left( t + \frac{\Delta t}{2} \right)
+    &&= \bm{v}_{i} (t)
+     + \frac{\bm{F}_{i} (t) }{2m_{i}} \Delta t
+    \label{Eq:vel-verlet-vhalf}
+    \\
+    &\bm{r}_{i} (t + \Delta t)
+    &&= \bm{r}_{i} (t)
+      + \bm{v}_{i} \left( t + \frac{\Delta t}{2} \right)\Delta t
+    \label{Eq:vel-verlet-r}
+    \\
+    &\bm{v}_{i} \left( t + \Delta t \right)
+    &&= \bm{v}_{i} \left(t + \frac{\Delta t}{2} \right)
+     + \frac{\bm{F}_{i} (t + \Delta t) }{2m_{i}} \Delta t
+    \label{Eq:vel-verlet-v}
+\end{alignat}
+のように座標と速度によって時間発展が記述される. 
+アンダーセンの方法による定圧分子動力学法\cite{1980Andersen}を初めとする拡張系の分子動力学法では, 速度が変数として扱われており, その時間発展アルゴリズムも速度ベルレ法に基づいている. 
+このような場合, 座標の拘束に加えて, 速度についても拘束条件の式(\ref{Eq:constrain-eq})を満たさなければならない. 
+このように速度ベルレ法と結びついた拘束動力学法をRATTLE法\cite{1983Andersen}という. 
+
+まずは拘束力を考慮した時の座標の時間発展を考える:
+\begin{align}
+    \bm{r}_{i} (t + \Delta t)
+    =&
+    \bm{r}_{i} (t)
+    +
+    \bm{v}_{i} (t) \Delta t + \frac{(\Delta t)^{2}}{2m_{i}} \bm{F}_{i}(t)
+    +
+    \frac{(\Delta t^{2})}{2m_{i}}
+    \sum_{k=1}^{N_{\mathrm{c}}} \lambda_{k} \nabla_{i} \sigma_{k}(t)
+    \\
+    =&
+    \bm{r}_{i}^{\prime} (t + \Delta t)
+    +
+    \frac{1}{m_{i}} \sum_{k=1}^{N_{\mathrm{c}}} \gamma_{k} \nabla_{i} \sigma_{k}(t)
+    \\
+    =&
+    \bm{r}_{i}^{\prime} (t + \Delta t)
+    +
+    \Delta \bm{r}_{i} (t + \Delta t)
+\end{align}
+ここで, 未定乗数を$\gamma_{k} = (\Delta t^{2}/2)\lambda_{k}$, 拘束力による座標補正を$\Delta \bm{r}_{i}$とおいた. 
+上付きの$\prime$は分子間ポテンシャルのみ考慮した場合の時間発展であることを示す. 
+このように書き直すと, 拘束条件付き運動方程式をベルレ法を用いて数値積分した時と同じような定式化であることに気づく. 
+したがって, 座標に関する拘束条件を満たすにはSHAKE法を用いればよい. 
+
+続いて, 速度の時間発展を考える. 
+全ての未定乗数が十分な精度で得られていて, 座標は既に全ての拘束条件を満たすように補正されているとすると, 時刻$t+\Delta t/2$における速度は
+\begin{equation}
+    \bm{v}_{i} \left(t + \frac{\Delta t}{2} \right)
+    =
+    \bm{v}_{i} (t)
+    +
+    \frac{\Delta t}{2m_{i}} \bm{F}_{i} (t)
+    +
+    \frac{1}{m_{i} \Delta t}
+    \sum_{k=1}^{N_{\mathrm{c}}} \gamma_{k} \nabla_{i} \sigma_{k}(t)
+\end{equation}
+にしたがって更新される. 
+時刻$t+\Delta t$では拘束の式(\ref{Eq:constrain-eq})を満たすように速度を更新することを考える. 
+座標の更新によって, 時刻$t+\Delta t$における力が得られると, 速度は
+\begin{align}
+    \bm{v}_{i} (t + \Delta t)
+    =&
+    \bm{v}_{i} \left(t + \frac{\Delta t}{2}\right)
+    +
+    \frac{\Delta t}{2m_{i}} \bm{F}_{i}(t + \Delta t)
+    +
+    \frac{\Delta t}{2m_{i}}
+    \sum_{k=1}^{N_\mathrm{c}} \mu_{k} \nabla_{i} \sigma_{k}(t + \Delta t)
+    \\
+    =&
+    \bm{v}_{i}^{\prime} (t + \Delta t)
+    +
+    \frac{1}{m_{i}}
+    \sum_{k=1}^{N_\mathrm{c}} \xi_{k} \nabla_{i} \sigma_{k}(t + \Delta t)
+    \label{Eq:v-update-rattle}
+\end{align}
+とかける. 
+ここで, 速度更新に付随する課せられる拘束条件の未定乗数を$\mu_{k}$とおき, 座標更新の際に使った未定乗数$\lambda_{k}$と区別した. 
+また, 第１式から第２式への変形で未定乗数を$\xi_{k} = (\Delta t/2)\mu_{k}$と置き直した. 
+未定乗数$\xi_{k}$は, 拘束の式(\ref{Eq:constrain-eq})について
+\begin{equation}
+    \sum_{i=1}^{N} \nabla_{i}\sigma_{k} (t + \Delta t)
+    \cdot
+    \bm{v}_{i} (t + \Delta t)
+    = 0
+\end{equation}
+を解くことで得られる. 
+具体的に速度$\bm{v}_{i}(t + \Delta t)$を代入すると, $\xi_{k}$に関する$N_{\mathrm{c}}$個の線形連立方程式
+\begin{equation}
+    \sum_{i=1}^{N} \nabla_{i}\sigma_{k} (t + \Delta t)
+    \cdot
+    \left[
+        \bm{v}_{i}^{\prime} (t + \Delta t)
+        +
+        \frac{1}{m_{i}}
+        \sum_{k=1}^{N_\mathrm{c}} \xi_{k} \nabla_{i} \sigma_{k}(t + \Delta t)
+    \right]
+    = 0
+    \label{Eq:simeq-vel-constrain-multipliers}
+\end{equation}
+を得る. 
+この連立方程式に関して逆行列を求めることで, 直ちに$\xi_{k}$を得ることができる. 
+もし拘束の数が多く逆行列の計算コストが高い場合や, 拘束が互いに干渉している場合には, SHAKE法のように反復的に未定乗数$\xi_{k}$を求める. 
+未定乗数$\xi_{k}$が十分収束したら, 式(\ref{Eq:v-update-rattle})を用いて速度を更新する. 
+
+
+\subsection{未定乗数$\xi_{k}$の計算例: 距離の拘束が単独で存在する場合}
+
+速度束縛に関する未定乗数$\xi_{k}$の計算例として, 原子$i$と原子$j$には距離の拘束$d_{ij}$のみが課せられており, その他の拘束が存在しない場合を考える:
+\begin{equation}
+    \sigma(t)  \equiv [\bm{r}_{i}(t) - \bm{r}_{j}(t)]^{2} - d_{ij}^2 = 0.
+\end{equation}
+連立方程式(\ref{Eq:simeq-vel-constrain-multipliers})を具体的に計算すると, 
+\begin{alignat}{2}
+    &\nabla_{i} \sigma(t + \Delta t)
+    =
+    &&2\left[\bm{r}_{i}(t + \Delta t) - \bm{r}_{j} (t + \Delta t)\right]
+    \\
+    &\nabla_{j} \sigma(t + \Delta t)
+    =
+    -&&2\left[\bm{r}_{i}(t + \Delta t) - \bm{r}_{j} (t + \Delta t)\right]
+\end{alignat}
+であり, 各原子の速度は
+\begin{align}
+    \bm{v}_{i} (t + \Delta t)
+    &=
+    \bm{v}_{i}^{\prime} (t + \Delta t)
+    +
+    \frac{2\xi}{m_{i}}
+    \left[\bm{r}_{i}(t + \Delta t) - \bm{r}_{j} (t + \Delta t)\right]
+    \\
+    \bm{v}_{j} (t + \Delta t)
+    &=
+    \bm{v}_{j}^{\prime} (t + \Delta t)
+    -
+    \frac{2\xi}{m_{j}}
+    \left[\bm{r}_{i}(t + \Delta t) - \bm{r}_{j} (t + \Delta t)\right]
+\end{align}
+と計算される. 数式の見やすさのために
+\begin{align}
+    \bm{r}_{ji} (t + \Delta t)
+    &=
+    \bm{r}_{i}(t + \Delta t) - \bm{r}_{j} (t + \Delta t)
+    \\
+    \bm{v}_{ji}^{\prime} (t + \Delta t)
+    &=
+    \bm{v}_{i}^{\prime} (t + \Delta t) - \bm{v}_{j}^{\prime} (t + \Delta t)
+\end{align}
+とおくと, 連立方程式(\ref{Eq:simeq-vel-constrain-multipliers})は
+\begin{alignat}{2}
+    &2\bm{r}_{ji} (t + \Delta t) \cdot
+    \left[
+        \bm{v}_{i}^{\prime} (t + \Delta t)
+        +
+        \frac{2\xi}{m_{i}} \bm{r}_{ji} (t + \Delta t)
+    \right]
+    &&=0
+    \\
+    -&2\bm{r}_{ji} (t + \Delta t) \cdot
+    \left[
+        \bm{v}_{j}^{\prime} (t + \Delta t)
+        +
+        \frac{2\xi}{m_{j}} \bm{r}_{ji} (t + \Delta t)
+    \right]
+    &&=0
+\end{alignat}
+と計算される. これより直ちに未定乗数は
+\begin{equation}
+    \xi
+    =
+    \frac{\bm{r}_{ji} (t + \Delta t) \cdot \bm{v}_{ji}^{\prime} (t + \Delta t)}
+    {\left( \frac{1}{m_{i}} + \frac{1}{m_{j}}\right) d_{ij}^{2}}
+\end{equation}
+と求まる. 
+ここで, $\bm{r}_{ji}^{2} (t + \Delta t) = d_{ij}^{2}$であることを用いた. 
+
+\bibliographystyle{junsrt}
+\bibliography{constrain-dynamics}
+\input{../include/end}

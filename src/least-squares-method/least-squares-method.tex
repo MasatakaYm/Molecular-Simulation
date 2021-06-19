@@ -1,0 +1,523 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{最小二乗法}
+\maketitle
+
+\section{線形最小二乗法}
+次のような$n$組みのデータのあてはめ問題を考える:
+\begin{align}
+    \mathrm{観測点:}~ & t_{1},~ t_{2},~\ldots,~ t_{n}\\
+    \mathrm{測定値:}~ & f_{1},~ f_{2},~\ldots,~ f_{n}\\
+    \mathrm{測定値の分散:}~ & \sigma_{1},~ \sigma_{2},~\ldots,~ \sigma_{n}
+\end{align}
+測定の誤差(分散)$\sigma_{i}^{2}$は, 測定値$f_{i}$の信頼性を表す尺度として考えることができる. 
+このデータを, ある一次独立な関数系
+\begin{equation}
+    \phi_{1}(t),~ \phi_{2}(t),~\ldots,~ \phi_{m}(t)
+\end{equation}
+の一次結合
+\begin{equation}
+    f(t) = \sum_{j}^{m} x_{j} \phi_{j}(t)
+\end{equation}
+によってあてはめる. 
+この形の$f(t)$は$\{\phi_{j}(t)\}$に関して線形であるから, 線形モデルと呼ばれる. 
+一次独立な関数系として, 単項式
+\begin{equation}
+    \phi_{j}(t) = t^{j-1}
+\end{equation}
+が最も広く採用されている. 
+
+最小二乗法は, 
+\begin{align}
+    S(x_{1},~ x_{2},~\ldots,~ x_{m})
+    &=
+    \sum_{i=1}^{n} \frac{[f_{i} - f(t_{i})]^{2}}{\sigma_{i}^{2}}
+    \\ &=
+    \sum_{i=1}^{n}
+    \frac{[f_{i} - \sum_{j=1}^{n} x_{j} \phi_{j}(t_{i})]^{2}}
+    {\sigma_{i}^{2}}
+\end{align}
+を最小にすることによって, 未知係数$x_{1},~\ldots,~x_{m}$の組みを決定する方法である. 
+$S$を最小にする条件は, 
+\begin{equation}
+    \frac{\partial S}{\partial x_{k}} = 0,
+    ~~~~
+    k = 1,2,\ldots,m
+\end{equation}
+によって与えられるので, 
+\begin{equation}
+    \sum_{i=1}^{n}
+    \frac{[f_{i} - \sum_{j=1}^{n} x_{j} \phi_{j}(t_{i})]\phi_{k}(t_{i})}
+    {\sigma_{i}^{2}},
+    ~~~~
+    k = 1,2,\ldots,m
+    \label{Eq:LSM-Minimum-Condition1}
+\end{equation}
+とかける. ここで$i$, $j$成分が
+\begin{equation}
+    A_{ij} = \frac{\phi_{j}(t_{j})}{\sigma_{i}},
+    ~~~~
+    (i = 1,2,\ldots,n,
+    ~
+    j = 1,2,\ldots,m)
+\end{equation}
+で定義される$n \times m$行列を導入する. 
+この$A_{ij}$はヤコビアン行列あるいは計画行列と呼ばれている. 
+このとき, 式(\ref{Eq:LSM-Minimum-Condition1})は
+\begin{align}
+    &
+    \sum_{i=1}^{n} \sum_{j=1}^{m}
+    \frac{\phi_{j}(t_{i})}{\sigma_{i}}
+    \frac{\phi_{k}(t_{i})}{\sigma_{i}} =
+    \sum_{i=1}^{n}
+    \frac{\phi_{k}(t_{i})}{\sigma_{i}}
+    \frac{f_{i}}{\sigma_{i}}
+    \\
+    \to &
+    \sum_{j=1}^{m}
+    \left(\sum_{i=1}^{n} A_{ik} A_{ij}\right) x_{j}
+    =
+    \sum_{i=1}^{n}
+    A_{ik} \frac{f_{i}}{\sigma_{i}},
+    ~~~~
+    (k = 1,2,\ldots,m)
+    \label{Eq:LSM-Minimum-Condition2}
+\end{align}
+となる. さらに
+\begin{equation}
+    b_{i} = \frac{f_{i}}{\sigma_{i}},
+    ~~~~
+    (i=1,2,\ldots,n)
+\end{equation}
+を第$i$成分にもつベクトル$\bm{b}$, 
+$x_{j}$を第$j$成分にもつベクトルを$\bm{x}$とおくと, 式(\ref{Eq:LSM-Minimum-Condition2})
+は次のようにかける:
+\begin{equation}
+    A^{t}A \bm{x} = A^{t} \bm{b}
+\end{equation}
+ここで, $A^{t}$は行列$A$の転置である. 
+これを正規方程式という. 
+この方程式を解けば, 未知係数$x_{i}$を求めることができる. 
+
+\subsection{単純な多項式$\phi_{j}(t) = t^{j-1}$の場合}
+単純な多項式$\phi_{j}(t) = t^{j-1}$を用いた, 最小二乗法を考える. 
+\begin{align}
+    f(t) &=
+    \sum_{j=1}^{m} x_{j} t^{j-1} =
+    x_{1} + x_{2} t + \ldots + x_{m}t^{m-1},
+    \\
+    A_{ij} &=
+    \frac{t_{i}^{j-1}}{\sigma_{i}},
+    \\
+    A_{ik} &=
+    \frac{t_{i}^{k-1}}{\sigma_{i}},
+    \\
+    b_{i} &=
+    \frac{f_{i}}{\sigma_{i}}
+\end{align}
+であるので, 式(\ref{Eq:LSM-Minimum-Condition2})に代入すると, 
+\begin{equation}
+    \sum_{j=1}^{m}
+    \left(
+        \sum_{i=1}^{n}
+        \frac{t_{i}^{k-1}}{\sigma_{i}}
+        \frac{t_{i}^{j-1}}{\sigma_{i}}
+    \right) x_{j}
+    =
+    \sum_{i=1}^{n}
+    \frac{t_{i}^{k-1}}{\sigma_{i}}
+    \frac{f_{i}}{\sigma_{i}}
+\end{equation}
+を得る. 行列形式で愚直に書くと, 
+\begin{align}
+    \begin{bmatrix}
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{0} t_{i}^{0} &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{0} t_{i}^{1} &
+        \ldots &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{0} t_{i}^{m-1}
+        \\
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{1} t_{i}^{0} &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{1} t_{i}^{1} &
+        \ldots &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{1} t_{i}^{m-1}
+        \\
+        \vdots & \vdots & \ddots & \vdots
+        \\
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{m} t_{i}^{0} &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{m} t_{i}^{1} &
+        \ldots &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{m} t_{i}^{m-1}
+    \end{bmatrix}
+    \begin{bmatrix}
+        x_{0}  \\
+        x_{1}  \\
+        \vdots \\
+        x_{m}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} \\
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} t_{i} \\
+        \vdots \\
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} t_{i}^{m-1}
+    \end{bmatrix}
+\end{align}
+となる. 
+左辺の左の行列について, 
+\begin{align}
+    \bm{D} =
+    \begin{bmatrix}
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{0} &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{1} &
+        \ldots &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{m-1}
+        \\
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{1} &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{2} &
+        \ldots &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{m}
+        \\
+        \vdots & \vdots & \ddots & \vdots
+        \\
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{m-1} &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{m}   &
+        \ldots &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{2m-1}
+    \end{bmatrix}
+    \label{Eq:LSM-Def-Matrix-D}
+\end{align}
+と置くと, 正規方程式は
+\begin{align}
+    \begin{bmatrix}
+        x_{0}  \\
+        x_{1}  \\
+        \vdots \\
+        x_{m}
+    \end{bmatrix}
+    &=
+    \bm{D}^{-1}
+    \begin{bmatrix}
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} \\
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} t_{i} \\
+        \vdots \\
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} t_{i}^{m-1}
+    \end{bmatrix}
+    \\
+    &=
+    \begin{bmatrix}
+        D_{11}^{-1} & D_{12}^{-1} & \ldots & D_{1m}^{-1} \\
+        D_{21}^{-1} & D_{22}^{-1} & \ldots & D_{2m}^{-1} \\
+        \vdots & \vdots & \ddots & \vdots \\
+        D_{m1}^{-1} & D_{m2}^{-1} & \ldots & D_{mm}^{-1} \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} \\
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} t_{i} \\
+        \vdots \\
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} t_{i}^{m-1}
+    \end{bmatrix}
+    \\
+    &=
+    \begin{bmatrix}
+        D_{11}^{-1} \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} +
+        D_{12}^{-1} \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} t_{i} +
+        \ldots +
+        D_{1m}^{-1} \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} t_{i}^{m-1}
+        \\
+        D_{21}^{-1} \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} +
+        D_{22}^{-1} \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} t_{i} +
+        \ldots +
+        D_{2m}^{-1} \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} t_{i}^{m-1}
+        \\
+        \vdots
+        \\
+        D_{m1}^{-1} \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} +
+        D_{m2}^{-1} \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} t_{i} +
+        \ldots +
+        D_{mm}^{-1} \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} f_{i} t_{i}^{m-1}
+    \end{bmatrix}
+    \label{Eq:LSM-Coefficients-Solution}
+\end{align}
+のように解くことができる. 
+また, 係数の誤差は, 
+\begin{equation}
+    \sigma_{xk}
+    =
+    \sqrt{
+        \sum_{i=1}^{n}
+        \left(\frac{\partial x_{k}}{\partial f_{i}} \sigma_{i}\right)^{2}
+    }
+\end{equation}
+であるので, 式(\ref{Eq:LSM-Coefficients-Solution})を用いると具体的に
+\begin{equation}
+    \sigma_{xk}
+    =
+    \sqrt{
+        \sum_{i=1}^{n}
+        \left(
+            \sum_{j=1}^{m} D_{kj}^{-1}
+            \frac{1}{\sigma_{i}} t_{i}^{j-1}
+        \right)^{2}
+    }
+\end{equation}
+と計算される. 
+
+\subsection{具体例: 一次関数$f(t) = x_{0} t + x_{1}$で最小二乗法}
+一次関数$f(t) = x_{0} t + x_{1}$で最小二乗法を実行するときの, 具体的な未知係数と誤差の表式を見ていく. 
+行列$(\ref{Eq:LSM-Def-Matrix-D})$を具体的に計算すると, 
+\begin{equation}
+    \bm{D}
+    =
+    \begin{bmatrix}
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}
+        \\
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i} &
+        \sum_{i=1}^{n} \frac{1}{\sigma_{i}^{2}} t_{i}^{2}
+    \end{bmatrix}
+    \equiv
+    \begin{bmatrix}
+        \sum_{i=1}^{n} w_{i} &
+        \sum_{i=1}^{n} w_{i} t_{i}
+        \\
+        \sum_{i=1}^{n} w_{i} t_{i} &
+        \sum_{i=1}^{n} w_{i} t_{i}^{2}
+    \end{bmatrix}
+\end{equation}
+なので, 逆行列は
+\begin{align}
+    \bm{D}^{-1}
+    &=
+    \frac{1}{\Delta}
+    \begin{bmatrix}
+        \sum_{i=1}^{n} w_{i} t_{i}^2&
+        \sum_{i=1}^{n} w_{i} t_{i}
+        \\
+        \sum_{i=1}^{n} w_{i} t_{i} &
+        \sum_{i=1}^{n} w_{i} t_{i}^{2}
+    \end{bmatrix}
+    \\
+    \Delta
+    &\equiv
+    \left(\sum_{i=1}^{n} w_{i}\right)
+    \left(\sum_{i=1}^{n} w_{i} t_{i}^{2}\right)
+    -
+    \left(\sum_{i=1}^{n} w_{i} t_{i}\right)^{2}
+\end{align}
+と計算される. ここで, $w_{i} = 1/\sigma_{i}^{2}$とおいた. 
+したがって, 未知係数は
+\begin{align}
+    x_{0} &=
+    \frac
+    {
+        \left(\sum_{i=1}^{n} w_{i} t_{i}^{2}\right)
+        \left(\sum_{i=1}^{n} w_{i} f_{i}\right)
+        -
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)
+        \left(\sum_{i=1}^{n} w_{i} t_{i} f_{i}\right)
+    }{\Delta}
+    \\
+    x_{1} &=
+    \frac
+    {
+        \left(\sum_{i=1}^{n} w_{i} \right)
+        \left(\sum_{i=1}^{n} w_{i} t_{i} f_{i}\right)
+        -
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)
+        \left(\sum_{i=1}^{n} w_{i} f_{i}\right)
+    }{\Delta}
+\end{align}
+と計算される. 
+
+続いて, 係数の誤差を求めていく. 
+$x_{0}$の誤差は, 
+\begin{equation}
+    \sigma_{x_{0}}
+    =
+    \sqrt
+    {
+        \sum_{i=1}^{n}
+        \left(\frac{\partial x_{0}}{\partial f_{i}} \sigma_{i}\right)^{2}
+    }
+\end{equation}
+である. 以下, 具体的に計算をしていく:
+\begin{align}
+    \frac{\partial x_{0}}{\partial f_{i}} \sigma_{i}
+    &=
+    \frac{1}{\Delta}
+    \left[
+        \left(\sum_{i}^{n} w_{i} t_{i}^{2}\right) w_{i}
+        -
+        \left(\sum_{i}^{n} w_{i} t_{i}\right)w_{i} t_{i}
+    \right]
+    \sigma_{i}
+    \\
+    \left(\frac{\partial x_{0}}{\partial f_{i}} \sigma_{i}\right)^{2}
+    &=
+    \frac{1}{\Delta^{2}}
+    \left[
+        \left(\sum_{i=1}^{n} w_{i} t_{i}^{2}\right)^{2} w_{i}^{2}
+        +
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)^{2} w_{i}^{2} t_{i}^{2}
+        -
+        2
+        \left(\sum_{i=1}^{n} w_{i} t_{i}^{2}\right)
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right) w_{i}^{2} t_{i}
+    \right] \sigma_{i}^{2}
+    \\ &=
+    \frac{1}{\Delta^{2}}
+    \left[
+        \left(\sum_{i=1}^{n} w_{i} t_{i}^{2}\right)^{2} w_{i}
+        +
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)^{2} w_{i} t_{i}^{2}
+        -
+        2
+        \left(\sum_{i=1}^{n} w_{i} t_{i}^{2}\right)
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right) w_{i} t_{i}
+    \right]
+\end{align}
+最後の式変形には, $w_{i} = 1/\sigma_{i}^{2}$であることを用いた. 
+さらに, $i$について和をとると, 
+\begin{align}
+    &
+    \sum_{i=1}^{n}
+    \left(\frac{\partial x_{0}}{\partial f_{i}} \sigma_{i}\right)^{2}
+    \notag \\
+    &=
+    \frac{1}{\Delta^{2}}
+    \left[
+        \left(\sum_{i=1}^{n} w_{i} t_{i}^{2}\right)^{2}
+        \left(\sum_{i=1}^{n} w_{i}\right)
+        +
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)^{2}
+        \left(\sum_{i=1}^{n} w_{i} t_{i}^{2} \right)
+        -
+        2
+        \left(\sum_{i=1}^{n} w_{i} t_{i}^{2}\right)
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)^{2}
+    \right]
+    \notag
+    \\ &=
+    \frac{1}{\Delta^{2}}
+    \left[
+        \left(\sum_{i=1}^{n} w_{i} t_{i}^{2}\right)^{2}
+        \left(\sum_{i=1}^{n} w_{i}\right)
+        -
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)^{2}
+        \left(\sum_{i=1}^{n} w_{i} t_{i}^{2}\right)
+    \right]
+    \notag
+    \\ &=
+    \frac{\sum_{i=1}^{n} w_{i} t_{i}^{2}}{\Delta^{2}}
+    \left[
+        \left(\sum_{i=1}^{n} w_{i} t_{i}^{2}\right)
+        \left(\sum_{i=1}^{n} w_{i}\right)
+        -
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)^{2}
+    \right]
+    \notag
+    \\ &=
+    \frac{\sum_{i=1}^{n} w_{i} t_{i}^{2}}{\Delta}
+\end{align}
+したがって, $x_{0}$の誤差は, 
+\begin{equation}
+    \sigma_{x_{0}} =
+    \sqrt{\frac{\sum_{i=1}^{n} w_{i} t_{i}^{2}}{\Delta^{2}}}
+\end{equation}
+である. 
+
+同様にして, $x_{1}$の誤差, 
+\begin{equation}
+    \sigma_{x_{1}}
+    =
+    \sqrt
+    {
+        \sum_{i=1}^{n}
+        \left(\frac{\partial x_{1}}{\partial f_{i}} \sigma_{i}\right)^{2}
+    }
+\end{equation}
+を計算する. 
+\begin{align}
+    \frac{\partial x_{1}}{\partial f_{i}} \sigma_{i}
+    &=
+    \frac{1}{\Delta}
+    \left[
+        \left(\sum_{i=1}^{n} w_{i}\right) w_{i} t_{i}
+        -
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)w_{i}
+    \right] \sigma_{i}
+    \\
+    \left(\frac{\partial x_{1}}{\partial f_{i}} \sigma_{i}\right)^{2}
+    &=
+    \frac{1}{\Delta^{2}}
+    \left[
+        \left(\sum_{i=1}^{n} w_{i}\right)^{2} w_{i}^{2} t_{i}^{2}
+        +
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)^{2} w_{i}^{2}
+        -
+        2
+        \left(\sum_{i=1}^{n} w_{i}\right)
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right) w_{i}^{2} t_{i}
+    \right] \sigma_{i}^{2}
+    \\ &=
+    \frac{1}{\Delta^{2}}
+    \left[
+        \left(\sum_{i=1}^{n} w_{i}\right)^{2} w_{i} t_{i}^{2}
+        +
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)^{2} w_{i}
+        -
+        2
+        \left(\sum_{i=1}^{n} w_{i}\right)
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right) w_{i} t_{i}
+    \right]
+\end{align}
+最後の式変形には, $w_{i} = 1/\sigma_{i}^{2}$であることを用いた. 
+$i$について和をとると, 
+\begin{align}
+    &
+    \sum_{i=1}^{n}
+    \left(\frac{\partial x_{1}}{\partial f_{i}} \sigma_{i}\right)^{2}
+    \notag \\
+    &=
+    \frac{1}{\Delta^{2}}
+    \left[
+        \left(\sum_{i=1}^{n} w_{i}\right)^{2}
+        \left(\sum_{i=1}^{n} w_{i} t_{i}^{2}\right)
+        +
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)^{2}
+        \left(\sum_{i=1}^{n} w_{i}\right)
+        -
+        2
+        \left(\sum_{i=1}^{n} w_{i}\right)
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)
+        \left(\sum_{i=1}^{n} w_{i} t_{i}\right)
+    \right]
+    \notag
+    \\ &=
+    \frac{\sum_{i=1}^{n} w_{i}}{\Delta^{2}}
+    \left[
+        \left(\sum_{i=1}^{2} w_{i}\right)
+        \left(\sum_{i=1}^{2} w_{i} t_{i}^{2}\right)
+        -
+        \left(\sum_{i=1}^{2} w_{i} t_{i}\right)^{2}
+    \right]
+    \notag
+    \\ &=
+    \frac{\sum_{i=1}^{n} w_{i}}{\Delta}
+\end{align}
+したがって, $x_{1}$の誤差は, 
+\begin{equation}
+    \sigma_{x_{1}}
+    =
+    \sqrt{\frac{\sum_{i=1}^{n} w_{i}}{\Delta}}
+\end{equation}
+である. 
+
+\clearpage
+%\bibliographystyle{junsrt}
+%\bibliography{}
+\input{../include/end}

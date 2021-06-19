@@ -1,0 +1,1086 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{再重法(Reweighting Teqhnique)}
+
+\maketitle
+\section{単ヒストグラム再重法 (Single-Histogram Reweighting Techniques)}
+単ヒストグラム最重法~\cite{Ferrenberg1988,Ferrenberg1989}を用いることで, あるパラメーターにおけるシミュレーショントラジェクトリーから, 他のパラメータにおける平均値を求めることができる. 
+例えば, 温度$T$のシミュレーションから温度$T^{\prime}$における平均値を算出したり, マルチカノニカルシミュレーションの結果からある温度$T$における物理量の平均値を求めることが可能となる. 
+
+\subsection{一般的な定式化}
+ある重み$W(\lambda)$に基づく物理系を考える. 
+パラメータ$\lambda$は例えばポテンシャルエネルギーなどであり, カノニカルアンサンブルの場合, $W(\lambda)$はボルツマン因子$W_{\mathrm{B}}(U) = e^{-U/k_{\mathrm{B}}T} = e^{-\beta U}$となる. 
+パラメータ$\lambda$に関する系の状態密度$n(\lambda)$が分かっている場合, $\lambda$に関する確率分布と任意の物理量$A(\lambda)$の期待値は, 
+\begin{alignat}{3}
+    P(\lambda) &=
+    \frac{n(\lambda)W(\lambda)}{\int d\lambda~ n(\lambda) W(\lambda)} &&=
+    \frac{1}{Z} n(\lambda)W(\lambda)
+    \label{Eq:ProbDist-Lambda}
+    \\
+    \langle A \rangle &=
+    \frac{\int d\lambda~ A(\lambda)n(\lambda)W(\lambda)}{\int d\lambda~ n(\lambda) W(\lambda)} &&=
+    \frac{1}{Z} \int d\lambda~ A(\lambda)n(\lambda)W(\lambda)
+    \label{Eq:PhysAverage-Lambda}
+\end{alignat}
+と計算される. ここで, $Z$は分配関数である. 
+系の状態密度が分かっていれば, 確率分布や物理量の期待値を得ることができる. 
+しかし, 一般には系の状態密度は厳密には分かっていないため, 確率分布や物理量の期待値を計算するには分子シミュレーションを実行して状態密度を推定する必要がある. 
+
+分子シミュレーションを実行して, $h$個のサンプルを得たとする. 
+$\lambda$に関する確率分布は, 分子シミュレーションによって得られるパラメータ$\lambda$のヒストグラム$H(\lambda)$を用いて, 
+\begin{equation}
+    P(\lambda) = H(\lambda) / h
+\end{equation}
+と推定することができる. したがって, 式(\ref{Eq:ProbDist-Lambda})より, 状態密度は
+\begin{equation}
+    n(\lambda) = Z \frac{P(\lambda)}{W(\lambda)} = Z \frac{H(\lambda)}{h W(\lambda)}
+    \label{Eq:Density-of-states-W}
+\end{equation}
+と推定できる. また, 物理量$A$の期待値は, 式(\ref{Eq:PhysAverage-Lambda})より
+\begin{align}
+    \langle A \rangle &=
+    \frac{1}{Z} \int d\lambda A(\lambda) n(\lambda) W(\lambda) \\ &=
+    \frac{1}{Z} \int d\lambda A(\lambda) Z \frac{P(\lambda)}{W(\lambda)} W(\lambda) \\ &=
+    \int d\lambda A(\lambda) H(\lambda)/h
+\end{align}
+と計算できる. 
+
+続いて, 重み$W(\lambda)$に基づいた分子シミュレーションのトラジェクトリーを用いて, 重み$W^{\prime}(\lambda)$に基づいた統計アンサンブルの確率分布と物理量の期待値を推定することを考える. 
+この時, 確率分布と物理量の平均値は, 
+\begin{alignat}{3}
+    P(\lambda) &=
+    \frac{n(\lambda)W^{\prime}(\lambda)}{\int d\lambda~ n(\lambda) W^{\prime}(\lambda)} &&=
+    \frac{1}{Z} n(\lambda)W^{\prime}(\lambda)
+    \label{Eq:ProbDist-Lambda-Prime}
+    \\
+    \langle A \rangle &=
+    \frac{\int d\lambda~ A(\lambda)n(\lambda)W^{\prime}(\lambda)}{\int d\lambda~ n(\lambda) W^{\prime}(\lambda)} &&=
+    \frac{1}{Z} \int d\lambda~ A(\lambda)n(\lambda)W^{\prime}(\lambda)
+    \label{Eq:PhysAverage-Lambda-Prime}
+\end{alignat}
+と表される. 重み$W(\lambda)$に基づいた分子シミュレーションで得られた状態密度(\ref{Eq:Density-of-states-W})を代入すると, 
+確率分布は, 
+\begin{align}
+    P(\lambda) =
+    \frac{n(\lambda) W^{\prime}(\lambda)}{\int d\lambda~ n(\lambda) W^{\prime}(\lambda)} &=
+    \frac{Z \frac{P(\lambda)}{W(\lambda)} W^{\prime}(\lambda)}{\int d\lambda~ Z \frac{P(\lambda)}{W(\lambda)} W^{\prime}(\lambda)} \\ &=
+    \frac{\left\{H(\lambda)/W(\lambda)\right\} W^{\prime}(\lambda)}{\int d\lambda~ \left\{H(\lambda)/W(\lambda)\right\} W^{\prime}(\lambda)}
+\end{align}
+と推定することができる. 同様にして, 物理量の期待値は
+\begin{align}
+    \langle A \rangle  =
+    \frac{\int d\lambda~ A(\lambda)\left\{H(\lambda)/W(\lambda)\right\} W^{\prime}(\lambda)}{\int d\lambda~ \left\{H(\lambda)/W(\lambda)\right\} W^{\prime}(\lambda)}
+\end{align}
+と推定できる. 
+
+\subsection{カノニカルシミュレーションの場合}
+温度$T$におけるカノニカルシミュレーションを実行し, $h$個のサンプルを得たとする. 
+この時, ポテンシャルエネルギー$U$の確率分布は, 
+\begin{equation}
+    P_{NVT}(U;~T) = \frac{n(U)e^{-\beta U}}{\int dU~ n(U)e^{-\beta U}} = \frac{n(U)e^{-\beta U}}{Z(T)}
+    \label{Eq:ProbDist-Potential-NVT}
+\end{equation}
+であり, 物理量の期待値は
+\begin{equation}
+    \langle A \rangle_{T} = \frac{\int dU~A(U)n(U)e^{-\beta U}}{Z(T)}
+\end{equation}
+である. ここで, $\beta = 1/k_{\mathrm{B}}T$, $k_{\mathrm{B}}$はボルツマン定数, $n(U)$は状態密度, $Z(T)$は分配関数である. 
+式(\ref{Eq:ProbDist-Potential-NVT})より, 状態密度は
+\begin{equation}
+    n(U) = Z(T) P_{NVT}(U;~T) / e^{-\beta U}
+\end{equation}
+とかける. 通常, 状態密度は事前に分からないことが多く, シミュレーションを実行することで, はじめて系の状態密度を推定することができる. 
+確率分布は, シミュレーションで得られたポテンシャル$U$のヒストグラム$H(U)$に比例し, 
+\begin{equation}
+    P_{NVT}(U;~T)= H(U)/h
+\end{equation}
+と書くことができる. したがって, 状態密度は
+\begin{equation}
+    n(U) = \frac{Z(T) H(U)}{he^{-\beta U}}
+    \label{Eq:Density-of-states}
+\end{equation}
+と計算することができる. 
+一方, 温度$T^{\prime}=1/k_{\mathrm{B}}\beta^{\prime}$における確率分布は
+\begin{equation}
+    P_{NVT}(U;~T^{\prime}) =
+    \frac{n(U)e^{-\beta^{\prime} U}}{\int dU~ n(U)e^{-\beta^{\prime} U}}
+\end{equation}
+とかける. ここに温度$T$のカノニカルシミュレーションで得られた状態密度の式(\ref{Eq:Density-of-states})を代入すると, 
+\begin{align}
+    P_{NVT}(U;~T^{\prime}) &=
+    \frac{\frac{Z(T) H(U)}{he^{-\beta U}} e^{-\beta^{\prime} U}}{\int dU~ \frac{Z(T) H(U)}{he^{-\beta U}}e^{-\beta^{\prime} U}} \\ &=
+    \frac{\left\{H(U)/e^{-\beta U}\right\} e^{-\beta^{\prime} U}}{\int dU~ \left\{H(U)/e^{-\beta U}\right\}e^{-\beta^{\prime} U}} \\ &=
+    \frac{H(U) e^{-U(\beta^{\prime} -\beta)}}{\int dU~ H(U) e^{-U(\beta^{\prime} -\beta)}}
+\end{align}
+を得る. また, 物理量の期待値は
+\begin{equation}
+    \langle A \rangle_{T^{\prime}} = \frac{\int dU~ A(U) H(U) e^{-U(\beta^{\prime} -\beta)}}{\int dU~ H(U) e^{-U(\beta^{\prime} -\beta)}}
+\end{equation}
+とかける. 
+このように, 温度$T$のサンプルからの温度$T^{\prime}$における確率分布を推定式を得ることができる. 
+一般的には, $T^{\prime}$が$T$近傍の値の時は比較的精度良く推定することができ, $T$と$T^{\prime}$の値が離れるにつれて, 推定された物理量の精度は悪くなってしまう. 
+
+
+\section{多ヒストグラム再重法 (WHAM: Weighted Histogram Analysis Method)}
+
+\subsection{WHAM方程式の導出}
+WHAMを用いることで, $M$個のシミュレーションで得られたサンプルから, 任意のパラメータ設定における確率分布$P$についての最適な推定方法を得ることができる. 
+ここでは, カノニカルシミュレーションの場合を考えていく. $m$番目のシミュレーションは温度$T_{m}=1/(k_{\mathrm{B}}\beta_{m})$で実行され, そこで得られたサンプルの数を$N_{m}$と表すことにする. 
+
+\subsubsection{相関のある時系列データの統計的不確かさの評価法}
+ここでは, 相関のある時系列データの統計的不確かさについて簡単にまとめる~\cite{Janke2002,Chodera2007}. 
+定常で時間可逆な確率過程からサンプルされた観測量$A$について, データ間で相関のあるような連続した観測量の時系列$\{A_{i}\}_{i=1}^{N}$を考える. 
+期待値$\langle A \rangle$は単純な算術平均で推定することができる:
+\begin{equation}
+    \hat{A} =
+    \bar{A} =
+    \frac{1}{N}\sum_{i=1}^{N} A_{i}
+\end{equation}
+上付きの$\hat{}$で推定値であることを表す. 
+また, 上付きの$\bar{}$は算術平均であることを表す. 
+ここでは$\langle A \rangle$と$\bar{A}$を区別して考える. 
+$\langle A \rangle$は常数であり, 何かある値に求められるようなものである. 
+一方, $\bar{A}$は期待値$\langle A \rangle$の推定値であるため, 取りうる値は期待値周辺を揺らぐ. 
+
+ある物理量$A$の推定値$\hat{A}$について, 統計的不確かさについて考える. 
+統計的不確かさは
+\begin{align}
+    \delta^{2} \hat{A} &\equiv
+    \left\langle \left( \hat{A} - \langle \hat{A}\rangle \right)^{2} \right\rangle
+    = \langle \hat{A}^{2} \rangle - \langle \hat{A} \rangle^{2}
+    \notag \\ &=
+    \frac{1}{N^{2}} \sum_{i,j=1}^{n} \langle A_{i} A_{j} \rangle -
+    \frac{1}{N^{2}} \sum_{i,j=1}^{n} \langle A_{i} \rangle \langle A_{j} \rangle
+\end{align}
+と計算される. 
+対角部分と非対角部分に分割すると, 
+\begin{align}
+    \delta^{2} \hat{A} =
+    \frac{1}{N^{2}} \sum_{i=1}^{n}
+    \left(\langle A_{i}^{2} \rangle - \langle A_{i}\rangle^{2} \right) +
+    \frac{1}{N^{2}} \sum_{i \neq j = 1}^{n}
+    \left(\langle A_{i}A_{j} \rangle - \langle A_{i}\rangle \langle A_{j}\rangle \right)
+\end{align}
+となる. 右辺第一項は観測量の分散に$1/N$を乗じたものであり, 右辺第二項は観測量の相関である. 
+第二項について$i$と$j$の対称性を考えると, 和は$\sum_{i \neq j} = 2\sum_{i=1}^{N} \sum_{j=i+1}^{N}$とすることができる. さらに$k=|i-j|$を定めると, $i$と$j$に関する和は$k$についての和に置き直すことができる:
+\begin{align}
+    \sum_{i \neq j = 1}^{N}
+    \left(\langle A_{i}A_{j} \rangle - \langle A_{i}\rangle \langle A_{j}\rangle \right)
+    &=
+    2\sum_{i=1}^{N} \sum_{j=i+1}^{N}
+    \left(\langle A_{i}A_{j} \rangle - \langle A_{i}\rangle \langle A_{j}\rangle \right)
+    \\
+    &=
+    2\sum_{k=1}^{N-1}
+    \left(
+        \langle A_{i}A_{i+k} \rangle - \langle A_{i}\rangle \langle A_{i+k}\rangle
+    \right)
+    \left( N - k \right)
+\end{align}
+ここで$(N-k)$は, ある$k$について$i<j$の時, $|i-j| = k$となるような整数の組の数に由来する. 
+以上より, 統計的不確かさは
+\begin{align}
+    \delta^{2} \hat{A} &=
+    \frac{1}{N}
+    \left(\langle A_{i}^{2} \rangle - \langle A_{i}\rangle^{2} \right) +
+    \frac{2}{N} \sum_{k=1}^{N-1}
+    \frac{N-k}{N}
+    \left(
+        \langle A_{i}A_{i+k} \rangle - \langle A_{i}\rangle \langle A_{i+k}\rangle
+    \right)
+    \\
+    &\equiv
+    \frac{\sigma_{A}^{2}}{N} (1+2\tau)
+    \\
+    &\equiv
+    \frac{\sigma_{A}^{2}}{N/g}
+    \label{Eq:Statistical-Uncertainty-A}
+\end{align}
+と計算される. ここで, $\sigma_{A}^{2}$は分散, $g$は統計的非効率性因子, $\tau$は自己相関時間であり, それぞれ
+\begin{align}
+    \sigma_{A}^{2} &\equiv \langle A_{i}^{2} \rangle - \langle A_{i} \rangle^{2}
+    \\
+    \tau           &\equiv \sum_{k=1}^{N-1}\left(1 - \frac{k}{N}\right)C_{k}
+    \\
+    g              &\equiv 1 + 2\tau
+\end{align}
+と定義した. また$C_{k}$は
+\begin{equation}
+    C_{k} \equiv
+    \frac{\langle A_{i} A_{i+k}\rangle - \langle A_{i} \rangle^{2}}{\langle A_{i}^{2} \rangle - \langle A_{i} \rangle^{2}}
+\end{equation}
+で定義される, 規格化された自己相関関数である. 
+統計的非効率因子$g=1+2\tau$は1以上の値をもつ. $N/g$は時系列データに含まれる有効サンプル数(非相関データの数)を与える. 
+$g$の値はシミュレーションにおいてサンプルを取得する時間ステップ間隔に依存する. 
+より長い時間ステップ間隔でサンプリングすれば, $g$の値は1に近づく. 
+
+\subsubsection{ヒストグラムの数学的定式化}
+指示関数$\chi_{l}(A)$を, 観測量$A$が中心値$A_{l}$, 幅$\Delta A$のビンに含まれるかどうかを判定する関数として, 次のように定義する:
+\begin{equation}
+    \chi_{l}(A) =
+    \begin{cases}
+        1 ~~~~\text{if}~ X \in [A_{l} - \frac{\Delta A}{2},~ A_{l} + \frac{\Delta A}{2}) \\
+        0 ~~~~\text{otherwise}
+    \end{cases}
+\end{equation}
+ここで, $l$は$A$を離散化した時のビン番号を表す. また, 
+$m$番目のシミュレーションの$n$番目の観測量を$A_{mn}$とすると, 指示関数の時系列は$\{\chi_{l}(A_{mn})\}_{n=1}^{N_m}$と表せる. 
+$N_{m}$は$m$番目のシミュレーションのサンプル数である. 
+$m$番目のシミュレーションに対する観測量$A_k$に関するヒストグラム$H_{m}$は
+\begin{equation}
+    H_{m}(A_{l}) = \sum_{n=1}^{N_m} \chi_{l}(A_{mn})
+\end{equation}
+と計算され, 全てのシミュレーションに渡って観測量をカウントしたヒストグラム$H$は
+\begin{equation}
+    H(A_{l}) = \sum_{m=1}^{M} \sum_{n=1}^{N_m} \chi_{l}(A_{mn})
+\end{equation}
+と計算することができる. 
+
+\subsubsection{ヒストグラムの統計的不確かさ}
+$m$番目のシミュレーションのヒストグラムは, 
+\begin{equation}
+    H_{m}(A_{l}) =
+    \sum_{n=1}^{N_m} \chi_{l}(A_{mn}) =
+    N_{m} \frac{1}{N_{m}} \sum_{n=1}^{N_m} \chi_{l}(A_{mn}) =
+    N_{m} \hat{\chi}_{lm}
+\end{equation}
+と表すことができる. 統計的不確かさの式(\ref{Eq:Statistical-Uncertainty-A})より, 
+\begin{align}
+    \delta^{2} H_{m}(A_{l}) &=
+    \delta^{2} \{N_{m} \hat{\chi}_{lm}\} =
+    N_{m}^{2} \delta^{2} \hat{\chi}_{lm} =
+    N_{m}^{2} \frac{\sigma_{\chi}}{N_{m}/g}
+\end{align}
+と書き下せる. これを具体的に計算すると, 
+\begin{align}
+    \delta^{2} H_{m}(A_{l}) &=
+    \frac{g_{m}}{N_{m}} N_{m}^{2}
+    \left(
+        \langle \chi_{lm}^{2} \rangle - \langle \chi_{lm} \rangle^{2}
+    \right)
+    \\ &=
+    \frac{g_{m}}{N_{m}} N_{m}^{2}
+    \left(
+        \langle \chi_{lm} \rangle - \langle \chi_{lm} \rangle^{2}
+    \right)
+    \\ &=
+    g_{m} N_{m} \langle \chi_{lm} \rangle
+    \left(1 - \langle \chi_{lm} \rangle \right)
+    \\ &=
+    g_{m} \langle H_{m}(A_{l}) \rangle
+    \left(1 - \frac{\langle H_{m}(A_{l}) \rangle}{N_{m}} \right)
+\end{align}
+と計算される. 
+ここで, $\chi_{lm}$は指示関数のため$\left[\chi_{l}(A_{m})\right]^{2} = \chi_{l}(A_{m})$であることを用いた. ヒストグラムの分布が疎であり, 十分な数のビンを用いている場合, $\langle H_{m}(A_{l})\rangle/N_{m} << 1$となるので, 
+\begin{equation}
+    \delta^{2} H_{m}(A_{l}) \simeq g_{m} \langle H_{m}(A_{l}) \rangle
+    \label{Eq:Statistical-Uncertainty-Histogram}
+\end{equation}
+と近似することができる. 
+
+
+\subsubsection{各シミュレーションの状態密度の推定}
+ここでは, $m$番目のシミュレーションに対する状態密度$\Omega_{m}(U)$の推定方法を考える. 
+そのためには, 確率密度分布を数学的に表現する方法が必要である. 
+J.~D.~Choderaら\cite{Chodera2007}が指摘しているように, 確率密度分布の推定にノンパラメトリックを用いることもできるが, 
+ここではより簡便な, Kumar\cite{Kumar1992}らやFerrenbergとSwendsen\cite{Ferrenberg1989b}が提案したヒストグラムに基づいた確率分布の推定方法を説明する. 
+
+まず, カノニカルアンサンブルにおけるポテンシャルの確率分布は, 
+\begin{align}
+    P_{NVT}(U;~T_{m})
+    =
+    \frac{\Omega_{m}(U) e^{-\beta_{m}U}}{\int dU~\Omega_{m}(U)e^{-\beta_{m}U}}
+    &=
+    \frac{1}{Z(\beta_{m})} \Omega_{m}(U) e^{-\beta_{m}U}
+    \\
+    &=
+    \Omega_{m}(U) \exp[f_{m} - \beta_{m}U]
+    \label{Eq:WHAM-ProbDist-NVT}
+\end{align}
+と書くことができる. ここで, $Z_{m}(\beta_{m})$は分配関数であり, ヘルムホルツの自由エネルギー$F_{m}$あるいは無次元化されたヘルムホルツの自由エネルギー$f_{m}$を用いて
+\begin{equation}
+    Z(\beta_{m}) = e^{-\beta_{m}F_{m}} = e^{-f_{m}}
+\end{equation}
+と書かれることを用いた. 
+
+続いて, シミュレーションで得られたサンプルから得られるヒストグラム$H$に基づいた確率分布の推定を考える. 
+ヒストグラムを用いるとポテンシャルの確率分布は, 
+\begin{equation}
+    P_{NVT}(U_{l};~T_{m}) =
+    \Omega_{m}(U) \exp[f_{m} - \beta_{m}U_{l}]
+    \simeq
+    \frac{1}{\Delta U} \frac{H_{m}(U_{l})}{N_{m}}
+\end{equation}
+のように見積もることができるため, 状態密度をヒストグラムを用いて
+\begin{equation}
+    \hat{\Omega}_{m}(U_{l}) =
+    \frac{H_{m}(U_{l})}{N_{m}\Delta U \exp[f_{m}-\beta_{m}U_{l}]}
+    \label{Eq:Density-of-States-Mth}
+\end{equation}
+と推定することができる. 
+
+
+\subsubsection{状態密度の最良推定値$\hat{\Omega}(U)$の表現方法}
+
+状態密度$\hat{\Omega}(U_{l})$の最良推定値を, $M$個のシミュレーションに対する状態密度の推定値$\hat{\Omega}_{m}(U)~~(m = 1,\ldots, M)$の重み付きの和で表す:
+\begin{equation}
+    \hat{\Omega}(U_{l}) = \sum_{m=1}^{M} w_{m}(U_{l}) \hat{\Omega}_{m}(U_{l})
+    \label{Eq:WHAM-Estimation-Density-of-States}
+\end{equation}
+ここで, 重み$w_{i}$は拘束条件
+\begin{equation}
+    \sum_{m=1}^{M} w_{m}(U_{l}) =1
+    \label{Eq:WHAM-Weight-Constrain}
+\end{equation}
+を満たす. 
+WHAMでは, 状態密度$\hat{\Omega}(U_{l})$の最良推定値を得るような重み$w_{i}$の集合は, 状態密度の統計誤差$\delta^{2}\hat{\Omega}(U_{l})$を最小化することによって導出する. 
+状態密度の統計誤差は具体的に, 
+\begin{align}
+    \delta^{2}\hat{\Omega}(U_{l}) &=
+    \left[\hat{\Omega}(U_{l}) - \langle \hat{\Omega}(U_{l}) \rangle \right]^{2}
+    \\ &=
+    \left[
+        \sum_{m=1}^{M} w_{m}(U_{l}) \hat{\Omega}_{m}(U_{l}) -
+        \left\langle \sum_{m=1}^{M} w_{m}(U_{l}) \hat{\Omega}_{m}(U_{l}) \right\rangle
+    \right]^{2}
+    \\ &=
+    \sum_{m=1}^{M} w_{m}^{2}(U_{l})
+    \left[
+        \hat{\Omega}_{m}(U_{l}) -
+        \left\langle \hat{\Omega}_{m}(U_{l}) \right\rangle
+    \right]^{2}
+    \\ &=
+    \sum_{m=1}^{M} w_{m}^{2}(U_{l}) \delta^{2}\hat{\Omega}_{m}(U_{l})
+\end{align}
+と計算される. 各シミュレーションの状態密度(\ref{Eq:Density-of-States-Mth})より
+\begin{equation}
+    \delta^{2} \hat{\Omega}_{m}(U_{l}) =
+    \frac{\delta^{2}H_{m}(U_{l})}{\{N_{m} \Delta U \exp[f_{m} -\beta_{m}U_{l}]\}^{2}}
+    \label{Eq:WHAM-Density-of-State-Mth-Estimation}
+\end{equation}
+であるので, 
+\begin{equation}
+    \delta^{2}\hat{\Omega}(U_{l}) =
+    \sum_{m=1}^{M} w_{m}^{2}(U_{l})
+    \frac{\delta^{2}H_{m}(U_{l})}{\{N_{m} \Delta U \exp[f_{m} -\beta_{m}U_{l}]\}^{2}}
+\end{equation}
+と表すことができる. 
+このように, $\delta^{2}\hat{\Omega}(U_{l})$は, $M$個の見積もられた状態密度$\hat{\Omega}_{1}(U_{l}),\ldots,\hat{\Omega}_{M}(U_{l})$の統計誤差$\delta^{2}\hat{\Omega}_{1}(U_{l}),\ldots,\delta^{2}\hat{\Omega}_{M}(U_{l})$に由来するので, 結局はヒストグラムの統計誤差$\delta^{2}H_{1}(U_{l}),\ldots,\delta^{2}H_{M}(U_{l})$に依存する形で書かれる. 
+式(\ref{Eq:Statistical-Uncertainty-Histogram})を用いると, ヒストグラムの統計誤差をヒストグラムの期待値$\langle H_{m}(U_{l})\rangle$で近似できる. ヒストグラムの期待値は, 得られるべき状態密度の最良推定値で置き直すと, 
+\begin{align}
+    \langle H_{m}(U_{l}) \rangle &=
+    N_{m} \Delta U P_{NVT}(U_{l};~T_{m}) \\ &\simeq
+    N_{m} \Delta U \hat{\Omega(U_{l})} \exp[f_{m}-\beta_{m}U_{l}]
+\end{align}
+となるので, 式(\ref{Eq:Statistical-Uncertainty-Histogram})を用いてヒストグラムの統計誤差を
+\begin{align}
+    \delta^{2} H_{m}(U_{l}) \simeq
+    g_{m} \langle H_{m}(U_{l})\rangle \simeq
+    g_{m} N_{m} \Delta U \hat{\Omega(U_{l})} \exp[f_{m}-\beta_{m}U_{l}]
+\end{align}
+と計算することができる. 
+これを式(\ref{Eq:WHAM-Density-of-State-Mth-Estimation})に代入することで, 各シミュレーションに対する状態密度の推定値の統計誤差$\hat{\Omega_{m}}$を
+\begin{align}
+    \delta^{2} \Omega_{m} (U_{l}) &=
+    \frac{\delta^{2} H_{m} (U_{l})}{\{N_{m} \Delta U \exp[f_{m} -\beta_{m}U_{l}]\}^{2}}
+    % \\ &=
+    % \frac{g_{m} N_{m} \Delta U \hat{\Omega(U_{l})} \exp[f_{m}-\beta_{m}U_{l}]}{\{N_{m} \Delta U \exp[f_{m} -\beta_{m}U_{l}]\}^{2}}
+    % \\ &=
+    % \frac{g_{m}\hat{\Omega(U_{l})}}{N_{m} \Delta U \exp[f_{m} -\beta_{m}U_{l}]}
+    \\ &=
+    \frac{\hat{\Omega(U_{l})}}{g_{m}^{-1}N_{m} \Delta U \exp[f_{m} -\beta_{m}U_{l}]}
+    \label{Eq:WHAM-Density-of-States-Mth-Estimation}
+\end{align}
+と推定することができる. 
+
+
+\subsubsection{重み$w_{i}$の決定: Lagrangeの未定乗数法}
+状態密度の統計誤差$\delta^{2}\hat{\Omega}(U_{l})$が拘束条件(\ref{Eq:WHAM-Weight-Constrain})の下で最小になるような重み$w_{i}$の集合を得るために, Lagrangeの未定乗数法を用いる. ラグランジュ関数は
+\begin{align}
+    \mathcal{L} =
+    \delta^{2}\hat{\Omega}(U_{l}) -
+    \alpha \left[\sum_{m=1}^{M}w_{i}(U_{l}) - 1\right] =
+    \left[\sum_{m=1}^{M} w_{m}^{2}(U_{l}) \delta^{2}\hat{\Omega}_{m}(U_{l}) \right] -
+    \alpha \left[\sum_{m=1}^{M}w_{i}(U_{l}) - 1\right]
+\end{align}
+とかける. 
+極値をとる条件$\partial \mathcal{L}/\partial \alpha = 0$, $\partial \mathcal{L}/\partial w_{m} = 0$より, 
+\begin{align}
+    \frac{\partial \mathcal{L}}{\partial \alpha} &=
+    \sum_{m=1}^{M} w_{m}(U_{l}) - 1 = 0
+    \\
+    \frac{\partial \mathcal{L}}{\partial w_{m}} &=
+    2 w_{m}(U_{l}) \delta^{2} \hat{\Omega}_{m}(U_{l}) - \alpha = 0
+    \label{Eq:WHAM-Lagrange-Partial2}
+\end{align}
+を得る. 式(\ref{Eq:WHAM-Lagrange-Partial2})より, 
+\begin{equation}
+    \alpha =
+    2 w_{1} (U_{l}) \delta^{2} \hat{\Omega}_{1} (U_{l}) =
+    2 w_{2} (U_{l}) \delta^{2} \hat{\Omega}_{2} (U_{l}) =
+    \ldots
+    2 w_{M} (U_{l}) \delta^{2} \hat{\Omega}_{M} (U_{l})
+\end{equation}
+であるので, これを拘束条件(\ref{Eq:WHAM-Weight-Constrain})に代入すると
+\begin{equation}
+    w_{1}(U_{l}) +
+    \frac{\delta^{2} \hat{\Omega}_{1}(U_{l})}{\delta^{2} \hat{\Omega}_{2}(U_{l})} w_{1}(U_{l}) +
+    \frac{\delta^{2} \hat{\Omega}_{1}(U_{l})}{\delta^{2} \hat{\Omega}_{3}(U_{l})} w_{1}(U_{l}) +
+    \ldots
+    \frac{\delta^{2} \hat{\Omega}_{1}(U_{l})}{\delta^{2} \hat{\Omega}_{M}(U_{l})} w_{1}(U_{l}) =
+    1
+\end{equation}
+を得る. これより, 
+\begin{align}
+    w_{1}(U_{l}) &=
+    \frac
+    {1}
+    {\left\{
+        \frac{1}{\delta^{2}\hat{\Omega}_{1}(U_{l})} +
+        \frac{1}{\delta^{2}\hat{\Omega}_{2}(U_{l})} +
+        \ldots
+        \frac{1}{\delta^{2}\hat{\Omega}_{M}(U_{l})}
+    \right\} \delta^{2}\hat{\Omega}_{1}(U_{l})
+    }
+    =
+    \frac
+    {\frac{1}{\delta^{2}\hat{\Omega}_{1}(U_{l})}}
+    {\left\{\sum_{m=1}^{M} \frac{1}{\delta^{2}\hat{\Omega}_{m}(U_{l})}\right\}}
+\end{align}
+と計算される. 
+その他の重みも同様に得ることができる:
+\begin{align}
+    w_{i}(U_{l}) =
+    \frac
+    {\frac{1}{\delta^{2}\hat{\Omega}_{m}(U_{l})}}
+    {\left\{\sum_{m=1}^{M} \frac{1}{\delta^{2}\hat{\Omega}_{m}(U_{l})}\right\}}
+    \label{Eq:WHAM-Weight}
+\end{align}
+
+\subsubsection{状態密度$\Omega(U)$の推定}
+得られた重み(\ref{Eq:WHAM-Weight})と各シミュレーションに対する状態密度の推定値の統計誤差(\ref{Eq:WHAM-Density-of-States-Mth-Estimation})を用いると, 状態密度の推定値(\ref{Eq:WHAM-Estimation-Density-of-States})は
+\begin{align}
+    \hat{\Omega(U_{l})}
+    &=
+    \sum_{m=1}^{M} w_{m}(U_{l}) \hat{\Omega_{m}(U_{l})}
+    \\ &=
+    \sum_{m=1}^{M}
+    \frac
+    {
+        [\delta^{2}\hat{\Omega}_{m}(U_{l})]^{-1} \hat{\Omega_{m}(U_{l})}
+    }
+    {
+        [\sum_{i=1}^{M}\delta^{2}\hat{\Omega}_{i}(U_{l})]^{-1}
+    }
+    \\ &=
+    \sum_{m=1}^{M}
+    \frac
+    {
+        \frac{g_{m}^{-1}N_{m}\Delta U \exp[f_{m}-\beta_{m}U_{l}]}{\hat{\Omega}(U_{l})}
+        \frac{H_{m}(U_{l})}{N_{m}\Delta U \exp[f_{m}-\beta_{m}U_{l}]}
+    }
+    {
+        \left[
+            \sum_{i=1}^{M}
+            \frac{g_{i}^{-1} N_{i} \Delta U \exp[f_{i}-\beta_{i}U_{l}]}{\hat{\Omega}(U_{l})}
+        \right]
+    }
+    \\ &=
+    \sum_{m=1}^{M}
+    \frac{g_{m}^{-1} H_{m}(U_{l})}{\sum_{i=1}^{M} g_{i}^{-1} N_{i} \Delta U \exp[f_{i}-\beta_{i}U_{l}]}
+\end{align}
+と計算できる. 
+
+\subsubsection{確率分布と物理量の平均値}
+以上より, 確率分布は
+\begin{align}
+    P(U_{l};~ T) =
+    \hat{\Omega(U_{l})} e^{-\beta U_{l}}
+    =
+    \sum_{m=1}^{M}
+    \frac{g_{m}^{-1} H_{m}(U_{l}) e^{-\beta U_{l}}}{\sum_{i=1}^{M} g_{i}^{-1} N_{i} \Delta U \exp[f_{i}-\beta_{i}U_{l}]}
+\end{align}
+と計算される. ここで, 各シミュレーションに対する無次元化されたヘルムホルツの自由エネルギーは
+\begin{align}
+    e^{-f_{m}} =
+    \sum_{l} \hat{\Omega}(U_{l}) e^{-\beta U_{l}} =
+    \sum_{l} P(U_{l};~ T)
+\end{align}
+である. また, 物理量の平均値は
+\begin{equation}
+    \left\langle A \right\rangle_{T} =
+    \sum_{l}
+    \frac{A(U_{l}) P(U_{l};~ T)}{P(U_{l};~ T)}
+\end{equation}
+で計算することができる. 
+
+\subsection{WHAM法のまとめ: カノニカルアンサンブルの場合}
+カノニカルアンサンブルにおける物理量$A(U)$の平均値は, 
+\begin{equation}
+    \langle T \rangle_{T} =
+    \frac{\int dU~A(U) \omega(U) e^{-\beta U}}{\int dU~\omega(U) e^{-\beta U}}
+\end{equation}
+と計算できる. 
+WHAMを用いることで, $M$個のシミュレーションで得られたサンプルを用いて系の状態密度を見積もることができる. 
+ここで$k$番目のシミュレーションは温度$\beta_{k} = 1 / k_{\mathrm{B}} T_{k}$で実行されたカノニカルシミュレーションとする. 
+また, $k$番目のシミュレーションで得られたサンプル数を$h_{k}$とする. 
+状態密度$\Omega(U)$は, 無次元化されたヘルムホルツの自由エネルギー$f_{i}$を用いて, 
+\begin{align}
+    \Omega(U;~T) &=
+    \frac{\sum_{m=1}^{M} g_{m} H_{m}(U)}{\sum_{m=1}^{M} g_{m} N_{m} e^{f_{m} - \beta_{m} U}}
+    \label{Eq:WHAM-Density-of-states}
+    \\
+    e^{-f_{m}} &=
+    \sum_{U} \Omega (U;~T_{m}) e^{-\beta_{m}U}
+    \label{Eq:WHAM-Helmholtz-Free-Energy}
+\end{align}
+である. ここで, $H_{i}(U)$は$i$番目のシミュレーションによって得られた, ポテンシャルエネルギー$U$に関するヒストグラム, $f_{i} = \beta_{i} F_{i}$は無次元化されたヘルムホルツの自由エネルギーである. 
+式(\ref{Eq:WHAM-Density-of-states})と式(\ref{Eq:WHAM-Helmholtz-Free-Energy})を自己無撞着に解くことで, 系の状態密度を推定することができる. 
+$f_{i}$の値のセットの初期値は任意に取ることができるので, 全ての$f_{i}$に対して0としても大丈夫である. 
+
+\section{多状態ベネット受容比法 (MBAR: Multistate Bennett Acceptance Ratio Estimator)}
+\subsection{熱平衡状態の表式}
+$K$個の同じ熱力学平衡状態(例えば, $NVT$, $NPT$, $\mu NT$アンサンブルなど)から$N_{i}$個の相関のないサンプルを得たとする. 
+各サンプルに対する状態は, 用いたアンサンブルに応じて, 逆温度$\beta$, ポテンシャルエネルギー$U$, 圧力$p$, 化学ポテンシャル$\mu$などにより特徴づけられる. 
+ここで, 熱平衡状態$i$に対する無次元ポテンシャル関数$u_{i}(\bm{x})$を
+\begin{equation}
+    u_{i}(\bm{x}) =
+    \beta_{i}
+    \left[
+        U_{i}(\bm{x}) + p_{i}V(\bm{x}) + \bm{\mu}_{i}^{t} \bm{n}(\bm{x})
+    \right]
+\end{equation}
+と定義する. 
+ここで, $\bm{x} \in \Gamma$は位相空間$\Gamma$内の系の構造を表す. 
+また, $V(\bm{x})$は体積(定圧アンサンブルの場合), $\bm{n}(\bm{x})$は$M$成分系における各成分の分子の数(グランドカノニカルアンサンブルの場合)を表す. 
+アンブレラサンプリングなどバイアスポテンシャルを課している場合, $U$の中にはそのようなバイアスポテンシャルも含まれることに注意する. 
+
+熱平衡状態$i$から得られたサンプル$\left\{\bm{x}_{in}\right\}_{n=1}^{N_{i}}$は, 確率分布$p_{i}$
+\begin{align}
+    p_{i} (\bm{x}) =
+    \frac{q_{i}(\bm{x})}{\int_{\Gamma} d\bm{x}~q_{i}(\bm{x})} =
+    \frac{q_{i}(\bm{x})}{c_{i}}
+\end{align}
+にしたがっている. 
+ここで, $q_{i}$は非負の規格化されていない密度関数であり, $c_{i}$は規格化定数(統計力学では分配関数)である. 規格化定数が一般的に事前に分かっているという状況は多くない. 
+温度や圧力制御されたモンテカルロ法や分子動力学法で得られたサンプル, あるいは実験で得られたデータの場合, 関数$q_{i}$はボルツマン因子で表される:
+\begin{equation}
+    q_{i}(\bm{x}) = e^{-u_{i}(\bm{x})}
+\end{equation}
+ただし, マルチカノニカルシミュレーションなどの非ボルツマン因子に基づいたシミュレーションでは, このように表すことができないアンサンブルがあることにも注意する必要がある. 
+
+\subsection{平衡状態間の自由エネルギー差と物理量の期待値の表式}
+無次元化された自由エネルギー差は, 
+\begin{equation}
+    \Delta f_{ij} \equiv
+    f_{j} - f_{i} =
+    - \ln \frac{c_{j}}{c_{i}} =
+    - \ln \frac{\int_{\Gamma} d\bm{x}~q_{j}(\bm{x})}{\int_{\Gamma} d\bm{x}~q_{i}(\bm{x})}
+\end{equation}
+である. ただし, $f_{i}$は次元を持つ自由エネルギー$F_{i}$と$f_{i} = \beta_{i} F_{i}$の関係で結ばれている. 
+
+平衡状態$i$における物理量$A$の期待値は, 
+\begin{equation}
+    \langle A \rangle_{i} \equiv
+    \int_{\Gamma} d\bm{x}~ p_{i}(\bm{x}) A(\bm{x}) =
+    \frac{\int_{\Gamma} d\bm{x}~ A(\bm{x})q_{i}(\bm{x})}{\int_{\Gamma} d\bm{x}~ q_{i}(\bm{x})}
+    \label{Eq:MBAR-Expectation-PhysVal}
+\end{equation}
+新たに密度関数$q(\bm{x})=A(\bm{x})q_{i}(\bm{x})$を定義すれば, 物理量の期待値は規格化定数の比で計算することができる. この時, $q(\bm{x})$はもはや非負である必要はない. 
+
+\subsection{拡張ブリッジサンプリング推定法 (Extended Bridge Sampling Estimators)}
+規格化定数$c_{i}$の比を推定する方法を構築する. 
+恒等式$c_{i} \langle \alpha_{ij} q_{j} \rangle_{i} = c_{j} \langle \alpha_{ij} q_{i} \rangle_{j}$が成立することは
+\begin{align}
+    c_{i} \left\langle \alpha_{ij}q_{j} \right\rangle_{i} &=
+    \left[\int_{\Gamma}d\bm{x}~ q_{i}(\bm{x})\right]
+    \frac{\int_{\Gamma}d\bm{x}~ q_{i}(\bm{x}) \alpha_{ij}(\bm{x}) q_{j}}{\int_{\Gamma} d\bm{x} q_{i}(\bm{x})}
+    \\ &=
+    \int_{\Gamma}d\bm{x}~ q_{i}(\bm{x}) \alpha_{ij}(\bm{x}) q_{j}
+    \\ &=
+    \left[\int_{\Gamma}d\bm{x}~ q_{j}(\bm{x})\right]
+    \frac{\int_{\Gamma}d\bm{x}~ q_{j}(\bm{x}) \alpha_{ij}(\bm{x}) q_{i}}{\int_{\Gamma} d\bm{x} q_{j}(\bm{x})}
+    \\ &=
+    c_{j} \left\langle \alpha_{ij}q_{i} \right\rangle_{j}
+\end{align}
+から分かる. $\alpha_{ij}(\bm{x})$はゼロでない$c_{i}$について任意に選べる関数である. 
+
+この恒等式について両辺共に$j$について和をとる. 
+期待値は$\langle g \rangle_{i}$は, 経験的に, $\sum_{n=1}^{N_{i}}g(\bm{x}_{in})$のように算術平均で推定することができることを用いれば, $i = 1,\ldots,K$に対してK個の方程式を得る:
+\begin{equation}
+    \sum_{j=1}^{K} \frac{\hat{c}_{i}}{N_{i}}
+    \sum_{n=1}^{N_{i}} \alpha_{ij} q_{j}(\bm{x}_{in}) =
+    \sum_{j=1}^{K} \frac{\hat{c}_{j}}{N_{j}}
+    \sum_{n=1}^{N_{j}} \alpha_{ij} q_{i}(\bm{x}_{jn})
+    \label{Eq:MBAR-EstimateEq-Partition-Function}
+\end{equation}
+ここで, 上付のハット$\hat{}$は推定値であることを示している. $i = 1,\ldots,K$について, 全ての$\hat{c}_{i}$に関する方程式の組みを解くことで, サンプルされたデータから$c_{i}$の推定値$\hat{c}_{i}$を得ることができる. 
+
+$\alpha_{ij}(\bm{x})$には様々な選び方が可能であり, その中にはリウェイティングで一般的に使用されるものもある. MBAR法では, 可能な$\alpha_{ij}(\bm{x})$の選び方の中でも, 最も小さい分散を持つという意味において最適な$\alpha_{ij}(\bm{x})$を用いる. 
+具体的には, 以下のような$\alpha_{ij}(\bm{x})$を採用する:
+\begin{equation}
+    \alpha_{ij}(\bm{x}) =
+    \frac{N_{j}\hat{c}_{j}^{-1}}{\sum_{k=1}^{K}N_{k}\hat{c}_{k}^{-1}q_{k}(\bm{x})}
+    \label{Eq:MBAR-Alpha-ij}
+\end{equation}
+この推定式は, 漸近不偏量であり, 唯一の解を持つことが保証されている. 
+式(\ref{Eq:MBAR-EstimateEq-Partition-Function})と式(\ref{Eq:MBAR-Alpha-ij})からでは, $\hat{c}_{i}$の組について閉じた方程式を導けないため, 直接解くことができない. 
+代わりに, 自己無撞着にあるいはNewton-Raphson法を用いて, 数値的にこの非線形方程式を解くことができる. 
+
+サンプルの数が大きい範囲では, 一般的には比$\hat{c}_{i} / \hat{c}_{j}$の誤差は分散される. 
+漸近的な共分散行列$\bm{\Theta} = \textrm{cov}(\ln c_{i},~\ln c_{j}) \equiv \textrm{cov}(\theta_{i},~\theta_{j})$は次のように推定される:
+\begin{equation}
+    \hat{\bm{\Theta}} =
+    \bm{W}^{\mathrm{T}}
+    \left(\bm{I}_{N} - \bm{W}\bm{N}\bm{W}^{\mathrm{T}}\right)^{+}
+    \bm{W}
+    \label{Eq:MBAR-Estimation-Variance-Covariance}
+\end{equation}
+ここで, $\bm{I}_{N}$は$N \times N$の単位行列, 
+$N=\sum_{i=1}^{M}N_{i}$は全サンプル数, 
+$\bm{N} = \mathrm{diag}(N_{1},~N_{2},~\ldots,N_{M})$は各シミュレーションのサンプル数を成分に持つベクトル, 
+上付の$+$はMoore-Penroseのような一般化逆行列を表している. 
+また, $\bm{W}$は$N \times K$の重み行列で, 
+\begin{equation}
+    W_{ni} =
+    \hat{c}_{i}^{-1}
+    \frac{q_{i}(\bm{x}_{n})}
+    {\sum_{k=1}^{M} N_{k} \hat{c}_{k}^{-1} q_{k}(\bm{x}_{n})}
+    \label{Eq:MBAR-Weight-Matrix}
+\end{equation}
+と計算される. ここで, サンプルは1つのラベル$n=1,\ldots,N$でラベル付けしている. 
+したがって, サンプル$\bm{x}_{n}$が, どの分布$p(\bm{x})$からサンプルされているかは, もはや関係なくなっている. 
+また, 上記の定義において, 
+\begin{align}
+    \sum_{n=1}^{N} W_{ni}       &= 1, ~~~~(i = 1,\ldots,K) \\
+    \sum_{n=1}^{K} N_{i} W_{ni} &= 1, ~~~~(n = 1,\ldots,N)
+\end{align}
+を満たす. 
+$\hat{\bm{\Theta}}$を見積もるとき, $N \times N$の擬逆行列を見積もる計算コストは, $K \times K$行列の固有値を見積もる計算コストまで減らすことが可能である. 多くの場合で, 共分散行列は$K \times K$行列の操作で見積もられる. 
+規格化定数に対数をとった$\theta_{i}$に関する任意の関数
+$\phi(\theta_{1},\ldots,\theta_{K})$と
+$\psi(\theta_{1},\ldots,\theta_{K})$に関する推定値の共分散は
+$\hat{\bm{\Theta}}$から見積もられる:
+\begin{equation}
+    \mathrm{cov}(\hat{\phi},~\hat{\psi}) =
+    \sum_{i,j=1}^{K}
+    \frac{\partial \phi}{\partial \theta_{i}}
+    \hat{\theta}_{ij}
+    \frac{\partial \psi}{\partial \theta_{j}}
+\end{equation}
+
+\subsection{無次元化された自由エネルギーの推定}
+構造がボルツマン統計, すなわち$q_{i} \equiv \exp[-u_{i}(\bm{x})]$からサンプリングされた時, 式(\ref{Eq:MBAR-EstimateEq-Partition-Function})と式(\ref{Eq:MBAR-Alpha-ij})から, 以下のような無次元自由エネルギーの推定式が得られる:
+\begin{equation}
+    \hat{f}_{i} =
+    -\ln \sum_{j=1}^{K} \sum_{n=1}^{N_{j}}
+    \frac
+    {\exp[-u_{i}(\bm{x}_{jn})]}
+    {\sum_{k=1}^{K} N_{k} \exp[\hat{f}_{k} - u_{k}(\bm{x}_{jn})]}
+    \label{Eq:MBAR-Dimensionless-Free-Energy}
+\end{equation}
+この推定式は$\hat{f}_{i}$に対して自己無撞着に解くことができる. 
+
+推定された自由エネルギー差の不確かさは式(\ref{Eq:MBAR-Estimation-Variance-Covariance})と式(\ref{Eq:MBAR-Weight-Matrix})より
+\begin{align}
+    \delta^{2} \Delta \hat{f}_{ij}
+    &\equiv
+    \mathrm{cov}
+    \left(
+        - \ln \frac{\hat{c}_{j}}{\hat{c}_{i}},~
+        - \ln \frac{\hat{c}_{j}}{\hat{c}_{i}},~
+    \right)
+    \\ &=
+    \hat{\Theta}_{ii} - 2\hat{\Theta}{ij} + \hat{\Theta}_{ji}
+\end{align}
+と計算される. 
+
+\subsubsection{無次元化された自由エネルギーの推定式の導出}
+式(\ref{Eq:MBAR-EstimateEq-Partition-Function})と式(\ref{Eq:MBAR-Alpha-ij})から, 無次元自由エネルギーの推定式(\ref{Eq:MBAR-Dimensionless-Free-Energy})を導出する. 
+式(\ref{Eq:MBAR-EstimateEq-Partition-Function})と式(\ref{Eq:MBAR-Alpha-ij})をもう一度書いておくと, それぞれ
+\begin{equation}
+    \sum_{j=1}^{K} \frac{\hat{c}_{i}}{N_{i}}
+    \sum_{n=1}^{N_{i}} \alpha_{ij} q_{j}(\bm{x}_{in}) =
+    \sum_{j=1}^{K} \frac{\hat{c}_{j}}{N_{j}}
+    \sum_{n=1}^{N_{j}} \alpha_{ij} q_{i}(\bm{x}_{jn})
+    \notag
+\end{equation}
+\begin{equation}
+    \alpha_{ij}(\bm{x}) =
+    \frac{N_{j}\hat{c}_{j}^{-1}}{\sum_{k=1}^{K}N_{k}\hat{c}_{k}^{-1}q_{k}(\bm{x})}
+    \notag
+\end{equation}
+であった. ここで, 
+\begin{align}
+    q_{i}(\bm{x}) = e^{-u_{i}(\bm{x})}
+    \\ \notag
+    c_{i} = e^{-f_{i}}
+    \notag
+\end{align}
+である. 
+式(\ref{Eq:MBAR-Alpha-ij})を式(\ref{Eq:MBAR-EstimateEq-Partition-Function})に代入することで, 
+\begin{align}
+\begin{split}
+    \sum_{j=1}^{K}
+    \frac{\hat{c}_{i}}{N_{i}}
+    \sum_{n=1}^{N_{i}}
+    \frac{N_{j}\hat{c}_{j}^{-1}}{\sum_{k=1}^{K} N_{k} \hat{c}_{k}^{-1} q_{k}(\bm{x}_{in})}
+    q_{j}(\bm{x}_{in})
+    &=
+    \sum_{j=1}^{K}
+    \frac{\hat{c}_{j}}{N_{j}}
+    \sum_{n=1}^{N_{j}}
+    \frac{N_{j}\hat{c}_{j}^{-1}}{\sum_{k=1}^{K} N_{k} \hat{c}_{k}^{-1} q_{k}(\bm{x}_{jn})}
+    q_{i}(\bm{x}_{jn})
+    \\
+    &=
+    \sum_{j=1}^{K}
+    \sum_{n=1}^{N_{j}}
+    \frac{q_{i}(\bm{x}_{jn})}{\sum_{k=1}^{K} N_{k} \hat{c}_{k}^{-1} q_{k}(\bm{x}_{jn})}
+\end{split}
+\end{align}
+さらに, 左辺について, 
+\begin{align}
+\begin{split}
+    \sum_{j=1}^{K}
+    \frac{\hat{c}_{i}}{N_{i}}
+    \sum_{n=1}^{N_{i}}
+    \frac{N_{j}\hat{c}_{j}^{-1}}{\sum_{k=1}^{K} N_{k} \hat{c}_{k}^{-1} q_{k}(\bm{x}_{in})}
+    q_{j}(\bm{x}_{in})
+    &=
+    \frac{\hat{c}_{i}}{N_{i}}
+    \sum_{j=1}^{K}
+    \sum_{n=1}^{N_{i}}
+    \frac{N_{j}\hat{c}_{j}^{-1}}{\sum_{k=1}^{K} N_{k} \hat{c}_{k}^{-1} q_{k}(\bm{x}_{in})}
+    q_{j}(\bm{x}_{in})
+    \\ &=
+    \frac{\hat{c}_{i}}{N_{i}}
+    \sum_{j=1}^{K}
+    \left[
+        \frac
+        {N_{j}\hat{c}_{j}^{-1} q_{j}(\bm{x}_{i1})}
+        {\sum_{k=1}^{K} N_{k} \hat{c}_{k}^{-1} q_{k}(\bm{x}_{i1})}
+        + \ldots +
+        \frac
+        {N_{j}\hat{c}_{j}^{-1} q_{j}(\bm{x}_{i N_{i}})}
+        {\sum_{k=1}^{K} N_{k} \hat{c}_{k}^{-1} q_{k}(\bm{x}_{i N_{i}})}
+    \right]
+    \\ &=
+    \frac{\hat{c}_{i}}{N_{i}}
+    \left[
+        \frac
+        {\sum_{j=1}^{K} N_{j}\hat{c}_{j}^{-1} q_{j}(\bm{x}_{i1})}
+        {\sum_{k=1}^{K} N_{k} \hat{c}_{k}^{-1} q_{k}(\bm{x}_{i1})}
+        + \ldots +
+        \frac
+        {\sum_{j=1}^{K} N_{j}\hat{c}_{j}^{-1} q_{j}(\bm{x}_{i N_{i}})}
+        {\sum_{k=1}^{K} N_{k} \hat{c}_{k}^{-1} q_{k}(\bm{x}_{i N_{i}})}
+    \right]
+    \\ &=
+    \frac{\hat{c}_{i}}{N_{i}} N_{i}
+    \\ &=
+    \hat{c}_{i}
+    \notag
+\end{split}
+\end{align}
+と計算されるので, 
+\begin{equation}
+    \hat{c}_{i}
+    =
+    \sum_{j=1}^{K}
+    \sum_{n=1}^{N_{j}}
+    \frac{q_{i}(\bm{x}_{jn})}{\sum_{k=1}^{K} N_{k} \hat{c}_{k}^{-1} q_{k}(\bm{x}_{jn})}
+\end{equation}
+を得る. $q_{i} = e^{-u_{i}(\bm{x})}$, $c_{i} = e^{-f_{i}}$を用いると
+\begin{equation}
+    \hat{f}_{i} =
+    -\ln \sum_{j=1}^{K} \sum_{n=1}^{N_{j}}
+    \frac
+    {\exp[-u_{i}(\bm{x}_{jn})]}
+    {\sum_{k=1}^{K} N_{k} \exp[\hat{f}_{k} - u_{k}(\bm{x}_{jn})]}
+\end{equation}
+が導出される. 
+
+\subsubsection{無次元化された自由エネルギーの効率的な解法}
+非線形方程式である式(\ref{Eq:MBAR-Dimensionless-Free-Energy})を解くために, ここでは主に二つの方法を見ていく. 
+一つは, 自己無撞着(self-consistent iteration)に解くことであり, もう一つはニュートンラフソン法を用いることである. 
+自己無撞着法を用いた場合, 自由エネルギーの収束が遅いというデメリットがあるが, 安定して計算をすることができるため, 確実に解を求めることができる. 一方, ニュートンラフソン法を用いた場合, 自由エネルギーが早く収束するメリットがあるが, 初期値が適切でない場合に計算が破綻してしまうというデメリットがある. そこで, 最初は自己無撞着に解いて, 解がある程度収束したらニュートンラフソン法に切り替えると言った使い方も可能である. 
+
+\paragraph{自己無撞着法}
+非線形方程式(\ref{Eq:MBAR-Dimensionless-Free-Energy})を自己無撞着に解くには, 最後のイテレーションで得た自由エネルギーの推定値$\{\hat{f}_{i}^{(n)}\}_{i=1}^{K}$を次のイテレーションでの推定$\{\hat{f}_{i}^{(n+1)}\}_{i=1}^{K}$に使用する. すなわち, 
+\begin{equation}
+    \hat{f}_{i}^{(n+1)}
+    =
+    -\ln
+    \sum_{j=1}^{K} \sum_{n=1}^{N_{j}}
+    \frac{
+        \exp[-u_{i}(\bm{x}_{jn})]
+    }{
+        \sum_{k=1}^{K}
+        N_{k}
+        \exp[\hat{f}_{k}^{(n)} - u_{k}(\bm{x}_{jn})]
+    }
+\end{equation}
+を計算する. 
+この式は, 初期推定値$\hat{f}_{i}^(0)$によらず収束することが保証されている. 最も簡単な初期推定値として$\hat{f}_{i}^(0)=0$と設定してもよいし, あるいは, より早い収束を期待して
+\begin{equation}
+    f_{k}^{(0)}
+    =
+    \frac{1}{N_{k}}
+    \sum_{n=1}^{N_{k}} \ln q(\bm{x}_{kn})
+    \label{Eq:MBAR-Self-Consistent-Iteration-f}
+\end{equation}
+としても良い. ここで, サンプルがボルツマン因子に従う場合, $q_{k}(\bm{x}) = \exp[-u_{k}(\bm{x})]$である. 
+
+イテレーション中に推定値の変化の大きさがコントロールできなくなることを防ぎ, かつ一意的な解を得るため, $f_{1} = 0$と拘束する. つまり, イテレーションで推定値を更新したら, その都度$f_{i}$から$f_{1}$を引く:
+\begin{equation}
+    \hat{f}_{i}^{(n+1)} \leftarrow \hat{f}_{i}^{(n+1)} - \hat{f}_{1}^{(n+1)}
+    ~~~~\mathrm{for~all}~i
+\end{equation}
+計算終了判定は次のように決める:
+\begin{equation}
+    \max_{i=2,\ldots,K}
+    \left[
+        \frac{|\hat{f}_{i}^{(n+1)} - \hat{f}_{i}^{(n)}|}{|\hat{f}_{i}^{(n)}|}
+    \right]
+    <
+    \epsilon
+\end{equation}
+ここで$\epsilon$は例えば$10^{-7}$など十分小さい値を選択する. 
+収束の速さは, 注目する系やサンプル数などによって異なるので, 可能な限りモニターすると良い. 
+
+式(\ref{Eq:MBAR-Self-Consistent-Iteration-f})のような指数関数$e^{a}$の和の計算では, 指数関数が大きい値を持つために数値オーバーフローが起こりやすい. 
+オーバーフローを避けるには, 指数関数の和について, 最も大きい値を持つ指数関数項$a_{m} \equiv \max_{n} a_{n}$で規格化した後で和を計算すると良い. すなわち
+\begin{equation}
+    \sum_{n=1}^{N} \exp[a_{n}]
+    =
+    \exp[a_{m}]
+    \sum_{n=1}^{N}
+    \frac{\exp[a_{n}]}{\exp[a_{m}]}
+\end{equation}
+と計算する. あるいは, 次のように表すこともできる:
+\begin{equation}
+    \ln \sum_{n=1}^{N} \exp[a_{n}]
+    =
+    a_{m} + \ln \sum_{n=1}^{N} \exp[a_{n} - a_{m}]
+\end{equation}
+
+\subsection{物理量の期待値の推定}
+構造$\bm{x}$のみに依存する物理量$A(\bm{x})$の平衡分布における期待値は, 式(\ref{Eq:MBAR-Expectation-PhysVal})で与えられる. 
+平衡分布における期待値は, 特徴付けられる２つの追加した状態$A$と状態$a$に対する規格化定数の比$c_{A}/c_{a}$として計算することができる. 
+\begin{align}
+    q_{A}(\bm{x}) &= A(\bm{x}) q(\bm{x}) \\
+    q_{a}(\bm{x}) &= q(\bm{x})
+\end{align}
+ボルツマン因子に比例した期待値を要求する場合, $q(\bm{x}) \equiv \exp[-u(\bm{x})]$となる. 
+$q_{A}(\bm{x})$はもはや正確には非負ではないが, サンプル数が$N_{A} = N_{a} = 0$なので期待値$\langle A \rangle$を求めるのに拡張ブリッジサンプリング推定法の式(\ref{Eq:MBAR-EstimateEq-Partition-Function})を使うことができる. 
+同様にして, 重み行列(\ref{Eq:MBAR-Weight-Matrix})についても, $q_{A}(\bm{x})$, $q_{a}(\bm{x})$に対応する列$W_{nA}$, $W_{na}$を拡張すると, 
+\begin{align}
+    W_{nA} &=
+    \hat{c}_{A}^{-1}
+    \frac{
+        A(\bm{x}_{n}) \exp[-u(\bm{x}_{n})]
+    }{
+        \sum_{k=1}^{K} N_{k} \exp[\hat{f}_{k} - u_{k}(\bm{x}_{n})]
+    }
+    \\
+    W_{na} &=
+    \hat{c}_{a}^{-1}
+    \frac{
+        \exp[-u(\bm{x}_{n})]
+    }{
+        \sum_{k=1}^{K} N_{k} \exp[\hat{f}_{k} - u_{k}(\bm{x}_{n})]
+    }
+\end{align}
+と計算される. ここで, 規格化定数の推定値$\hat{c}_{A}$, $\hat{c}_{a}$は自己無撞着推定方程式で定義される:
+\begin{align}
+    \hat{c}_{A} &=
+    \sum_{n=1}^{N}
+    \frac{
+        A(\bm{x}_{n}) \exp[-u(\bm{x}_{n})]
+    }{
+        \sum_{k=1}^{K} N_{k} \exp[\hat{f}_{k} - u_{k}(\bm{x}_{n})]
+    }
+    \\
+    \hat{c}_{a} &=
+    \sum_{n=1}^{N}
+    \frac{
+        \exp[-u(\bm{x}_{n})]
+    }{
+        \sum_{k=1}^{K} N_{k} \exp[\hat{f}_{k} - u_{k}(\bm{x}_{n})]
+    }
+\end{align}
+
+ある平衡状態$\alpha$における物理量の期待値の推定値は, 
+\begin{equation}
+    \hat{A}_{\alpha} =
+    \frac{\hat{c}_{A}}{\hat{c}_{a}} =
+    \sum_{n=1}^{N} W_{na} A(\bm{x}_{n})
+\end{equation}
+と計算される. 具体的には, 
+\begin{align}
+    \hat{A}_{\alpha}
+    &=
+    \sum_{n=1}^{N} W_{na} A(\bm{x}_{n})
+    \\ &=
+    \sum_{n=1}^{N}
+    \hat{c}_{a}^{-1}
+    \frac{
+        \exp[-u_{\alpha}(\bm{x}_{n})]
+    }{
+        \sum_{k=1}^{K} N_{k} \exp[\hat{f}_{k} - u_{k}(\bm{x}_{n})]
+    }
+    A(\bm{x}_{n})
+    \\ &=
+    \sum_{n=1}^{N}
+    \frac{
+        A(\bm{x}_{n}) \exp[\hat{f}_{\alpha} - u_{\alpha}(\bm{x}_{n})]
+    }{
+        \sum_{k=1}^{K} N_{k} \exp[\hat{f}_{k} - u_{k}(\bm{x}_{n})]
+    }
+    \\ &=
+    \sum_{j=1}^{K} \sum_{n=1}^{N_{j}}
+    \frac{
+        A(\bm{x}_{jn}) \exp[\hat{f}_{\alpha} - u_{\alpha}(\bm{x}_{jn})]
+    }{
+        \sum_{k=1}^{K} N_{k} \exp[\hat{f}_{k} - u_{k}(\bm{x}_{jn})]
+    }
+\end{align}
+とである. 途中, $\hat{c}_{a}^{-1} = e^{\hat{f}}$であることを用いた. 
+また, 重み因子を
+\begin{align}
+    w(\bm{x}_{jn}) =
+    \frac{
+        \exp[-u(\bm{x}_{jn})]
+    }{
+        \sum_{k=1}^{K} N_{k} \exp[\hat{f}_{k} - u(\bm{x}_{jn})]
+    }
+\end{align}
+と定義すれば, 期待値は
+\begin{align}
+    \hat{A}_{\alpha} =
+    \frac{
+        \sum_{j=1}^{K} \sum_{n=1}^{N_{j}} A(\bm{x}_{jn}) w(\bm{x}_{jn})
+    }{
+        \sum_{j=1}^{K} \sum_{n=1}^{N_{j}} w(\bm{x}_{jn})
+    }
+\end{align}
+とかける. 不確かさは, 拡張した重み行列$\bm{W}$から計算される共分散行列$\hat{\bm{\Theta}}$を用いて
+\begin{align}
+    \delta^{2} \hat{A}
+    \equiv
+    \mathrm{cov}
+    \left(
+        \frac{\hat{c}_{A}}{\hat{c}_{a}},~
+        \frac{\hat{c}_{A}}{\hat{c}_{a}}
+    \right)
+    =
+    \hat{A}^{2}
+    \left(
+        \hat{\Theta}_{AA} + \hat{\Theta}_{aa} - 2\hat{\Theta}_{Aa}
+    \right)
+\end{align}
+と計算される. 
+
+\subsection{平均力ポテンシャル (PMF: Potential of Mean Force)}
+描きたい反応座標を適当にビンに分ける. 
+ビン$i$に系が見つかる確率は, 
+\begin{align}
+    p_{i} =
+    \langle \chi_{i}(\bm{x}_{n}) \rangle =
+    \sum_{n=1}^{N} W_{na} \chi_{i}(\bm{x}_{n})
+\end{align}
+と計算される. 
+ここで, $\chi_{i}(\bm{x}_{n})$は指示関数(indicator function)であ利, サンプルがビン$i$にいる時に1をとり, それ以外の時は0の値となる. 
+したがって, 自由エネルギーの推定値は, 
+\begin{align}
+    F_{i} = -k_{\mathrm{B}}T \ln(p_{i}/w_{i})
+\end{align}
+と計算される. ただし, $w_{i}$はビン幅の相対値である. ビン幅が全て等しい時は$1$とすることができる. 
+
+% \section{TRAM}
+
+\section{リウェイティング Tips}
+指数関数の足し算や引き算は計算機のオーバーフローが発生しやすい. 
+これを防ぐために,  対数関数の中で足し算・引き算を行うアルゴリズムを述べる.\cite{Berg2003}
+
+$A>0$, $B>0$に対して$C = A + B$を計算するとき, $\ln A$や$\ln B$から$\ln C = \ln (A + B)$を計算する:
+\begin{align}
+ \ln C
+&=
+ \ln \left[ \mathrm{max} (A, B)
+            \left\{1 + \frac{\mathrm{min}{(A, B)}}{\mathrm{max}{(A, B)}} \right\}
+     \right]
+\notag
+\\
+&=
+ \mathrm{max (\ln A, \ln B)}
++\ln
+ \left[ 1 + \exp
+            \left\{ \mathrm{min}(\ln A, \ln B)- \mathrm{max}(\ln A, \ln B) \right\}
+ \right]
+\end{align}
+
+一方, 引き算をしたい時は, $A>0$, $B>0$に対して$|C| = |A - B|$の計算を考える. 
+すなわち, $\ln A$や$\ln B$から$\ln |C| = ln (|A - B|$を計算する:
+\begin{align}
+ \ln |C|
+&=
+ \ln \left[ \mathrm{max} (A, B)
+            \left\{1 + \frac{\mathrm{min}{(A, B)}}{\mathrm{max}{(A, B)}} \right\}
+     \right]
+\notag
+\\
+&=
+ \mathrm{max (\ln A, \ln B)}
++\ln
+ \left[ 1 - \exp
+            \left\{ \mathrm{min}(\ln A, \ln B)- \mathrm{max}(\ln A, \ln B) \right\}
+ \right]
+\end{align}
+
+% 以下原文
+% with the logarithms of sums and partial sums.
+% We first consider sums of positive numbers and
+% discuss the straightforward generalization to arbitrary
+% signs afterwards. For C = A + B with A > 0 and
+% B >0 we calculate lnC = ln(A + B) from the values
+% lnA and lnB, without ever storing either A or B or C.
+% The basic observation is that
+% lnC = ln
+% max(A,B)
+% 1 + min(A,B)
+% max(A,B)
+% = max(lnA,lnB)+ ln
+% 1 + exp
+% min(lnA,lnB)
+% − max(lnA,lnB)
+% (20)
+% holds. By construction the argument of the exponential
+% function is negative, so that an underflow occurs
+% when the difference between min(lnA,lnB) and
+% max(lnA,lnB) becomes too big, whereas it becomes
+% calculable when this difference is small enough.
+
+% To handle alternating signs one needs in addition
+% to Eq. (20) an equation for ln |C| = ln |A − B| where
+% A > 0 and B >0 still holds. Assuming lnA = lnB,
+% Eq. (20) converts for ln |C| = ln |A− B| into
+% ln |C| = max(lnA,lnB)
+% + ln
+% 1 − exp
+% min(lnA,lnB)
+% − max(lnA,lnB)
+% (21)
+% and, because the logarithm is a strictly monotone
+% function, the sign of C = A − B is positive for lnA>
+% lnB and negative for lnA<lnB.
+
+\clearpage
+\bibliographystyle{junsrt}
+\bibliography{reweighting-technique}
+\input{../include/end}

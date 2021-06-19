@@ -1,0 +1,2098 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{静電相互作用の計算方法: Ewaldの方法}
+\maketitle
+
+静電相互エネルギーは$1/r$に比例し減衰が遅い相互作用であるので, その効果は長距離に及ぶ.
+そのため, LJ相互作用のときのようにカットオフ半径を導入すると誤差が大きくなってしまう.
+Ewaldの方法\cite{Okazaki2000, Ueda2003}では相互作用の項を実空間と逆空間に分割する.
+遠方からの寄与を逆空間上で計算することで, 長距離に起因する相互作用を切断することなく取り入れることができる.
+このようにして, 精度よく静電相互作用を計算できる.
+しかし, Ewaldの方法では計算量は依然として$\mathcal{O}(N^{2})$であり, 計算コストがかかる.
+Particle Mesh Ewald法\cite{Darden1993, Essmann1995}では, 逆空間上の電荷を格子点上に内挿し,
+高速フーリエ変換を使用することで, 逆空間における静電相互作用の計算量を$\mathcal{O}(N \log N)$に減少
+させる.
+
+\section{Ewaldの方法}
+ここでは, $N$個の粒子から構成される系を考える.
+各粒子$i$は座標$\bm{r}_{i}$上に部分電荷$q_{i}$を持っているとする.
+3つの基本並進ベクトル
+$\bm{a}_{1} = (a_{1x}, a_{1y}, a_{1z})^{t}$,
+$\bm{a}_{2} = (a_{2x}, a_{2y}, a_{2z})^{t}$,
+$\bm{a}_{3} = (a_{3x}, a_{3y}, a_{3z})^{t}$
+で張られる平方六面体を基本セルとして, これに応じた周期境界条件を用いることを考える.
+このとき, 基本セル中の粒子$j$のイメージセルにおける位置ベクトル$\bm{r}_{j}^{\prime}$は
+$\bm{L}=(\bm{a}_{1}~\bm{a}_{2}~\bm{a}_{3})$と,
+ある整数の組のベクトル$\bm{n}=(n_{1},n_{2},n_{3})^{\mathrm{t}}$を用いて
+\begin{align}
+   \bm{r}_{j}^{\prime}
+ = \bm{r}_{j} - \bm{Ln}
+ = \bm{r}_{j}
+  -(n_{1} \bm{a}_{1} +  n_{2}  \bm{a}_{1} + n_{3} \bm{a}_{3})
+ \label{eq:Ewald1}
+\end{align}
+とかけるので, 全静電相互作用のエネルギーは
+\begin{align}
+    U_{\mathrm{elec}} (\bm{r}_{1}, \bm{r}_{2}, \cdots, \bm{r}_{N})
+ &= \frac{1}{2} \sum_{\bm{n}} \sum_{i=1}^{N} \left.\sum_{j=1}^{N}\right.^{\prime}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+    \psi( |\bm{r}_{i} - \bm{r}_{j}^{\prime}| )
+    \\
+ &= \frac{1}{2} \sum_{\bm{n}} \sum_{i=1}^{N} \left.\sum_{j=1}^{N}\right.^{\prime}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+    \psi( |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| )
+ \label{eq:Ewald2.1}
+ \\
+ \psi(r) &= \frac{1}{r}
+ \label{eq:Ewald2.2}
+\end{align}
+となる.
+ここで$\epsilon_{0}$は真空中の誘電率, $\sum^{\prime}$は$\bm{n}=0$の時に
+和から$i=j$の場合を除くことを意味する.
+以降, 便利のため全原子の座標をまとめて$\bm{r}^{N}$と書く.
+
+$\psi (r)$は減衰の遅い関数であるので,
+$\psi (r)$と同程度に減衰の遅い関数$\psi_{0}(r)$を導入することで,
+式(\ref{eq:Ewald2.1})を次のように書き換える.
+\begin{align}
+    U_{\mathrm{elec}} (\bm{r}^{N})
+ &= U_{\mathrm{elec}}^{(1)} + U_{\mathrm{elec}}^{(2)} + U_{\mathrm{elec}}^{(3)}
+ \label{eq:Ewald3.1}
+ \\
+    U_{\mathrm{elec}}^{(1)}
+ &=
+    \frac{1}{2} \sum_{\bm{n}} \sum_{i=1}^{N} \left.\sum_{j=1}^{N}\right.^{\prime}
+    \frac{q_{i} q_{j}}{4 \pi \epsilon_{0}}
+    \left\{
+            \psi( |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| )
+           -
+            \psi_{0}( |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| )
+    \right\}
+ \label{eq:Ewald3.2}
+ \\
+    U_{\mathrm{elec}}^{(2)}
+ &=
+    \frac{1}{2} \sum_{\bm{n}} \sum_{i=1}^{N} \sum_{j=1}^{N}
+    \frac{q_{i} q_{j}}{4 \pi \epsilon_{0}}
+    \psi_{0}( |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| )
+ \label{eq:Ewald3.3}
+ \\
+    U_{\mathrm{elec}}^{(3)}
+ &=
+    -\frac{1}{2} \sum_{i=1}^{N} \frac{q_{i}^2}{4 \pi \epsilon_{0}} \psi_{0}(0)
+ \label{eq:Ewald3.4}
+\end{align}
+ここで, $U_{\mathrm{elec}}^{(1)}$は十分早く0に収束する関数の和となっている.
+よってポテンシャルカット$r_{\mathrm{c}}$まで考慮すれば満足できる精度の計算が可能である.
+$U_{\mathrm{elec}}^{(1)}$に$\psi_{0}(r)$を導入した
+差分が$U_{\mathrm{elec}}^{(2)}$, $U_{\mathrm{elec}}^{(3)}$の項として現れている.
+$U_{\mathrm{elec}}^{(2)}$においては, $\bm{n}=0$, $i=j$の場合を考慮する.
+その差分が$U_{\mathrm{elec}}^{(3)}$となっている.
+$U_{\mathrm{elec}}^{(2)}$は周期的に並んでいる, 同じ構造を持つ粒子系についての和である.
+そこで, 実空間で収束の遅い関数を逆空間で計算しようという発想のもとで$U_{\mathrm{elec}}^{(2)}$を
+フーリエ級数展開すると,
+\begin{equation}
+    U_{\mathrm{elec}}^{(2)}
+  =
+    \frac{1}{2}
+    \sum_{\bm{n}} \sum_{i=1}^{N} \sum_{j=1}^{N}
+    \frac{1}{(2 \pi)^{3}}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+    \int d \bm{k} ~ \hat{\psi}_{0}(\bm{k})
+    e^{i \bm{k} \cdot (\bm{r}_{i} - \bm{r}_{j} + \bm{Ln})}
+ \label{eq:Ewald4}
+\end{equation}
+となる. ただし, $\hat{\psi}_{0}(\bm{k})$は$\psi_{0}(\bm{r})$のフーリエ変換
+\begin{equation}
+    \hat{\psi}_{0}(\bm{k})
+  = \int d \bm{r} \psi_{0}(\bm{r}) e^{-i \bm{k} \cdot \bm{r}}
+ \label{eq:Ewald5}
+\end{equation}
+である. ここでポアンカレの和の公式
+\begin{equation}
+    \sum_{\bm{n}} e^{i \bm{k} \cdot \bm{Ln}}
+  =
+    \frac{(2\pi)^{3}}{\bm{a}_{1} \cdot \bm{a}_{2} \times \bm{a}_{3}}
+    \sum_{\bm{m}} \delta(\bm{k} - 2\pi \bm{m})
+ \label{eq:Ewald6}
+\end{equation}
+を用いると,
+\begin{align}
+    U_{\mathrm{elec}}^{(2)}
+ &=
+    \frac{1}{2V} \sum_{i=1}^{N} \sum_{j=1}^{N}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}} \sum_{\bm{m}}
+    \int d \bm{k} \hat{\psi}_{0}(\bm{k})
+    \delta (\bm{k} - 2 \pi \bm{m})
+    e^{i \bm{k} \cdot (\bm{r}_{i} - \bm{r}_{j})}
+ \\
+ &=
+    \frac{1}{2V}
+    \sum_{\bm{m}} \hat{\psi}_{0}(2 \pi \bm{\bm{m}})
+    \sum_{i=1}^{N} \sum_{j=1}^{N}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+    e^{2 \pi i \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j})}
+ \label{eq:Ewald7}
+\end{align}
+を得る. ただし$\bm{a}_{1} \cdot \bm{a}_{2} \times \bm{a}_{3}=V$と置き直した. 
+逆格子ベクトル$\bm{m}$は, ある整数の組$(m_{1},m_{2},m_{3})$を用いて
+\begin{align}
+   \bm{m}
+ =
+    m_{1} \bm{a}_{1}^{*} + m_{2} \bm{a}_{2}^{*} + m_{3} \bm{a}_{3}^{*}
+ \label{eq:Ewald8}
+\end{align}
+\begin{align}
+   \bm{a}_{1}^{*}
+ =
+   \frac{\bm{a}_{2} \times \bm{a}_{3}}
+        {\bm{a}_{1} \cdot \bm{a}_{2} \times \bm{a}_{3}}
+ , ~~
+   \bm{a}_{2}^{*}
+ =
+   \frac{\bm{a}_{3} \times \bm{a}_{1}}
+        {\bm{a}_{1} \cdot \bm{a}_{2} \times \bm{a}_{3}}
+ , ~~
+   \bm{a}_{3}^{*}
+ =
+   \frac{\bm{a}_{1} \times \bm{a}_{3}}
+        {\bm{a}_{1} \cdot \bm{a}_{2} \times \bm{a}_{3}}
+ \label{eq:Ewald9}
+\end{align}
+で与えられる. ここで, $\bm{a}_{\alpha} \cdot \bm{a}_{\beta}^{*}=\delta_{\alpha \beta}$
+の関係がある.
+
+以上をまとめると,
+\begin{align}
+    V_{N} (\bm{r}^{N})
+ &=
+    U_{\mathrm{elec}}^{(1)} + U_{\mathrm{elec}}^{(2)} + U_{\mathrm{elec}}^{(3)}
+ \label{eq:Ewald10.1}
+ \\
+    U_{\mathrm{elec}}^{(1)}
+ &=
+    \frac{1}{2} \sum_{\bm{n}} \sum_{i=1}^{N} \left.\sum_{j=1}^{N}\right.^{\prime}
+    \frac{q_{i} q_{j}}{4 \pi \epsilon_{0}}
+    \left\{
+            \psi( |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| )
+           -
+            \psi_{0}( |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| )
+    \right\}
+ \label{eq:Ewald10.2}
+ \\
+    U_{\mathrm{elec}}^{(2)}
+ &=
+    \frac{1}{2V} \sum_{\bm{m}} \hat{\psi}_{0}(2 \pi \bm{m})
+    \sum_{i=1}^{N} \sum_{j=1}^{N}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+    e^{2 \pi i \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j})}
+ \label{eq:Ewald10.3}
+ \\
+    U_{\mathrm{elec}}^{(3)}
+ &=
+   -\frac{1}{2} \sum_{i=1}^{N} \frac{q_{i}^2}{4 \pi \epsilon_{0}} \psi_{0}(0)
+ \label{eq:Ewald10.4}
+\end{align}
+となる.
+
+\subsection{$\psi_{0}(r)$の導出}
+続いて, $\psi_{0}(r)$の具体的な形を求める.
+Ewaldの方法では, 差し引くポテンシャルエネルギーとして, ガウス関数型の電荷分布
+\begin{equation}
+    \rho_{0}(r)
+  =
+    q^{\prime} \left(\frac{\alpha^{2}}{\pi}\right)^{\frac{3}{2}} e^{-\alpha^{2} r^{2}}
+  \label{eq:Ewald11}
+\end{equation}
+が作り出す電位$\phi_{0}$の中に電荷$q$が置かれた時のポテンシャルエネルギーを使用する.
+そこでポアソン方程式
+\begin{equation}
+ \nabla^{2} \phi_{0} = - \frac{\rho_{0}}{\epsilon_{0}}
+ \label{eq:Ewald12}
+\end{equation}
+を用いて, 電位$\phi_{0}$を計算する.
+$\rho_{0}(r)$が動径方向のみに依存することから, 極座標表示の動径方向のみを考えると, ポアソン方程式は
+\begin{equation}
+    \frac{\partial^{2} (r \phi_{0})}{\partial r^{2}}
+  =
+   -\frac{q^{\prime}}{\epsilon_{0}}
+    \left( \frac{\alpha^{2}}{\pi} \right)^{\frac{3}{2}} r e^{-\alpha^{2} r^{2}}
+\label{eq:Ewald13}
+\end{equation}
+となる. この式を1回積分し, 適当な定数$a$と積分定数$C_{1}$を導入すると,
+\begin{equation}
+    \frac{\partial (r \phi_{0})}{\partial r}
+  =
+   -\frac{q^{\prime}}{\epsilon_{0}} \left( \frac{\alpha^{2}}{\pi} \right)^{\frac{3}{2}}
+    \int_{a}^{r} r e^{-\alpha^{2} r^{2}} dr + C_{1}
+\label{eq:Ewald14}
+\end{equation}
+となる. ガウス分布した電荷の作る電位についての境界条件
+\begin{equation}
+    \left.\frac{\partial (r \phi_{0})}{\partial r} \right|_{r=\infty}
+  =
+    \phi_{0}(\infty) + r \left.\frac{\partial \phi_{0}}{\partial r} \right|_{r=\infty}
+  =
+    0
+\label{eq:Ewald15}
+\end{equation}
+であることから, $r \to \infty$とした時に,
+\begin{equation}
+    C_{1}
+  =
+    -\frac{q^{\prime}}{\epsilon_{0}} \left(\frac{\alpha^{2}}{\pi}\right)^{\frac{3}{2}}
+     \int_{\infty}^{a} r e^{- \alpha^{2} r^{2}} dr1
+  \label{eq:Ewald16}
+\end{equation}
+を得る. したがって
+\begin{align}
+     \frac{\partial (r \phi_{0})}{\partial r}
+ &=
+    -\frac{q^{\prime}}{\epsilon_{0}} \left( \frac{\alpha^{2}}{\pi} \right)^{\frac{3}{2}}
+     \int_{\infty}^{r} r e^{-\alpha ^{2} r^{2}} dr
+ \notag
+ \\
+ &=
+   -\frac{q^{\prime}}{\epsilon_{0}} \left( \frac{\alpha^{2}}{\pi} \right)^{\frac{3}{2}}
+    \left[
+          -\frac{1}{2\alpha^{2}}e^{-\alpha^2 r^{2}}
+    \right]^{r}_{\infty}
+ \notag
+ \\
+ &=
+    \frac{q^{\prime}}{\epsilon_{0}} \frac{\alpha}{2 \pi^{\frac{3}{2}}} e^{- \alpha^{2} r^{2}}
+ \label{eq:Ewald17}
+\end{align}
+と計算される. さらにもう1度この式を積分する. 適当な定数$b$と積分定数$C_{2}$を用いると,
+\begin{align}
+   r \phi_{0}
+ =
+   \frac{q^{\prime}}{\epsilon_{0}} \frac{\alpha}{2 \pi^{\frac{3}{2}}}
+   \int_{b}^{r} e^{- \alpha^{2} r^{2}} dr + C_{2}
+ \label{eq:Ewald18}
+\end{align}
+となる. 境界条件
+\begin{equation}
+ r \phi_{0}(r) |_{r=0} = 0
+ \label{eq:Ewald19}
+\end{equation}
+より, 積分定数$C_{2}$は
+\begin{equation}
+    C_{2}
+  =
+    -\frac{q^{\prime}}{\epsilon_{0}} \frac{\alpha}{2 \pi^{\frac{3}{2}}}
+     \int_{b}^{0} e^{- \alpha^{2} r^{2}}
+ \label{eq:Ewald20}
+\end{equation}
+であるので,
+\begin{align}
+    r \phi_{0}(r)
+ &=
+    \frac{q^{\prime}}{\epsilon_{0}} \frac{\alpha}{2 \pi^{\frac{3}{2}}}
+    \left\{
+            \int_{b}^{r} e^{- \alpha^{2} r^{2}} dr
+           +\int_{0}^{b} e^{- \alpha^{2} r^{2}} dr
+    \right\}
+ \notag
+ \\
+ &=
+    \frac{q^{\prime}}{\epsilon_{0}} \frac{\alpha}{2 \pi^{\frac{3}{2}}}
+    \int_{0}^{r} e^{- \alpha^{2} r^{2}} dr
+ \label{eq:Ewald21}
+\end{align}
+と計算される. さらに, 積分変数に関して$\alpha r = r^{'}$と変数変換を行うと,
+\begin{align}
+    r \phi_{0}(r)
+ &=
+    \frac{q^{\prime}}{4 \pi \epsilon_{0}}
+    \frac{2}{\sqrt{\pi}} \int_{0}^{\alpha r} e^{- {r^{\prime}}^{2}} ~dr^{\prime}
+ \notag
+ \\
+ &=
+    \frac{q^{\prime}}{4 \pi \epsilon_{0}} \mathrm{erf} (\alpha r)
+ \label{eq:Ewald22}
+\end{align}
+となる. ここで, 関数$\mathrm{erf}(\alpha r)$は誤差関数と呼ばれ,
+\begin{equation}
+ \mathrm{efr}(x) = \frac{2}{\sqrt{\pi}} \int_{0}^{x} e^{- t^{2}} dt
+ \label{eq:Ewald23}
+\end{equation}
+で定義される. 以上より電位は
+\begin{equation}
+ \phi_{0}(r) = \frac{q^{\prime}}{4 \pi \epsilon_{0}} \frac{\mathrm{erf(\alpha r)}}{r}
+ \label{eq:Ewald24}
+\end{equation}
+と求まる. ゆえに差し引くポテンシャルエネルギー$\psi_{0}(r)$は
+\begin{equation}
+ \psi_{0}(r) = \frac{\mathrm{erf}( \alpha r)}{r}
+ \label{eq:Ewald25}
+\end{equation}
+で与えられる.
+
+\subsection{$U_{\mathrm{elec}}^{(1)}$の具体的な形と$\bm{F}_{i}^{(1)}$の導出}
+\paragraph{$U_{\mathrm{elec}}^{(1)}$の具体的な形} \
+
+式(\ref{eq:Ewald25})を用いると, $U_{\mathrm{elec}}^{(1)}$は
+\begin{align}
+    U_{\mathrm{elec}}^{(1)}
+ &=
+    \frac{1}{2} \sum_{\bm{n}} \sum_{i=1}^{N} \left.\sum_{j=1}^{N}\right.^{\prime}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+    \left\{
+            \psi( |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| )
+           -\psi_{0}( |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| )
+    \right\}
+ \notag
+ \\
+ &=
+    \frac{1}{2} \sum_{\bm{n}} \sum_{i=1}^{N} \left.\sum_{j=1}^{N}\right.^{\prime}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+    \left\{
+            \frac{1}{|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+           -\frac{\mathrm{erf}(\alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| )}
+                 {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+    \right\}
+ \notag
+ \\
+ &=
+    \frac{1}{2} \sum_{\bm{n}} \sum_{i=1}^{N} \left.\sum_{j=1}^{N}\right.^{\prime}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+    \frac{\mathrm{erfc}(\alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| )}
+         {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+ \label{eq:Ewald26}
+\end{align}
+とかける. ここで, 補誤差関数
+\begin{equation}
+    \mathrm{erfc}(x)
+  =
+    1 - \mathrm{erf(x)}
+  =
+  \frac{2}{\sqrt{\pi}} \int^{\infty}_{0} e^{-t^{2}} ~dt
+ \label{eq:Ewald27}
+\end{equation}
+を導入した.
+
+\paragraph{$\bm{F}_{i}^{(1)}$の導出} \
+
+ポテンシャルの位置微分から力$\bm{F}_{i}^{(1)}$が求まる.
+$\sum_{i}\sum_{j}^{'}$の和について, $i$に関する微分が2回出てくることに注意して計算すると,
+\begin{align}
+   \bm{F}_{i}^{(1)}
+ =&
+   -\frac{d U_{\mathrm{elec}}^{(1)}}{d \bm{r}_{i}}
+ \notag
+ \\
+ =&
+   -\sum_{\bm{n}} \left.\sum_{j=1}^{N}\right.^{\prime}
+ \frac{q_{i} q_{j}}{4 \pi \epsilon_{0}}
+ \Bigg[
+        \mathrm{erfc}(\alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|)
+        \frac{d}{d \bm{r}_{i}}
+        \left\{
+                \frac{1}{|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+        \right\}
+ \notag
+ \\
+ &~~~~~~~~~~~~~~~~~~~~~~+
+        \frac{1}{|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+        \frac{d}{d \bm{r}_{i}}
+        \mathrm{erfc}(\alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|)
+  \Bigg]
+ \label{eq:Ewald27_1}
+\end{align}
+となる. 式(\ref{eq:Ewald27_1})の右辺第1項目の微分は
+\begin{align}
+   \frac{d}{d \bm{r}_{i}}
+   \left\{
+          \frac{1}{|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+   \right\}
+ =
+   \left\{
+          \left(\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}\right)^{2}
+   \right\}^{-\frac{1}{2}}
+ =
+   -\frac{\left(\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}\right)}
+         {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|^{3}}
+\end{align}
+と計算される. また, 式(\ref{eq:Ewald27_1})の右辺第2項目の微分は,
+\begin{align}
+  \frac{d}{d \bm{r}_{i}}
+  \mathrm{erfc}(\alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|)
+ =
+  \frac{d}{d \bm{r}_{i}}
+  \left\{
+         1 - \frac{2}{\sqrt{\pi}}
+         \int_{0}^{\alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+         e^{-t^{2}} dt
+ \right\}
+\end{align}
+である. $x=\alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|$と変数変換をすると
+\begin{equation}
+ \frac{d x}{d \bm{r}_{i}}
+  = \frac{\alpha \left(\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}\right)}
+         {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+  \notag
+\end{equation}
+であるので,
+\begin{align}
+    \frac{d}{d \bm{r}_{i}}
+    \left\{
+           1 - \frac{2}{\sqrt{\pi}}
+           \int_{0}^{\alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+           e^{-t^{2}} dt
+ \right\}
+ =&
+   -\frac{d}{d x}
+    \left\{
+           \frac{2}{\sqrt{\pi}}
+           \int_{0}^{x} e^{-t^{2}} dt
+   \right\}
+   \frac{d x}{d \bm{r}_{i}}
+ \notag
+ \\
+ =&
+   \frac{2}{\sqrt{\pi}} e^{-x^{2}}
+   \frac{\alpha \left(\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}\right)}
+        {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+ \notag
+ \\
+ =&
+   \frac{2\alpha}{\sqrt{\pi}}
+   e^{-\alpha^{2} |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|^{2}}
+   \frac{\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}}
+        {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+ \notag
+\end{align}
+と計算される. 以上をまとめると, 力$\bm{F}_{i}^{(1)}$は
+\begin{align}
+    \bm{F}_{i}^{(1)}
+ &=
+    \sum_{\bm{n}} \left.\sum_{j=1}^{N}\right.^{\prime}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+ \notag
+ \\
+ &~~\times
+    \left[
+           \frac{\mathrm{erfc} \{ \alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| \} }
+                {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|^{2}}
+          +\frac{2 \alpha}{\sqrt{\pi}}
+           \frac{\exp \{-\alpha^{2} |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|^{2} \}}
+                {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+    \right]
+ \frac{ \bm{r}_{i} - \bm{r}_{j} + \bm{Ln} }
+      {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+\end{align}
+から求められる.
+
+\subsection{$U_{\mathrm{elec}}^{(2)}$の具体的な形と$\bm{F}_{i}^{(2)}$の導出}
+\paragraph{$U_{\mathrm{elec}}^{(2)}$の具体的な形} \
+
+式(\ref{eq:Ewald10.3})中の$\hat{\psi}_{0}(2 \pi \bm{m})$をポアソン方程式から直接求める.
+微分に対するフーリエ変換の公式
+\begin{equation}
+    \int \nabla^{2} \phi_{0} (\bm{r}) e^{- i \bm{G} \cdot \bm{r}} d \bm{r}
+  =
+    -\bm{G}^{2} \hat{\phi}_{0}(\bm{G})
+ \label{eq:Ewald28}
+\end{equation}
+にポアソン方程式(\ref{eq:Ewald13})を代入すると,
+\begin{equation}
+    \hat{\phi}_{0}(2 \pi \bm{m})
+  =
+    \frac{q^{\prime}}{\epsilon_{0} (2 \pi \bm{m})^{2}}
+    \left( \frac{\alpha^{2}}{\pi} \right)^{\frac{3}{2}}
+    \int e^{- \alpha^{2} r^{2}} e^{-2 \pi i \bm{m} \cdot \bm{r}} ~d\bm{r}
+ \label{eq:Ewald29}
+\end{equation}
+となる. この積分は次のように3次元のガウス積分を実行することで
+\begin{align}
+    \hat{\phi}_{0}(2 \pi \bm{m})
+ &=
+    \frac{q^{\prime}}{4 \pi^{2} \epsilon_{0} \bm{m}^{2}}
+    \left( \frac{\alpha^{2}}{\pi} \right)^{\frac{3}{2}}
+    \int \exp
+    \left[
+          -\alpha^{2} \left\{ \bm{r} - \frac{i \pi \bm{m}}{\alpha^{2}} \right\}^{2}
+          - \frac{\pi^{2}\bm{m}^{2}}{\alpha^{2}}
+    \right] ~d \bm{r}
+ \notag
+ \\
+ &=
+    \frac{q^{\prime}}{4 \pi^{2} \epsilon_{0} \bm{m}^{2}}
+    \left( \frac{\alpha^{2}}{\pi} \right)^{\frac{3}{2}}
+    \exp\left( -\frac{\pi^{2}\bm{m}^{2}}{\alpha^{2}} \right)
+    \int \exp
+    \left[
+          -\alpha^{2} \left\{ \bm{r} - \frac{i \pi \bm{m}}{\alpha^{2}} \right\}^{2}
+    \right] ~d \bm{r}
+ \notag
+ \\
+ &=
+    \frac{q^{\prime}}{4 \pi ^{2} \epsilon_{0} \bm{m}^{2}}
+    \exp\left( -\frac{\pi^{2}\bm{m}^{2}}{\alpha^{2}} \right)
+ \label{eq:Ewald30}
+\end{align}
+と求まる. ゆえに,
+\begin{align}
+   \hat{\psi}_{0} ( \bm{r} )
+ =
+   \frac{4 \pi \epsilon_{0}}{q^{\prime}}  \hat{\phi}_{0} ( 2 \pi \bm{m} )
+ =
+   \frac{1}{\pi \bm{m}^{2}}
+   \exp\left(-\frac{\pi^{2}\bm{m}^{2}}{\alpha^{2}}\right)
+ \label{eq:Ewald31}
+\end{align}
+である. 以上から$U_{\mathrm{elec}}^{(2)}$は以下の表式で書くことができる.
+\begin{equation}
+    U_{\mathrm{elec}}^{(2)}
+  =
+    \frac{1}{2 \pi V } \sum_{\bm{m}}
+    \frac{\exp( -\frac{\pi^{2} |\bm{m}|^{2}}{\alpha^{2}})}{|\bm{m}|^{2}}
+    \sum_{i=1}^{N} \sum_{j=1}^{N}
+    \frac{q_{i}q_{j} }{4 \pi \epsilon_{0}}
+    e^{2 \pi i \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j})}
+ \label{eq:Ewald32}
+\end{equation}
+ここで注意しなければならないのは, $\bm{m}=0$のとき$U_{\mathrm{elec}}^{(2)}$は$1/|\bm{m}|^{2}$
+が原因で発散してしまうことである. そのため, $\bm{m}=0$は無視をしなければならない.
+もし$\sum_{i}q_{i}=0$, つまり系が中性であるならば$\bm{m}=0$の項を消すことができる.
+Ewald法を使用する際には, 余分な電荷を付け加えるなどをして系を中性化することに気をつけなければならない.
+
+数値計算を行う際には, $U_{\mathrm{elec}}^{(2)}$を三角関数を用いて書き下した形を使う方が便利である.
+オイラーの公式を用いて指数関数を
+\begin{align}
+   e^{2 \pi i \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j})}
+ =
+     \cos\left\{ 2 \pi \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j}) \right\}
+ + i \sin\left\{ 2 \pi \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j}) \right\}
+\end{align}
+と展開する. $\sum_{\bm{m}}$において$\bm{m} = -\bm{m^{\prime}}$のような
+符号の異なる逆格子ベクトルのペアについては$\sin\left\{ 2 \pi \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j}) \right\}$の項が打ち消しあうため,
+
+\begin{equation}
+    U_{\mathrm{elec}}^{(2)}
+  =
+    \frac{1}{2 \pi V } \sum_{\bm{m}}
+    \frac{\exp( -\frac{\pi^{2} |\bm{m}|^{2}}{\alpha^{2}})}{|\bm{m}|^{2}}
+    \sum_{i=1}^{N} \sum_{j=1}^{N}
+    \frac{q_{i}q_{j} }{4 \pi \epsilon_{0}}
+    \cos\left\{ 2 \pi \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j}) \right\}
+ \label{eq:Ewald32_1}
+\end{equation}
+と表すことができる. 更に, 三角関数の加法定理を使うと
+
+\begin{align}
+ &\sum_{i=1}^{N} \sum_{j=1}^{N}
+   q_{i} q_{j}
+   \cos\left\{ 2 \pi \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j}) \right\}
+ \notag
+ \\
+ &=
+   \sum_{i=1}^{N} \sum_{j=1}^{N}
+   q_{i} q_{j}
+   \left\{
+           \cos\left(2 \pi \bm{m} \cdot \bm{r}_{i}\right)
+           \cos\left(2 \pi \bm{m} \cdot \bm{r}_{j}\right)
+         +
+           \sin\left(2 \pi \bm{m} \cdot \bm{r}_{i}\right)
+           \sin\left(2 \pi \bm{m} \cdot \bm{r}_{j}\right)
+ \right\}
+ \notag
+ \\
+ &=
+          \sum_{i=1}^{N} q_{i} \cos\left(2 \pi \bm{m} \cdot \bm{r}_{i}\right)
+          \sum_{j=1}^{N} q_{j} \cos\left(2 \pi \bm{m} \cdot \bm{r}_{j}\right)
+        +
+          \sum_{i=1}^{N} q_{i} \sin\left(2 \pi \bm{m} \cdot \bm{r}_{i}\right)
+          \sum_{j=1}^{N} q_{j} \sin\left(2 \pi \bm{m} \cdot \bm{r}_{j}\right)
+ \notag
+ \\
+ &=
+  \left\{
+          \sum_{i=1}^{N} q_{i} \cos\left(2 \pi \bm{m} \cdot \bm{r}_{i}\right)
+  \right\}^{2}
+ +
+  \left\{
+          \sum_{i=1}^{N} q_{i} \sin\left(2 \pi \bm{m} \cdot \bm{r}_{i}\right)
+  \right\}^{2}
+\end{align}
+であるので,
+
+\begin{align}
+     U_{\mathrm{elec}}^{(2)}
+  =&
+    \frac{1}{2 \pi V (4 \pi \epsilon_{0})}
+    \sum_{\bm{m}}
+    \frac{\exp( -\frac{\pi^{2} |\bm{m}|^{2}}{\alpha^{2}})}{|\bm{m}|^{2}}
+ \notag
+ \\
+ &\times
+    \left[
+    \left\{
+           \sum_{i=1}^{N} q_{i} \cos\left(2 \pi \bm{m} \cdot \bm{r}_{i}\right)
+    \right\}^{2}
+  +
+    \left\{
+           \sum_{i=1}^{N} q_{i} \sin\left(2 \pi \bm{m} \cdot \bm{r}_{i}\right)
+    \right\}^{2}
+    \right]
+ \label{eq:Ewald32_2}
+\end{align}
+と書き下せる. この形式では, あらかじめ
+$\sum q_{i} \cos(2\pi\bm{m}\cdot\bm{r}_{i})$と
+$\sum q_{i} \sin(2\pi\bm{m}\cdot\bm{r}_{i})$
+を計算しておくことができるため, 計算コストを削減することができる.
+
+\paragraph{$\bm{F}_{i}^{(2)}$の導出} \
+
+式(\ref{eq:Ewald32})を座標で微分する.
+$\sum_{i}\sum_{j}^{\prime}$に$i$に関する微分が2回出てくることに注意すると,
+\begin{align}
+ \bm{F}_{i}^{(2)}
+ =&
+   \frac{d U_{\mathrm{elec}}^{(2)}}{d \bm{r}_{i}}
+ \notag
+ \\
+ =&
+   -\frac{2}{2 \pi V} \sum_{\bm{m}}
+    \frac{\exp( -\frac{\pi^{2} |\bm{m}|^{2}}{\alpha^{2}})}{|\bm{m}|^{2}}
+    \sum_{j=1}^{N}
+    \frac{q_{i}q_{j} }{4 \pi \epsilon_{0}}
+    (2 \pi i \bm{m})
+    e^{2 \pi i \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j})}
+ \notag
+ \\
+  =&
+    \frac{2}{V}
+    \sum_{\bm{m}} \frac{i \bm{m}}{|\bm{m}|^{2}}
+    \exp\left(-\frac{\pi^{2} |\bm{m}|^{2}}{\alpha^{2}}\right)
+    \sum_{j=1}^{N}
+    \frac{q_{i}q_{j} }{4 \pi \epsilon_{0}}
+    e^{2 \pi i \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j})}
+\end{align}
+と求められる. 更に, オイラーの公式を用いて指数関数を展開すると,
+\begin{equation}
+  \bm{F}_{i}^{(2)}
+ =
+  \frac{2}{V}
+  \sum_{\bm{m}} \frac{i \bm{m}}{|\bm{m}|^{2}}
+  \exp\left(-\frac{\pi^{2} |\bm{m}|^{2}}{\alpha^{2}}\right)
+  \sum_{j=1}^{N}
+  \frac{q_{i}q_{j} }{4 \pi \epsilon_{0}}
+  \sin \left\{2 \pi i \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j}) \right\}
+\end{equation}
+と変形できる. これは式(\ref{eq:Ewald32_1})を微分した形と同じである.
+ここで, 三角関数の加法定理
+\begin{align}
+  \sum_{j=1}^{N} q_{i} q_{j}
+ &
+  \sin\left\{ 2 \pi \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j}) \right\}
+ \notag
+ \\
+=&
+   q_{i} \sin(2 \pi \bm{m} \cdot \bm{r}_{i})
+   \sum_{j=1}^{N} q_{j} \cos(2 \pi \bm{m} \cdot \bm{r}_{j})
+  -
+   q_{i} \cos(2 \pi \bm{m} \cdot \bm{r}_{i})
+   \sum_{j=1}^{N} q_{j} \sin(2 \pi \bm{m} \cdot \bm{r}_{j})
+\end{align}
+を用いることで,
+\begin{align}
+  \bm{F}_{i}^{(2)}
+=&
+  \frac{2}{V(4 \pi \epsilon_{0})}
+  \sum_{\bm{m}} \frac{i \bm{m}}{|\bm{m}|^{2}}
+  \exp\left(-\frac{\pi^{2} |\bm{m}|^{2}}{\alpha^{2}}\right)
+ \notag
+ \\
+ \times&
+ \left[
+   q_{i} \sin(2 \pi \bm{m} \cdot \bm{r}_{i})
+   \sum_{j=1}^{N} q_{j} \cos(2 \pi \bm{m} \cdot \bm{r}_{j})
+  -
+   q_{i} \cos(2 \pi \bm{m} \cdot \bm{r}_{i})
+   \sum_{j=1}^{N} q_{j} \sin(2 \pi \bm{m} \cdot \bm{r}_{j})
+ \right]
+\end{align}
+と変形することができる.
+
+\subsection{$U_{\mathrm{elec}}^{(3)}$の具体的な形と$\bm{F}_{i}^{(3)}$の導出}
+\paragraph{$U_{\mathrm{elec}}^{(3)}$の具体的な形} \
+
+誤差関数のべき級数展開は
+\begin{equation}
+    \mathrm{erf}(x)
+  =
+    \frac{2}{\sqrt{\pi}} \sum_{n=0}^{\infty}
+    \frac{(-1)^{n} x^{2n+1}}{n! (2n+1)}
+  =
+    \frac{2}{\sqrt{\pi}}\left( x - \frac{x^{3}}{3} + \cdots\right)
+ \label{eq:Ewald33}
+\end{equation}
+であるので,
+\begin{align}
+   \psi_{0}(0)
+ =
+   \left.\frac{\mathrm{erf(x)}}{r} \right|_{r=0}
+ =
+   \left.\frac{2}{\sqrt{\pi}} \frac{\alpha r - \frac{1}{3}(\alpha r)^{3} + \cdots}{r} \right|_{r=0}
+ =
+   \frac{2 \alpha}{\sqrt{\pi}}
+ \label{eq:Ewald34}
+\end{align}
+と計算される. これを式(\ref{eq:Ewald10.4})に代入することで, $U_{\mathrm{elec}}^{(3)}$の表式
+\begin{equation}
+    U_{\mathrm{elec}}^{(3)}
+  =
+   -\frac{\alpha}{\sqrt{\pi}} \sum_{i=1}^{N} \frac{q_{i}^{2}}{4 \pi \epsilon_{0}}
+ \label{eq:Ewald35}
+\end{equation}
+が求まる.
+
+\paragraph{$\bm{F}_{i}^{(3)}$の導出} \
+
+$U_{\mathrm{elec}}^{(3)}$が座標に依存しないことから
+\begin{equation}
+ \bm{F}_{i}^{(3)} = 0
+\end{equation}
+となる.
+
+
+% \subsection{力の計算}
+% ポテンシャルの位置微分から力$\bm{F}_{i}$が求まる.
+% $\sum_{i}\sum_{j}^{'}$の和について, $i$に関する微分が2回出てくることに注意して計算すると,
+% \begin{equation}
+%     \bm{F}_{i}(\bm{r}^{N})
+%   =
+%     \bm{F}_{i}^{(1)} + \bm{F}_{i}^{(2)} + \bm{F}_{i}^{(3)}
+%  \label{eq:Ewald36}
+% \end{equation}
+% \begin{align}
+%     \bm{F}_{i}^{(1)}
+%  &=
+%     \sum_{\bm{n}} \sum_{j}^{\prime}
+%     \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+%  \notag
+%  \\
+%  &~~\times
+%     \left[
+%            \frac{\mathrm{erfc} \{ \alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| \} }
+%                 {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|^{2}}
+%           +\frac{2 \alpha}{\sqrt{\pi}}
+%            \frac{-\exp \{ \alpha^{2} |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|^{2} \}}
+%                 {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+%     \right]
+%  \frac{ \bm{r}_{i} - \bm{r}_{j} + \bm{Ln} }
+%       {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+%  \\
+%     \bm{F}_{i}^{(2)}
+%  &=
+%    -\frac{2}{4 \pi \epsilon_{0} V}
+%     \sum_{\bm{m}} \frac{i \bm{m}}{|\bm{m}|^{2}}
+%     \exp \left( -\frac{\pi^{2}|\bm{m}|^{2} }{ \alpha^{2} } \right)
+%     \sum_{j} q_{i}q_{j} e^{2 \pi i \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j})}
+%  \\
+%     \bm{F}_{i}^{(3)}
+%  &=
+%     0
+%  \label{eq:Ewald37}
+% \end{align}
+% と求まる.
+
+\subsection{Ewald法による静電ポテンシャル項と力の計算のまとめ}
+以上で導出してきた結果をまとめる.
+\begin{align}
+    U_{\mathrm{elec}}^{(1)}
+ =&
+    \frac{1}{2} \sum_{\bm{n}} \sum_{i=1}^{N} \left.\sum_{j=1}^{N}\right.^{\prime}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+    \frac{\mathrm{erfc}(\alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| )}
+         {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+ %\label{eq:Ewald38.1}
+ \notag
+ \\
+ \notag
+ \\
+    U_{\mathrm{elec}}^{(2)}
+ =&
+    \frac{1}{2 \pi V} \sum_{\bm{m}}
+    \frac{\exp(\frac{- \pi^{2}|\bm{m}|^{2}}{\alpha^{2}})}{|\bm{m}|^{2}}
+    \sum_{i=1}^{N} \sum_{j=1}^{N}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+     e^{2 \pi i \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j})}
+ %\label{eq:Ewald38.2}
+ \notag
+ \\
+ =&
+    \frac{1}{2 \pi V } \sum_{\bm{m}}
+    \frac{\exp( -\frac{\pi^{2} |\bm{m}|^{2}}{\alpha^{2}})}{|\bm{m}|^{2}}
+    \sum_{i=1}^{N} \sum_{j=1}^{N}
+    \frac{q_{i}q_{j} }{4 \pi \epsilon_{0}}
+    \cos\left\{ 2 \pi \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j}) \right\}
+ \notag
+ \\
+ =&\frac{1}{2 \pi V (4 \pi \epsilon_{0})}
+    \sum_{\bm{m}}
+    \frac{\exp( -\frac{\pi^{2} |\bm{m}|^{2}}{\alpha^{2}})}{|\bm{m}|^{2}}
+    \left[
+    \left\{
+           \sum_{i=1}^{N} q_{i} \cos\left(2 \pi \bm{m} \cdot \bm{r}_{i}\right)
+    \right\}^{2}
+  +
+    \left\{
+           \sum_{i=1}^{N} q_{i} \sin\left(2 \pi \bm{m} \cdot \bm{r}_{i}\right)
+    \right\}^{2}
+    \right]
+ \notag
+ \\
+ \notag
+ \\
+    U_{\mathrm{elec}}^{(3)}
+ =&
+   -\frac{\alpha}{\sqrt{\pi}} \sum_{i=1}^{N}\frac{q_{i}^{2}}{4 \pi \epsilon_{0}}
+ %\label{eq:Ewald38.3}
+ \notag
+ \\
+ \notag
+ \\
+    \bm{F}_{i}^{(1)}
+ =&
+    \sum_{\bm{n}} \left. \sum_{j=1}^{N} \right.^{\prime}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+ \notag
+ \\
+ &~~\times
+    \left[
+           \frac{\mathrm{erfc} \{ \alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| \} }
+                {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|^{2}}
+          +\frac{2 \alpha}{\sqrt{\pi}}
+           \frac{\exp \{ -\alpha^{2} |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|^{2} \}}
+                {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+    \right]
+    \frac{ \bm{r}_{i} - \bm{r}_{j} + \bm{Ln} }
+         {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+ %\label{eq:Ewald38.4}
+ \notag
+ \\
+ \notag
+ \\
+    \bm{F}_{i}^{(2)}
+ =&
+   -\frac{2}{ V}
+    \sum_{\bm{m}} \frac{i \bm{m}}{|\bm{m}|^{2}}
+    \exp \left( -\frac{ \pi^{2}|\bm{m}|^{2} }{ \alpha^{2} } \right)
+    \sum_{j=1}^{N}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+    e^{2 \pi i \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j})}
+ %\label{eq:Ewald38.5}
+ \notag
+ \\
+ \notag
+ \\
+    \bm{F}_{i}^{(3)}
+ =&
+    0
+ %\label{eq:Ewald38.6}
+ \notag
+\end{align}
+
+\clearpage
+\section{Particle Mesh Ewald(PME)法}
+\subsection{PMEの数学的基礎:離散フーリエ変換}
+$K_{1}$,$K_{2}$,$K_{3}$を正の整数とする.
+$0 \le k_{\alpha} < K_{\alpha}$について複素数の値を持つ配列$A(k_{1}, k_{2}, k_{3})$を考える.
+この時, 離散フーリエ変換$\mathcal{F}$と逆離散フーリエ変換$\mathcal{F}^{-1}$は
+\begin{alignat}{2}
+ &   \mathcal{F}(A)(m_{1},m_{2},m_{3})
+ &&=
+     \sum_{k_{1}=0}^{K_{1}-1} \sum_{k_{2}=0}^{K_{2}-1} \sum_{k_{3}=0}^{K_{3}-1}
+     A(k_{1}, k_{2}, k_{3})
+ \notag
+ \\
+ & &&
+ ~~~~ \times
+ \exp
+ \left[ 2\pi i
+        \left(
+               \frac{m_{1} k_{1}}{K_{1}} + \frac{m_{2} k_{2}}{K_{2}} + \frac{m_{3} k_{3}}{K_{3}}
+        \right)
+ \right]
+ \label{eq:PME1}
+ \\
+ &   \mathcal{F}^{-1} (A)(m_{1},m_{2},m_{3})
+ &&=
+     \frac{1}{K_{1} K_{2} K_{3}}
+     \sum_{l_{1}=0}^{K_{1}-1} \sum_{l_{2}=0}^{K_{2}-1} \sum_{l_{3}=0}^{K_{3}-1}
+     A(l_{1}, l_{2}, l_{3})
+ \notag
+ \\
+ & &&
+ ~~~~ \times
+ \exp
+ \left[ -2\pi i
+        \left(
+               \frac{m_{1} l_{1}}{K_{1}} + \frac{m_{2} l_{2}}{K_{2}} + \frac{m_{3} l_{3}}{K_{3}}
+        \right)
+ \right]
+ \label{eq:PME2}
+\end{alignat}
+とかかれる. 定義より,
+\begin{equation}
+    \mathcal{F}^{-1} \left[ \mathcal{F} (A) \right]
+  =
+    \mathcal{F} \left[ \mathcal{F}^{-1} (A) \right]
+  =
+   A
+ \label{eq:PME3}
+\end{equation}
+が成立する.
+数値計算の便利のため, 以下の表記を導入する.
+\begin{equation}
+    \hat{\mathcal{F}}^{-1}(A)
+  =
+    K_{1} K_{2} K_{3} \mathcal{F}^{-1} (A)(m_{1},m_{2},m_{3})
+ \label{eq:PME4}
+\end{equation}
+フーリエ変換について以下の恒等式が成立する.
+\begin{align}
+   A * B
+ = \mathcal{F} \left[ \mathcal{F}^{-1} (A*B) \right]
+ = K_{1} K_{2} K_{3} \mathcal{F} \left[ \mathcal{F}^{-1} (A) \cdot \mathcal{F}^{-1} (B) \right]
+ \label{eq:PME5}
+\end{align}
+ここで, $A*B$は畳み込みであり,
+\begin{align}
+   A*B(j_{1}, j_{2}, j_{3})
+ =
+   \sum_{k_{1}=0}^{K_{1}-1} \sum_{k_{2}=0}^{K_{2}-1} \sum_{k_{3}=0}^{K_{3}-1}
+   A(j_{1}-k_{1}, j_{2}-k_{2}, j_{3} - k_{3})
+   \cdot
+   B(k_{1}, k_{2}, k_{3})
+ \label{eq:PME6}
+\end{align}
+と計算される.
+
+\subsection{PMEの数学的基礎:B-spline関数}
+任意の実数$u$に対して, 0次のB-spline関数を
+\begin{align}
+  M_{1}^{l} (u)
+=
+  \begin{cases}
+   1,~  & u \in (l,~ l+1] \\
+   0,~  & u \notin (l,~ l+1] \\
+  \end{cases}
+  \label{eq:PME7}
+\end{align}
+と定義する. ここで, $l$は0以上の整数とする.
+2よりも大きい自然数$n$に対して, $n-1$次のB-spline関数$M_{n}^{l}(u)$は次の漸化式で定義される.
+\begin{align}
+  M_{n}^{l}(u)
+&=
+  \frac{u-l}{n-1} M_{n-1}^{l} (u) + \frac{-u+n+l}{n-1} M_{n-1}^{l+1} (u)
+  \label{eq:PME8}
+  \\
+&=
+  \frac{u-l}{n-1} M_{n-1}^{l} (u) + \frac{-u+n+l}{n-1} M_{n-1}^{l} (u-1)
+\end{align}
+B-spline関数は以下の性質を持つ.
+\begin{enumerate}
+ \item $l \le u \le l+n$で$M_{n}^{l}(u)>0$である. $u<l,~ l+n<u$では$M_{n}^{l}(u)=0$となる.
+ \item $M_{n}^{l}(u)=M_{n}^{l}(l+n-u)$である.
+ \item $\sum_{j=-\infty}^{\infty} M_{n}^{l}(u-j)=1$である.
+\end{enumerate}
+また
+$n>2$に対するB-spline関数の微分は,
+\begin{align}
+   \frac{d}{du}M_{n}^{l}(u)
+ &=
+    M_{n-1}^{l}(u) - M_{n-1}^{l+1}(u)
+ \label{eq:PME9}
+ \\
+ &=
+    M_{n-1}^{l}(u) - M_{n-1}^{l}(u-1)
+\end{align}
+のように, 解析的に求めることができる.
+この解析微分の式は式(\ref{eq:PME8})を使えば, 数学的帰納法により示すことができる.
+
+\subsection{PME法}
+PME法では$U_{\mathrm{elec}}^{(2)}$を以下のように書き直す.
+\begin{align}
+    U_{\mathrm{elec}}^{(2)}
+ &=
+    \frac{1}{2 \pi V}
+    \sum_{\bm{m}} \frac {\exp( -\pi^{2}|\bm{m}|^{2} / \alpha^{2} ) }{|\bm{m}|^{2}}
+    \sum_{i=1}^{N}\sum_{j=1}^{N}
+    \frac{q_{i} q_{j}}{4 \pi \epsilon_{0}}
+    e^{2 \pi i \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j})}
+ \notag
+ \\
+ &=
+    \frac{1}{2 \pi V (4 \pi \epsilon_{0})}
+    \sum_{\bm{m}}
+    \frac {\exp( -\pi^{2}|\bm{m}|^{2} / \alpha^{2} ) }{|\bm{m}|^{2}}
+    S(\bm{m}) S(-\bm{m})
+ \label{eq:PME10}
+\end{align}
+ここで,
+\begin{alignat}{2}
+     S(\bm{m})
+ &\equiv
+     S(m_{1},m_{2},m_{3})
+ &&=
+     \sum_{i=1}^{N} q_{i} e^{2 \pi \bm{m} \cdot \bm{r}_{i}}
+ \label{eq:PME12}
+\end{alignat}
+を定義した. $S(\bm{m})$は構造因子と呼ばれ,
+電荷密度$\rho(\bm{r})=\sum_{j=1}^{N}q_{j}\delta(\bm{r}-\bm{r}_{j})$の
+フーリエ変換に相当する.
+さらに, 座標$\bm{r}_{j}$に位置する点電荷$q_{j}$について, 正の整数$K_{1},K_{2},K_{3}$を用いて逆格子空間における座標
+\begin{align}
+ &u_{\alpha j} = K_{\alpha} \bm{a}_{\alpha}^{*} \cdot \bm{r}_{j} &\text{for $\alpha=1,2,3$}
+ \label{eq:PME13}
+\end{align}
+を定義する. 周期境界条件のため$u_{\alpha j}$の定義域は$0 \le u_{\alpha j} < K_{\alpha}$となる.
+この逆格子空間上における座標を用いると, 構造因子は
+\begin{align}
+    S(\bm{m})
+ &=
+    \sum_{j=1}^{N} q_{j} e^{2 \pi i \bm{m} \cdot \bm{r}_{j}}
+ \notag
+ \\
+ &=
+    \sum_{j=1}^{N} q_{j}
+    e^{2 \pi i (m_{1}\bm{a}_{1}^{*} + m_{2}\bm{a}_{2}^{*} + m_{3}\bm{a}_{3}^{*})
+       \cdot \bm{r}_{j}}
+ \notag
+ \\
+ &=
+    \sum_{j=1}^{N} q_{j}
+    \exp\left(2 \pi i \frac{m_{1} u_{1j}}{K_{1}}\right)
+    \exp\left(2 \pi i \frac{m_{2} u_{2j}}{K_{2}}\right)
+    \exp\left(2 \pi i \frac{m_{3} u_{3j}}{K_{3}}\right)
+ \label{eq:PME14}
+\end{align}
+と書き直せる.
+$n$が偶数であれば, B-spline関数$M_{n}^{0}(u)$を用いて
+\begin{align}
+ &\exp \left(2 \pi i \frac{m_{\alpha}}{K_{\alpha}} u_{\alpha} \right)
+ \approx
+     b_{\alpha} (m_{\alpha}) \sum_{k=-\infty}^{\infty} M_{n}^{0}(u_{\alpha} - k )
+     \exp \left(2 \pi i \frac{m_{\alpha}}{K_{\alpha}} k \right)
+ \label{eq:PME15}
+ \\
+ &b_{\alpha} (m_{\alpha})
+ =
+   \exp \left\{2 \pi i (n-1) \frac{m_{\alpha}}{K_{\alpha}} \right\}
+   \left[
+         \sum_{k=0}^{n-2} M_{n}^{0}(k+1) \exp \left(2 \pi i \frac{m_{\alpha}}{K_{\alpha}} k \right)
+    \right]^{-1}
+ \label{eq:PME16}
+\end{align}
+と展開することができる. この展開を用いると構造因子$S(\bm{m})$は
+\begin{align}
+    S(\bm{m})
+ &=
+    \sum_{j=1}^{N} q_{j} b_{1}(m_{1}) b_{2}(m_{2}) b_{3}(m_{3})
+ \notag
+ \\
+ &~~ \times
+    \sum_{k_{1}=-\infty}^{\infty} \sum_{k_{2}=-\infty}^{\infty} \sum_{k_{3}=-\infty}^{\infty}
+    M_{n}^{0}(u_{1j}- k_{1}) M_{n}^{0}(u_{2j} - k_{2}) M_{n}^{0}(u_{3j} - k_{3})
+ \notag
+ \\
+ &~~ \times
+    \exp\left( 2 \pi i \frac{m_{1}}{K_{1}} k_{1} \right)
+    \exp\left( 2 \pi i \frac{m_{2}}{K_{2}} k_{2} \right)
+    \exp\left( 2 \pi i \frac{m_{3}}{K_{3}} k_{3} \right)
+ \notag
+ \\
+ &=
+    \sum_{j=1}^{N} q_{j} b_{1}(m_{1}) b_{2}(m_{2}) b_{3}(m_{3})
+    \sum_{k_{1}=0}^{K_{1}-1} \sum_{k_{2}=0}^{K_{2}-1} \sum_{k_{3}=0}^{K_{3}-1} \sum_{n_{1},n_{2},n_{3}}
+ \notag
+ \\
+ &~~~~ \times
+    M_{n}^{0}(u_{1j} - k_{1} - n_{1}K_{1})
+    M_{n}^{0}(u_{2j} - k_{2} - n_{2}K_{2})
+    M_{n}^{0}(u_{3j} - k_{3} - n_{3}K_{3})
+ \notag
+ \\
+ &~~~~ \times
+    \exp\left( 2 \pi i \frac{m_{1}}{K_{1}} k_{1} \right)
+    \exp\left( 2 \pi i \frac{m_{2}}{K_{2}} k_{2} \right)
+    \exp\left( 2 \pi i \frac{m_{3}}{K_{3}} k_{3} \right)
+ \label{eq:PME17}
+\end{align}
+と変形できる. 逆空間に内挿された点電荷を
+\begin{align}
+    Q(\bm{k})
+ \equiv
+    Q(k_{1}, k_{2}, k_{3})
+ &=
+    \sum_{j=1}^{N} q_{j} \sum_{n_{1}, n_{2}, n_{3}}
+    M_{n}^{0}(u_{1j}- k_{1} - n_{1}K_{1})
+ \notag
+ \\ &~~~~ \times
+    M_{n}^{0}(u_{2j} - k_{2} - n_{2}K_{2}) M_{n}^{0}(u_{3j} - k_{3} - n_{3}K_{3})
+ \label{eq:PME18}
+ \end{align}
+と定義すると,
+\begin{align}
+    S(\bm{m})
+ &=
+    b_{1}(m_{1}) b_{2}(m_{2}) b_{3}(m_{3})
+    \sum_{k_{1}=0}^{K_{1}-1}  \sum_{k_{2}=0}^{K_{2}-1}  \sum_{k_{3}=0}^{K_{3}-1}
+ \notag
+ \\
+ &~~~~ \times
+    Q(\bm{k})
+    \exp\left( 2 \pi i \frac{m_{1}}{K_{1}} k_{1} \right)
+    \exp\left( 2 \pi i \frac{m_{2}}{K_{2}} k_{2} \right)
+    \exp\left( 2 \pi i \frac{m_{3}}{K_{3}} k_{3} \right)
+ \notag
+ \\
+ &=
+    b_{1}(m_{1}) b_{2}(m_{2}) b_{3}(m_{3})
+    \mathcal{F}(Q) (\bm{m})
+ \label{eq:PME19}
+\end{align}
+のように離散フーリエ変換$\mathcal{F}$を用いて構造因子$S(\bm{m})$を表すことができる.
+さらに, $b_{\alpha}(m_{\alpha})$と$b_{\alpha}(-m_{\alpha})$が複素共役であることを用いて, 
+\begin{align}
+   B(\bm{m})
+ \equiv
+   B(m_{1}, m_{2}, m_{3})
+ =
+   |b_{1}(m_{1})|^{2} |b_{2}(m_{2})|^{2} |b_{3}(m_{3})|^{2}
+ \label{eq:PME21}
+\end{align}
+を定義すると,
+\begin{align}
+   S(\bm{m})S(-\bm{m})
+&=
+   B(\bm{m}) \mathcal{F}(Q)(\bm{m}) \mathcal{F}(Q)(-\bm{m})
+ \notag \\
+&=
+   B(\bm{m}) |\mathcal{F}(Q)(\bm{m})|^{2}
+ \notag \\
+&=
+   B(\bm{m}) |\hat{\mathcal{F}}^{-1}(Q)(\bm{m})|^{2}
+ \notag
+\end{align}
+である.
+第1式から第2式の変形おいて, $F(Q)(\bm{m})$と$F(Q)(-\bm{m})$
+が複素共役であることを使用した.
+すると, 式(\ref{eq:PME10})は
+\begin{align}
+   U_{\mathrm{elec}}^{(2)}
+ &=
+   \frac{1}{2 \pi V (4 \pi \epsilon_{0})} \sum_{\bm{m}}
+   \frac {\exp( - \pi^{2}|\bm{m}|^{2} / \alpha^{2} ) }{|\bm{m}|^{2}}
+   B(\bm{m}) S(\bm{m})S(-\bm{m})
+ % \notag
+ % \\
+ % &\equiv
+ %   \frac{1}{2 \pi V (4 \pi \epsilon_{0})}
+ %   \sum_{m_{1}=0}^{K_{1}-1} \sum_{m_{2}=0}^{K_{2}-1} \sum_{m_{3}=0}^{K_{3}-1}
+ %   C(\bm{m}) B(\bm{m})
+ %   \mathcal{F}(Q) (\bm{m}) \mathcal{F}(Q) (\bm{-m})
+ % \notag
+ % \\
+ % &=
+ %    \frac{1}{2 \pi V (4 \pi \epsilon_{0})}
+ %    \sum_{m_{1}=0}^{K_{1}-1} \sum_{m_{2}=0}^{K_{2}-1} \sum_{m_{3}=0}^{K_{3}-1}
+ %    C(\bm{m}) B(\bm{m})
+ %    | \mathcal{F}(Q) (\bm{m}) |^{2}
+ \notag
+ \\
+ &=
+    \frac{1}{2 \pi V (4 \pi \epsilon_{0})}
+    \sum_{m_{1}=0}^{K_{1}-1} \sum_{m_{2}=0}^{K_{2}-1} \sum_{m_{3}=0}^{K_{3}-1}
+    C(\bm{m}) B(\bm{m})
+    | \hat{\mathcal{F}}^{-1}(Q) (\bm{m}) |^{2}
+ \label{eq:PME22}
+\end{align}
+と計算される. ただし,
+\begin{align}
+  &C(\bm{m})
+ = C(m_{1}, m_{2}, m_{3})
+= \frac {\exp( - \pi^{2}|\bm{m}|^{2} / \alpha^{2} ) }{|\bm{m}|^{2}}
+ ~~~~\textrm{for $\bm{m} \neq 0$}, ~~C(0,0,0) = 0
+ \label{eq:PME11}
+\end{align}
+を定義した. ただし,
+$\bm{m} \equiv m_{1}^{\prime}\bm{a}_{1}^{*} + m_{2}^{\prime} \bm{a}_{2}^{*}+ m_{3}^{\prime}\bm{a}_{3}^{*}$であり, $m_{i}^{\prime}$は$0 \le m_{i} \le K_{i}/2$の範囲で$m_{i}^{\prime} = m_{i}$, その他の範囲では$m_{i}^{\prime} = m_{k} - K_{i}$となる.
+
+続いて力の表式を求める. 座標$\bm{r}_{j}$で微分すると,
+\begin{align}
+    \bm{F}_{j}^{(2)}
+ &=
+    -\frac{1}{2 \pi V (4 \pi \epsilon_{0})} \sum_{\bm{m}} C(\bm{m}) B(\bm{m})
+ \notag
+ \\
+ &~~~~~~~~~~~~~~~~~~~~~~~~~\times
+ \left\{
+           \frac{\partial \mathcal{F}(Q)(\bm{m})}{\partial \bm{r}_{j}}
+           \mathcal{F}(Q) (- \bm{m})
+          +\mathcal{F}(Q) (\bm{m})
+           \frac{\partial \mathcal{F}(Q)(- \bm{m})}{\partial \bm{r}_{j}}
+   \right\}
+ \notag
+ \\
+ &=
+   -\frac{1}{\pi V (4 \pi \epsilon_{0})} \sum_{\bm{m}} C(\bm{m}) B(\bm{m})
+    \left\{
+            \sum_{\bm{k}}
+            \frac{\partial Q(\bm{k})}{\partial \bm{r}_{j}}
+            \sum_{\bm{l}}
+            Q(\bm{l})
+            e^{2 \pi i \frac{\bm{m}}{\bm{K}} \cdot (\bm{k} - \bm{l})}
+    \right\}
+ \notag
+ \\
+ &=
+   -\frac{1}{\pi V (4 \pi \epsilon_{0})}
+    \sum_{\bm{k}}
+    \frac{\partial Q(\bm{k})}{\partial \bm{r}_{j}}
+    \sum_{\bm{l}}
+     Q(\bm{l})
+    \sum_{\bm{m}} C(\bm{m}) B(\bm{m})
+    e^{2 \pi i \frac{\bm{m}}{\bm{K}} \cdot (\bm{k} - \bm{l})}
+ \notag
+ \\
+ &=
+   -\frac{1}{\pi V (4 \pi \epsilon_{0})}
+    \sum_{\bm{k}}
+    \frac{\partial Q(\bm{k})}{\partial \bm{r}_{j}}
+    \sum_{\bm{l}}
+     Q(\bm{l})
+    \mathcal{F}(B \cdot C) (\bm{k} - \bm{l})
+ \notag
+ \\
+ &=
+   -\frac{1}{\pi V (4 \pi \epsilon_{0})}
+    \sum_{k_{1}=0}^{K_{1}-1}
+    \sum_{k_{2}=0}^{K_{2}-1}
+    \sum_{k_{3}=0}^{K_{3}-1}
+    \frac{\partial Q (\bm{k})}{\partial \bm{r}_{j}}
+    \left\{
+            \mathcal{F}(B \cdot C) * Q
+    \right\} (k_{1}, k_{2}, k_{3})
+ \label{eq:PME23}
+\end{align}
+と変形される. 第3式から第4式で$\bm{m}$に関するフーリエ変換の定義式, 続く第4式から第5式において畳み込みの定義を用いた.
+さらに, フーリエ変換と畳み込みの関係式(\ref{eq:PME5})を用いると,
+\begin{align}
+    \mathcal{F} (B \cdot C) * Q
+ &=
+    K_{1} K_{2} K_{3}
+    \mathcal{F}
+    \left[
+           \mathcal{F}^{-1} \mathcal{F} (B \cdot C) \cdot \mathcal{F}^{-1}(Q)
+    \right]
+ \notag
+ \\
+ &=
+    K_{1} K_{2} K_{3}
+    \mathcal{F}
+    \left[
+           B \cdot C \cdot \mathcal{F}^{-1} (Q)
+    \right]
+ \notag
+ \\
+ &=
+ \mathcal{F}
+ \left[
+       B \cdot C \cdot \hat{\mathcal{F}}^{-1} (Q)
+ \right]
+\end{align}
+であるので,
+\begin{align}
+    \bm{F}_{j}^{(2)}
+ &=
+   -\frac{1}{\pi V (4 \pi \epsilon_{0})}
+    \sum_{k_{1}=0}^{K_{1}-1}
+    \sum_{k_{2}=0}^{K_{2}-1}
+    \sum_{k_{3}=0}^{K_{3}-1}
+    \frac{\partial Q (\bm{k})}{\partial \bm{r}_{j}}
+    \mathcal{F} \left[ B \cdot C \cdot \hat{\mathcal{F}}^{-1}(Q) \right]
+ \notag
+ \\
+ &=
+   -\frac{1}{\pi V (4 \pi \epsilon_{0})}
+    \sum_{k_{1}=0}^{K_{1}-1}
+    \sum_{k_{2}=0}^{K_{2}-1}
+    \sum_{k_{3}=0}^{K_{3}-1}
+    \left\{
+            \sum_{\alpha = 1}^{3}
+            \frac{\partial Q (\bm{k})}{\partial u_{\alpha j}}
+            \frac{\partial u_{\alpha j}}{\partial \bm{r}_{j}}
+    \right\}
+    \mathcal{F}\left[ B \cdot C \cdot \hat{\mathcal{F}}^{-1}(Q) \right]
+ \label{eq:PME24}
+\end{align}
+と計算される. ここで, B-spline関数の解析的微分の公式(\ref{eq:PME9})を用いると,
+\begin{align}
+    \left.
+    \frac{\partial Q(\bm{k})}{\partial u_{\alpha j}}
+    \right|_{\alpha = 1}
+ &=
+    \sum_{j=1}^{N}
+    \sum_{n_{1}, n_{2}, n_{3}} q_{j}
+    \frac{\partial M_{n}^{0}(u_{1j} - k_{1} - n_{1}K_{1})}{\partial u_{1j}}
+ \notag
+ \\
+ &~~~~~~~~~~~~~~~~~~~~\times
+    M_{n}^{0}(u_{2j} - k_{2} - n_{2}K_{2}) M_{n}^{0}(u_{3j} - k_{3} - n_{3}K_{3})
+ \notag
+ \\
+ &=
+    \sum_{j=1}^{N} \sum_{n_{1}, n_{2}, n_{3}} q_{j}
+    \left\{
+            M_{n-1}^{0}(u_{1j} - k_{1} - n_{1}K_{1}) - M_{n-1}^{0}(u_{1j} - k_{1} - n_{1}K_{1} - 1)
+    \right\}
+ \notag
+ \\
+ &~~~~~~~~~~~~~~~~~~~~\times
+    M_{n}^{0}(u_{2j} - k_{2} - n_{2}K_{2}) M_{n}^{0}(u_{3j} - k_{3} - n_{3}K_{3})
+ \label{eq:PME25}
+\end{align}
+と計算される. また, 式(\ref{eq:PME13})より
+\begin{align}
+ u_{\alpha j}
+ = K_{\alpha} \bm{a}_{\alpha}^{*} \cdot \bm{r}_{j}
+ = K_{\alpha} (a_{\alpha 1}^{*} r_{j1} + a_{\alpha 2}^{*} r_{j2} + a_{\alpha 3}^{*} r_{j3})
+\end{align}
+であるので,
+\begin{align}
+   \frac{\partial u_{\alpha j}}{\partial \bm{r}_{j}}
+ = \left[\frac{\partial u_{\alpha j}}{\partial r_{j1}},~
+         \frac{\partial u_{\alpha j}}{\partial r_{j2}},~
+         \frac{\partial u_{\alpha j}}{\partial r_{j3}} \right]^{t}
+ = \left[ K_{\alpha} a_{\alpha 1}^{*},~
+          K_{\alpha} a_{\alpha 2}^{*},~
+          K_{\alpha} a_{\alpha 3}^{*}
+         \right]^{t}
+ =
+   K_{\alpha}\bm{a}_{\alpha}^{*}
+ \label{eq:PME26}
+\end{align}
+と求まる. これより,
+\begin{align}
+  \frac{\partial Q(\bm{k})}{\partial \bm{r}_{j}}
+ =
+    \sum_{j=1}^{N} q_{j}
+    \Bigl[
+           &K_{1} \bm{a}_{1}^{*}
+            \sum_{n_{1},n_{2},n_{3}}
+            \left\{
+              M_{n-1}^{0}(u_{1j} - k_{1} - n_{1}K_{1}) - M_{n-1}^{0}(u_{1j} - k_{1} - n_{1}K_{1} - 1)
+            \right\}
+            \notag \\
+            &~~~~~~~~~~~~~~~\times
+            M_{n}^{0}(u_{2j} - k_{2} - n_{2}K_{2}) M_{n}^{0}(u_{3j} - k_{3} - n_{3}K_{3})
+    \notag \\
+          +~&K_{2} \bm{a}_{2}^{*}
+            \sum_{n_{1},n_{2},n_{3}}
+            \left\{
+              M_{n-1}^{0}(u_{2j} - k_{2} - n_{2}K_{2}) - M_{n-1}^{0}(u_{2j} - k_{2} - n_{2}K_{2} - 1)
+            \right\}
+            \notag \\
+            &~~~~~~~~~~~~~~~\times
+            M_{n}^{0}(u_{1j} - k_{1} - n_{1}K_{1}) M_{n}^{0}(u_{3j} - k_{3} - n_{3}K_{3})
+    \notag \\
+          +~&K_{3} \bm{a}_{3}^{*}
+            \sum_{n_{1},n_{2},n_{3}}
+            \left\{
+              M_{n-1}^{0}(u_{3j} - k_{3} - n_{3}K_{3}) - M_{n-1}^{0}(u_{3j} - k_{3} - n_{3}K_{3} - 1)
+            \right\}
+            \notag \\
+            &~~~~~~~~~~~~~~~\times
+            M_{n}^{0}(u_{1j} - k_{1} - n_{1}K_{1}) M_{n}^{0}(u_{2j} - k_{2} - n_{2}K_{2})
+    \Bigr]
+ \label{eq:PME27}
+\end{align}
+と計算される.
+\\
+
+
+\subsection{PME法を用いた計算手順}
+\begin{enumerate}
+ \setlength{\leftskip}{0.4cm}
+ \item[Step 0]
+	      シミュレーションを始める前にあらかじめ, 式(\ref{eq:PME16}),(\ref{eq:PME11})から
+	      $C(m_{1}, m_{2}, m_{3})$と$|b_{\alpha}(m_{\alpha})|^{2}$を計算する. \\
+	      これらを用いて, $B(m_{1}, m_{2}, m_{3}) \cdot C(m_{1}, m_{2}, m_{3})$を計算する.
+ \item[Step 1]
+	      式(\ref{eq:PME18})を用いて, 配列$Q(k_{1}, k_{2}, k_{3})$を計算する.
+	      B-spline関数 $M_{n}(u)$は$0<u<n$のみで値を持つ関数である. そのため,
+	      粒子jの持つ電荷$q_{j}$を各グリッド上に配分する際には,
+	      $j=1 \cdots N$, $\alpha=1,2,3$, $l=0,\cdots,n$
+	      に対して$M_{n}(u_{\alpha j} - l)$を計算すれば十分である.
+ \item[Step 2]
+	      $Q(k_{1}, k_{2}, k_{3})$の配列を逆フーリエ変換することで$\hat{\mathcal{F}}^{-1} (Q)(m_{1}, m_{2}, m_{3})$を求める.
+ \item[Step 3]
+	      Step 2で求めた$\hat{\mathcal{F}}^{-1}(Q)(m_{1}, m_{2}, m_{3})$と Step 0で求めた
+	      $B(m_{1}, m_{2}, m_{3}) \cdot C(m_{1}, m_{2}, m_{3})$を用いることで, 式(\ref{eq:PME22})から
+	      逆空間からの静電相互作用ポテンシャルエネルギーを計算することができる.
+ \item[Step 4]
+	      $B(m_{1}, m_{2}, m_{3}) \cdot C(m_{1}, m_{2}, m_{3}) \cdot \hat{\mathcal{F}}^{-1}(Q)$を離散フーリエ変換する.
+	      これを, 式(\ref{eq:PME24})に代入することで逆空間に由来する静電相互作用力を計算することができる.
+\end{enumerate}
+\clearpage
+
+\section{Particle Mesh Ewald法を実装をした時のメモ}
+\subsection{平行六面体セルの数学的基礎}
+
+\subsection{分子系に対するEwald法の表式}
+実際の分子系に対してLJ相互作用や静電相互作用の計算では,
+2つ隣までの原子との相互作用(いわゆる1-2, 1-3相互作用)を取り除くことがある.
+1-2, 1-3相互作用の原子ペア$(i,j)$の集合(Masked pairlist)を$M$と書く.
+式(\ref{eq:Ewald2.1})には, このような相互作用も含まれているので,
+$\sum_{(i,j) \in M} q_{i}q_{j} / |\bm{r}_{i} - \bm{r}_{j} |$
+を実空間, 逆空間ポテンシャルから計算されるエネルギーから差し引かなくてはいけない.
+さらに, 1-4相互作用に対する静電相互作用はスケール倍されることがある. このスケールファクターを$s$とする.
+このような場合, Ewald法による静電ポテンシャル項と力は以下のように修正される.
+
+ \begin{align}
+     U_{\mathrm{elec}}^{(1)}
+  =&
+     \frac{1}{2} \sum_{\bm{n}} \sum_{i=1}^{N} \left.\sum_{j=1}^{N}\right.^{*}
+     \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+     \frac{s - \mathrm{erf}(\alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| )}
+          {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+  \label{eq:Ewald38.1}
+  \\
+  \notag
+  \\
+     U_{\mathrm{elec}}^{(2)}
+  =&
+      \frac{1}{2 \pi V} \sum_{\bm{m}}
+      \frac{\exp(\frac{- \pi^{2}|\bm{m}|^{2}}{\alpha^{2}})}{|\bm{m}|^{2}}
+      \sum_{i=1}^{N} \sum_{j=1}^{N}
+      \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+       e^{2 \pi i \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j})}
+  \label{eq:Ewald38.2}
+  \\
+      U_{\mathrm{elec}}^{(3)}
+  =&
+    -\frac{1}{2} \sum_{(i,j) \in M}
+     \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+     \frac{\mathrm{erf}(\alpha |\bm{r}_{i} - \bm{r}_{j}|)}
+          {|\bm{r}_{i} - \bm{r}_{j}|}
+    -\frac{\alpha}{\sqrt{\pi}} \sum_{i=1}^{N}\frac{q_{i}^{2}}{4 \pi \epsilon_{0}}
+  \label{eq:Ewald38.3}
+  \\
+  \notag
+  \\
+     \bm{F}_{i}^{(1)}
+  =&
+     \sum_{\bm{n}} \left. \sum_{j=1}^{N} \right.^{*}
+     \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+  \notag
+  \\
+  &~~\times
+     \left[
+            \frac{s-\mathrm{erf} \{ \alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| \} }
+                 {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|^{2}}
+           +\frac{2 \alpha}{\sqrt{\pi}}
+            \frac{\exp \{ -\alpha^{2} |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|^{2} \}}
+                 {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+     \right]
+  \notag
+  \\
+  &~~\times
+     \frac{ \bm{r}_{i} - \bm{r}_{j} + \bm{Ln} }
+          {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+  \label{eq:Ewald38.4}
+  \\
+  \notag
+  \\
+     \bm{F}_{i}^{(2)}
+  =&
+    -\frac{2}{ V}
+     \sum_{\bm{m}} \frac{i \bm{m}}{|\bm{m}|^{2}}
+     \exp \left( -\frac{ \pi^{2}|\bm{m}|^{2} }{ \alpha^{2} } \right)
+     \sum_{j=1}^{N}
+     \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+     e^{2 \pi i \bm{m} \cdot (\bm{r}_{i} - \bm{r}_{j})}
+  \label{eq:Ewald38.5}
+  \\
+  \notag
+  \\
+     \bm{F}_{i}^{(3)}
+  =&
+     \sum_{(i,j) \in M}
+     \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+  % \notag
+  % \\
+  % &~~\times
+     \left[
+           -\frac{\mathrm{erf} \{ \alpha |\bm{r}_{i} - \bm{r}_{j}| \} }
+                 {|\bm{r}_{i} - \bm{r}_{j}|^{2}}
+           +\frac{2 \alpha}{\sqrt{\pi}}
+            \frac{\exp \{ -\alpha^{2} |\bm{r}_{i} - \bm{r}_{j}|^{2} \}}
+                 {|\bm{r}_{i} - \bm{r}_{j}|}
+     \right]
+     \frac{\bm{r}_{i} - \bm{r}_{j}}
+          {|\bm{r}_{i} - \bm{r}_{j}|}
+\end{align}
+式(\ref{eq:Ewald38.1})の$*$は$\bm{n} = 0$における$i=j$の場合, あるいは$(i,j) \in M$の場合
+の項を取り除くことを意味する.
+
+\subsection{実空間の計算について}
+\paragraph{実空間の表式} \
+
+実空間に由来する静電相互作用は, 多くの場合単位セル内で収束してしまう.
+このように実空間の相互作用を単位セル内のみで計算される時は
+\begin{align}
+    U_{\mathrm{elec}}^{(1)}
+ &=
+    \frac{1}{2} \sum_{\bm{n}} \sum_{i=1}^{N} \left.\sum_{j=1}^{N}\right.^{*}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+    \frac{s-\mathrm{erf}(\alpha |\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}| )}
+          {|\bm{r}_{i} - \bm{r}_{j} + \bm{Ln}|}
+ \notag
+ \\
+ &=
+    \sum_{\mathrm{nonbond}}
+    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+    \frac{s-\mathrm{erf}(\alpha |\bm{r}_{i} - \bm{r}_{j}| )}
+         {|\bm{r}_{i} - \bm{r}_{j}|}
+ \notag
+\end{align}
+と書き直すことができる.
+
+$|\bm{r}_{i} - \bm{r}_{j}|$を無次元化した座標を用いて計算することを考える.
+無次元化した座標$\Tilde{\bm{r}}_{i}$を以下のように定める.
+\begin{align}
+   \bm{r}_{i}
+ =
+   \left(
+          \begin{array}{c}
+            x_{i} \\ y_{i} \\ z_{i}
+          \end{array}
+   \right)
+ =
+  (\bm{a}_{1}, \bm{a}_{2}, \bm{a}_{3})
+   \left(
+          \begin{array}{c}
+            \xi_{i} \\ \eta_{i} \\ \zeta_{i}
+          \end{array}
+   \right)
+ \equiv
+   \bm{L}\Tilde{\bm{r}}_{i}
+\end{align}
+ここで計量テンソル
+\begin{align}
+   \bm{L}^{\mathrm{t}} \bm{L}
+ =
+    \left(
+          \begin{array}{ccc}
+           \bm{a}_{1} \cdot \bm{a}_{1} & \bm{a}_{1} \cdot \bm{a}_{2} & \bm{a}_{1} \cdot \bm{a}_{3} \\
+           \bm{a}_{2} \cdot \bm{a}_{1} & \bm{a}_{2} \cdot \bm{a}_{2} & \bm{a}_{2} \cdot \bm{a}_{3} \\
+           \bm{a}_{3} \cdot \bm{a}_{1} & \bm{a}_{3} \cdot \bm{a}_{2} & \bm{a}_{3} \cdot \bm{a}_{3} \\
+          \end{array}
+   \right)
+　 \equiv
+ \bm{G}
+\end{align}
+を定めると,
+\begin{align}
+     |\bm{r}_{i} - \bm{r}_{j}|
+ =&~
+     |\bm{L} (\Tilde{\bm{r}}_{i} - \Tilde{\bm{r}}_{j})|
+ \notag
+ \\
+ =&~
+   \left\{ (\Tilde{\bm{r}}_{i} - \Tilde{\bm{r}}_{j})^{\mathrm{t}} \bm{L}^{\mathrm{t}}
+            \bm{L} (\Tilde{\bm{r}}_{i} - \Tilde{\bm{r}}_{j})
+   \right\}^{\frac{1}{2}}
+ \notag
+ \\
+ =&~
+   \left\{
+      G_{11} \xi_{ji}^{2} + G_{22} \eta_{ji}^{2} + G_{33} \zeta_{ji}^{2}
+  + 2(G_{12} \xi_{ji} \eta_{ji} + G_{13} \xi_{ji} \zeta_{ji} + G_{23} \eta_{ji} \zeta_{ji})
+   \right\}^{\frac{1}{2}}
+\end{align}
+と原子間の距離を計算することができる.
+\paragraph{単位セルが立方体の時} \
+
+単位セルが1辺の長さが$L$の立方体の時, 計量テンソルは
+\begin{align}
+   \bm{G}
+ =
+ \left(
+        \begin{array}{ccc}
+         L^{2} & 0     & 0     \\
+         0     & L^{2} & 0     \\
+         0     & 0     & L^{2} \\
+        \end{array}
+ \right)
+ \notag
+\end{align}
+であるので,
+\begin{align}
+   \frac{\mathrm{erfc} \left(\alpha |\bm{r}_{i} - \bm{r}_{j}|\right)}{|\bm{r}_{i} - \bm{r}_{j}|}
+&=
+   \frac{\mathrm{erfc} \left\{\alpha L \left(\xi_{ji}^{2} + \eta_{ji}^{2} + \zeta_{ji}^{2} \right)^\frac{1}{2}\right\}}
+        {\alpha L \left( \xi_{ji}^{2} + \eta_{ji}^{2} + \zeta_{ji}^{2} \right)^\frac{1}{2}}
+ \notag
+ \\
+&=
+   \frac{\mathrm{erfc} \left\{\kappa \left(\xi_{ji}^{2} + \eta_{ji}^{2} + \zeta_{ji}^{2} \right)^\frac{1}{2}\right\}}
+        {\kappa \left( \xi_{ji}^{2} + \eta_{ji}^{2} + \zeta_{ji}^{2} \right)^\frac{1}{2}}
+ \notag
+\end{align}
+とかける.
+\subsection{PMEを用いた逆空間の静電相互作用の計算アルゴリズム}
+PMEを用いて逆空間の静電ポテンシャルと力を計算する手順を示す.
+
+\paragraph{Step~0-1 $B(m_{1}, m_{2}, m_{3})$の計算} \
+\begin{align}
+   B(m_{1}, m_{2}, m_{3})
+ =
+   |b_{1}(m_{1})|^{2} |b_{2}(m_{2})|^{2} |b_{3}(m_{3})|^{2}
+ \notag
+\end{align}
+ここで, $0 \le m_{\alpha} \le K_{\alpha}-1$であり,
+\begin{align}
+  b_{\alpha} (m_{\alpha})
+ =
+   \exp \left\{2 \pi i (n-1) \frac{m_{\alpha}}{K_{\alpha}} \right\}
+   \left[
+         \sum_{k=0}^{n-2} M_{n}^{0}(k+1) \exp \left(2 \pi i \frac{m_{\alpha}}{K_{\alpha}} k \right)
+   \right]^{-1}
+ \notag
+\end{align}
+で求められる. オイラーの公式を用いて指数関数を三角関数で書き直すと,
+\begin{align}
+   b_{\alpha} (m_{\alpha})
+ &=
+   \frac{\cos\left\{2 \pi \frac{m_{\alpha}}{K_{\alpha}}(n-1)\right\} + i \sin\left\{2 \pi \frac{m_{\alpha}}{K_{\alpha}}(n-1)\right\}}
+        {   \sum_{k=0}^{n-2} M_{n}^{0}(k+1) \cos \left(2 \pi \frac{m_{\alpha}}{K_{\alpha}} k \right)
+         +i \sum_{k=0}^{n-2} M_{n}^{0}(k+1) \sin \left(2 \pi \frac{m_{\alpha}}{K_{\alpha}} k \right)
+         }
+ \notag
+\end{align}
+であるので,
+\begin{align}
+   |b_{\alpha}(m_{\alpha})|^{2}
+ = \left[
+          \left\{ \sum_{k=0}^{n-2} M_{n}^{0}(k+1) \cos \left(2 \pi \frac{m_{\alpha}}{K_{\alpha}} k \right) \right\}^{2}
+        + \left\{ \sum_{k=0}^{n-2} M_{n}^{0}(k+1) \sin \left(2 \pi \frac{m_{\alpha}}{K_{\alpha}} k \right) \right\}^{2}
+   \right]^{-1}
+ \notag
+\end{align}
+と計算される.
+
+\paragraph{Step~0-2 $C(m_{1}, m_{2}, m_{3})$の計算} \
+\begin{align}
+  &C(\bm{m})
+ = C(m_{1}, m_{2}, m_{3})
+= \frac {\exp( - \pi^{2}|\bm{m}|^{2} / \alpha^{2} ) }{|\bm{m}|^{2}}
+ ~~~~\textrm{for $\bm{m} \neq 0$}, ~~C(0,0,0) = 0
+ \notag
+\end{align}
+$\bm{m} \equiv m_{1}^{\prime}\bm{a}_{1}^{*} + m_{2}^{\prime} \bm{a}_{2}^{*}+ m_{3}^{\prime}\bm{a}_{3}^{*}$であり,
+$m_{i}^{\prime}$は$0 \le m_{i} \le K_{i}/2$の範囲で$m_{i}^{\prime} = m_{i}$, その他の範囲では$m_{i}^{\prime} = m_{k} - K_{i}$である.
+
+したがって$\bm{m}^{2}$は
+\begin{align}
+   \bm{m}^{2}
+=&~
+   (m_{1}^{\prime}\bm{a}_{1}^{*} + m_{2}^{\prime} \bm{a}_{2}^{*}+ m_{3}^{\prime}\bm{a}_{3}^{*})
+   (m_{1}^{\prime}\bm{a}_{1}^{*} + m_{2}^{\prime} \bm{a}_{2}^{*}+ m_{3}^{\prime}\bm{a}_{3}^{*})
+ \notag
+ \\
+ =&~
+     m_{1}^{\prime 2} \bm{a}_{1}^{*} \cdot \bm{a}_{1}^{*}
+   + m_{2}^{\prime 2} \bm{a}_{2}^{*} \cdot \bm{a}_{2}^{*}
+   + m_{3}^{\prime 2} \bm{a}_{3}^{*} \cdot \bm{a}_{3}^{*}
+ \notag
+ \\
+ &+ 2 (  m_{1}^{\prime 2} m_{2}^{\prime 2} \bm{a}_{1}^{*} \cdot \bm{a}_{2}^{*}
+       + m_{1}^{\prime 2} m_{3}^{\prime 2} \bm{a}_{1}^{*} \cdot \bm{a}_{3}^{*}
+       + m_{2}^{\prime 2} m_{3}^{\prime 2} \bm{a}_{2}^{*} \cdot \bm{a}_{3}^{*} )
+ \notag
+\end{align}
+と計算される.
+\\
+
+\subparagraph{単位ユニットが1辺$L$の立方体の時} \
+
+逆格子ベクトルが
+\begin{align}
+ \bm{a}_{\alpha}^{*} = \frac{1}{L} (1, 0, 0)^{\mathrm{t}}
+ \notag
+\end{align}
+であるので
+\begin{align}
+   \bm{m}^{2}
+ =
+   \frac{1}{L^2} (m_{1}^{\prime 2} + m_{2}^{\prime 2} + m_{3}^{\prime 2})^{2}
+ \notag
+\end{align}
+と求められる. ゆえに$C(\bm{m})$は
+\begin{align}
+   \frac{1}{\pi V} C(m_{1}, m_{2}, m_{3})
+ &=
+   \frac{1}{\pi V}
+   \frac{\exp\left\{\pi^{2} (m_{1}^{\prime 2} + m_{2}^{\prime 2} + m_{3}^{\prime 2})^{2}/(\alpha L)^2\right\}}
+        {(m_{1}^{\prime 2} + m_{2}^{\prime 2} + m_{3}^{\prime 2})/L^2}
+ \notag
+ \\
+  &=
+   \frac{1}{\pi L}
+   \frac{\exp\left\{\pi^{2} (m_{1}^{\prime 2} + m_{2}^{\prime 2} + m_{3}^{\prime 2})^{2}/\kappa^2\right\}}
+        {m_{1}^{\prime 2} + m_{2}^{\prime 2} + m_{3}^{\prime 2}}
+ \notag
+\end{align}
+と計算される.
+このような表式を使用すると, $L$に依存しない形になる(つまり無次元化されている).
+したがってAndersenの方法のような立方体のシミュレーションボックスの圧力を制御するときに, 体積変化のたびに$C(m_1, m_2, m_3)$を更新する必要がなくなる.
+
+
+\paragraph{Step~0-3 $B \cdot C(m_{1}, m_{2}, m_{3})$の計算} \
+
+Step~0-1, Step~0-2で計算した$B(m_{1}, m_{2}, m_{3})$と$C(m_{1}, m_{2}, m_{3})$から,
+$B \cdot C (m_{1}, m_{2}, m_{3})$を計算する.
+\\
+
+\paragraph{Step~1 $u_{\alpha j}$の計算} \
+\begin{align}
+    u_{\alpha j }
+  =
+    K_{\alpha} \bm{a}_{\alpha}^{*} \cdot \bm{r}_{j}
+  =
+    K_{\alpha} \bm{a}_{\alpha}^{*} \cdot \bm{L} \Tilde{\bm{r}}_{j}
+  =
+    K_{\alpha} \bm{a}_{\alpha}^{*}
+    \cdot
+    (\xi_{j} \bm{a}_{1} + \eta_{j} \bm{a}_{2} + \zeta_{j}\bm{a}_{3})
+ \notag
+\end{align}
+であるので, スケールされた座標系$\Tilde{\bm{r}}_{j}=(\xi_{j},~ \eta_{j},~ \zeta_{j})$を用いて
+\begin{align}
+ u_{1j} &= K_{1} \xi_{j}   \notag \\
+ u_{2j} &= K_{2} \eta_{j}  \notag \\
+ u_{3j} &= K_{3} \zeta_{j} \notag
+\end{align}
+と計算できる.
+
+\paragraph{Step 2 $Q(k_{1}, k_{2}, k_{3})$の計算} \
+\begin{align}
+    Q(\bm{k})
+ \equiv
+    Q(k_{1}, k_{2}, k_{3})
+ &=
+    \sum_{j=1}^{N} q_{j} \sum_{n_{1}, n_{2}, n_{3}}
+    M_{n}^{0}(u_{1j}- k_{1} - n_{1}K_{1})
+ \notag
+ \\ &~~~~ \times
+    M_{n}^{0}(u_{2j} - k_{2} - n_{2}K_{2}) M_{n}^{0}(u_{3j} - k_{3} - n_{3}K_{3})
+ \notag
+\end{align}
+ここで$M_{n}^{0}$はB-Spline関数である.
+
+B-Spline関数$M_{n}^{0}(u)$の定義域は$0 \le u \le n$であるので,
+$M_{n}^{0}(u_{\alpha j} - k_{\alpha} - n_{\alpha}K_{\alpha})$の定義域は
+$0 \le u_{\alpha j} - k_{\alpha} - n_{\alpha}K_{\alpha} \le n$となる.
+したがって
+\begin{alignat}{5}
+  &-n                &\le &~ k_{\alpha} + n_{\alpha}K_{\alpha} - u_{\alpha} &\le &~0
+ \notag
+ \\
+  &-n + u_{\alpha j} &\le &~ k_{\alpha} + n_{\alpha}K_{\alpha}              &\le &~u_{\alpha j}
+\end{alignat}
+と変化される.
+$u_{\alpha j}$の定義域は$0 \le u_{\alpha j} \le K_{\alpha}$であることから,
+\begin{align}
+ -n < k_{\alpha} + n_{\alpha} K_{\alpha} \le K_{\alpha}
+\end{align}
+という不等式を得る.
+これより$n_{\alpha} = -1,~ 0$を考えれば十分であることが分かる.
+逆格子空間における座標$u_{\alpha j}$を整数部分$u_{\alpha j}^{\mathrm{int}}$
+と小数部分$u_{\alpha j}^{\mathrm{frac}}$に分割する.
+B-spline関数の定義域を考えれば, 粒子$j$の電荷は
+$k_{\alpha} = u_{\alpha j}^{\mathrm{int}},~ u_{\alpha j}^{\mathrm{int}}-1,~ \cdots,~ u_{\alpha j}^{\mathrm{int}} - (n - 1)$
+のみに内挿されることが分かる.
+
+\paragraph{Step 3 $Q(k_{1}, k_{2}, k_{3})$のフーリエ変換を実行} \
+\begin{align}
+   \hat{\mathcal{F}}^{-1} (Q) (m_{1}, m_{2}, m_{3})
+ =
+   \sum_{k_{1}=0}^{K_{1}-1} \sum_{k_{2}=0}^{K_{2}-1} \sum_{k_{3}=0}^{K_{3}-1}
+   Q(k_{1}, k_{2}, k_{3})
+   e^{-2 \pi i \left(\frac{m_{1}}{K_{1}}k_{1} + \frac{m_{2}}{K_{2}}k_{2} +\frac{m_{3}}{K_{3}}k_{3} \right)}
+ \notag
+\end{align}
+を計算する
+\paragraph{Step 4 逆空間におけるポテンシャル$U_{\mathrm{elec}}^{(2)}$の計算} \
+
+$\hat{\mathcal{F}}^{-1}(Q)(\bm{m})$とStep~0で求めた$B \cdot C(\bm{m})$を用いることで,
+逆空間からの静電ポテンシャルを
+\begin{align}
+    U_{\mathrm{elec}}{(2)}
+ =
+    \frac{1}{2 \pi V (4 \pi \epsilon_{0})}
+    \sum_{m_{1}=0}^{K_{1}-1} \sum_{m_{2}=0}^{K_{2}-1} \sum_{m_{3}=0}^{K_{3}-1}
+    B \cdot C(m_{1}, m_{2}, m_{3})
+    | \hat{\mathcal{F}}^{-1}(Q) (m_{1}, m_{2}, m_{3}) |^{2}
+ \notag
+\end{align}
+と計算することができる.
+\paragraph{Step 4 逆空間に由来する力$F_{j}^{(2)}$の計算} \
+
+$B \cdot C \cdot \hat{\mathcal{F}}^{-1}(Q)$をフーリエ変換した
+$\mathcal{F} \left\{B \cdot C \cdot \hat{\mathcal{F}}^{-1}(Q)\right\}$を計算することで,
+逆空間の静電相互ポテンシャルに由来する力を計算することができる.
+\begin{align}
+    \bm{F}_{j}^{(2)}
+ &=
+   -\frac{1}{\pi V (4 \pi \epsilon_{0})}
+    \sum_{k_{1}=0}^{K_{1}-1}
+    \sum_{k_{2}=0}^{K_{2}-1}
+    \sum_{k_{3}=0}^{K_{3}-1}
+    \frac{\partial Q (\bm{k})}{\partial \bm{r}_{j}}
+    \mathcal{F} \left[ B \cdot C \cdot \hat{\mathcal{F}}^{-1}(Q) \right]
+\end{align}
+ここで,
+\begin{align}
+  \frac{\partial Q(\bm{k})}{\partial \bm{r}_{j}}
+ =
+    \sum_{j=1}^{N} q_{j}
+    \Bigl[
+           &K_{1} \bm{a}_{1}^{*}
+            \sum_{n_{1},n_{2},n_{3}}
+            \left\{
+              M_{n-1}^{0}(u_{1j} - k_{1} - n_{1}K_{1}) - M_{n-1}^{0}(u_{1j} - k_{1} - n_{1}K_{1} - 1)
+            \right\}
+            \notag \\
+            &~~~~~~~~~~~~~~~\times
+            M_{n}^{0}(u_{2j} - k_{2} - n_{2}K_{2}) M_{n}^{0}(u_{3j} - k_{3} - n_{3}K_{3}
+    \notag \\
+          +~&K_{2} \bm{a}_{2}^{*}
+            \sum_{n_{1},n_{2},n_{3}}
+            \left\{
+              M_{n-1}^{0}(u_{2j} - k_{2} - n_{2}K_{2}) - M_{n-1}^{0}(u_{2j} - k_{2} - n_{2}K_{2} - 1)
+            \right\}
+            \notag \\
+            &~~~~~~~~~~~~~~~\times
+            M_{n}^{0}(u_{1j} - k_{1} - n_{1}K_{1}) M_{n}^{0}(u_{3j} - k_{3} - n_{3}K_{3})
+    \notag \\
+          +~&K_{3} \bm{a}_{3}^{*}
+            \sum_{n_{1},n_{2},n_{3}}
+            \left\{
+              M_{n-1}^{0}(u_{3j} - k_{3} - n_{3}K_{3}) - M_{n-1}^{0}(u_{3j} - k_{3} - n_{3}K_{3} - 1)
+            \right\}
+            \notag \\
+            &~~~~~~~~~~~~~~~\times
+            M_{n}^{0}(u_{1j} - k_{1} - n_{1}K_{1}) M_{n}^{0}(u_{2j} - k_{2} - n_{2}K_{2})
+    \Bigr]
+\end{align}
+と計算される.
+\\
+
+\subparagraph{単位セルが1辺の長さ$L$の立方体の時} \
+\begin{align}
+ \frac{\partial u_{\alpha j}}{\partial \bm{r}_{j}} = K_{\alpha}\bm{a}_{\alpha}^{*}
+ \notag
+\end{align}
+であるので,
+\begin{align}
+ \frac{\partial u_{1 j}}{\partial \bm{r}_{j}}
+ = \frac{K_{1}}{L}
+    \left(
+          \begin{array}{c}
+            1 \\ 0 \\ 0
+          \end{array}
+    \right)
+ ,~~~
+  \frac{\partial u_{2 j}}{\partial \bm{r}_{j}}
+ = \frac{K_{2}}{L}
+    \left(
+          \begin{array}{c}
+            0 \\ 1 \\ 0
+          \end{array}
+ \right)
+ ,~~~
+  \frac{\partial u_{3 j}}{\partial \bm{r}_{j}}
+ = \frac{K_{3}}{L}
+    \left(
+          \begin{array}{c}
+            0 \\ 0 \\ 1
+          \end{array}
+    \right)
+ \notag
+\end{align}
+と計算される.
+\clearpage
+\section{付録}
+\subsection{B-spline関数の具体例}
+\subsubsection{1次のB-spline関数}
+\begin{align}
+  M_{2}^{l}(u)
+=
+  \begin{cases}
+   u-l,~      & u \in    (l,~   l+1] \\
+   2-(u-l),~  & u \in    (l+1,~ l+2] \\
+   0,~        & u \notin (l,~   l+2] \\
+  \end{cases}
+\end{align}
+
+\subsubsection{2次のB-spline関数}
+\begin{align}
+  M_{3}^{l}(u)
+=
+  \begin{cases}
+   \frac{1}{2}(u-l)^{2},~               & u \in    (l,~   l+1] \\
+   -(u-l)^{2} + 3(u-l) - \frac{3}{2},~  & u \in    (l+1,~ l+2] \\
+   \frac{1}{2}\{(u-l)-3\}^{2},~         & u \in    (l+2,~ l+3] \\
+   0,~                                  & u \notin (l,  ~ l+3]
+  \end{cases}
+\end{align}
+
+\subsubsection{3次のB-spline関数}
+\begin{align}
+  M_{4}^{l}(u)
+=
+  \begin{cases}
+   \frac{1}{6}(u-l)^{3},~                                 & u \in    (l,~   l+1] \\
+   \frac{1}{6}\{-3(u-l)^3 + 12(u-l)^2 - 12(u-l) +  4\},~  & u \in    (l+1,~ l+2] \\
+   \frac{1}{6}\{ 3(u-l)^3 - 24(u-l)^2 - 60(u-l) - 44\},~  & u \in    (l+2,~ l+3] \\
+  -\frac{1}{6}\{(u-l) - 4\}^{2},~                         & u \in    (l+3,~ l+4] \\
+   0,~                                                    & u \notin (l,~   l+4]
+  \end{cases}
+\end{align}
+
+\clearpage
+
+\subsection{B-spline関数の解析微分の証明}
+数学的帰納法によって証明できる.
+まず$n=3$の時,
+\begin{align}
+\frac{d}{du} M_{3}^{l}(u)
+=
+  \begin{cases}
+    u-l,~        & u \in    (l,~   l+1] \\
+    -2(u-l)+3,~  & u \in    (l+1,~ l+2] \\
+    (u-l)-3,~    & u \in    (l+2,~ l+3] \\
+    0,~          & u \notin (l,  ~ l+3]
+   \end{cases}
+\end{align}
+と計算できる.
+\begin{align}
+  M_{2}^{l}(u)
+=
+  \begin{cases}
+   u-l,~      & u \in    (l,~   l+1] \\
+   2-(u-l),~  & u \in    (l+1,~ l+2] \\
+   0,~        & u \notin (l,~   l+2] \\
+  \end{cases}
+\end{align}
+かつ,
+\begin{align}
+  M_{2}^{l+1}(u)
+=
+  \begin{cases}
+   u-(l+1),~        & u \in    (l+1,~ l+2] \\
+   2-\{u-(l+1)\},~  & u \in    (l+2,~ l+3] \\
+   0,~              & u \notin (l+1,~ l+3] \\
+  \end{cases}
+\end{align}
+であるので, $n=3$の時
+\begin{align}
+ \frac{d}{du} M_{3}^{l}(u) = M_{2}^{l}(u) - M_{2}^{l+1}(u)
+\end{align}
+が成立. 一般の$n$について式(\ref{eq:PME9})が成り立つと仮定する.
+漸化式(\ref{eq:PME8})より,
+\begin{align}
+  M_{n+1}^{l}(u)
+&=
+  \frac{u-l}{n} M_{n}^{l} (u) + \frac{-u+n+l+1}{n} M_{n}^{l+1} (u)
+\end{align}
+となる. $u$について微分すると,
+\begin{align}
+   \frac{d}{du} M_{n+1}^{l}(u)
+=&~
+   \frac{d}{du}
+   \left\{
+           \frac{u-l}{n} M_{n}^{l}(u) + \frac{-u+n+l+1}{n} M_{n}^{l+1}(u)
+   \right\}
+ \notag \\
+ \notag \\
+=&~
+    \frac{1}{n} M_{n}^{l}(u)
+  + \frac{u-l}{n} \frac{d M_{n}^{l}(u)}{du}
+  - \frac{1}{n}M_{n}^{l+1}(u)
+  + \frac{-u+n+l+1}{n} \frac{d M_{n}^{l+1}(u)}{du}
+ \notag \\
+ \notag \\
+=&~
+    \frac{1}{n} M_{n}^{l}(u) - \frac{1}{n}M_{n}^{l+1}(u)
+  \notag
+  \\
+ &+ \frac{u-l}{n} \{M_{n-1}^{l} - M_{n-1}^{l+1}(u)\}
+  + \frac{-u+n+l+1}{n} \{M_{n-1}^{l+1} - M_{n-1}^{l+2}(u)\}
+ \notag \\
+ \notag \\
+=&~
+    \frac{1}{n}M_{n}^{l}(u) - \frac{1}{n}M_{n}^{l+1}(u)
+  \notag
+  \\
+ &+ \frac{1}{n}
+    \left\{
+            (u-l) M_{n-1}^{l}(u) + (-u+n+l) M_{n-1}^{l+1}(u) - n M_{n-1}^{l+1}(u)
+    \right\}
+  \notag
+  \\
+ &+ \frac{1}{n}
+    \left\{
+    -(u-n-l-1) M_{n-1}^{l+1}(u) - (-u+n+l+1) M_{n-1}^{l+2}(u)
+    \right\}
+ \notag \\
+ \notag \\
+=&~
+    \frac{1}{n} M_{n}^{l}(u) - \frac{1}{n} M_{n}^{l+1}(u)
+  \notag
+  \\
+ &+ \frac{n-1}{n}
+    \left\{
+            \frac{u-l}{n-1} M_{n-1}^{l}(u) + \frac{-u+n+l}{n-1} M_{n-1}^{l+1}(u)
+    \right\}
+  \notag
+  \\
+ &- \frac{n-1}{n}
+    \left\{
+    \frac{-u-(l+1)}{n-1} M_{n-1}^{l+1}(u) - \frac{-u+n+(l+1)}{n-1} M_{n-1}^{l+2}(u)
+    \right\}
+ \notag \\
+ \notag \\
+=&~
+    \frac{1}{n}M_{n}^{l}(u) - \frac{1}{n}M_{n}^{l+1}(u)
+  + \frac{n-1}{n} M_{n}^{l}(u) - \frac{n-1}{n} M_{n}^{l+1}
+ \notag \\
+ \notag \\
+=&~
+    M_{n}^{l} (u) - M_{n}^{l+1}(u)
+ \notag
+\end{align}
+\\
+以上より,
+\begin{equation}
+  \frac{d}{du} M_{n}^{l}(u) = M_{n-1}^{l}(u) - M_{n-1}^{l+1}(u)
+  \notag
+\end{equation}
+が成立.
+
+\clearpage
+
+\bibliographystyle{junsrt}
+\bibliography{ewald}
+\input{../include/end}

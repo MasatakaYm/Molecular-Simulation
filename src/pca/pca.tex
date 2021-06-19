@@ -1,0 +1,435 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{主成分解析 (PCA: Principal Component Analysis)}
+\maketitle
+
+主成分解析\cite{1981Karplus}は, 多次元空間の中で生体分子がどの
+ような挙動を示しているのか解析する際に用いられる.
+蛋白質の揺らぎは異方性が高いため, 物理量とも関連付けられることができる
+\cite{1991Kitao, 1999Kitao, 2001Kitao}.
+また, シミュレーションで得られた構造のクラスタリングをする際にも主成分
+解析は有用である.
+
+\section{主成分解析の基礎}
+主成分解析では, 原子座標$\mathbf{Q}$を原子座標の線形結合として表される独立な集団座標 (=主成分座標) $\mathbf{\Xi} = \{\xi_{ak}\}$ への線形変換を考える.
+原子座標から主成分座標への変換行列を$\mathbf{A}^{\mathrm{t}}$とすると
+\begin{align}
+  \mathbf{\Xi} &= \mathbf{A}^{\mathrm{t}} \mathbf{Q}
+\end{align}
+とかける.
+以降の便利のため, $k$番目の構造における座標ベクトルを$\mathbf{Q}_{k}$, $\mathbf{\Xi}_{k}$と書くことにする.
+基底が正規直交であるとすると,
+\begin{align}
+  \mathbf{A}^{\mathrm{t}} \mathbf{A} =
+  \mathbf{A} \mathbf{A}^{\mathrm{t}} =
+  \mathbf{I}
+\end{align}
+が成立する.
+ここで$\mathbf{I}$は単位行列である.
+主成分分析では, 新たに得られた軸に置いてデータの分散が最大になるように線形変換を施す.
+変換後の分散は
+\begin{align}
+  \Tilde{\sigma}^{2} (\mathbf{A}) &=
+  \sum_{k=1}^{K} w_{k}
+  (\mathbf{\Xi}_{k} - \langle \mathbf{\Xi} \rangle)^{\mathrm{t}}
+  (\mathbf{\Xi}_{k} - \langle \mathbf{\Xi} \rangle)
+  \notag
+  \\
+  &=
+  \sum_{k=1}^{K} w_{k}
+  \left\{
+         \mathbf{A}^{\mathrm{t}}
+         (\mathbf{Q}_{k} - \langle \mathbf{Q} \rangle)
+  \right\}^{\mathrm{t}}
+  \left\{
+         \mathbf{A}^{\mathrm{t}}
+         (\mathbf{Q}_{k} - \langle \mathbf{Q} \rangle)
+  \right\}
+  \notag
+  \\
+  &=
+  \sum_{k=1}^{K} w_{k}
+  \mathrm{Tr}
+  \left[
+        \mathbf{A}^{\mathrm{t}}
+        (\mathbf{Q}_{k} - \langle \mathbf{Q} \rangle)
+        (\mathbf{Q}_{k} - \langle \mathbf{Q} \rangle)^{\mathrm{t}}
+        \mathbf{A}
+  \right]
+  \notag
+  \\
+  &=
+  \mathrm{Tr}
+  \left[
+        \mathbf{A}^{\mathrm{t}}
+        \sum_{k=1}^{K} w_{k}
+        (\mathbf{Q}_{k} - \langle \mathbf{Q} \rangle)
+        (\mathbf{Q}_{k} - \langle \mathbf{Q} \rangle)^{\mathrm{t}}
+        \mathbf{A}
+  \right]
+  \notag
+  \\
+  &=
+  \mathrm{Tr}
+  \left[
+        \mathbf{A}^{\mathrm{t}}
+        \mathbf{\Sigma}
+        \mathbf{A}
+  \right]
+  \label{eq:variance}
+\end{align}
+と計算される.
+ここで, データの平均を計算するためにデータの重み$w_{k}$を導入した.
+また, $\mathbf{\Sigma}$は分散共分散行列である.
+また, 途中の式変形において
+$\mathbf{x}^{\mathrm{t}}\mathbf{x} = \mathrm{Tr}(\mathbf{x}\mathbf{x}^{\mathrm{t}})$が成り立つことを使用た.
+$\mathbf{A}^{\mathrm{t}}\mathbf{A}$の制約のもとで, 式(\ref{eq:variance})を最大にする$\mathbf{A}$を求める問題に帰着する:
+ \begin{equation}
+  J(\mathbf{A})
+  \equiv
+  \mathrm{Tr}
+  [\mathbf{A}^{\mathrm{t}} \mathbf{\Sigma} \mathbf{A} ]
+  -
+  [ (\mathbf{A}^{\mathrm{t}}\mathbf{A} - \mathrm{I})\mathbf{\Sigma}  ]
+ \end{equation}
+つまり, $\Sigma$は対角行列である.
+$\mathbf{A}$で偏微分すると
+\begin{align}
+  \frac{\partial J(\mathbf{A})}{\partial \mathbf{A}} =
+  2 \mathbf{\Sigma}\mathbf{A} - 2 \mathbf{A} \mathbf{\Sigma} = 0
+\end{align}
+ここで, (n, m)行列$\mathbf{X}$, $n$次元正方行列$\mathbf{Y}$について
+\begin{align}
+  \frac{\partial}{\partial \mathbf{X}}
+  \mathrm{Tr}
+  \{ \mathbf{X}^{\mathrm{t}} \mathbf{Y} \mathrm{X} \} =
+  (\mathbf{Y} + \mathbf{Y}^{\mathrm{t}}) \mathbf{X}
+\end{align}
+を用いた. ゆえに,
+\begin{align}
+  \mathbf{\Sigma} \mathbf{A} = \mathbf{A} \mathbf{\Sigma}
+  \notag
+  \\
+  \mathbf{A}^{\mathrm{t}}\mathbf{\Sigma} \mathbf{A} = \mathbf{\Sigma}
+\end{align}
+となり, $\mathbf{A}^{\mathrm{t}}$は$\mathbf{\Sigma}$を対角化する行列となる.
+
+
+\section{主成分解析のタンパク質への応用}
+$N$個の原子からなる系を考える.
+ここでは各原子の座標$x, y, z$を, より一般的な形である$q$で表すことにする.
+実際に主成分解析を行う場合, 全原子を扱わずに主鎖の原子座標やC$_{\alpha}$原子の座標のみに適用することが多い.
+その他の内部座標(例えば二面角や各アミノ酸残基の重心座標)を用いてもよい.
+分子シミュレーションによって, $K$個の構造を得たとする.
+各瞬間座標を, それぞれの平均座標からの変位に変換して, 質量の平方根で重み付けをする.
+瞬間構造の座標を行方向, 時系列を列方向にまとめると, $3N \times K$行列
+\begin{align}
+ \mathbf{Q} =
+ \left\{ Q_{ik} \right\} =
+ \left\{
+         \sqrt{m_{i}} \left(q_{ik} - \langle q_{i} \rangle\right)
+ \right\}
+\end{align}
+を得る.
+ここで, $\langle \mathbf{q}_{i} \rangle$は座標$\mathbf{q}_{ik}$の平均構造である.
+$\langle \mathbf{q}_{i} \rangle$は以下の手順で求められる:
+まず仮の$\mathbf{q}_{ik}^{\prime}$
+\footnote{自由度の数が同じであれば, どんな座標値でもいい. 例えば, 初期構造$\mathbf{q}_{i1}$などを用いる.}
+を定める. 続いて, $\mathbf{q}_{ik}^{\prime}$に対して$K$個の瞬間構造を全てbest fitさせて平均構造を求める.
+さらに求めた平均構造に対して瞬間構造全てをbest fitし平均構造を計算する.
+この操作を繰り返すことで平均構造を収束させる.
+通常は数回のイテレーションで平均構造に収束するはずである.
+
+主成分解析では, 原子座標$\mathbf{Q}$を原子座標の線形結合として表される独立な集団座標 (=主成分座標) $\mathbf{\Sigma} = \{\sigma_{ak}\}$ への線形変換を考える.
+原子座標から主成分座標への変換行列を $\mathbf{P}^{\mathrm{t}}$ とすると
+\begin{align}
+  \mathbf{\Sigma} &= \mathbf{P}^{\mathrm{t}} \mathbf{Q} %~, \\
+  %\mathbf{Q}      &= \mathbf{P} \mathbf{\Sigma}
+\end{align}
+とかける.
+ここで, 分散共分散行列$\mathbf{R}$を与える:
+\begin{align}
+  \mathbf{R} &=
+  \langle \mathbf{Q}^{\mathrm{t}} \mathbf{Q} \rangle
+  \notag
+  \\
+  &=
+  \left\{
+  \sqrt{m_{i} m_{j}}
+        \left\langle
+                    \left( q_{ik} - \langle q_{i} \rangle \right)
+                    \left( q_{jk} - \langle q_{j} \rangle \right)
+        \right\rangle
+  \right\}
+  \notag
+  \\
+  &=
+  \left\{
+        \sqrt{m_{i} m_{j}}
+        \left(
+               \left\langle q_{ik} q_{jk} \right\rangle
+             - \left\langle q_{i} \right\rangle
+               \left\langle q_{j} \right\rangle
+        \right)
+  \right\} .
+  \notag
+\end{align}
+この行列は明らかに対称行列である.
+各構造に対して重み$w_{k}$が課せられているとすると, 平均は
+\begin{align}
+  \left\langle q_{i} \right\rangle
+  &=
+  \sum_{k=1}^{K} w_{k} q_{ik}
+  \notag
+  \\
+  \left\langle q_{i} q_{j} \right\rangle
+  &=
+  \sum_{k=1}^{K} w_{k} (q_{ik} q_{jk})
+  \notag
+\end{align}
+と計算される. ただし重み$w_{k}$は規格化されているものとする.
+
+原子座標から主成分座標への変換行列$\mathbf{P}^{\mathrm{t}}$は, 原子座標の分散共分散行列$\mathbf{R}$の標準固有値問題 (対角化)から得られる.
+\begin{align}
+  \mathbf{R}\mathbf{P} =  \mathbf{P} \mathbf{\Lambda} % \\
+ % \mathbf{P}\mathbf{P}^{\mathrm{t}} = \mathbf{P}^{\mathrm{t}} \mathbf{P} = \mathbf{I}
+\end{align}
+ここで$\mathbf{\Lambda}$は対角行列である. その成分 $\lambda_{a} (a = 1,2, \cdots, 3N)$ は固有値であり, 主成分座標方向の分散を表す:
+ $\lambda_{a} = \langle \sigma_{ak} ^{2} \rangle$.
+事前に原子座標に対してbest fitをして並進と回転の自由度を取り除いている場合, 6つの固有値がゼロとなる.
+行列$\mathbf{P}$の各列は, 分散共分散行列$\mathbf{R}$の固有ベクトル$\mathbf{u}_{a}$である:
+\begin{align}
+  \mathbf{P} =
+  \left[
+        \begin{array}{cccc}
+         \mathbf{u}_{1} &
+         \mathbf{u}_{2} &
+         \cdots &
+         \mathbf{u}_{3N} \\
+         \end{array}
+  \right]~.
+\end{align}
+固有ベクトル$\mathbf{u}_{a}$はa番目の主成分軸に対応する.
+また, 固有ベクトルは規格化されているものとする. つまり, 変換行列は
+$\mathbf{P}\mathbf{P}^{\mathrm{t}} = \mathbf{P}^{\mathrm{t}} \mathbf{P} = \mathbf{I}$ を満たす.
+原子座標$\mathbf{Q}$は平均構造からの変位であることから, 座標軸の原点は分布の平均値になっている.
+
+主成分座標$\mathbf{\Sigma} = \{\sigma_{ak}\}$を得るには, $\mathbf{Q}$を主成分座標に射影すればよい:
+\begin{align}
+   \mathbf{\Sigma}
+ = \{\sigma_{ak}\}
+&= \mathbf{P}^{\mathrm{t}} \mathbf{Q}.
+\end{align}
+$\{\sigma_{ak}\}$の$a$行目の列ベクトル $(k = 1, 2, \cdots, K)$は
+第$a$主成分座標の時系列$\sigma_{a}(t_{k})$であり, 具体的に次のように計算される:
+\begin{align}
+  \mathbf{\sigma}_{a} (t_{k}) &=
+   \left[
+         \begin{array}{cccc}
+           u_{1}^{(1)}  & u_{1}^{(2)}  & \cdots & u_{1}^{(3N)}  \\
+           u_{2}^{(1)}  & u_{2}^{(2)}  & \cdots & u_{2}^{(3N)}  \\
+             \vdots     &   \vdots     & \ddots &  \vdots       \\
+           u_{3N}^{(1)} & u_{3N}^{(2)} & \cdots & u_{3N}^{(3N)} \\
+         \end{array}
+  \right]
+  \left[
+        \begin{array}{c}
+          Q_{1} (t_{k}) \\
+          Q_{2} (t_{k}) \\
+          \vdots \\
+          Q_{3N} (t_{k})
+        \end{array}
+  \right]
+\\
+&=
+  \left[
+        \begin{array}{c}
+          u_{1}^{(1)}  Q_{1} (t_{k}) + u_{1}^{(2)}  Q_{2} (t_{k}) +
+          \cdots u_{1}^{(3N)}  Q_{3N} (t_{k})
+          \\
+          u_{2}^{(1)}  Q_{1} (t_{k}) + u_{2}^{(2)}  Q_{2} (t_{k}) +
+          \cdots u_{2}^{(3N)}  Q_{3N} (t_{k})
+          \\
+          \vdots
+          \\
+          u_{3N}^{(1)} Q_{1} (t_{k}) + u_{3N}^{(2)} Q_{2} (t_{k}) +
+          \cdots u_{3N}^{(3N)} Q_{3N} (t_{k})
+        \end{array}
+   \right] .
+\end{align}
+
+$\lambda_{a}$は$\sigma_{ak}$の$k$に関する分散であることから次の式が成立する:
+\begin{align}
+ \lambda_{a} =
+ \langle \sigma_{ak}^{2} \rangle =
+ \sum_{i=1}^{3N} v_{ik}^{2} \langle q_{ak}^{2} \rangle.
+\end{align}
+また, 分散の総和への主成分$a$の寄与率は
+\begin{align}
+  \frac{\lambda_{a}}{\sum_{a^{\prime}=1}^{3N-6} \lambda_{a^{\prime}}}
+\end{align}
+から計算することができる.
+
+$\mathbf{\Sigma}$を標準偏差である$\lambda^{-\frac{1}{2}}$でスケールして
+\begin{align}
+  \mathbf{U}^{\mathrm{t}} =
+  \lambda^{-\frac{1}{2}} \mathbf{\Sigma} =
+  \lambda^{-\frac{1}{2}} \mathbf{P}^{\mathrm{t}} \mathbf{Q}
+\end{align}
+とすると, $\mathbf{U}^{\mathrm{t}}\mathbf{U} = \mathbf{I}$である.
+$K \times 3N$行列$\mathbf{Q}^{\mathrm{t}}$の特異値分解
+\begin{align}
+  \mathbf{Q}^{\mathrm{t}} = \mathbf{U} \lambda^{\frac{1}{2}} \mathbf{P}^{\mathrm{t}}
+\end{align}
+からも変換行列$\mathbf{P}^{\mathrm{t}}$を得ることができる.
+
+エネルギー面が完全に多次元のパラボラとなっている時は,
+得られる変換行列は基準振動解析の値と一致する.
+この時, 固有値$\lambda_{a}$は固有振動数$\omega_{a}$と, 次の関係を持つ\cite{1991Kitao, 1999Kitao, 2001Kitao}:
+\begin{align}
+  \lambda_{a} = \frac{k_{B}T}{\omega_{a}^{2}}.
+\end{align}
+
+\section{PCAの実行例}
+
+簡単な例題を通して, PCAがどのように実行されるかを確認する. 
+このような例は, プログラムを実装したときのデバッグに役に立つ. 
+
+\subsection{PCAを解析的実行した例1}
+次のデータの集合$\{\mathbf{x}_{i}\}$を考える:
+\begin{align}
+  \mathbf{x}_{1} = (1,2),~~
+  \mathbf{x}_{2} = (2,4),~~
+  \mathbf{x}_{3} = (3,6)
+\end{align}
+あるいは, データの平均がゼロになるようにシフトしたデータの集合$\{\mathbf{x}_{i}^{\prime}\}$
+\begin{align}
+  \mathbf{x}_{1}^{\prime} = (-1,-2),~~
+  \mathbf{x}_{2}^{\prime} = (0,0),~~
+  \mathbf{x}_{3}^{\prime} = (1,2)
+\end{align}
+を考えても得られる主成分軸は変わらないが, 今回は元の集合$\{\mathbf{x}_{i}\}$を考えていく. 
+\footnote{実際は, シフトしたデータの集合$\{\mathbf{x}_{i}^{\prime}\}$を用いた方が, 分散共分散行列の$\langle x \rangle$や$\langle y \rangle$項が0となるため, 計算が楽である. }
+分散共分散行列は, 
+\begin{align}
+  \begin{bmatrix}
+    \langle x^{2} \rangle - \langle x \rangle^{2} &
+    \langle xy    \rangle - \langle x \rangle \langle y \rangle \\
+    \langle xy    \rangle - \langle x \rangle \langle y \rangle &
+    \langle y^{2} \rangle - \langle y \rangle^{2}
+  \end{bmatrix}
+  &=
+  \begin{bmatrix}
+    \frac{1+4+9}{3} - \left(\frac{1+2+3}{3}\right)^{2} &
+    \frac{2+9+18}{3} - \left(\frac{1+2+3}{3}\right)\left(\frac{2+4+6}{3}\right) \\
+    \frac{2+9+18}{3} - \left(\frac{1+2+3}{3}\right)\left(\frac{2+4+6}{3}\right) &
+    \frac{4+16+36}{3} - \left(\frac{2+4+6}{3}\right)^{2}
+  \end{bmatrix}
+  \notag \\ &=
+  \begin{bmatrix}
+    0.666\ldots & 1.333\ldots \\
+    1.333\ldots & 2.666\ldots
+  \end{bmatrix}
+  \notag
+\end{align}
+と計算される. 
+分散共分散行列の固有値と固有ベクトルを求めると
+\begin{alignat}{4}
+  \lambda_{1} &= 3.333\ldots, ~~~~&& \mathbf{u}_{1} &&=  ( 0.45, 0.89)^{t} \\
+  \lambda_{2} &= 0.000\ldots, ~~~~&& \mathbf{u}_{2} &&=  (-0.89, 0.45)^{t}
+\end{alignat}
+を得る. 
+最後に, 元のデータを主成分軸上に射影する. 
+通常平均値が主成分軸の原点になるようにするので, シフトしたデータの集合$\{\mathbf{x}_{i}^{\prime}\}$を主成分軸上に射影して, 新たな座標の集合$\mathbf{y}$を得る. 
+\begin{align}
+  \mathbf{y} &=
+  \begin{bmatrix}
+     0.45 & 0.89 \\
+    -0.89 & 0.45
+  \end{bmatrix}
+  \begin{bmatrix}
+    -1 & 0 & 1 \\
+    -2 & 0 & 2
+ \end{bmatrix}
+ \\
+ &\simeq
+ \begin{bmatrix}
+  -2.23 & 0 & 2.23 \\
+   0    & 0 & 0
+\end{bmatrix}
+\end{align}
+
+\subsection{PCAを解析的実行した例2}
+次のデータの集合$\{\mathbf{x}_{i}\}$を考える:
+\begin{alignat}{3}
+  \mathbf{x}_{1} &= (1,1),~~ &
+  \mathbf{x}_{2} &= (3,3),~~ &
+  \mathbf{x}_{3} &= (5,5),~~ \notag \\
+  \mathbf{x}_{4} &= (2,4),~~ &
+  \mathbf{x}_{5} &= (4,2)    &\notag
+  %\mathbf{x}_{\mathrm{ave}} &= (3,~3)
+\end{alignat}
+なお, データ点の平均値は$\mathbf{x}_{\mathrm{ave}}= (3,~3)$である. 
+データの平均がゼロになるようにシフトしたデータの集合$\{\mathbf{x}_{i}^{\prime}\}$は
+\begin{alignat}{3}
+  \mathbf{x}_{1}^{\prime} &= (-2,-2),~~&
+  \mathbf{x}_{2}^{\prime} &= (0,0),~~  &
+  \mathbf{x}_{3}^{\prime} &= (2,2),~~  \notag \\
+  \mathbf{x}_{4}^{\prime} &= (-1,1),~~ &
+  \mathbf{x}_{5}^{\prime} &= (1,-1),   &\notag
+\end{alignat}
+である. 
+分散共分散行列は, 
+\begin{align}
+  \begin{bmatrix}
+    \langle x^{2} \rangle - \langle x \rangle^{2} &
+    \langle xy    \rangle - \langle x \rangle \langle y \rangle \\
+    \langle xy    \rangle - \langle x \rangle \langle y \rangle &
+    \langle y^{2} \rangle - \langle y \rangle^{2}
+  \end{bmatrix}
+  &=
+  \begin{bmatrix}
+    \frac{4+0+4+1+1}{5} & \frac{4+0+4-1-1}{5} \\
+    \frac{4+0+4-1-1}{5} & \frac{4+0+4+1+1}{5} \\
+  \end{bmatrix}
+  \notag \\ &=
+  \begin{bmatrix}
+    2   & 1.2 \\
+    1.2 & 2
+  \end{bmatrix}
+  \notag
+\end{align}
+分散共分散行列の固有値と固有ベクトルを求めると
+\begin{alignat}{4}
+  \lambda_{1} &= 3.2 ~~~~&& \mathbf{u}_{1} &&= ( 0.71, 0.71)^{t} \\
+  \lambda_{2} &= 0.8 ~~~~&& \mathbf{u}_{2} &&= (-0.71, 0.71)^{t}
+\end{alignat}
+を得る. 
+最後に, 元のデータを主成分軸上に射影する. 
+通常平均値が主成分軸の原点になるようにするので, シフトしたデータの集合$\{\mathbf{x}_{i}^{\prime}\}$を主成分軸上に射影して, 新たな座標の集合$\mathbf{y}$を得る. 
+\begin{align}
+  \mathbf{y} &=
+  \begin{bmatrix}
+     0.71 & 0.71 \\
+    -0.71 & 0.71
+  \end{bmatrix}
+  \begin{bmatrix}
+    -2 & 0 & 2 & -1 &  1 \\
+    -2 & 0 & 2 &  1 & -1
+ \end{bmatrix}
+ \\
+ &\simeq
+ \begin{bmatrix}
+  -2.84 & 0 & 2.84 & 0    &  0 \\
+   0    & 0 & 0    & 1.42 & -1.42
+\end{bmatrix}
+\end{align}
+
+
+\bibliographystyle{junsrt}
+\bibliography{pca}
+\input{../include/end}

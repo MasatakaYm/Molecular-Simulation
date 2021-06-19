@@ -1,0 +1,546 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{シンプレクティック分子動力学法}
+\maketitle
+
+ここまで運動方程式を差分化することで時間積分アルゴリズムを導出した. 
+また時間発展演算子を用いることでアルゴリズムの導出の見通しが良くなることを見た. 
+本章ではこれまで見てきた時間積分アルゴリズムをシンプレクティック性の観点から再考察する. 
+シンプレクティック分子動力学法を用いると長時間安定なシミュレーションが実現される. 
+
+\section{ハミルトンの正準方程式とシンプレクティック条件}
+\subsection{ハミルトンの正準方程式}
+ハミルトンの正準方程式は
+\begin{alignat}{3}
+ & \dot{\bm{q}}_{i}
+ =&& \frac{\partial \mathcal{H}}{\partial \bm{p}_{i}}
+ \\
+ & \dot{\bm{p}}_{i}
+ =-&&\frac{\partial \mathcal{H}}{\partial \bm{q}_{i}}
+\end{alignat}
+とかける. 
+位相空間は$q$と$p$で張られる. 
+一点(=初期値)を決めるとハミルトンの正準方程式に従って点は移動する. 
+ハミルトンの正準方程式は位相空間に対して「速度ベクトル場」を定義している. 
+ハミルトニアンで作られたベクトル場を「ハミルトンベクトル場」と呼ぶ. 
+
+一般座標$q_{i}$と一般運動量$p_{i}$をまとめて
+\begin{equation}
+ \bm{\Gamma}
+=\begin{pmatrix}
+  \bm{q} \\
+  \bm{p} \\
+ \end{pmatrix}
+\end{equation}
+と書く. 
+ここで$\bm{q}$, $\bm{p}$は$3N$この成分を持つ:
+\begin{align}
+  \bm{q} &= (q_{1},~ q_{2},~ \ldots,~ p_{3N})^{t}
+  \\
+  \bm{p} &= (p_{1},~ p_{2},~ \ldots,~ p_{3N})^{t}
+\end{align}
+このとき, ハミルトンの正準方程式は
+\begin{equation}
+ \dot{\bm{\Gamma}}
+=\bm{J}\frac{\partial \mathcal{H}}{\partial \bm{\Gamma}}
+\end{equation}
+とかける. 
+また, $\bm{J}$は$6N \times 6N$行列で
+\begin{equation}
+ \bm{J}
+ \equiv
+ \begin{pmatrix}
+  \bm{0}  & \bm{1} \\
+  \bm{-1} & \bm{0}
+ \end{pmatrix}
+\end{equation}
+で定義される.
+ここで, $\bm{1}$は$3N \times 3N$の単位行列である. 
+また$\partial \mathcal{H}/\partial \bm{\Gamma}$は
+位相空間におけるハミルトニアン$\mathcal{H}$の勾配である. 
+1粒子系を考えると$\bm{J}$はハミルトニアンの勾配に対して
+90度反時計回りに空間を回転させる行列である. 
+ハミルトンの正準方程式は, ハミルトニアンの勾配に直交するようにハミルトンベクトル場を作る方程式と言える. 
+運動は常にハミルトニアンの勾配に直交するためハミルトニアンは保存する. 
+
+\subsection{シンプレクティック条件}
+続いて, $\bm{\Gamma}$から別の座標と運動量の組$\bm{\Gamma}^{\prime}$への, 時間に依存しない正準変換を考える. 
+$\bm{\Gamma}^{\prime}$は$\bm{\Gamma}$から正準変換によって導かれるため, $\bm{\Gamma}$についても正準方程式
+\begin{equation}
+  \dot{\bm{\Gamma}}^{\prime}
+  =
+  \bm{J}\frac{\partial \mathcal{H}}{\partial \bm{\Gamma}^{\prime}}
+  \label{Eq:Symplectic-HamiltonEq-Gamma1}
+\end{equation}
+が成り立つ. 
+$\bm{\Gamma}^{\prime}$を$\bm{\Gamma}$の関数$\bm{\Gamma}^{\prime}(\bm{\Gamma})$と見なすと, 微分のチェーンルールなど用いて, 以下のように$\dot{\bm{\Gamma}}^{\prime}$を変形できる:
+\begin{alignat}{2}
+  \dot{\Gamma}_{i}^{\prime}
+  &=
+  \sum_{j=1}^{6N}
+  \frac{\partial \Gamma_{i}^{\prime}}{\partial \Gamma_{j}} \dot{\Gamma}_{j}
+  =
+  \sum_{j=1}^{6N} M_{ij} \dot{\Gamma}_{j}
+  &&=
+  \sum_{j,k=1}^{6N}
+  M_{ij} J_{jk} \frac{\partial \mathcal{H}}{\partial \Gamma_{k}}
+  \notag
+  \\
+  &=
+  \sum_{j,k,l=1}^{6N}
+  M_{ij} J_{jk}
+  \frac{\partial \Gamma_{l}^{\prime}}{\partial \Gamma_{k}}
+  \frac{\partial \mathcal{H}}{\partial \Gamma_{l}^{\prime}}
+  &&=
+  \sum_{j,k,l=1}^{6N}
+  M_{ij} J_{jk} M_{lk}
+  \frac{\partial \mathcal{H}}{\partial \Gamma_{l}^{\prime}}
+  \notag
+\end{alignat}
+第3式から第4式への展開では$\bm{\Gamma}$に関する正準方程式を用いた. 
+また$M_{lk}$は$M_{kl}$の転置である. 
+行列記法でまとめ直すと, 
+\begin{equation}
+  \dot{\bm{\Gamma}}^{\prime}
+  =
+  \bm{M} \bm{J} \bm{M}^{t}
+  \frac{\partial \mathcal{H}}{\partial \bm{\Gamma}^{\prime}}
+  \label{Eq:Symplectic-HamiltonEq-Gamma2}
+\end{equation}
+となる. また, 行列$\bm{M}$は$\bm{\Gamma}$から$\bm{\Gamma}^{\prime}$への正準変換におけるヤコビ行列であり, その$(i,j)$成分は
+\begin{equation}
+  M_{ij} = \frac{\partial \Gamma_{i}^{\prime}}{\partial \Gamma_{j}}
+  \label{Eq:Jacobi-Matrix}
+\end{equation}
+で与えられる. 
+式(\ref{Eq:Symplectic-HamiltonEq-Gamma1})と式(\ref{Eq:Symplectic-HamiltonEq-Gamma2})を比較すると, 
+\begin{equation}
+  \bm{M} \bm{J} \bm{M}^{t} = \bm{J}
+  \label{Eq:Symplectic-Condition}
+\end{equation}
+であることが分かる. 
+式(\ref{Eq:Symplectic-Condition})は変換が正準変換であるための必要十分条件であり, これ\textbf{シンプレクティック条件}という. 
+
+\section{シンプレクティック分子動力学法}
+ある時刻$t$における一般座標$q(t)$, 一般運動量$p(t)$がハミルトニアンにしたがって時間発展し, 時刻$\Delta t$後にそれぞれ$q(t + \Delta t)$, $p(t + \Delta t)$に変化したとする. この時間発展は変数変換
+\begin{equation}
+  \begin{bmatrix}
+    \bm{q}(t) \\
+    \bm{p}(t)
+  \end{bmatrix}
+  \to
+  \begin{bmatrix}
+    \bm{q}(t + \Delta t) \\
+    \bm{p}(t + \Delta t)
+  \end{bmatrix}
+\end{equation}
+とみなせる. 
+変数$(\bm{q}(t),\bm{p}(t))$の組みも, $(\bm{q}(t + \Delta t),\bm{p}(t + \Delta t))$の組みも, ともに同じハミルトニアンに対する正準方程式に従うので, この変換は正準変換である. 既に述べたように, 正準変換に置いてはシンプレクティック条件が成立するので, ハミルトニアンに従う時間発展で得られる一般座標, 一般運動量はシンプレクティック条件(\ref{Eq:Symplectic-Condition})を満たしている. 
+このように現実の物体はシンプレクティック条件を満たしながら運動をしているが, 運動方程式を差分化して数値積分を実行した場合は, 必ずしもシンプレクティック条件を満たすとは限らない. 
+シンプレクティック条件を満たしながら時間発展を行う分子動力学法をシンプレクティック分子動力学法という. 
+
+\subsection{シンプレクティク分子動力学法における時間発展}
+座標$\bm{q}$と運動量$\bm{p}$の関数として記述される任意の物理量$A(\bm{q}, \bm{p})$の時間変化は以下のようにかける:
+\begin{align}
+  \frac{dA}{dt}
+  =&
+  \sum_{i=1}^{3N}
+  \left(
+    \frac{\partial A}{\partial q_{i}} \dot{q}_{i}
+    +
+    \frac{\partial A}{\partial p_{i}} \dot{p}_{i}
+  \right)
+  \\
+  =&
+  \sum_{i=1}^{3N}
+  \left(
+    \frac{\partial A}{\partial q_{i}}
+    \frac{\partial \mathcal{H}}{\partial p_{i}}
+    -
+    \frac{\partial A}{\partial p_{i}}
+    \frac{\partial \mathcal{H}}{\partial q_{i}}
+  \right)
+  \\
+  =&
+  \left[
+    \sum_{i=1}^{3N}
+    \left(
+      \frac{\partial \mathcal{H}}{\partial p_{i}}
+      \frac{\partial}{\partial q_{i}}
+      -
+      \frac{\partial \mathcal{H}}{\partial q_{i}}
+      \frac{\partial}{\partial p_{i}}
+    \right)
+  \right]
+  A(\bm{q},\bm{p})
+\end{align}
+ここで, 時間発展演算子$D_{\mathcal{H}}$を
+\begin{equation}
+  D_{\mathcal{H}}
+  \equiv
+  \sum_{i=1}^{3N}
+  \left(
+    \frac{\partial \mathcal{H}}{\partial p_{i}}
+    \frac{\partial}{\partial q_{i}}
+    -
+    \frac{\partial \mathcal{H}}{\partial q_{i}}
+    \frac{\partial}{\partial p_{i}}
+  \right)
+\end{equation}
+と定義すると, 物理量$A(\bm{q}, \bm{p})$の時間変化は
+\begin{equation}
+  \frac{dA}{dt}
+  =
+  D_{\mathcal{H}} A
+\end{equation}
+とかける. この微分方程式は形式に
+\begin{equation}
+  A(t + \Delta t)
+  =
+  e^{D_{\mathcal{H}} \Delta t} A(t)
+\end{equation}
+と解くことができる. 
+
+ハミルトニアンが運動量のみに依存する項と, 座標のみに依存する項に分かれている場合を考える. 典型的には運動量項$K$とポテンシャル項$U$の和
+\begin{equation}
+  \mathcal{H}(\bm{q}, \bm{p})
+  =
+  K(\bm{p}) + U(\bm{q})
+\end{equation}
+の形になっていることが多い. 
+この場合, 時間発展演算子も
+\begin{align}
+  D_{\mathcal{H}}
+  =&
+  \sum_{i=1}^{3N}
+  \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \frac{\partial}{\partial q_{i}}
+  -
+  \sum_{i=1}^{3N}
+  \frac{\partial \mathcal{H}}{\partial q_{i}}
+  \frac{\partial}{\partial p_{i}}
+  \\
+  =&
+  D_{K} + D_{U}
+\end{align}
+と分離することができる. ここで, 運動量のみに依存する項と座標のみに依存する項に対応する演算子をそれぞれ
+\begin{align}
+  D_{K}
+  \equiv&
+  \sum_{i=1}^{3N}
+  \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \frac{\partial}{\partial q_{i}}
+  \label{Eq:Symplectic-Definition-DK}
+  \\
+  D_{U}
+  \equiv&
+  \sum_{i=1}^{3N}
+  \frac{\partial \mathcal{H}}{\partial q_{i}}
+  \frac{\partial}{\partial p_{i}}
+  \label{Eq:Symplectic-Definition-DU}
+\end{align}
+と定義した. 
+
+鈴木・トロッター分解を用いると全体の時間発展演算子$D_{\mathcal{H}}$を各項の時間発展演算子$D_{K}$, $D_{U}$を用いて, 例えば
+\begin{equation}
+  e^{D_{\mathcal{H}}}
+  =
+  e^{D_{U} \frac{\Delta t}{2}}
+  e^{D_{K} \Delta t}
+  e^{D_{U} \frac{\Delta t}{2}}
+  \label{Eq:Symplectic-Suzuki-Trottor-Decomposition-UKU}
+\end{equation}
+のように書くことができる. 
+一般に分子動力学シミュレーションでは, $e^{D_{\mathcal{H}}}$に基づく時間発展を厳密に解くことはできないが, 近似として$e^{D_{U} \frac{\Delta t}{2}}e^{D_{K} \Delta t}e^{D_{U} \frac{\Delta t}{2}}$による時間発展を実行することはできる. もちろん, より高次の鈴木・トロッター分解に基づく時間発展も可能である. 
+
+$e^{D_{K} \Delta t}$および$e^{D_{U} \Delta t}$はそれぞれ$K$あるいは$U$をハミルトニアンと見なした場合の時間発展演算子であるので, これらの時間発展はシンプレクティック条件(\ref{Eq:Symplectic-Condition})を満たす. すなわち, それぞれが作用したときに発生した状態が正準方程式を満たし, これらの時間発展演算子による写像によって位相空間の体積が変化しないことも意味している. 各部分がシンプレクティック条件を満たしているので, $e^{D_{U} \frac{\Delta t}{2}}e^{D_{K} \Delta t}e^{D_{U} \frac{\Delta t}{2}}$による時間発展もシンプレクティック条件を満たす. 
+
+演算子$D_{K}$, $D_{U}$はその定義式(\ref{Eq:Symplectic-Definition-DK}), (\ref{Eq:Symplectic-Definition-DU})により, $\bm{q}$と$\bm{p}$に以下のように作用する:
+\begin{alignat}{10}
+  &D_{K}     q_{i} &&=&& \frac{\partial K}{\partial p_{i}},~~~~
+  &D_{K}^{2} q_{i}   =   0,~~~~
+  &D_{U}     q_{i}   =   0
+  \\
+  &D_{U}     p_{i} &&=-&& \frac{\partial U}{\partial q_{i}},~~~~
+  &D_{U}^{2} p_{i}   =    0,~~~~
+  &D_{K}     p_{i}   =    0
+\end{alignat}
+ここで$D_{K}$は2回以上$q_{i}$に演算子した時に$0$になり, $D_{U}$は2回以上$p_{i}$に演算子した場合に0になることに注意. これらを用いると時間発展演算子$e^{D_{K}\Delta t}$と$e^{D_{U}\Delta t}$による$\bm{q}$, $\bm{p}$の時間変化は以下のように計算される:
+\begin{align}
+  e^{D_{K}\Delta t} q_{i} &= q_{i} + \frac{\partial K}{\partial p_{i}} \Delta t \\
+  e^{D_{K}\Delta t} p_{i} &= p_{i} \\
+  e^{D_{U}\Delta t} q_{i} &= q_{i} \\
+  e^{D_{U}\Delta t} p_{i} &= p_{i} - \frac{\partial U}{\partial q_{i}} \Delta t \\
+\end{align}
+ただし以上の計算において, 時間発展演算子$e^{D \Delta t}$が
+\begin{equation}
+  e^{D \Delta t} = 1 + D\Delta t + \frac{1}{2} D^{2} (\Delta t)^{2} \cdots
+\end{equation}
+と展開できることを用いた. 
+
+粒子$i$に座標$\bm{r}_{i}$とその運動量$\bm{p}_{i}$を用いてハミルトニアン
+\begin{equation}
+  \mathcal{H} = \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{2m_{i}} + U(\bm{r})
+\end{equation}
+とかける場合を考える. 
+式(\ref{Eq:Symplectic-Suzuki-Trottor-Decomposition-UKU})のように時間発展演算子を近似した場合, 座標$\bm{r}_{i}$と運動量$\bm{p}_{i}$の時間発展は, 
+\begin{align}
+  \bm{p}_{i}^{n+\frac{1}{2}}
+  &=
+  \bm{p}_{i}^{n} + \bm{F}_{i}^{n} \frac{\Delta t}{2}
+  \label{Eq:Symplectic-UKU-update-p1}
+  \\
+  \bm{r}_{i}^{n+1}
+  &=
+  \bm{r}_{i}^{n} + \frac{\bm{p}_{i}^{n+\frac{1}{2}}}{m_{i}} \Delta t
+  \label{Eq:Symplectic-UKU-update-r}
+  \\
+  \bm{p}_{i}^{n+1}
+  &=
+  \bm{p}_{i}^{n+\frac{1}{2}} + \bm{F}_{i}^{n+1} \frac{\Delta t}{2}
+  \label{Eq:Symplectic-UKU-update-p2}
+\end{align}
+となる. ここで, 上付の$n$は$n$ステップ目での物理量であることを表している. 
+式(\ref{Eq:Symplectic-UKU-update-p1})--(\ref{Eq:Symplectic-UKU-update-p2})による時間発展は速度ベルレ法による運動方程式の差分方程式と一致していることが分かる. 
+すなわち, 速度ベルレ法はシンプレクティック分子動力学法の一つである. 
+また, 速度ベルレ法を変形して得られるベルレ法やリープ・フロッグ法も同様にシンプレクティック分子動力学法である. 
+
+一方で, 式(\ref{Eq:Symplectic-Suzuki-Trottor-Decomposition-UKU})の代わりに$e^{\mathcal{H} \Delta t}$を
+\begin{equation}
+  e^{D_{\mathcal{H}}}
+  =
+  e^{D_{K} \frac{\Delta t}{2}}
+  e^{D_{U} \Delta t}
+  e^{D_{K} \frac{\Delta t}{2}}
+  \label{Eq:Symplectic-Suzuki-Trottor-Decomposition-KUK}
+\end{equation}
+のように近似した場合, 時間発展は
+\begin{align}
+  \bm{r}_{i}^{n+\frac{1}{2}}
+  &=
+  \bm{r}_{i}^{n} + \frac{\bm{p}_{i}^{n}}{m_{i}} \frac{\Delta t}{2}
+  \label{Eq:Symplectic-KUK-update-p1}
+  \\
+  \bm{p}_{i}^{n+1}
+  &=
+  \bm{p}_{i}^{n} + \bm{F}_{i}^{n + \frac{1}{2}} \Delta t
+  \label{Eq:Symplectic-KUK-update-r}
+  \\
+  \bm{r}_{i}^{n+1}
+  &=
+  \bm{r}_{i}^{n+\frac{1}{2}} + \frac{\bm{p}_{i}^{n+1}}{m_{i}} \frac{\Delta t}{2}
+  \label{Eq:Symplectic-KUK-update-p2}
+\end{align}
+となる. これは位置ベルレ法と呼ばれる. 
+位置ベルレ法では, 半ステップずれた時刻$(\Delta t/2)$で力を計算する. 
+このため瞬間圧力
+\begin{equation}
+  P(t)
+  =
+  \frac{1}{3V}
+  \left(
+    \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}(t)}{m_{i}} +
+    \sum_{i=1}^{N} \bm{F}_{i} \cdot \bm{r}_{i}
+  \right)
+\end{equation}
+など座標, 運動量, 力に依存する関数を計算するときには同時刻のそれぞれの項(瞬間圧力の場合, 運動エネルギーとヴィリアル)を直接計算することができない. 
+同時刻の運動エネルギーとヴィリアルを計算する必要がある場合には, $\bm{r}_{i}^{n+1}$から$\bm{r}_{i}^{n+1}$を計算するか, $n-\frac{1}{2}$ステップ目と$n + \frac{1}{2}$ステップ目のヴィリアルから内装して近似的に$n$ステップ目のヴィリアルを求める必要がある. このような手間が生じるため, 時間発展には速度ベルレ法が用いられることが多い. 
+
+\subsubsection{シンプレクティック性の確認: 速度ベルレ法}
+\paragraph{運動量の時間発展に関するシンプレクティック性}
+
+速度ベルレ法における運動量の時間発展
+\begin{alignat}{2}
+  \bm{P}
+  &\equiv
+  \bm{p}_{i}\left(t+ \frac{\Delta t}{2}\right)
+  &&=
+  \bm{p}_{i}(t) + \bm{F}_{i}(t) \frac{\Delta t}{2}
+  \\
+  \bm{Q}
+  &\equiv
+  \bm{q}_{i} (t)
+\end{alignat}
+について, ヤコビ行列(\ref{Eq:Jacobi-Matrix})は
+\begin{equation}
+  \bm{M}
+  =
+  \begin{pmatrix}
+    \frac{\partial \bm{Q}}{\partial \bm{q}} &
+    \frac{\partial \bm{Q}}{\partial \bm{p}} \\
+    \frac{\partial \bm{P}}{\partial \bm{q}} &
+    \frac{\partial \bm{P}}{\partial \bm{p}} \\
+  \end{pmatrix}
+  =
+  \begin{pmatrix}
+    \bm{1} &
+    \bm{0} \\
+    \frac{\partial \bm{F}_{i}(t)}{\partial \bm{q}_{i}(t)} \frac{\Delta t}{2} &
+    \bm{1}
+  \end{pmatrix}
+\end{equation}
+と計算される. シンプレクティック条件(\ref{Eq:Symplectic-Condition})について具体的に計算すると, 
+\begin{align}
+  \bm{M}\bm{J}\bm{M}^{t}
+  &=
+  \begin{pmatrix}
+    \bm{1} &
+    \bm{0} \\
+    \frac{\partial \bm{F}_{i}(t)}{\partial \bm{q}_{i}(t)} \frac{\Delta t}{2} &
+    \bm{1}
+  \end{pmatrix}
+  \begin{pmatrix}
+     \bm{0} & \bm{1} \\
+    -\bm{1} & \bm{0}
+  \end{pmatrix}
+  \begin{pmatrix}
+    \bm{1} &
+    \frac{\partial \bm{F}_{i}(t)}{\partial \bm{q}_{i}(t)} \frac{\Delta t}{2} \\
+    \bm{0} &
+    \bm{1}
+  \end{pmatrix}
+  \\
+  &=
+  \begin{pmatrix}
+     \bm{0} &
+     \bm{1} \\
+    -\bm{1} &
+    \frac{\partial \bm{F}_{i}(t)}{\partial \bm{q}_{i}(t)} \frac{\Delta t}{2}
+  \end{pmatrix}
+  \begin{pmatrix}
+    \bm{1} &
+    \frac{\partial \bm{F}_{i}(t)}{\partial \bm{q}_{i}(t)} \frac{\Delta t}{2} \\
+    \bm{0} &
+    \bm{1}
+  \end{pmatrix}
+  \\
+  &=
+  \begin{pmatrix}
+    \bm{0} &
+    \bm{1} \\
+   -\bm{1} &
+   -\frac{\partial \bm{F}_{i}(t)}{\partial \bm{q}_{i}(t)} \frac{\Delta t}{2}
+   +\frac{\partial \bm{F}_{i}(t)}{\partial \bm{q}_{i}(t)} \frac{\Delta t}{2}
+  \end{pmatrix}
+  \\
+  &=
+  \begin{pmatrix}
+     \bm{0} & \bm{1}\\
+    -\bm{1} & \bm{0}
+  \end{pmatrix}
+  \\
+  &=
+  \bm{J}
+\end{align}
+となり, シンプレクティック条件を満たしていることが確認できる. 
+
+\paragraph{座標の時間発展に関するシンプレクティック性}
+速度ベルレ法における座標の時間発展
+\begin{alignat}{2}
+  \bm{P}
+  &\equiv
+  \bm{p}_{i}(t)
+  \\
+  \bm{Q}
+  &\equiv
+  \bm{q}_{i} (t + \Delta t)
+  &=
+  \bm{q}_{i}(t) +
+  \frac{1}{m_{i}} \bm{p}_{i}\left(t + \frac{\Delta t}{2}\right) \Delta t
+\end{alignat}
+を考える. ヤコビ行列(\ref{Eq:Jacobi-Matrix})は
+\begin{equation}
+  \bm{M}
+  =
+  \begin{pmatrix}
+    \frac{\partial \bm{Q}}{\partial \bm{q}} &
+    \frac{\partial \bm{Q}}{\partial \bm{p}} \\
+    \frac{\partial \bm{P}}{\partial \bm{q}} &
+    \frac{\partial \bm{P}}{\partial \bm{p}} \\
+  \end{pmatrix}
+  =
+  \begin{pmatrix}
+    \bm{1} &
+    \frac{\Delta t}{m_{i}} \bm{1} \\
+    \bm{0} &
+    \bm{1}
+  \end{pmatrix}
+\end{equation}
+と計算される. シンプレクティック条件(\ref{Eq:Symplectic-Condition})について具体的に計算すると, 
+\begin{align}
+  \bm{M}\bm{J}\bm{M}^{t}
+  &=
+  \begin{pmatrix}
+    \bm{1} &
+    \frac{\Delta t}{m_{i}} \bm{1} \\
+    \bm{0} &
+    \bm{1}
+  \end{pmatrix}
+  \begin{pmatrix}
+     \bm{0} & \bm{1} \\
+    -\bm{1} & \bm{0}
+  \end{pmatrix}
+  \begin{pmatrix}
+    \bm{1} &
+    \bm{0} \\
+    \frac{\Delta t}{m_{i}} \bm{1} &
+    \bm{1}
+  \end{pmatrix}
+  \\
+  &=
+  \begin{pmatrix}
+    -\frac{\Delta t}{m_{i}} \bm{1} &
+     \bm{1} \\
+    -\bm{1} &
+     \bm{0}
+  \end{pmatrix}
+  \begin{pmatrix}
+     \bm{1} &
+     \bm{0} \\
+     \frac{\Delta t}{m_{i}} \bm{1} &
+     \bm{1}
+  \end{pmatrix}
+  \\
+  &=
+  \begin{pmatrix}
+     \bm{0} & \bm{1}\\
+    -\bm{1} & \bm{0}
+  \end{pmatrix}
+  \\
+  &=
+  \bm{J}
+\end{align}
+となり, シンプレクティック条件を満たしていることが確認できる. 
+
+% \section{シンプレクティク分子動力学法における保存量}
+
+
+% \subsection{リウヴィル演算子と時間発展演算子}
+% 物理量の時間微分から時間発展に関する演算子$D$を得られる.
+% $D$はリウヴィル演算子$-iL$を用いて
+% \begin{equation}
+%  D = - iL
+% \end{equation}
+% と書かれる.
+% $\dot{q}$や$\dot{p}$がハミルトンの正準方程式に従うのであれば
+% $L$がエルミート演算子になることが確かめられる.
+% ここで$L$がエルミート演算子になるように$-i$を乗じている.
+
+
+% \subsection{演算子エルミート性}
+% リウヴィルの定理を用いることで, $-iL$がエルミート演算子であることが確かめられる.
+% エルミート演算子を指数の肩に乗せた演算子はユニタリー演算子になることが知られている.
+% 従って, 時間発展演算子はユニタリー.
+
+% \subsection{トロッター展開}
+% トロッター展開しても時間発展演算子のユニタリー性は変化しない.
+% 分割された各演算子もユニタリーである.
+
+
+% \bibliographystyle{junsrt}
+% \bibliography{}
+\input{../include/end}

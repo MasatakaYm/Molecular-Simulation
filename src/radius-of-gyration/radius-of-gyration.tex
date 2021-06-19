@@ -1,0 +1,28 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{慣性半径 (Radius of Gyration)}
+\maketitle
+
+慣性半径$R_{\mathrm{g}}$は, 
+\begin{equation}
+    R_{\mathrm{g}} =
+    \sqrt{\frac{\sum_{i=1}^{N} m_{i} r_{i}^{2}}{\sum_{i=1}^{N} m_{i}}}
+\end{equation}
+で計算される. ここで, $N$は原子数, $r_{i}$は重心からの距離であり, $m_{i}$は原子の質量である. 
+分子の重心は, 
+\begin{equation}
+    \bm{r}_{\mathrm{com}} =
+    \frac{\sum_{i=1}^{N} m_{i} \bm{r}_{i}}{\sum_{i=1}^{N}}
+\end{equation}
+のように計算できる. 
+慣性半径は, 分子の拡がり具合(質量がどの程度広がりを持って分布しているか)を表す指標として用いられる. 
+また, 慣性半径はX線小角散乱から実験的に求めることもできるため, 分子動力学シミュレーションと実験を比較するときにも使用される. 
+
+
+% \bibliographystyle{junsrt}
+% \bibliography{}
+\input{../include/end}

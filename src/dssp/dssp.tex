@@ -1,0 +1,251 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{タンパク質の2次構造判定：Dictionary of Protein Secondary Structure (DSSP)}
+\maketitle
+
+本章では, タンパク質の2次構造を判定するのによく使われるアルゴリズムである
+Dictionary of Protein Secondary Structure (DSSP)\cite{Kabsch1983}を解説する.
+DSSPは主鎖のカルボニル基(-CO)とイミノ基(-NH)間の静電相互作用エネルギーから水素結合を判定し,
+水素結合のパターンでヘリックスやシートなどの2次構造を判定するアルゴリズムである.
+
+
+\section{水素結合による構造}
+
+\subsection{水素結合の定義}
+DSSP判定ではタンパク質の主鎖のC, O原子上に$(+q_{1},~ -q_{1})$, N, H原子上に$(+q_{2},~ -q_{2})$
+の部分電荷を割り振り, それらの静電相互作用によって水素結合を判定する:
+
+\begin{equation}
+ E = q_{1} q_{2}
+     \left\{
+              \frac{1}{r_{\mathrm{ON}}} + \frac{1}{r_{\mathrm{CH}}} 
+            - \frac{1}{r_{\mathrm{CH}}} - \frac{1}{r_{\mathrm{CN}}} 
+     \right\} * f .
+\end{equation}
+ここで$q_{1} = 0.42e$, $q_{2} = 0.20e$, $e$は電荷素量, $r_{\mathrm{AB}}$は原子A, B間
+の距離(\AA)である. 
+また, $f = 332$は無次元の係数であり, $E$の単位はkcal/molである.
+
+静電相互作用$E$が$-0.5 \mathrm{kcal/mol}$よりも小さいとき, $i$番目の残基のC=Oと$j$番目の残基のN-H
+間で水素結合が形成されていると定義する:
+
+\begin{equation}
+ \mathrm{H bond}[i,~ j]
+ \equiv
+ [E < -0.5 ~\mathrm{kcal/mol}] .
+\end{equation}
+
+
+\subsection{基本構造: nターン}
+\paragraph{ターン構造の定義}
+$i$番目のアミノ酸主鎖のCO基と$i+n$番目のアミノ酸主鎖のNH基が水素結合を形成している時, 
+$i$番目の残基に$n$ターン構造を割り当てる.
+\begin{equation}
+ \mathrm{nTurn}[i]
+ \equiv
+ \mathrm{H bond}[i ,~ i  + n],
+ ~~~
+ n = 3,~ 4,~ 5.
+\end{equation}
+
+% \paragraph{ターン構造の表記}
+% ターン構造のパターンが見つかったとき, 水素結合の端を''$>$'', ``$<$''で表し, 括弧の間は''n''で表記する:
+
+
+\subsection{基本構造：平行/反平行ブリッジ}
+平行/反平行ブリッジを判定する際には, 重なりの無い2つの領域
+$[i-1,~ i,~ i+1]$, $[j-1,~ j,~ j+1]$を考える.
+つまり, $i$番目と$j$番目のアミノ酸は3残基以上離れている必要がある.
+
+\paragraph{平行ブリッジの定義}
+i番目とj番目のアミノ酸残基間の平行ブリッジを以下の2つの水素結合パターンで定義する:
+\begin{equation}
+ \mathrm{Parallel}\mathrm{Bridge}~[i,~j]
+ \equiv
+ \begin{cases}
+  \mathrm{H bond}[i  - 1,~ j]~ \mathrm{and}~ \mathrm{H bond}[j ,~ i  + 1], \mathrm{or}\\
+  \mathrm{H bond}[j  - 1,~ i]~ \mathrm{and}~ \mathrm{H bond}[i ,~ j  + 1].
+ \end{cases}
+\end{equation}
+
+\paragraph{反平行ブリッジの定義}
+i番目とj番目のアミノ酸残基間の反平行ブリッジを以下の2つの水素結合パターンで定義する:
+\begin{equation}
+ \mathrm{Antiparallel}\mathrm{Bridge}~[i,~ j]
+ \equiv
+ \begin{cases}
+  \mathrm{H bond}[i,~ j]~         \mathrm{and}~ \mathrm{H bond}[j,~ i], \mathrm{or}\\
+  \mathrm{H bond}[i - 1,~ j + 1]~ \mathrm{and}~ \mathrm{H bond}[j - 1,~ i + 1].
+ \end{cases}
+\end{equation}
+
+
+\subsection{協同的構造：ヘリックス}
+\paragraph{ヘリックスの定義}
+ヘリックスは2つの連続したターンで定義される.
+\begin{align}
+ \mathrm{3Helix}[i,~i+2]
+&\equiv
+ [\mathrm{3Turn}[i-1]~ \mathrm{and}~ \mathrm{3Turn}[i]], \\
+ \mathrm{4Helix}[i,~i+3]
+&\equiv
+ [\mathrm{4Turn}[i-1]~ \mathrm{and}~ \mathrm{4Turn}[i]], \\
+ \mathrm{5Helix}[i,~i+4]
+&\equiv
+ [\mathrm{5Turn}[i-1]~ \mathrm{and}~ \mathrm{5Turn}[i]].
+\end{align}
+例えば4Helixの場合, $\mathrm{Hbond}[i-1,~ i+3]$と$\mathrm{Hbond}[i,~ i+4]$の形成が
+4Helixの判定に必要であると言い換えられる. つまり, $i+1$, $i+2$番目の残基の水素結合は必要
+としないことに注意されたい.
+3Helix, 4Helix, 5Helixはそれぞれ, 一般的に$3_{10}\mathrm{Helix}$, 
+$\alpha\mathrm{Helix}$, $\pi\mathrm{Helix}$と呼ばれる.
+
+\subsection{協同的構造：$\beta$ラダー, $\beta$シート構造}
+\paragraph{ラダー構造の定義}
+ラダー構造はブリッジ構造を基に判定される:
+\begin{align}
+ \mathrm{ladder}
+&\equiv
+ \mathrm{''連続した同じ種類のブリッジの集合''} %\\
+%\mathrm{''set~of~one~or~more~consecutive~bridges~of~identical~type''} \\
+%  \mathrm{sheet}
+% &\equiv
+%  \mathrm{''残基を共有して結合しているラダーの集合''}
+%\mathrm{''set of one or more ladders connected by shared residues''}
+\end{align}
+
+\paragraph{シート構造の定義}
+シート構造はラダー構造を基に判定される:
+\begin{align}
+%  \mathrm{ladder}
+% &\equiv
+%  \mathrm{''連続した同じ種類のブリッジの集合''} \\
+%\mathrm{''set~of~one~or~more~consecutive~bridges~of~identical~type''} \\
+ \mathrm{sheet}
+&\equiv
+ \mathrm{''残基を共有して結合しているラダーの集合''}
+%\mathrm{''set of one or more ladders connected by shared residues''}
+\end{align}
+
+\subsection{2次構造に関連する量: TCO}
+\paragraph{TCOの定義}
+$i$番目の残基のC=Oと$i-1$番目の残基のC=Oが成す角度を$\theta$とする. 
+TCOは, $\cos \theta$で定義される:
+\begin{align}
+ \mathrm{TCO} (i)
+&\equiv 
+ \cos \theta \\
+&=
+ \frac{ \overrightarrow{\mathrm{CO}}_{[i]} \cdot \overrightarrow{\mathrm{CO}}_{[i-1]}}
+      {|\overrightarrow{\mathrm{CO}}_{[i]}|     |\overrightarrow{\mathrm{CO}}_{[i-1]}|}.
+\end{align}
+
+$\alpha$ヘリックス構造の場合, $\mathrm{TCO} \approx 1$ (つまり, $\theta \approx 0$)となる.
+一方, $\beta$シート構造の場合, $\mathrm{TCO} \approx -1$ (つまり, $\theta \approx \pi$)となる.
+
+
+\section{幾何構造}
+\subsection{幾何構造に関連する量: Kappa}
+\paragraph{Kaapaの定義}
+$i$番目の残基に対するKappaは, $i-2$, $i$, $i+2$番目の残基の3つの$\mathrm{C}_{\alpha}$原子
+の結合角で定義される:
+\begin{align}
+ \mathrm{Kappa}(i)
+&\equiv
+ \mathrm{Angle}
+ \left[
+        \left\{ \mathbf{C}_{\alpha}(i)   - \mathbf{C}_{\alpha}(i-2) \right\},~
+        \left\{ \mathbf{C}_{\alpha}(i+2) - \mathbf{C}_{\alpha}(i)   \right\}
+ \right].
+\end{align}
+あるいは, 
+\begin{align}
+ \bm{r}_{1} &= \mathbf{C}_{\alpha}(i-2) - \mathbf{C}_{\alpha}(i),　\\
+ \bm{r}_{2} &= \mathbf{C}_{\alpha}(i+2) - \mathbf{C}_{\alpha}(i),  \\
+ \theta     &= \arccos
+                  \left(
+                         \frac{\bm{r}_{1} \cdot \bm{r}_{2}}{r_{1} r_{2}}
+                  \right),
+\end{align}
+とすれば,
+\begin{align}
+ \mathrm{Kappa} = 180.0 - \theta
+\end{align}
+と計算される.
+
+\subsection{幾何構造に関連する量: Alpha}
+\paragraph{Alphaの定義}
+$i$番目の残基に対するAlphaは, $i-1$, $i$, $i+1$, $i+2$番目の残基の4つの$\mathrm{C}_{\alpha}$
+原子の二面角で定義される:
+
+\begin{align}
+ \mathrm{Alpha}(i)
+ \equiv
+ \mathrm{Dihedral}
+ \left\{
+         \mathbf{C}_{\alpha}(i-1),~ \mathbf{C}_{\alpha}(i),~
+         \mathbf{C}_{\alpha}(i+1),~ \mathbf{C}_{\alpha}(i+2)  
+ \right\}.
+\end{align}
+
+\subsection{幾何構造に関連する量: 主鎖の二面角 $\phi$}
+\paragraph{主鎖の二面角 $\phi$の定義}
+$i$番目の残基の主鎖に対する$\phi$は以下のように定義される:
+
+\begin{align}
+ \phi (i)
+ \equiv
+ \mathrm{Dihedral}
+ \left\{
+         \mathbf{C}(i-1),~        \mathbf{N}(i),~
+         \mathbf{C}_{\alpha}(i),~ \mathbf{C}(i)  
+ \right\}.
+\end{align}
+
+\subsection{幾何構造に関連する量: 主鎖の二面角 $\phi$}
+\paragraph{主鎖の二面角 $\psi$の定義}
+$i$番目の残基の主鎖に対する$\psi$は以下のように定義される:
+
+\begin{align}
+ \psi (i)
+ \equiv
+ \mathrm{Dihedral}
+ \left\{
+         \mathbf{N}(i),~ \mathbf{C}_{\alpha}(i),~
+         \mathbf{C}(i),~ \mathbf{N}(i+1)  
+ \right\}.
+\end{align}
+
+
+\subsection{曲がった構造 (Bend)}
+\paragraph{Bend構造の定義}
+$\mathrm{Kappa}(i)$が$70^{\circ}$以上の時, $i$番目の残基をBend構造と判定する.
+\begin{align}
+ \mathrm{Bend}(i)
+ \equiv
+ [
+  \mathrm{Kappa} (i) > 70^{\circ}
+ ]
+\end{align}
+
+\subsection{キラリティー (Chirality)}
+\paragraph{Chiralityの定義}
+$i$番目の残基のキラリティーは, $\mathrm{Alpha}(i)$の値を元にして判定する:
+\begin{align}
+ \mathrm{Chiraliry} (i)
+ =
+ \left\{
+ \begin{array}{ccrl}
+  -, & ~~~\textrm{if~} &-180^{\circ}& < \mathrm{Alpha}(i)~ < 0^{\circ} \\
+  +, & ~~~\textrm{if~} &   0^{\circ}& < \mathrm{Alpha}(i)~ < 180^{\circ}
+ \end{array} 
+ \right.
+\end{align}
+
+\bibliographystyle{junsrt}
+\bibliography{dssp}
+\input{../include/end}

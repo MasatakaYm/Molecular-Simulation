@@ -1,0 +1,912 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{温度制御法}
+\maketitle
+
+\section{能勢・Hoover熱浴}
+
+これまで, ミクロカノニカルアンサンブル（系の体積とエネルギーが一定）を実現する分子動力学法について述べてきた.
+しかし, 問題によっては系の温度や圧力を制御し, 目的の熱平衡状態を達成したい場合がある.
+温度や圧力を一定に保つために, 外系との相互作用をどのように考慮するかが問題になる.
+その方法の１つとして, 粒子の自由度に加えて, 温度や圧力を制御するための新たな自由度を加えた力学系を考える.
+このような方法を拡張系と呼ぶ.
+拡張系の方法では, 物理系と外系(熱浴やピストン)を結びつけた系:
+\begin{equation}
+ \mathrm{拡張系} = \mathrm{物理系} + \mathrm{外系}
+\end{equation}
+を考える. 外系や, 物理系と外系の相互作用をうまく選ぶことで
+カノニカルアンサンブルや定温定圧アンサンブルを実現することができる.
+ここで, 物理系と外系の自由度をそれぞれ$N$と$N^{\prime}$とする.
+現実の系では$N^{\prime}\gg N$であるのに対し, 拡張系の分子動力学シミュレーションの場合
+$N^{\prime} \ll N$で足りてしまうことが多い.
+多くの場合, 温度あるいは圧力を制御するのに必要な外系の自由度はそれぞれ$N^{\prime}=1$である.
+これが, 拡張系の分子動力学シミュレーションの特徴である.
+
+\subsection{能勢の方法}
+\subsubsection{能勢の運動方程式}
+
+$N$個の粒子を持つ物理系を考える. 各粒子の変数を座標$\bm{r}_{i}$, 質量
+$m_{i}$, 速度$\bm{v}_{i}$, 運動量$\bm{p}_{i}$とする. また, ポテンシャル
+エネルギー$U(\bm{r})$とすると, この物理系のラグランジアンは
+\begin{equation}
+ \mathcal{L}_{\mathrm{phys}}
+  = \sum_{i=1}^{N} \frac{1}{2} m_{i} \bm{v}_{i}^{2} - U(\bm{r})
+ \label{eq:NoseHoover1}
+\end{equation}
+とかける. 物理系の温度を制御するには, 運動エネルギー(速度)を制御すればよい.
+そこで, 能勢修一は物理系の外系として振る舞う新たな自由度$s$を導入した~\cite{1984Nose1, 1984Nose2}.
+さらに, 拡張系における
+変数として座標$\bm{r}^{\prime}_{i}$,
+運動量$\bm{p}^{\prime}_{i}$,時間$t^{\prime}$を導入する.
+以後, 仮想系における変数を$^{\prime}$で示す.
+物理系の変数と拡張系の仮想変数は自由度$s$を介して以下の関係も持つ.
+\begin{alignat}{2}
+ &\bm{r}_{i} &&= \bm{r}^{\prime}_{i}
+ \label{eq:NoseHoover2.1}
+ \\
+ &\bm{p}_{i} &&= \frac{\bm{p}^{\prime}_{i}}{s}
+ \label{eq:NoseHoover2.2}
+ \\
+ &t              &&= \int^{t^{\prime}} \frac{dt^{\prime}}{s}
+ \label{eq:NoseHoover2.3}
+\end{alignat}
+さらに物理系での速度$\bm{v}_{i}$と拡張系での速度$\bm{v}_{i}^{\prime}$の関係は
+\begin{equation}
+      \bm{v}_{i}
+  =   \frac{d \bm{r}_{i}}{d t}
+  = s \frac{d \bm{r}^{\prime}_{i}}{d t^{\prime}}
+  = s \bm{v}_{i}^{\prime}
+  \label{eq:NoseHoover3}
+\end{equation}
+となる.
+以上の式から, 新たな自由度$s$は物理系の微小時間$dt$に対して, 拡張系における微小時間ステップ$dt^{\prime}$を
+\begin{equation}
+ dt = \frac{dt^{\prime}}{s}
+ \label{eq:NoseHoover4}
+\end{equation}
+のようにスケールするものだと解釈できる.
+仮想変数を用いると, 物理系のラグランジアンは次のように書き直される.
+\begin{equation}
+ \mathcal{L}_{\mathrm{phys}}
+  = \sum_{i=1}^{N} \frac{1}{2} m_{i} s^{2} {\bm{v}_{i}^{\prime 2}}
+   - U(\bm{r}^{\prime})
+  \label{eq:NoseHoover5}
+\end{equation}
+さらに$s$の速度を$v^{\prime}_{s}$として, 拡張系のラグランジアンとして能勢のラグランジアン
+\begin{equation}
+ \mathcal{L}_{\mathrm{N}}
+  = \sum_{i=1}^{N} \frac{1}{2} m_{i} s^{2} {\bm{v}_{i}^{\prime 2}}
+   - U(\bm{r}^{\prime})
+   + \frac{1}{2} Q v_{s}^{\prime 2}
+   - g k_{\mathrm{B}}T_{\mathrm{eq}} \ln s
+ \label{eq:NoseHoover6}
+\end{equation}
+を導入する.
+ここで, $Q$は熱浴$s$の運動に対して質量のように振舞うパラメータで熱浴の仮想的な質量, $g$は系の自由度, $T_{\mathrm{eq}}$は目的の温度である.
+$Q$は系の時間スケールを特徴づけるダンピングパラメータ$\tau$と
+\begin{equation}
+ Q = gk_{\mathrm{B}}T_{\mathrm{eq}} \tau^{2}
+\end{equation}
+と関係がある.
+仮想質量$Q$はenergy $\times$ time $^{2}$の次元を持ち, 実際には質量でないことに注意する必要がある.
+熱浴粒子のポテンシャルエネルギー項を$\ln s$の形としたことが, カノニカル分布を実現する上で重要となる.
+拡張系のラグランジアン(\ref{eq:NoseHoover6})から$\bm{r}^{\prime}_{i}$に
+共役な運動量$\bm{p}^{\prime}_{i}$および$s$に共役な運動量$p^{\prime}_{s}$を次のように求めることができる.
+\begin{align}
+ \bm{p}^{\prime}_{i}
+ &\equiv
+    \frac{\partial \mathcal{L}_{\mathrm{N}}}{\partial \bm{v}^{\prime}_{i}}
+  = m_{i} s^{2} \bm{v}^{\prime}_{i}
+  = s \bm{p}_{i}
+ \label{eq:NoseHoover7.1}
+ \\
+ p^{\prime}_{s}
+ &\equiv
+ \frac{\partial \mathcal{L}_{\mathrm{N}}}{\partial v^{\prime}_{s}} = Q v^{\prime}_{s}
+ \label{eq:NoseHoover7.2}
+\end{align}
+したがって, 拡張系のハミルトニアンは拡張系のラグランジアンのルジャンドル変換により
+\begin{align}
+ \mathcal{H}_{\mathrm{N}}
+ &=
+ \sum_{i=1}^{N} \dot{\bm{r}}^{\prime}_{i} \cdot \bm{p}^{\prime}_{i}
+ + p^{\prime}_{s} v^{\prime}_{s} - \mathcal{L}_{\mathrm{N}}
+ \notag
+ \\
+ &= \sum_{i=1}^{N} \frac{\bm{p}_{i}^{\prime 2}}{2 m_{i} s^{2}}
+  + U(\bm{r^{\prime}})
+  + \frac{p_{s}^{\prime 2}}{2Q}
+  + g k_{\mathrm{B}}T_{\mathrm{eq}} \ln s
+ \label{Eq:Hamiltonian-Nose}
+\end{align}
+と求まる.
+ハミルトニアン$\mathcal{H}_{\mathrm{N}}$から正準方程式を導くと, 拡張系における仮想時間$t^{\prime}$での運動方程式が以下のように求まる.
+\begin{alignat}{4}
+ &\frac{d \bm{r}^{\prime}_{i}}{d t^{\prime}}
+ &&= &&\frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial \bm{p}^{\prime}_{i}}
+   = \frac{\bm{p}^{\prime}_{i}}{m_{i} s^{2}}
+ \label{eq:NoseHoover9.1}
+ \\
+ &\frac{d \bm{p}^{\prime}_{i}}{d t^{\prime}}
+ &&= - &&\frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial \bm{r}^{\prime}_{i}}
+   = \bm{F}_{i}
+ \label{eq:NoseHoover9.2}
+ \\
+ &\frac{d s}{d t^{\prime}}
+  &&= &&\frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial p^{\prime}_{s}}
+    = \frac{p^{\prime}_{s}}{Q}
+ \label{eq:NoseHoover9.3}
+ \\
+ &\frac{d p^{\prime}_{s}}{d t^{\prime}}
+ &&= - &&\frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial s}
+   = \frac{1}{s}
+     \left(
+           \sum_{i=1}^{N} \frac{{\bm{p}_{i}^{\prime 2}}}{m_{i} s^{2}}
+            -g k_{\mathrm{B}} T_{\mathrm{eq}}
+     \right)
+ \label{eq:NoseHoover9.4}
+\end{alignat}
+仮想時間から現実時間への変換
+\begin{align}
+ \bm{r}_{i} = \bm{r}^{\prime}_{i},~~~~~
+ \bm{p}_{i} = \frac{\bm{p}^{\prime}_{i}}{s},~~~~~
+ dt         = \frac{dt^{\prime}}{s}~~~~~
+\end{align}
+を用いて, 仮想時間における運動方程式を現実時間の運動方程式へと書き換えると
+\begin{alignat}{3}
+ &
+ \frac{d \bm{r}_{i}}{d t} &&=
+ \frac{\bm{p}_{i}}{m_{i} }
+ \label{eq:NoseHoover10.1}
+ \\
+ &
+ \frac{d \bm{p}_{i}}{d t} &&=
+ \bm{F}_{i} - \frac{\dot{s}}{s} \bm{p}_{i}
+ \label{eq:NoseHoover10.2}
+ \\
+ &
+ \frac{d s}{d t} &&=
+ s \frac{p_{s}}{Q}
+ \label{eq:NoseHoover10.3}
+ \\
+ &
+ \frac{d p_{s}}{d t} &&=
+ \sum_{i=1}^{N} \frac{{\bm{p}_{i}}^{2}}{m_{i}} -g k_{\mathrm{B}} T_{\mathrm{eq}}
+ \label{eq:NoseHoover10.4}
+\end{alignat}
+となる.
+この変換は正準変換ではないため, 現実時間に対する能勢の運動方程式はシンプレクティック性を失っている.
+時間スケールsにより, 時間刻みが早くなったり遅くなったりして体積要素が伸び縮みするためリウヴィルの定理を満たさない.
+
+\subsubsection{カノニカル分布が実現することの証明}
+拡張系におけるハミルトニアン$\mathcal{H}_{\mathrm{N}}$は保存量であるため, ある一定の値$E$に保たれる.
+したがって, 拡張系全体ではミクロカノニカルアンサンブルが実現する.
+ここで略号
+$d\bm{p}^{\prime}=d\bm{p}^{\prime}_{1} d\bm{p}^{\prime}_{2} \cdots d\bm{p}^{\prime}_{N}$,
+$d\bm{r}^{\prime}=d\bm{r}^{\prime}_{1} d\bm{r}^{\prime}_{2} \cdots d\bm{r}^{\prime}_{N}$,
+$\mathcal{H}_{0}=\sum_{i} \bm{p}_{i}^{\prime 2}/(2m_{i} s^2) + U(\bm{r}^{\prime})$
+を導入すると,拡張系の分配関数は
+\begin{equation}
+ Z =
+  \int_{0}^{\infty} ds
+  \int_{- \infty}^{\infty} dp^{\prime}_{s}
+  \int d \bm{r}^{\prime}
+  \int d \bm{p}^{\prime} ~
+  \delta
+  \left\{
+    \mathcal{H}_{0} \left(\bm{r}^{\prime}, \bm{p}^{\prime}\right) +
+    \frac{p^{\prime 2}_{s}}{2Q} + g k_B T_{\mathrm{eq}} \ln s - E
+	\right\}
+ \label{eq:NoseHoover14}
+\end{equation}
+とかける. ここで, 仮想運動量$\bm{p^{\prime}}_{i}$と仮想座標$\bm{r^{\prime}}_{i}$から物理系における運動量$\bm{p}_{i}$と座標$\bm{r}_{i}$
+への変数変換を行う.
+微小体積量が$d\bm{r}^{\prime} d\bm{p}^{\prime} = s^{3N} d\bm{r} d\bm{p}$となることから, 分配関数は
+\begin{equation}
+  Z
+  = \int_{0}^{\infty} ds \int_{- \infty}^{\infty} dp^{\prime}_{s}
+    \int d \bm{r} \int d \bm{p} ~ s^{3N} ~
+    \delta \left\{
+	    \mathcal{H}_{0} \left(\bm{r}, \bm{p}\right)
+	    + \frac{p^{\prime 2}_{s}}{2Q}
+	    + g k_B T_{\mathrm{eq}} \ln s - E
+	   \right\}
+ \label{Eq:Partition-Function-Nose}
+\end{equation}
+となる. ここでディラックのデルタ関数$\delta (x)$に関する恒等式
+\begin{equation}
+ \delta\left( f(s) \right)
+  = \frac{\delta (s - s_{0})}{| f^{\prime}(s) |} ~~~
+  \text{ただし} f(s_{0})=0
+ \label{Eq:Delta-Function-IdentityEq}
+\end{equation}
+を適用する. 今の場合,
+\begin{equation}
+ f(s)
+  = \mathcal{H}_{0} \left(\bm{r}, \bm{p}\right)
+  + \frac{p^{\prime 2}_{s}}{2Q}
+  + g k_B T_{\mathrm{eq}} \ln s - E
+ \label{eq:NoseHoover17}
+\end{equation}
+であるので, $f(s)=0$となるような$s(\equiv s_{0})$は
+\begin{equation}
+ s_{0}
+  = \exp \left[
+	  \frac{1}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+	  \left\{
+	   E - \mathcal{H}_{0} \left(\bm{r}, \bm{p} \right)
+	   - \frac{p^{\prime 2}_{s}}{2Q}
+	  \right\}
+	  \right]
+ \label{eq:NoseHoover18}
+\end{equation}
+となる. $f^{\prime}(s)=g k_{\mathrm{B}} T_{\mathrm{eq}} / s$であるので
+\begin{equation}
+  Z
+  = \int_{0}^{\infty} ds \int_{- \infty}^{\infty} dp^{\prime}_{s}
+  \int d \bm{r} \int d \bm{p} ~
+  \frac{s^{3N+1}}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+  \delta (s - s_{0})
+ \label{eq:NoseHoover19}
+\end{equation}
+となる. sに関して$\delta$関数の積分を実行すると
+\begin{align}
+  Z
+ &= \int_{- \infty}^{\infty} dp^{\prime}_{s} \int d \bm{r} \int d \bm{p} ~
+ \frac{s_{0}^{3N+1}}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+ \notag
+ \\
+ &= \int_{- \infty}^{\infty} dp^{\prime}_{s} \int d \bm{r} \int d \bm{p} ~
+    \frac{1}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+     \exp \left[
+          \frac{3N+1}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+          \left\{
+	   E - \mathcal{H}_{0} \left(\bm{r}, \bm{p} \right)
+	   - \frac{p^{\prime 2}_{s}}{2Q}
+           \right\}
+           \right]
+ \label{eq:NoseHoover20}
+\end{align}
+と計算される. $g=3N+1$とすると,
+\begin{align}
+ Z
+&= \int_{- \infty}^{\infty} dp^{\prime}_{s}
+   \frac{1}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+   \exp \left(
+               \frac{E - p^{\prime 2}_{s}/2Q}{k_{\mathrm{B}} T_{\mathrm{eq}}}
+         \right)
+   \int d \bm{r} \int d \bm{p} ~
+   \exp \left\{
+               \frac{- \mathcal{H}_{0} \left(\bm{r}, \bm{p} \right) }
+	       {k_{\mathrm{B}} T_{\mathrm{eq}}}
+	\right\}
+ \notag
+ \\
+&= \frac{ \exp\left[\frac{E}{k_{\mathrm{B}} T_{\mathrm{eq}}}\right]
+          \sqrt{2\pi Q k_{\mathrm{B}T_{\mathrm{eq}}}}}
+        {g k_{\mathrm{B}T_{\mathrm{eq}}}}
+   \int d \bm{r} \int d \bm{p} ~
+   \exp \left\{
+               \frac{- \mathcal{H}_{0} \left(\bm{r}, \bm{p} \right) }
+	       {k_{\mathrm{B}} T_{\mathrm{eq}}}
+	\right\}
+ \label{eq:NoseHoover21}
+\end{align}
+を得るため, 拡張系の分配関数は定数倍を除いて, カノニカルアンサンブルにしたがう物理系の分配関数と一致する.
+ゆえに, 仮想時間$t^{\prime}$でサンプルする場合, 座標・運動量両方についてカノニカルアンサンブルを実現する.
+
+以上の例は, 仮想時間$t^{\prime}$を等間隔時間発展させた場合であり, 現実時間$t$は等間隔で発展していないことに注意しなければならない.
+そこで, 現実時間$t$でサンプルする場合にもカノニカルアンサンブルを得られることを示す.
+現実時間$t$でサンプルした場合, 物理量$A(\bm{r}, \bm{p})$の平均値は
+\begin{align}
+ \lim_{\tau \to \infty} \frac{1}{\tau}
+ \int_{0}^{\tau} dt A(\bm{r}(t), \bm{p}(t))
+ &=
+ \lim_{\tau \to \infty} \frac{1}{\tau}
+ \int_{0}^{\tau} dt A(\bm{r}^{\prime}(t), \bm{p}^{\prime}(t)/s(t) )
+ \notag
+ \\
+ &=
+ \lim_{\tau \to \infty} \frac{\tau^{\prime}}{\tau} \frac{1}{\tau^{\prime}}
+ \int_{0}^{\tau^{\prime}} dt^{\prime}
+ \frac{A(\bm{r}(t^{\prime}), \bm{p}(t^{\prime})/s(t^{\prime})) }
+      {s(t^{\prime})}
+ \label{eq:NoseHoover22}
+\end{align}
+となる. 最後の変形で現実時間$t$から仮想時間$t^{\prime}$へと変換を行っている.
+式(\ref{eq:NoseHoover2.3})より,
+\begin{equation}
+ \tau = \int_{0}^{\tau^{\prime}} \frac{1}{s} d t^{\prime}
+ \label{eq:NoseHoover23}
+\end{equation}
+であるので, これを式(\ref{eq:NoseHoover22})に代入すると,
+\begin{align}
+ \lim_{\tau \to \infty} \frac{1}{\tau}
+ \int_{0}^{\tau} dt A \left(\bm{r}(t), \bm{p}(t)\right)
+ &=
+ \frac{
+ \lim_{\tau^{\prime} \to \infty} \frac{1}{\tau^{\prime}}
+ \int_{0}^{\tau^{\prime}} dt^{\prime}
+ \frac{A \left( \bm{r^{\prime}}(t^{\prime}), \bm{p^{\prime}}(t^{\prime})/s(t^{\prime}) \right)}
+ {s(t^{\prime})}
+ }
+ {
+ \lim_{\tau^{\prime} \to \infty} \frac{1}{\tau^{\prime}}
+ \int_{0}^{\tau^{\prime}} dt^{\prime} \frac{1}{s(t^{\prime})}
+ }
+ \notag
+ \\
+ &=
+  \frac{
+  \left\langle \frac{A ( \bm{r^{\prime}}, \bm{p^{\prime}}/s )}
+               {s} \right\rangle_{t^{\prime}}
+  }
+  {
+  \left\langle \frac{1}{s} \right\rangle_{t^{\prime}}
+ }
+ \label{eq:NoseHoover24}
+\end{align}
+$\langle \cdots \rangle_{t^{\prime}}$は仮想時間$t^{\prime}$での平均を意味する.
+したがって, 式(\ref{eq:NoseHoover19})を用いると,
+\begin{equation}
+ \frac{
+  \left\langle \frac{A ( \bm{r^{\prime}}, \bm{p^{\prime}}/s )}
+               {s} \right\rangle_{t^{\prime}}
+  }
+  {
+  \left\langle \frac{1}{s} \right\rangle_{t^{\prime}}
+ }
+ =
+ \frac{
+ \int d\bm{r} \int d\bm{p} A(\bm{r}, \bm{p})
+ \exp \left\{ -\frac{3N}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+       \mathcal{H}_{0} (\bm{r},\bm{p})
+      \right\}
+ }{
+ \int d\bm{r} \int d\bm{p}
+ \exp \left\{ -\frac{3N}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+       \mathcal{H}_{0} (\bm{r},\bm{p})
+      \right\}
+ }
+ \label{eq:NoseHoover25}
+\end{equation}
+を得る. $g=3N$とすれば, これはカノニカルアンサンブルにおける物理量$A(\bm{r}, \bm{p})$
+の平均値である.
+つまり,
+\begin{equation}
+ \lim_{\tau \to \infty} \frac{1}{\tau}
+ \int_{0}^{\tau} dt A \left(\bm{r}(t), \bm{p}(t)\right)
+ =
+ \left\langle A \left(\bm{r}(t), \bm{p}(t)\right) \right\rangle_{NVT}
+ \label{eq:NoseHoover26}
+\end{equation}
+となる. ここで$\langle \cdots \rangle_{NVT}$はカノニカルアンサンブルにおける平均を表す.
+すなわち, 現実時間$t$でサンプルする時は$g=3N$とすればカノニカルアンサンブルを得られる.
+
+\subsubsection{保存則と生成されるアンサンブル}
+以上の議論では, 全エネルギー(能勢のハミルトニアン)が保存することのみを用いて, 拡張系がカノニカルアンサンブルが実現することを証明した. 
+しかし実際にはハミルトニアンだけでなく, 全運動量や全角運動量に対する保存則が存在する. 
+分子シミュレーションにおいて周期境界条件を課している場合, 全角運動量は保存しないが, 全運動量は依然として保存する. 
+K. Choらは, 全運動量保存則が, 能勢の方法で生成される統計アンサンブルに影響を与えることを指摘した. 
+すなわち, 拡張系がエルゴード的であり$N$原子システムの全運動量がゼロの時, $(N-1)$粒子系のカノニカル分布を生成するが, 全運動量がゼロでない場合, 能勢の方法は正しくカノニカルアンサンブルを生成しないことを示した~\cite{Cho1993}. 
+
+以下では, 能勢のハミルトニアン(\ref{Eq:Hamiltonian-Nose})に加えて, 全運動量$\bm{P}_{0}$も保存則しているとする. 全運動量は, 
+\begin{equation}
+  \bm{P}_{0} = \sum_{i=1}^{N}\bm{p}_{i}
+\end{equation}
+である. 
+拡張系の分配関数は, 
+\begin{align}
+  \begin{split}
+  Z =&
+  \int_{0}^{\infty} ds
+  \int_{- \infty}^{\infty} dp^{\prime}_{s}
+  \int \prod_{i=1}^{N} d \bm{r}_{i}^{\prime}
+  \int \prod_{i=1}^{N} d \bm{p}_{i}^{\prime} ~\\
+  &\times
+  \delta
+  \left\{
+    \mathcal{H}_{0} \left(\bm{r}^{\prime}, \bm{p}^{\prime}\right) +
+    \frac{p^{\prime 2}_{s}}{2Q} + g k_B T_{\mathrm{eq}} \ln s - E
+  \right\}
+  \delta
+  \left\{
+    \sum_{i=1}^{N}\bm{p}_{i} - \bm{P}_{0}
+  \right\}
+  \end{split}
+\end{align}
+である. 
+重心の運動量を差し引いた, 粒子の相対運動量
+$\tilde{\bm{p}}_{i} = \bm{p}_{i}^{\prime} - \bm{P}_{0}/N$
+を導入する. 
+この時, 能勢のハミルトニアン(\ref{Eq:Hamiltonian-Nose})の運動エネルギー項は, 
+\begin{equation}
+  \sum_{i=1}^{N} \frac{\bm{p}_{i}^{\prime 2}}{2m_{i}s^{2}} =
+  \sum_{i=1}^{N} \frac{\tilde{\bm{p}}_{i}^{2}}{2m_{i}s^{2}} +
+  \frac{\bm{P}_{0}^2}{2Ms^{2}} =
+  K_{\mathrm{relative}} + K_{\mathrm{com}}
+\end{equation}
+となる. ここで, 全質量を$M=\sum_{i=1}^{n}m_{i}$とおいた. 
+右辺の第一項目は相対運動エネルギー, 第二項目は重心に対する運動量エネルギーである. 
+正準変数を$\bm{p}^{\prime}$から$\tilde{\bm{p}}$に取り直すと, 分配関数は
+\begin{align}
+  \begin{split}
+  Z =&
+  \int_{0}^{\infty} ds
+  \int_{- \infty}^{\infty} dp^{\prime}_{s}
+  \int \prod_{i=1}^{N} d \bm{r}_{i}^{\prime}
+  \int \prod_{i=1}^{N} d \tilde{\bm{p}}_{i} ~\\
+  &\times
+  \delta
+  \left\{
+    \sum_{i=1}^{N} \frac{\tilde{\bm{p}}_{i}^{2}}{2m_{i}s^{2}} +
+    \frac{\bm{P}_{0}^2}{2Ms^{2}} +
+    U(\bm{r}^{\prime}) +
+    \frac{p^{\prime 2}_{s}}{2Q} + g k_B T_{\mathrm{eq}} \ln s - E
+  \right\}
+  \delta
+  \left\{
+    \sum_{i=1}^{N}\tilde{\bm{p}}_{i}
+  \right\}
+  \end{split}
+\end{align}
+また, 能勢のハミルトニアン(\ref{Eq:Hamiltonian-Nose})は
+\begin{align}
+  \mathcal{H}_{\mathrm{N}} &=
+  \sum_{i=1}^{N} \frac{\tilde{\bm{p}}_{i}^{2}}{2m_{i}s^{2}} +
+  \frac{\bm{P}_{0}^2}{2Ms^{2}} +
+  U(\bm{r}^{\prime}) +
+  \frac{p_{s}^{\prime 2}}{2Q} +
+  g k_{\mathrm{B}}T_{\mathrm{eq}} \ln s
+  \label{Eq:Hamiltonian-Nose2}
+\end{align}
+と修正される. 
+続いて, 運動量に関して$\delta$関数の積分を実行していく. 
+$\tilde{\bm{p}}_{N}$について分配関数の積分を実行すると, 
+\begin{align}
+  \begin{split}
+  Z =&
+  \int_{0}^{\infty} ds
+  \int_{- \infty}^{\infty} dp^{\prime}_{s}
+  \int \prod_{i=1}^{N} d \bm{r}_{i}^{\prime}
+  \int \prod_{i=1}^{N-1} d \tilde{\bm{p}}_{i}~\\
+  &\times
+  \delta
+  \left\{
+    \sum_{i=1}^{N} \frac{\tilde{\bm{p}}_{i}^{2}}{2m_{i}s^{2}} +
+    \frac{\bm{P}_{0}^2}{2Ms^{2}} +
+    U(\bm{r}^{\prime}) +
+    \frac{p^{\prime 2}_{s}}{2Q} + g k_B T_{\mathrm{eq}} \ln s - E
+  \right\}
+  \end{split}
+\end{align}
+となる. ここにおいて$\delta$関数によって
+\begin{equation}
+  \tilde{\bm{p}}_{N} = \sum_{i=1}^{N-1} \tilde{\bm{p}}_{i}
+\end{equation}
+であるので, 粒子の運動エネルギーは
+\begin{align}
+  \sum_{i=1}^{N} \frac{\tilde{\bm{p}}_{i}^{2}}{2m_{i}s^{2}} &=
+  \sum_{i=1}^{N-1} \frac{\tilde{\bm{p}}_{i}^{2}}{2m_{i}s^{2}} +
+  \frac{\tilde{\bm{p}}_{N}^{2}}{2m_{N}s^{2}}
+  \notag \\
+  &=
+  \sum_{i=1}^{N-1} \frac{\tilde{\bm{p}}_{i}^{2}}{2m_{i}s^{2}} +
+  \sum_{i=1}^{N-1} \frac{\tilde{\bm{p}}_{i}^{2}}{2m_{N}s^{2}}
+\end{align}
+である. 便利のために新たな運動エネルギー
+\begin{equation}
+  \sum_{i=1}^{N-1} \frac{\bm{\pi}_{i}^{2}}{2\lambda_{i}s^{2}} \equiv
+  \sum_{i=1}^{N-1} \frac{\tilde{\bm{p}}_{i}^{2}}{2m_{i}s^{2}} +
+  \sum_{i=1}^{N-1} \frac{\tilde{\bm{p}}_{i}^{2}}{2m_{N}s^{2}}
+\end{equation}
+を定義すると, 分配関数は
+\begin{align}
+  \begin{split}
+  Z =&
+  \int_{0}^{\infty} ds
+  \int_{- \infty}^{\infty} dp^{\prime}_{s}
+  \int \prod_{i=1}^{N} d \bm{r}_{i}^{\prime}
+  \int \prod_{i=1}^{N-1} d \bm{\pi}_{i}~\\
+  &\times
+  \delta
+  \left\{
+    \sum_{i=1}^{N-1} \frac{\bm{\pi}_{i}^{2}}{2m_{i}s^{2}} +
+    \frac{\bm{P}_{0}^2}{2Ms^{2}} +
+    U(\bm{r}^{\prime}) +
+    \frac{p^{\prime 2}_{s}}{2Q} + g k_B T_{\mathrm{eq}} \ln s - E
+  \right\}
+  \end{split}
+\end{align}
+となる. 仮想座標$\bm{r}_{i}^{\prime}$, 仮想運動量$\bm{p}_{i}^{\prime}$ (あるいは$\bm{\pi}_{i}$)から, 物理系の座標と$\bm{r}_{i}$と運動量$\bm{p}_{i}$に変数変換する. 
+$\bm{p}_{i}^{\prime} = \bm{p}_{i}/s$であるから, 
+\begin{align}
+  \begin{split}
+  Z =&
+  \int_{0}^{\infty} ds
+  \int_{- \infty}^{\infty} dp^{\prime}_{s}
+  \int \prod_{i=1}^{N} d \bm{r}_{i}
+  \int \prod_{i=1}^{N-1} d \bm{p}_{i}~
+  s^{3N-3} \\ &\times
+  \delta
+  \left\{
+    \sum_{i=1}^{N-1} \frac{\bm{p}_{i}^{2}}{2m_{i}s^{2}} +
+    \frac{\bm{P}_{0}^2}{2Ms^{2}} +
+    U(\bm{r}) +
+    \frac{p^{\prime 2}_{s}}{2Q} + g k_B T_{\mathrm{eq}} \ln s - E
+  \right\}
+  \end{split}
+\end{align}
+となる. この分配関数は, 重心に対する運動エネルギー項と次元が$3N-3$であることを除けば, 元々の能勢の方法における分配関数(\ref{Eq:Partition-Function-Nose})と同じ形をしている. 
+続く手続きでは, $s$に関する積分を実行していく. 
+分配関数のディラックのデルタ関数に関して
+\begin{equation}
+  \sum_{i=1}^{N-1} \frac{\bm{p}_{i}^{2}}{2m_{i}s^{2}} +
+  \frac{\bm{P}_{0}^2}{2Ms^{2}} +
+  U(\bm{r}) +
+  \frac{p^{\prime 2}_{s}}{2Q} + g k_B T_{\mathrm{eq}} \ln s = E
+\end{equation}
+は, $s$に関して二つの解$s_{1}$, $s_{2}$を持つので, ディラックのデルタ関数に関する恒等式(\ref{Eq:Delta-Function-IdentityEq})を適用すると, 
+\begin{align}
+  \delta
+  \left\{
+    \sum_{i=1}^{N-1} \frac{\bm{p}_{i}^{2}}{2m_{i}s^{2}} +
+    \frac{\bm{P}_{0}^2}{2Ms^{2}} +
+    U(\bm{r}) +
+    \frac{p^{\prime 2}_{s}}{2Q} + g k_B T_{\mathrm{eq}} \ln s - E
+  \right\}
+  =
+  \sum_{i=1}^{2}
+  \frac
+  {\delta(s - s_{i})}
+  {\left| -\frac{\bm{P}_{0^{2}}}{2Ms^{3}} + \frac{g k_{\mathrm{B}} T_{\mathrm{eq}}}{s} \right|_{s=s_{i}}}
+\end{align}
+となる. 
+よって, 分配関数を$s$に関して積分を実行すると, 
+\begin{align}
+  Z &=
+  \int_{0}^{\infty} ds
+  \int_{- \infty}^{\infty} dp^{\prime}_{s}
+  \int \prod_{i=1}^{N} d \bm{r}_{i}
+  \int \prod_{i=1}^{N-1} d \bm{p}_{i}~
+  s^{3N-3}
+  \sum_{i=1}^{2}
+  \frac
+  {\delta(s - s_{i})}
+  {\left| -\frac{\bm{P}_{0^{2}}}{2Ms^{3}} + \frac{g k_{\mathrm{B}} T_{\mathrm{eq}}}{s} \right|_{s=s_{i}}}
+  \\
+  &=
+  \int_{0}^{\infty} ds
+  \int_{- \infty}^{\infty} dp^{\prime}_{s}
+  \int \prod_{i=1}^{N} d \bm{r}_{i}
+  \int \prod_{i=1}^{N-1} d \bm{p}_{i}~
+  \sum_{i=1}^{2}
+  \frac
+  {s_{i}^{3N-3}}
+  {\left| -\frac{\bm{P}_{0^{2}}}{2Ms^{3}} + \frac{g k_{\mathrm{B}} T_{\mathrm{eq}}}{s} \right|_{s=s_{i}}}
+\end{align}
+となる. この分配関数の積分は明らかにボルツマン因子に比例した形にならず, 物理系はカノニカル分布にしたがわない. 
+
+一方で$\bm{P}_{0} = 0$の場合, デルタ関数内の重心の運動量エネルギー項が消えるので, $s$に関して唯一つだけの解$s_{0}$を持つ. 
+そのため, オリジナルの能勢の分配関数と同様の手続きで$s$に関する積分ができ, 結果として物理系がカノニカル分布にしたがうことが示される. 
+
+\subsection{能勢・Hooverの方法}
+\subsubsection{能勢・Hooverの運動方程式}
+W.G.Hooverは現実時間$t$での運動方程式を変形することで,
+時間スケーリング$s$が必須でない形を持つ運動方程式を導出した~\cite{1985Hoover, 1992Martyna}.
+仮想時間における能勢の方程式(\ref{eq:NoseHoover9.1}--\ref{eq:NoseHoover9.4})に対して, 次のような非正準変換を考える:
+\begin{align}
+ \bm{r}_{i} = \bm{r}^{\prime}_{i},~~~~~
+ \bm{p}_{i} = \frac{\bm{p}^{\prime}_{i}}{s},~~~~~
+ dt         = \frac{dt^{\prime}}{s},~~~~~
+ \frac{1}{s}\frac{ds}{dt} = \frac{d \eta}{dt},~~~~~
+ p_{s}      = p_{\eta}~~~~~
+\end{align}
+現実時間における運動方程式は,
+\begin{align}
+ \frac{d \bm{r}_{i}}{dt} &= \frac{\bm{p}_{i}}{m_{i}} \\
+ \frac{d \bm{p}_{i}}{dt} &= \bm{F}_{i} - \frac{p_{\eta}}{Q} \bm{p}_{i} \\
+ \frac{d \eta}{dt}       &= \frac{p_{\eta}}{Q} \\
+ \frac{d p_{\eta}}{dt}   &= \sum_{i=1}^{N}\frac{\bm{p}_{i}^{2}}{m_{i}} - g k_{\mathrm{B}} T_{\mathrm{eq}} \\
+\end{align}
+と導出される. この運動方程式を能勢・Hooverの運動方程式という.
+さらに
+\begin{equation}
+ \zeta \equiv \frac{1}{s} \frac{d s}{d t} = \frac{d s}{d t^{\prime}} = \frac{p_{\eta}}{Q}
+ \label{eq:NoseHoover11}
+\end{equation}
+を定義して, 瞬間温度
+\begin{equation}
+ T(t) = \frac{1}{g k_{\mathrm{B}}} \sum_{i=1}^{N} \frac{{\bm{p}_{i}}^{2}}{m_{i}}
+ \label{eq:NoseHoover12}
+\end{equation}
+を用いて運動方程式を書き直すと
+\begin{alignat}{2}
+ &\frac{d \bm{r}_{i}}{d t}
+ &&= \frac{\bm{p}_{i}}{m_{i} }
+ \label{eq:NoseHoover13.1}
+ \\
+ &\frac{d \bm{p}_{i}}{d t}
+ &&= \bm{F}_{i} - \zeta \bm{p}_{i}
+ \label{eq:NoseHoover13.2}
+ \\
+ &\frac{d \zeta}{d t}
+ &&= \frac{g k_{\mathrm{B}}}{Q} \left( T(t) - T_{\mathrm{eq}}\right)
+ \label{eq:NoseHoover13.3}
+\end{alignat}
+の3つの式で閉じた形となる.
+$\zeta$は一種の抵抗係数のようなものである.
+瞬間温度$T(t)$が設定温度$T_{\mathrm{eq}}$より高い時, $\zeta$は増加する方向に変化し, 粒子の運動量を小さくする.
+逆に瞬間温度$T(t)$が設定温度$T_{\mathrm{eq}}$より低い時, $\zeta$は減少するように変化し, 運動量を増加させる.
+このように, $\zeta$はその時間変化によって, 瞬間温度$T(t)$が設定温度$T_{\mathrm{eq}}$に近づくよう, 粒子の運動量にフィードバックをかける.
+つまり, 熱浴粒子が摩擦力を通して熱を供給したり奪ったりすることで, 現実系の温度$T$を
+平均として一定値$T_{\mathrm{eq}}$に保つのである.
+
+
+\subsubsection{能勢・Hooverの運動方程式の時間発展法}
+G.~J.~Martynaらが提案した時間反転可逆な積分法~\cite{1992Tuckerman, 1996Martyna}をもとに,
+数値積分アルゴリズムについて述べる.
+能勢・Hooverの運動方程式の位相空間は$(\bm{r}, \bm{p}, \zeta)$で張られる.
+したがって, 物理量$A(\bm{r}, \bm{p}, \zeta)$の時間発展は,
+\begin{equation}
+ \dot{A}(\bm{r}, \bm{p}, \bm{\zeta})
+  =
+  \sum_{i} \dot{\bm{r}}_{i} \cdot \frac{\partial A}{\partial \bm{r}_{i}}
+  +
+  \sum_{i} \dot{\bm{p}}_{i} \cdot \frac{\partial A}{\partial \bm{p}_{i}}
+  +
+  \dot{\zeta} \frac{\partial A}{\partial \zeta}
+ \label{eq:NoseHoover26}
+\end{equation}
+とかける. ここで演算子$\mathcal{D}$を導入する.
+\begin{equation}
+ \mathcal{D}
+  \equiv
+  \sum_{i} \dot{\bm{r}}_{i} \cdot \frac{\partial}{\partial \bm{r}_{i}}
+  +
+  \sum_{i} \dot{\bm{p}}_{i} \cdot \frac{\partial}{\partial \bm{p}_{i}}
+  +
+  \dot{\zeta} \frac{\partial}{\partial \zeta}
+ \label{eq:NoseHoover27}
+\end{equation}
+運動方程式(\ref{eq:NoseHoover13.1})-(\ref{eq:NoseHoover13.3})を代入すると,
+\begin{equation}
+ \mathcal{D}
+  =
+  \sum_{i} \frac{\bm{p}_{i}}{m_{i}} \cdot \frac{\partial}{\partial \bm{r}_{i}}
+  +
+  \sum_{i} (\bm{F}_{i} - \zeta \bm{p}_{i}) \cdot \frac{\partial}{\partial \bm{p}_{i}}
+  +
+  \frac{1}{Q}
+  \left( \sum_{i} \frac{\bm{p}^{2}_{i}}{m_{i}} - g k_{\mathrm{B}} T_{\mathrm{eq}} \right)
+  \frac{\partial}{\partial \zeta}
+ \label{eq:NoseHoover28}
+\end{equation}
+を得る. この演算子$\mathcal{D}$を用いると, 式(\ref{eq:NoseHoover26})は
+\begin{equation}
+ \dot{A} \left( \bm{r}, \bm{p}, \zeta \right)
+  =
+  \mathcal{D} A
+  \label{eq:NoseHoover29}
+\end{equation}
+とかける. この微分方程式の形式的な解は
+\begin{equation}
+ A(t + \Delta t)
+  =
+  e^{\mathcal{D} \Delta t} A(t)
+  \label{eq:NoseHoover30}
+\end{equation}
+となる.
+この形式解は厳密に正しいが数値積分できる形式ではないため, 演算子$\mathcal{D}$を以下のように分割する.
+\begin{alignat}{2}
+ &\mathcal{D}
+ &&= \mathcal{D}_{1} + \mathcal{D}_{2} + \mathcal{D}_{3}
+ \label{eq:NoseHoover31.1}
+ \\
+ &\mathcal{D}_{1}
+ &&=
+ \sum_{i} \frac{\bm{p}_{i}}{m_{i}} \cdot \frac{\partial}{\partial \bm{r}_{i}}
+ +
+ \frac{1}{Q}
+ \left( \sum_{i} \frac{\bm{p}^{2}_{i}}{m_{i}} - g k_{\mathrm{B}} T_{\mathrm{eq}} \right)
+ \frac{\partial}{\partial \zeta}
+ \label{eq:NoseHoover31.2}
+ \\
+ &\mathcal{D}_{2}
+ &&=
+ \sum_{i} \bm{F}_{i} \cdot \frac{\partial}{\partial \bm{p}_{i}}
+ \label{eq:NoseHoover31.3}
+ \\
+ &\mathcal{D}_{3}
+ &&=
+ - \zeta \sum_{i} \bm{p}_{i} \cdot \frac{\partial}{\partial \bm{p}_{i}}
+ \label{eq:NoseHoover31.4}
+\end{alignat}
+演算子$\mathcal{D}$の分割にともなって, 時間発展演算子$e^{\mathcal{D} \Delta t}$
+を鈴木・トロッター分割を用いて以下のように近似的に分解すると,
+\begin{align}
+ e^{\mathcal{D}\Delta t}
+ =
+ e^{\mathcal{D}_{3} \frac{\Delta t}{2}}
+ e^{\mathcal{D}_{2} \frac{\Delta t}{2}}
+ e^{\mathcal{D}_{1} \frac{\Delta t}{2}}
+ e^{\mathcal{D}_{2} \frac{\Delta t}{2}}
+ e^{\mathcal{D}_{3} \frac{\Delta t}{2}}
+ +
+ \mathcal{O}\left( (\Delta t)^{3} \right)
+ \label{eq:NoseHoover32}
+\end{align}
+となる. また, 時間発展演算子$e^{\mathcal{D}_{j} \Delta t}$は
+\begin{equation}
+ e^{\mathcal{D}_{j} \Delta t}
+ =
+ 1 + \mathcal{D}_{j} \Delta t
+ + \frac{1}{2!} \mathcal{D}_{j}^{2} (\Delta t)^{2} + \cdots
+ \label{eq:NoseHoover33}
+\end{equation}
+と展開することができるため, $e^{\mathcal{D}_{1} \Delta t}$による位相空間の時間発展は
+\begin{align}
+ e^{\mathcal{D}_{1} \Delta t}
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t) \\
+  \zeta_{i} (t) \\
+ \end{bmatrix}
+ &= \left[
+    1 + \left\{
+    \sum_{i} \frac{\bm{p}_{i}}{m_{i}} \cdot \frac{\partial}{\partial \bm{r}_{i}}
+    +
+    \frac{1}{Q}
+    \left( \sum_{i} \frac{\bm{p}^{2}_{i}}{m_{i}} - g k_{\mathrm{B}} T_{\mathrm{eq}} \right)
+    \frac{\partial}{\partial \zeta}
+    \right\} \Delta t
+    + \cdots
+ \right]
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t) \\
+  \zeta (t) \\
+ \end{bmatrix}
+ \notag \\
+ &=
+ \begin{bmatrix}
+  \bm{r}_{i} (t) + \frac{\bm{p}_{i}(t)}{m_{i}} \Delta t \\
+  \bm{p}_{i} (t)                                            \\
+  \zeta (t) + \frac{1}{Q}
+  \left( \sum_{i} \frac{\bm{p}^{2}_{i}}{m_{i}} - g k_{\mathrm{B}} T_{\mathrm{eq}} \right)
+  \Delta t
+ \end{bmatrix}
+ \label{eq:NoseHoover34}
+\end{align}
+と記述できる.
+$\mathcal{D}_{1}$が$\bm{p}_{i}$に作用するとゼロであるので, $\Delta t$の2乗以上の高次項はゼロとなる.
+したがって, 式(\ref{eq:NoseHoover34})は厳密に正しい式である.
+同様にして, 時間発展演算子$e^{\mathcal{D}_{2} \Delta t}$による位相空間の時間発展は
+\begin{align}
+ e^{\mathcal{D}_{2} \Delta t}
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t) \\
+  \zeta_{i} (t) \\
+ \end{bmatrix}
+ &= \left[
+    1 + \left\{
+    \sum_{i} \bm{F}_{i} \cdot \frac{\partial}{\partial \bm{p}_{i}}
+    \right\} \Delta t
+    + \cdots
+ \right]
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t) \\
+  \zeta (t) \\
+ \end{bmatrix}
+ \notag \\
+ &=
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t) + \bm{F}_{i} \Delta t \\
+  \zeta (t)
+ \end{bmatrix}
+ \label{eq:NoseHoover35}
+\end{align}
+と記述される. 演算子$\mathcal{D}_{3}$は位相空間$(\bm{r},\bm{p},\zeta)$に作用しても
+$\Delta t$の高次項がゼロにならないが, 指数関数のテイラー展開
+\begin{equation}
+ e^{x} = 1 + x + \frac{1}{2!} x^{2} + \cdots
+\end{equation}
+を用いれば, 時間発展演算子$e^{\mathcal{D}_{3} \Delta t}$による位相空間の時間発展を
+\begin{align}
+ e^{\mathcal{D}_{3} \Delta t}
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t) \\
+  \zeta_{i} (t) \\
+ \end{bmatrix}
+ &= \left\{
+    1 + \mathcal{D}_{3} \Delta t
+    + \frac{1}{2!} \mathcal{D}_{3}^{2} (\Delta t)^{2}
+    + \cdots
+    \right\}
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t) \\
+  \zeta (t) \\
+ \end{bmatrix}
+ \notag \\
+ &= \left\{
+    1
+    + \left(
+      -\zeta \sum_{i} \bm{p}_{i}\cdot \frac{\partial}{\partial \bm{p}_{i}}
+      \right)
+    \Delta t
+    + \frac{1}{2!}
+      \left(
+      -\zeta \sum_{i} \bm{p}_{i}\cdot \frac{\partial}{\partial \bm{p}_{i}}
+      \right)^{2}
+      (\Delta t)^{2}
+    + \cdots
+    \right\}
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t) \\
+  \zeta (t) \\
+ \end{bmatrix}
+ \notag \\
+ &=
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t)
+  \left\{
+  1 - \zeta \Delta t + \frac{1}{2!} (-\zeta \Delta t)^{2} + \cdots
+  \right\} \\
+  \zeta (t) \\
+ \end{bmatrix}
+ \notag \\
+ &=
+ \begin{bmatrix}
+  \bm{r}_{i} (t) \\
+  \bm{p}_{i} (t) e^{- \zeta \Delta t} \\
+  \zeta (t) \\
+ \end{bmatrix}
+ \label{eq:NoseHoover36}
+\end{align}
+と得ることができる.
+以上により, 各時間発展演算子による時間発展が計算できる.
+式(\ref{eq:NoseHoover32})の順で位相空間($\bm{r},\bm{p},\zeta$)を時間発展させると次のようなアルゴリズムを得る.
+\begin{alignat}{2}
+ &\bm{p}_{i} &&\gets \bm{p}_{i} \exp \left(-\zeta \frac{\Delta t}{2}\right)
+ \label{eq:NoseHoover37.1}
+ \\
+ &\bm{p}_{i} &&\gets \bm{p}_{i} + \bm{F}_{i} \frac{\Delta t}{2}
+ \label{eq:NoseHoover37.2}
+ \\
+ &\bm{r}_{i} &&\gets \bm{r}_{i} + \frac{\bm{p}_{i}}{m_{i}} \Delta t
+ \label{eq:NoseHoover37.3}
+ \\
+ &\zeta          &&\gets \zeta
+                           + \frac{1}{Q}
+                           \left(
+                           \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{m_{i}}
+                           - g k_{\mathrm{B}} T_{\mathrm{eq}}
+                           \right) \Delta t
+ \label{eq:NoseHoover37.4}
+ \\
+ &\bm{p}_{i} &&\gets \bm{p}_{i} + \bm{F}_{i} \frac{\Delta t}{2}
+ \label{eq:NoseHoover37.5}
+ \\
+ &\bm{p}_{i} &&\gets \bm{p}_{i} \exp \left(-\zeta \frac{\Delta t}{2}\right)
+ \label{eq:NoseHoover37.6}
+\end{alignat}
+ここで$\gets$はプログラム中での代入を意味する.
+式(\ref{eq:NoseHoover37.1})-(\ref{eq:NoseHoover37.6})のプロセスを1回計算することにより, 能勢・Hoover熱浴を用いた分子動力学シミュレーションを1ステップ進めることができる.
+熱浴がない, つまり$\zeta=0$の時, 速度ベルレ法によるミクロカノニカルアンサンブルでの時間発展の表式を得られる.
+さらに式(\ref{eq:NoseHoover32})における時間発展演算子$e^{\mathcal{D} \Delta t}$の分割が時間反転について対称であるので, 上記のアルゴリズムも時間反転対称である.
+
+\clearpage
+\bibliographystyle{junsrt}
+\bibliography{temperature-control}
+\input{../include/end}
