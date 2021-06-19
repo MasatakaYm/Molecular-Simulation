@@ -143,7 +143,7 @@
 
 ### [20. 慣性半径](src/radius-of-gyration/radius-of-gyration.pdf)
 
-### [21. 最小二乗偏差(RMSD: Root Mean Square Deviation](src/rmsd/rmsd.pdf)
+### [21. 最小二乗偏差(RMSD: Root Mean Square Deviation)](src/rmsd/rmsd.pdf)
 1. 並進移動の計算
 2. Lagrange未定乗数法を使う場合
 3. 特異値分解を用いた方法
