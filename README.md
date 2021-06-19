@@ -10,7 +10,7 @@
 ## 目次
 
 執筆状況を示すための指標として、目次に絵文字を添える.
-- 🍊(Mikan): 未完成の項目, 執筆中, 未完成の項目, Todo.
+- 🍊(Mikan): 未完成の項目, 執筆中, Todo.
 
 
 ## 第1部 物理の復習
@@ -139,7 +139,7 @@
 ### [20. 自己相関関数](src/auto-correlation-function/auto-correlation-function.pdf)
 1. 自己相関関数の定義
 2. 解析的に自己相関関数が計算できる関数の例
-3. 自己相関関数と物理
+3. 🍊自己相関関数と物理
 
 ### [21. 慣性半径](src/radius-of-gyration/radius-of-gyration.pdf)
 
