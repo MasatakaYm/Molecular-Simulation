@@ -6,8 +6,7 @@
 <a href="https://github.com/MasatakaYm/molecular-simulation"> <div class="btn-square"><i class="fab fa-github"></i> View on GitHub</div></a>
 --->
 
-[PDF (Written in Japanese)](https://MasatakaYm.github.io/MolecularSimulation/src/main.pdf)
-
+[PDF (Written in Japanese)](https://github.com/MasatakaYm/Molecular-Simulation/blob/master/src/main.pdf)
 ## 目次
 
 執筆状況を示すための指標として、目次に絵文字が添える.
@@ -47,7 +46,7 @@
 2. 様々なポテンシャル関数とその力・ヴィリアルの表式
 3. 計算ノート: 力・ヴィリアルの導出
 
-### [5. 長距離相互作用の計算方法: Eealdの方法](src/ewald/ewald.pdf)
+### [5. 長距離相互作用の計算方法: Ewaldの方法](src/ewald/ewald.pdf)
 1. Ewaldの方法
 2. Particle Mesh Ewald (PME)法
 3. 静電相互作用を実装したときのメモ
@@ -94,13 +93,13 @@
 3. 🍊Berensenの方法
 4. 🍊ガウス束縛法
 
-### [13. マルコフ連鎖モンテカルロ法](markov-chain-monte-carlo/markov-chain-monte-carlo.pdf)
+### [13. マルコフ連鎖モンテカルロ法](src/markov-chain-monte-carlo/markov-chain-monte-carlo.pdf)
 1. マルコフ連鎖
 2. マルコフ連鎖の平衡分布への収束性
 3. 遷移確率行列の構築法
 
 
-### [14. 拡張アンサンブル法](generalized-ensemble/generalized-ensemble.pdf)
+### [14. 拡張アンサンブル法](src/generalized-ensemble/generalized-ensemble.pdf)
 1. マルコフ連鎖モンテカルロ法
 2. マルチカノニカル法
 3. 焼き戻し法
@@ -110,7 +109,7 @@
 
 
 ## 第3部 分子モデリング
-### [15. 分子モデリング](molecular-modeling/molecular-modeling.pdf)
+### [15. 分子モデリング](src/modeling-molecules/modeling-molecules.pdf)
 1. 濃度換算
 2. 水の初期配置について
 3. 一般化螺旋集合 (GSS: Generalized Spiral Set)
@@ -125,7 +124,7 @@
 3. 多状態ベネット受容比法 (MBAR: Multistate Bennett Acceptance Ration Estimator)
 4. リウェイティング tips
 
-### [17. 最小二乗法](least-squares-method/least-squares-method.pd)
+### [17. 最小二乗法](src/least-squares-method/least-squares-method.pdf)
 1. 線形最小二乗法
 
 ### [18. 主成分解析 (Principal Component Analysis; PCA)](src/pca/pca.pdf)
@@ -154,7 +153,7 @@
 ### [23. 溶媒接触表面積(SASA: Solvent Accessible Surface Ares)](src/solvent-accessible-surface-area/solvent-accessible-surface-area.pdf)
 
 
-### [24. 熱力学量の算出](thermodynamics-quantities/thermodynamics-quantities.pdf)
+### [24. 熱力学量の算出](src/thermodynamics-quantities/thermodynamics-quantities.pdf)
 1. 熱力学量
 2. Hwleyの方程式
 
