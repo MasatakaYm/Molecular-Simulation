@@ -257,7 +257,18 @@ $\bm{\Gamma}^{\prime}$を$\bm{\Gamma}$の関数$\bm{\Gamma}^{\prime}(\bm{\Gamma}
 のように書くことができる. 
 一般に分子動力学シミュレーションでは, $e^{D_{\mathcal{H}}}$に基づく時間発展を厳密に解くことはできないが, 近似として$e^{D_{U} \frac{\Delta t}{2}}e^{D_{K} \Delta t}e^{D_{U} \frac{\Delta t}{2}}$による時間発展を実行することはできる. もちろん, より高次の鈴木・トロッター分解に基づく時間発展も可能である. 
 
-$e^{D_{K} \Delta t}$および$e^{D_{U} \Delta t}$はそれぞれ$K$あるいは$U$をハミルトニアンと見なした場合の時間発展演算子であるので, これらの時間発展はシンプレクティック条件(\ref{Eq:Symplectic-Condition})を満たす. すなわち, それぞれが作用したときに発生した状態が正準方程式を満たし, これらの時間発展演算子による写像によって位相空間の体積が変化しないことも意味している. 各部分がシンプレクティック条件を満たしているので, $e^{D_{U} \frac{\Delta t}{2}}e^{D_{K} \Delta t}e^{D_{U} \frac{\Delta t}{2}}$による時間発展もシンプレクティック条件を満たす. 
+$e^{D_{K} \Delta t}$および$e^{D_{U} \Delta t}$はそれぞれ$K$あるいは$U$をハミルトニアンと見なした場合の時間発展演算子であるので, これらの時間発展はシンプレクティック条件(\ref{Eq:Symplectic-Condition})を満たす. すなわち, それぞれが作用したときに発生した状態が正準方程式を満たし, これらの時間発展演算子による写像によって位相空間の体積が変化しないことも意味している. 各部分がシンプレクティック条件を満たしているので, $e^{D_{U} \frac{\Delta t}{2}}e^{D_{K} \Delta t}e^{D_{U} \frac{\Delta t}{2}}$による時間発展もシンプレクティック条件を満たす. 加えて, 式(\ref{Eq:Symplectic-Suzuki-Trottor-Decomposition-UKU})では時間発展演算子を時間反転に対して対称になるように分割している.
+このため, シンプレクティック分子動力学法は時間反転可逆な時間発展アルゴリズムになっている.
+すなわち,
+\begin{equation}
+  e^{-D_{\mathcal{H}} \Delta t}
+  e^{ D_{\mathcal{H}} \Delta t}
+  =
+  e^{ D_{\mathcal{H}} \Delta t}
+  e^{-D_{\mathcal{H}} \Delta t}
+  = 1
+\end{equation}
+が成立する.
 
 演算子$D_{K}$, $D_{U}$はその定義式(\ref{Eq:Symplectic-Definition-DK}), (\ref{Eq:Symplectic-Definition-DU})により, $\bm{q}$と$\bm{p}$に以下のように作用する:
 \begin{alignat}{10}
@@ -516,7 +527,192 @@ $e^{D_{K} \Delta t}$および$e^{D_{U} \Delta t}$はそれぞれ$K$あるいは$
 \end{align}
 となり, シンプレクティック条件を満たしていることが確認できる. 
 
-% \section{シンプレクティク分子動力学法における保存量}
+\section{シンプレクティク分子動力学法における保存量}
+シンプレクティック分子動力学法における保存量を見るために, 式(\ref{Eq:Symplectic-Suzuki-Trottor-Decomposition-UKU})のように近似的に分解された時間発展演算子を逆に一つにまとめた演算子を
+\begin{align}
+  e^{D_{\tilde{\mathcal{H}}} \Delta t}
+  \equiv
+  e^{D_{U} \frac{\Delta t}{2}}
+  e^{D_{K} \Delta t}
+  e^{D_{U} \frac{\Delta t}{2}}
+  \simeq
+  e^{D_{\mathcal{H}} \Delta t}
+  \label{Eq:Def-Shade-Hamiltonian}
+\end{align}
+と定義する.
+ベーカー・キャンベル・ハウスドルフの公式を使うことで, $D_{\tilde{\mathcal{H}}}$を$D_{K}$, $D_{U}$で表していく.
+演算子$A$, $B$, $C$,の間に
+\begin{equation}
+  e^{A}e^{B} = e^{C}
+\end{equation}
+の関係が成り立つとき, 演算子$C$は演算子$A$, $B$を用いて
+\begin{equation}
+  C = A + B
+    + \frac{1}{2} [A, B]
+    + \frac{1}{12}
+      \left\{
+        [A, [A,B]] + [[A,B], B]
+      \right\}
+    + \ldots
+  \label{Eq:BHC-formula}
+\end{equation}
+と表わされる. ここで, $[A, B]$は$A$, $B$の交換子で
+\begin{equation}
+  [A, B] \equiv AB - BA
+\end{equation}
+と定義される. すなわち, $C$は$A$, $B$およびそれらの交換子の組み合わせで表すことができる. 
+このような関係式(\ref{Eq:BHC-formula})を\textbf{ベーカー・キャンベル・ハウスドルフの公式}という。
+例えば, 式(\ref{Eq:Def-Shade-Hamiltonian})
+\begin{equation}
+  e^{C} = e^{\frac{A}{2}}e^{B}e^{\frac{A}{2}}
+\end{equation}
+と3つの演算子で定義される演算子を1つにまとめるには, ベーカー・キャンベル・ハウスドルフの公式を2回繰り返して適用すればいい. 詳しい導出は付録にまわして結果だけ述べると演算子$C$は
+\begin{equation}
+  C = A + B
+    - \frac{1}{24}[A, [A,B]]
+    + \frac{1}{12}[[A,B], B]
+    + \ldots
+\end{equation}
+と展開することができる.
+この公式を時間発展演算子(\ref{Eq:Def-Shade-Hamiltonian})に適用すると
+\begin{align}
+  D_{\Tilde{\mathcal{H}}} \Delta t
+  =~&
+  D_{U} \Delta t + D_{K} \Delta t
+  \\ \notag
+  +~&
+  \frac{1}{24}
+  \left\{
+      2[[D_{U}\Delta t, D_{K}\Delta t], D_{K} \Delta t]
+    -  [D_{U}\Delta t, [D_{U}\Delta t, D_{K}\Delta t]]
+  \right\}
+  \notag
+\end{align}
+となるので、
+\begin{align}
+  D_{\Tilde{\mathcal{H}}}
+  =~
+  D_{U} + D_{K}
+  +
+  \frac{1}{24}
+  \left\{
+      2[[D_{U}, D_{K}], D_{K}]
+      -[D_{U}, [D_{U}, D_{K}]]
+  \right\}
+  (\Delta t)^{2}
+  \label{Eq:D_H-Decomposition}
+\end{align}
+を得る. 続いて各項を計算すると以下のようにポアソン括弧を用いて書き直すことができる.
+第１項目と第2項目は, 式(\ref{Eq:Symplectic-Definition-DK}), 式(\ref{Eq:Symplectic-Definition-DU})より
+\begin{align}
+  D_{K} + D_{U}
+  =
+  D_{\mathcal{H}}
+  =
+  \sum_{i=1}^{3N}
+  \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \frac{\partial}{\partial q_{i}}
+  -
+  \sum_{i=1}^{3N}
+  \frac{\partial \mathcal{H}}{\partial q_{i}}
+  \frac{\partial}{\partial p_{i}}
+  =
+  \{~~, \mathcal{H}\}
+  \label{Eq:PoissonBracket-DK+DU}
+\end{align}
+と計算される. $D_{U}$と$D_{K}$の交換子については
+\begin{alignat}{4}
+  [D_{U}, D_{K}]
+  &=
+  -&&
+  \left\{
+    ~~~~,~
+    \sum_{i=1}^{3N}
+    \frac{\partial \mathcal{H}}{\partial q_{i}}
+    \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \right\}
+  \label{Eq:PoissonBracket-DU-DK}
+  \\
+  [D_{U}, [D_{U}, D_{K}]]
+  &=&&
+  \left\{
+    ~~~~,~
+    \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+    \frac{\partial \mathcal{H}}{\partial q_{j}}
+    \frac{\partial^{2} \mathcal{H}}{\partial p_{j} \partial p_{j}}
+    \frac{\partial \mathcal{H}}{\partial q_{i}}
+  \right\}
+  \label{Eq:PoissonBracket-DU-DU-DK}
+  \\
+  [[D_{U}, D_{K}], D_{K}]
+  &=&&
+  \left\{
+    ~~~~,~
+    \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+    \frac{\partial \mathcal{H}}{\partial p_{j}}
+    \frac{\partial^{2} \mathcal{H}}{\partial q_{j} \partial q_{j}}
+    \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \right\}
+  \label{Eq:PoissonBracket-DU-DK-DK}
+\end{alignat}
+と計算される. なお具体的な導出は付録を参照のこと.
+以上で得られたポアソン括弧
+%式(\ref{Eq:PoissonBracket-DK+DU}), \ref{Eq:PoissonBracket-DU-DK}), \ref{Eq:PoissonBracket-DU-DU-DK}, \ref{Eq:PoissonBracket-DU-DK-DK})
+を式(\ref{Eq:D_H-Decomposition})に代入すると,
+\begin{align}
+  D_{\Tilde{\mathcal{H}}}
+  =
+  \{~~, \mathcal{H}\}
+  +
+  \left\{
+    ~~~~,~
+    \frac{1}{24}
+    \left(
+      2
+      \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+      \frac{\partial \mathcal{H}}{\partial q_{j}}
+      \frac{\partial^{2} \mathcal{H}}{\partial p_{j} \partial p_{j}}
+      \frac{\partial \mathcal{H}}{\partial q_{i}}
+    -
+      \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+      \frac{\partial \mathcal{H}}{\partial p_{j}}
+      \frac{\partial^{2} \mathcal{H}}{\partial q_{j} \partial q_{j}}
+      \frac{\partial \mathcal{H}}{\partial p_{i}}
+    \right)
+  \right\}
+  (\Delta t)^{2}
+  +
+  \ldots
+\end{align}
+を得る. すなわち$D_{\Tilde{\mathcal{H}}}$をポアソン括弧によって表すことができた.
+したがって, 時間発展演算子(\ref{Eq:Symplectic-Suzuki-Trottor-Decomposition-UKU})に基づく分子動力学シミュレーションは
+\begin{align}
+  \Tilde{\mathcal{H}}
+  \equiv
+  \mathcal{H}
+  +
+  \frac{1}{24}
+    \left(
+      2
+      \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+      \frac{\partial \mathcal{H}}{\partial q_{j}}
+      \frac{\partial^{2} \mathcal{H}}{\partial p_{j} \partial p_{j}}
+      \frac{\partial \mathcal{H}}{\partial q_{i}}
+    -
+      \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+      \frac{\partial \mathcal{H}}{\partial p_{j}}
+      \frac{\partial^{2} \mathcal{H}}{\partial q_{j} \partial q_{j}}
+      \frac{\partial \mathcal{H}}{\partial p_{i}}
+    \right)
+    (\Delta t)^{2}
+    + \ldots
+\end{align}
+をハミルトニアンと見做した時の時間発展を厳密に解く方法と言える.
+この$\Tilde{\mathcal{H}}$を影のハミルトニアンという.
+ポアソン括弧で表せることから分かるように, 影のハミルトニアンは厳密に保存する.
+そのため, 長時間シミュレーションを行っても誤差が蓄積しにくい.
+また物理系のハミルトニアン$\mathcal{H}$は影のハミルトニアンの値の周りを誤差$(\Delta t)^2$の範囲を揺らぐ.
+一方, シンプレクティックでない方法を用いた場合, $\Tilde{\mathcal{H}}$のような保存量が存在しないため, 長時間シミュレーションを行うと誤差が蓄積してハミルトニアンがだんだん異なる値になっていく.
 
 
 % \subsection{リウヴィル演算子と時間発展演算子}
