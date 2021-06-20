@@ -884,6 +884,120 @@ BCHの公式を用いると
 の表式が得られた.
 
 
+
+\subsection{$D_{U}$と$D_{K}$の交換関係の計算}
+
+ここでは, $D_{U}$と$D_{K}$の交換関係式(\ref{Eq:PoissonBracket-DU-DK}), (\ref{Eq:PoissonBracket-DU-DU-DK}), (\ref{Eq:PoissonBracket-DU-DK-DK})の導出過程を見ていく.
+計算の便利のために縮約記号を導入する.
+すなわち, 同じインデックスについては和をとり, 偏微分を表すのに$\partial_{x}$の記号を使用する. 縮約記号を使用すると$D_{U}$, $D_{K}$はそれぞれ
+\begin{alignat}{4}
+  D_{K}
+  &= &&
+  \sum_{i=1}^{3N}
+  \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \frac{\partial}{\partial q_{i}}
+  =&
+  \partial_{p_{i}} \mathcal{H} \partial_{q_{i}}
+  \notag \\
+  D_{U}
+  &= -&&
+  \sum_{i=1}^{3N}
+  \frac{\partial \mathcal{H}}{\partial q_{i}}
+  \frac{\partial}{\partial p_{i}}
+  =&
+  -
+  \partial_{q_{i}} \mathcal{H} \partial_{p_{i}}
+  \notag
+\end{alignat}
+とかける.
+この縮約記号を使うとポアソン括弧は次のようになる:
+\begin{align}
+  \left\{
+    F,~G
+  \right\}
+  &=
+  \sum_{i}
+  \left(
+    \frac{\partial F}{\partial q_{i}}
+    \frac{\partial G}{\partial p_{i}}
+    -
+    \frac{\partial F}{\partial p_{i}}
+    \frac{\partial G}{\partial q_{i}}
+  \right)
+  =
+  \partial_{q_{i}} F \partial_{p_{i}} G
+  -
+  \partial_{p_{i}} F \partial_{q_{i}} G
+  \notag \\
+  \left\{
+    ~~,~G
+  \right\}
+  &=
+  \partial_{p_{i}} G
+  \partial_{q_{i}}
+  -
+  \partial_{q_{i}} G
+  \partial_{p_{i}}
+  \notag
+\end{align}
+
+示したい交換関係を縮約記号を使って書くと以下のようになる:
+\begin{alignat}{4}
+  [D_{U}, D_{K}]
+  &=
+  -&&
+  \left\{
+    ~~~~,~
+    \sum_{i=1}^{3N}
+    \frac{\partial \mathcal{H}}{\partial q_{i}}
+    \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \right\}
+  &=&- &&
+  \{~~,
+    \partial_{q_{i}} \mathcal{H}
+    \partial_{p_{i}} \mathcal{H}
+  \}
+  \notag \\
+  [D_{U}, [D_{U}, D_{K}]]
+  &=&&
+  \left\{
+    ~~~~,~
+    \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+    \frac{\partial \mathcal{H}}{\partial q_{j}}
+    \frac{\partial^{2} \mathcal{H}}{\partial p_{j} \partial p_{j}}
+    \frac{\partial \mathcal{H}}{\partial q_{i}}
+  \right\}
+  &=& &&
+  \{~~,
+    \partial_{q_{j}} \mathcal{H}
+    \partial_{p_{i}} \partial_{p_{j} }\mathcal{H}
+    \partial_{q_{i}} \mathcal{H}
+  \}
+  \notag \\
+  [[D_{U}, D_{K}], D_{K}]
+  &=&&
+  \left\{
+    ~~~~,~
+    \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+    \frac{\partial \mathcal{H}}{\partial p_{j}}
+    \frac{\partial^{2} \mathcal{H}}{\partial q_{j} \partial q_{j}}
+    \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \right\}
+  &=& &&
+  \{~~,
+    \partial_{p_{j}} \mathcal{H}
+    \partial_{q_{i}} \partial_{q_{j} }\mathcal{H}
+    \partial_{p_{i}} \mathcal{H}
+  \}
+  \notag
+\end{alignat}
+
+\subsubsection{$[D_{U}, D_{K}]$の計算}
+
+\subsubsection{$[D_{U}, [D_{U}, D_{K}]]$の計算}
+
+\subsubsection{$[[D_{U}, D_{K}], D_{K}]$の計算}
+
 % \subsection{リウヴィル演算子と時間発展演算子}
 % 物理量の時間微分から時間発展に関する演算子$D$を得られる.
 % $D$はリウヴィル演算子$-iL$を用いて
