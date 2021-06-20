@@ -713,7 +713,7 @@ $e^{D_{K} \Delta t}$および$e^{D_{U} \Delta t}$はそれぞれ$K$あるいは$
 この$\Tilde{\mathcal{H}}$を影のハミルトニアンという.
 ポアソン括弧で表せることから分かるように, 影のハミルトニアンは厳密に保存する.
 そのため, 長時間シミュレーションを行っても誤差が蓄積しにくい.
-また物理系のハミルトニアン$\mathcal{H}$は影のハミルトニアンの値の周りを誤差$(\Delta t)^2$の範囲を揺らぐ.
+また物理系のハミルトニアン$\mathcal{H}$は影のハミルトニアンの値の周りを誤差$(\Delta t)^2$の範囲で揺らぐ.
 一方, シンプレクティックでない方法を用いた場合, $\Tilde{\mathcal{H}}$のような保存量が存在しないため, 長時間シミュレーションを行うと誤差が蓄積してハミルトニアンがだんだん異なる値になっていく.
 
 \clearpage
@@ -838,7 +838,7 @@ BCHの公式を用いると
   &[D,A], D] &&=  [A, [A,B]] + \ldots
   \notag
 \end{alignat}
-と近似できる.　したがって
+と近似できる. したがって
 
 \begin{align}
   C &=
@@ -993,6 +993,42 @@ BCHの公式を用いると
 \end{alignat}
 
 \subsubsection{$[D_{U}, D_{K}]$の計算}
+\begin{align}
+  [D_{U},~D_{K}]
+  &=
+  \left[
+    -\partial_{q_{i}} \mathcal{H} \partial_{p_{i}},
+     \partial_{p_{j}} \mathcal{H} \partial_{q_{j}}
+  \right]
+  \notag \\
+  &=
+  (-\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  ( \partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  -
+  ( \partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  (-\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  \notag \\
+  &=
+  -\partial_{q_{i}} \mathcal{H} \partial_{p_{i} p_{j}} \mathcal{H} \partial_{q_{j}}
+  +\partial_{p_{j}} \mathcal{H} \partial_{q_{j} q_{i}} \mathcal{H} \partial_{p_{i}}
+  \notag \\
+  &=
+  -\partial_{q_{j}} \mathcal{H} \partial_{p_{j} p_{i}} \mathcal{H} \partial_{q_{i}}
+  +\partial_{p_{j}} \mathcal{H} \partial_{q_{j} q_{i}} \mathcal{H} \partial_{p_{i}}
+  \notag \\
+  &=
+  -\partial_{p_{i}}
+  (\partial_{q_{j}} \mathcal{H} \partial_{p_{j}} \mathcal{H})
+  \partial_{q_{i}}
+  +\partial_{q_{i}}
+   (\partial_{q_{j}} \mathcal{H} \partial_{p_{j}} \mathcal{H})
+   \partial_{p_{i}}
+  \notag \\
+  &=
+  \{~~, \partial_{q_{j}} \mathcal{H} \partial_{p_{j}} \mathcal{H}\}
+\end{align}
+
+途中3行目から4行目で第1項目の$i$,$j$のインデックスを取り直した.
 
 \subsubsection{$[D_{U}, [D_{U}, D_{K}]]$の計算}
 
