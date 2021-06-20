@@ -890,7 +890,7 @@ BCHの公式を用いると
 
 ここでは, $D_{U}$と$D_{K}$の交換関係式(\ref{Eq:PoissonBracket-DU-DK}), (\ref{Eq:PoissonBracket-DU-DU-DK}), (\ref{Eq:PoissonBracket-DU-DK-DK})の導出過程を見ていく.
 計算の便利のために縮約記号を導入する.
-すなわち, 同じインデックスについては和をとり, 偏微分を表すのに$\partial_{x}$の記号を使用する. 縮約記号を使用すると$D_{U}$, $D_{K}$はそれぞれ
+すなわち, 同じインデックスについては和をとる. また偏微分を表すのに$\partial_{x}$の記号を使用する. 縮約記号を使用すると$D_{U}$, $D_{K}$はそれぞれ
 \begin{alignat}{4}
   D_{K}
   &= &&
@@ -1068,12 +1068,16 @@ BCHの公式を用いると
 \end{align}
 と展開できる. 各項を並べると,
 
-\begin{alignat}{3}
+\begin{alignat}{4}
   第1項目
   &=&&
   (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
   (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
   (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  &=&&
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{q_{j}} \mathcal{H} \partial_{p_{j}})
+  (\partial_{p_{k}} \mathcal{H} \partial_{q_{k}})
   \notag \\
   第2項目
   &=
@@ -1081,8 +1085,18 @@ BCHの公式を用いると
   (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
   (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
   (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  &=
+  -&&
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
   \notag \\
   第3項目
+  &=
+  -&&
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
   &=
   -&&
   (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
@@ -1094,36 +1108,42 @@ BCHの公式を用いると
   (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
   (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
   (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  &=&&
+  (\partial_{p_{i}} \mathcal{H} \partial_{q_{i}})
+  (\partial_{q_{j}} \mathcal{H} \partial_{p_{j}})
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
   \notag
 \end{alignat}
-である.
+である. 
+左辺から右辺の展開について, インデックス$i, j, k$を置換しても結果が変わらないことを利用して, インデックスの順序を整理した.
+また第2項目と第3項目は同じであることが分かる.
 以下, 各項を具体的に計算していく.
 
 \paragraph{第1項目}
 
 \begin{align}
-  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
   (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
-  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  (\partial_{q_{j}} \mathcal{H} \partial_{p_{j}})
+  (\partial_{p_{k}} \mathcal{H} \partial_{q_{k}})
   &=
-  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
-  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i} p_{j}} \mathcal{H} \partial_{q_{j}})
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{q_{j}} \mathcal{H} \partial_{p_{j} p_{k}} \mathcal{H} \partial_{q_{k}})
   \notag \\
   &=
-  \partial_{q_{k}} \mathcal{H}
   \partial_{q_{i}} \mathcal{H}
-  \partial_{p_{k}} (\partial_{p_{i} p_{j}} \mathcal{H})
-  \partial_{q_{j}}
-  \notag \\
-  &=
   \partial_{q_{j}} \mathcal{H}
-  \partial_{q_{i}} \mathcal{H}
-  \partial_{p_{j}} (\partial_{p_{i} p_{k}} \mathcal{H})
+  \partial_{p_{i}} (\partial_{p_{j} p_{k}} \mathcal{H})
   \partial_{q_{k}}
   \notag \\
   &=
-  \partial_{q_{j}} \mathcal{H}
   \partial_{q_{i}} \mathcal{H}
+  \partial_{q_{j}} \mathcal{H}
+  \partial_{p_{i} p_{j} p_{k}} \mathcal{H}
+  \partial_{q_{k}}
+  \notag \\
+  &=
+  \partial_{q_{i}} \mathcal{H}
+  \partial_{q_{j}} \mathcal{H}
   \partial_{p_{k}}
   \partial_{p_{i} p_{j}} \mathcal{H}
   \partial_{q_{k}}
@@ -1138,80 +1158,79 @@ BCHの公式を用いると
   \partial_{q_{k}}
   \notag
 \end{align}
-2行目から3行目において$j$と$k$のインデックスを入れ替えた.
-また, 途中の計算において$\partial_{q_{i}} \mathcal{H}$と$\partial_{q_{j}} \mathcal{H}$が交換できることと, $p_{i},~p_{j},p_{k}$に関する偏微分の順番を入れ替えられることを用いた.
+また, 途中の計算において$\partial_{q_{i}} \mathcal{H}$と$\partial_{q_{j}} \mathcal{H}$が可換であることと, $p_{i},~p_{j},p_{k}$に関する偏微分の順番を入れ替えられることを用いた.
 
 \paragraph{第2項目}
 \begin{align}
   -
-  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
-  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
   (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
   =&~
   -
-  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
   (
-    \partial_{p_{j}} \mathcal{H} \partial_{q_{j} q_{i}} \mathcal{H} \partial_{p_{i}}
+    \partial_{p_{j}} \mathcal{H} \partial_{q_{j} q_{k}} \mathcal{H} \partial_{p_{k}}
   )
   \notag \\
   =&~
   -
-  \partial_{q_{k}}       \mathcal{H}
-  \partial_{p_{k} p_{j}} \mathcal{H}
-  \partial_{q_{j} q_{i}} \mathcal{H}
-  \partial_{p_{i}}
+  \partial_{q_{i}}       \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{k}}
   -
-  \partial_{q_{k}} \mathcal{H}
+  \partial_{q_{i}} \mathcal{H}
   \partial_{p_{j}} \mathcal{H}
-  \partial_{q_{j} q_{i}} \mathcal{H}
-  \partial_{p_{k} p_{i}}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{i} p_{k}}
   \notag \\
   =&~
   -
-  \partial_{q_{i}}
+  \partial_{q_{k}}
   \left[
-    \partial_{q_{k}}       \mathcal{H}
-    \partial_{p_{k} p_{j}} \mathcal{H}
+    \partial_{q_{i}}       \mathcal{H}
+    \partial_{p_{i} p_{j}} \mathcal{H}
     \partial_{q_{j}}       \mathcal{H}
   \right]
-  \partial_{p_{i}}
+  \partial_{p_{k}}
   +
-  \partial_{q_{i} q_{k}} \mathcal{H}
-  \partial_{p_{k} p_{j}} \mathcal{H}
+  \partial_{q_{k} q_{i}} \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
   \partial_{q_{j}}       \mathcal{H}
-  \partial_{p_{i}}
+  \partial_{p_{k}}
   \notag \\
   &~-
-  \partial_{q_{k}} \mathcal{H}
+  \partial_{q_{i}} \mathcal{H}
   \partial_{p_{j}} \mathcal{H}
-  \partial_{q_{j} q_{i}} \mathcal{H}
-  \partial_{p_{k} p_{i}}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{i} p_{k}}
   \notag
 \end{align}
 2行目から3行目の変形では, 2行第1項目の$q_{j}$に関する偏微分を前に持ってきて, その結果現れる項を足すことで辻褄を合わせている. まとめると
 \begin{align}
-  第2項目\_1 &=
+  第2項目1式 &=
   -
-  \partial_{q_{i}}
+  \partial_{q_{k}}
   \left[
-    \partial_{q_{k}}       \mathcal{H}
-    \partial_{p_{k} p_{j}} \mathcal{H}
+    \partial_{q_{i}}       \mathcal{H}
+    \partial_{p_{i} p_{j}} \mathcal{H}
     \partial_{q_{j}}       \mathcal{H}
   \right]
-  \partial_{p_{i}}
+  \partial_{p_{k}}
   \notag \\
-  第2項目\_2 &=
-  \partial_{q_{i} q_{k}} \mathcal{H}
-  \partial_{p_{k} p_{j}} \mathcal{H}
+  第2項目2式 &=
+  \partial_{q_{k} q_{i}} \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
   \partial_{q_{j}}       \mathcal{H}
-  \partial_{p_{i}}
+  \partial_{p_{k}}
   \notag \\
-  第2項目\_3 &=
+  第2項目3式 &=
   -
-  \partial_{q_{k}} \mathcal{H}
+  \partial_{q_{i}} \mathcal{H}
   \partial_{p_{j}} \mathcal{H}
-  \partial_{q_{j} q_{i}} \mathcal{H}
-  \partial_{p_{k} p_{i}}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{i} p_{k}}
   \notag
 \end{align}
 が得られた.
@@ -1239,81 +1258,127 @@ BCHの公式を用いると
   \partial_{q_{i}} \mathcal{H}
   \partial_{p_{j}} \mathcal{H}
   \partial_{q_{j} q_{k}} \mathcal{H}
-  \partial_{p_{i} p_{j}}
-  \notag \\
-  =&~
-  -
-  \partial_{q_{j} q_{k}} \mathcal{H}
-  \partial_{p_{i} p_{j}} \mathcal{H}
-  \partial_{q_{i}}       \mathcal{H}
-  \partial_{p_{k}}
-  -
-  \partial_{q_{i}} \mathcal{H}
-  \partial_{p_{j}} \mathcal{H}
-  \partial_{q_{j} q_{k}} \mathcal{H}
-  \partial_{p_{i} p_{j}}
+  \partial_{p_{i} p_{k}}
   \notag
 \end{align}
 を得る. まとめると
 \begin{align}
-  第3項目\_1 &=
+  第3項目1式 &=
   -
-  \partial_{q_{j} q_{k}} \mathcal{H}
-  \partial_{p_{i} p_{j}} \mathcal{H}
   \partial_{q_{i}}       \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
   \partial_{p_{k}}
   \notag \\
-  第3項目\_2 &=
+  第3項目2式 &=
   -
   \partial_{q_{i}} \mathcal{H}
   \partial_{p_{j}} \mathcal{H}
   \partial_{q_{j} q_{k}} \mathcal{H}
-  \partial_{p_{i} p_{j}}
+  \partial_{p_{i} p_{k}}
   \notag
 \end{align}
-が得られた.
+が得られた. 第3項目1式の$i$と$j$を置換して式を整理すると,
+\begin{equation}
+  -
+  \partial_{q_{j}}       \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{i} q_{k}} \mathcal{H}
+  \partial_{p_{k}}
+  =
+  -
+  \partial_{q_{k} q_{i}} \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{j}}       \mathcal{H}
+  \partial_{p_{k}}
+  =
+  - 第2項目2式
+  \notag
+\end{equation}
+となるため第3項目1式と第2項目2式は打ち消し合うことが分かる.
 
 
 \paragraph{第4項目}
 \begin{align}
-  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
-  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{p_{i}} \mathcal{H} \partial_{q_{i}})
+  (\partial_{q_{j}} \mathcal{H} \partial_{p_{j}})
   (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
   &=
-  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
-  (\partial_{q_{i}} \mathcal{H} \partial_{q_{k}} \mathcal{H} \partial_{p_{i} p_{k}})
+  (\partial_{p_{i}} \mathcal{H} \partial_{q_{i}})
+  (\partial_{q_{j}} \mathcal{H} \partial_{q_{k}} \mathcal{H} \partial_{p_{j} p_{k}})
   \notag \\
   &=
-  \partial_{p_{j}}       \mathcal{H}
-  \partial_{q_{j} q_{i}} \mathcal{H}
+  \partial_{p_{i}}       \mathcal{H}
+  \partial_{q_{i} q_{j}} \mathcal{H}
   \partial_{q_{k}}       \mathcal{H}
-  \partial_{p_{i} p_{k}}
+  \partial_{p_{j} p_{k}}
   +
   \partial_{p_{j}}       \mathcal{H}
-  \partial_{q_{i}}       \mathcal{H}
-  \partial_{q_{j} q_{k}} \mathcal{H}
-  \partial_{p_{i} p_{k}}
+  \partial_{q_{j}}       \mathcal{H}
+  \partial_{q_{i} q_{k}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
   \notag
 \end{align}
 を得る. まとめると
 \begin{align}
-  第4項目\_1 &=
-  \partial_{p_{j}}       \mathcal{H}
-  \partial_{q_{j} q_{i}} \mathcal{H}
+  第4項目1式 &=
+  \partial_{p_{i}}       \mathcal{H}
+  \partial_{q_{i} q_{j}} \mathcal{H}
   \partial_{q_{k}}       \mathcal{H}
-  \partial_{p_{i} p_{k}}
+  \partial_{p_{j} p_{k}}
   \notag \\
-  第4項目\_2 &=
+  第4項目2式 &=
   \partial_{p_{j}}       \mathcal{H}
-  \partial_{q_{i}}       \mathcal{H}
-  \partial_{q_{j} q_{k}} \mathcal{H}
-  \partial_{p_{i} p_{k}}
+  \partial_{q_{j}}       \mathcal{H}
+  \partial_{q_{i} q_{k}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
   \notag
 \end{align}
+である.
+ここで第2項目3式の$i$, $j$を置換すると
+\begin{align}
+  -
+  \partial_{q_{j}} \mathcal{H}
+  \partial_{p_{i}} \mathcal{H}
+  \partial_{q_{i} q_{k}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  =
+  \partial_{p_{i}} \mathcal{H}
+  \partial_{q_{j}} \mathcal{H}
+  \partial_{q_{i} q_{k}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  =
+  - 第4項目2式
+  \notag
+\end{align}
+となり第2項目3式と第4項目2式が打ち消し合うことが分かる.
+更に, 第2項目3式の$i$, $j$を置換した後に$j$, $k$を置換すると
+\begin{align}
+  -
+  \partial_{q_{j}} \mathcal{H}
+  \partial_{p_{i}} \mathcal{H}
+  \partial_{q_{i} q_{k}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  =
+  -
+  \partial_{q_{k}} \mathcal{H}
+  \partial_{p_{i}} \mathcal{H}
+  \partial_{q_{i} q_{j}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  =
+  \partial_{p_{i}} \mathcal{H}
+  \partial_{q_{i} q_{j}} \mathcal{H}
+  \partial_{q_{k}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  =
+  - 第4項目1式
+  \notag
+\end{align}
+となり第2項目3式と第4項目1式が打ち消し合うことが分かる.
 
-\paragraph{$[DU , [DU , DK]]$の計算過程まとめ}
+\paragraph{$[D_{U} , [D_{U} , D_{K}]]$の計算過程まとめ}
 
-ここまでの計算で残ったのは, 第1項目と第2項目1式であるので,
+ここまでの計算で残ったのは, 第1項目と第2項目1式であることから
 
 \begin{align}
   \left[D_{U}, [D_{U}, D_{K}]\right]
@@ -1360,9 +1425,11 @@ BCHの公式を用いると
   \notag
 \end{align}
 が得られる.
-1行目から2行目の変形において, 2項目のインデックス$i$と$k$を入れ替えた.
+1行目から2行目の変形において, 2項目のインデックス$i$, $k$を置換した.
 
 \subsubsection{$[[D_{U}, D_{K}], D_{K}]$の計算}
+{$[D_{U} , [D_{U} , D_{K}]]$の計算過程と同じように頑張れば得られる.
+
 
 % \subsection{リウヴィル演算子と時間発展演算子}
 % 物理量の時間微分から時間発展に関する演算子$D$を得られる.
