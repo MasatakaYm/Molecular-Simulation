@@ -561,10 +561,11 @@ $e^{D_{K} \Delta t}$および$e^{D_{U} \Delta t}$はそれぞれ$K$あるいは$
   [A, B] \equiv AB - BA
 \end{equation}
 と定義される. すなわち, $C$は$A$, $B$およびそれらの交換子の組み合わせで表すことができる. 
-このような関係式(\ref{Eq:BHC-formula})を\textbf{ベーカー・キャンベル・ハウスドルフの公式}という. 
+このような関係式(\ref{Eq:BHC-formula})を\textbf{ベーカー・キャンベル・ハウスドルフの公式}という。
 例えば, 式(\ref{Eq:Def-Shade-Hamiltonian})
 \begin{equation}
   e^{C} = e^{\frac{A}{2}}e^{B}e^{\frac{A}{2}}
+  \label{Eq:BHCformula-3operator}
 \end{equation}
 と3つの演算子で定義される演算子を1つにまとめるには, ベーカー・キャンベル・ハウスドルフの公式を2回繰り返して適用すればいい. 詳しい導出は付録にまわして結果だけ述べると演算子$C$は
 \begin{equation}
@@ -572,6 +573,7 @@ $e^{D_{K} \Delta t}$および$e^{D_{U} \Delta t}$はそれぞれ$K$あるいは$
     - \frac{1}{24}[A, [A,B]]
     + \frac{1}{12}[[A,B], B]
     + \ldots
+  \label{Eq:BHCformula-3operator-expansion}
 \end{equation}
 と展開することができる.
 この公式を時間発展演算子(\ref{Eq:Def-Shade-Hamiltonian})に適用すると
@@ -588,7 +590,7 @@ $e^{D_{K} \Delta t}$および$e^{D_{U} \Delta t}$はそれぞれ$K$あるいは$
   \right\}
   \notag
 \end{align}
-となるので, 
+となるので、
 \begin{align}
   D_{\Tilde{\mathcal{H}}}
   =~
@@ -713,6 +715,173 @@ $e^{D_{K} \Delta t}$および$e^{D_{U} \Delta t}$はそれぞれ$K$あるいは$
 そのため, 長時間シミュレーションを行っても誤差が蓄積しにくい.
 また物理系のハミルトニアン$\mathcal{H}$は影のハミルトニアンの値の周りを誤差$(\Delta t)^2$の範囲を揺らぐ.
 一方, シンプレクティックでない方法を用いた場合, $\Tilde{\mathcal{H}}$のような保存量が存在しないため, 長時間シミュレーションを行うと誤差が蓄積してハミルトニアンがだんだん異なる値になっていく.
+
+\clearpage
+
+\section{付録: 計算ノート}
+\subsection{ベーカー・キャンベル・ハウスドルフの公式で3つの演算子をまとめる}
+式(\ref{Eq:BHCformula-3operator}), 式(\ref{Eq:BHCformula-3operator-expansion})で見たように, ベーカー・キャンベル・ハウスドルフ(BCH)の公式を用いて, 以下のような3つの演算子
+\begin{equation}
+  e^{C} = e^{\frac{A}{2}} e^{B} e^{\frac{A}{2}}
+  \notag
+\end{equation}
+を1つにまとめる計算過程を追う.
+ここで
+\begin{equation}
+  e^{D} \equiv e^{\frac{A}{2}} e^{B}
+  \notag
+\end{equation}
+のように演算子$D$を定義する.
+BCHの公式を用いると
+\begin{equation}
+  D = \frac{1}{2}A + B
+    + \frac{1}{4}[A, B]
+    + \frac{1}{48}[A, [A,B]]
+    + \frac{1}{24}[[A, B], B]
+  \notag
+\end{equation}
+が得られる. 続いて
+\begin{equation}
+  e^{C} = e^{D} e^{\frac{A}{2}}
+  \notag
+\end{equation}
+に対して, もう一度BCH公式を用いると
+\begin{equation}
+  C = D + \frac{A}{2}
+    + \frac{1}{4}[D, A]
+    + \frac{1}{24}[D, [D, A]]
+    + \frac{1}{48}[[D, A], A]
+  \notag
+\end{equation}
+を得る. 各項を具体的に計算していく.
+
+\begin{align}
+  [D, A]
+  &=
+  \left[
+      \frac{1}{2}A + B
+    + \frac{1}{4}[A, B]
+    + \frac{1}{48}[A, [A,B]]
+    + \frac{1}{24}[[A, B], B]
+    ,~
+    A
+  \right]
+  \notag \\
+  &=
+    \frac{1}{2} [A,A] + [B, A]
+  + \frac{1}{4}[[A, B], A]
+  + \frac{1}{48}[[A, [A,B]], A]
+  + \frac{1}{24}[[[A,B], B], A]
+  \notag \\
+  &=
+    [B,A]
+  + \frac{1}{4}[[A, B], A]
+  + \frac{1}{48}[[A, [A,B]], A]
+  + \frac{1}{24}[[[A,B], B], A]
+  \notag
+\end{align}
+
+\begin{align}
+  [D, [D,A]]
+  =~&
+  \left[
+    \frac{1}{2}A + B
+    + \frac{1}{4}[A, B]
+    + \frac{1}{48}[A, [A,B]]
+    + \frac{1}{24}[[A, B], B]~,
+  \right.
+  \notag \\
+  ~&
+    \left.
+    [B,A]
+    + \frac{1}{4}[[A, B], A]
+    + \frac{1}{48}[[A, [A,B]], A]
+    + \frac{1}{24}[[[A,B], B], A]
+  \right]
+  \notag \\
+  =~&
+      \frac{1}{2}[A, [B,A]] + [B, [B,A]]
+    + \frac{1}{4}[[A,B], [B,A]]
+    \notag \\
+    &
+    + \frac{1}{48}[[A, [A,B]], [B,A]]
+    + \frac{1}{24}[[[A,B],B], [B,A]]
+    + \ldots
+    \notag
+\end{align}
+
+\begin{align}
+  [[D,A], A]
+  =~&
+  \left[
+    [B,A]
+    + \frac{1}{4}[[A, B], A]
+    + \frac{1}{48}[[A, [A,B]], A]
+    + \frac{1}{24}[[[A,B], B], A]
+    ~,
+    A
+  \right]
+  \notag \\
+  =~&
+    [[B,A], A]
+  + \frac{1}{4} [[[A, B],A],A]
+  + \frac{1}{48} [[[A, [A,B], A], A]
+  + \ldots
+  \notag
+\end{align}
+交換子の性質$[A, B] = -[B, A]$を用いて, 以上の計算をまとめると
+\begin{alignat}{4}
+  &[D, A]    &&= - [A,B] - \frac{1}{4}[A, [A,B]]
+  \notag \\
+  &[D,[D,A]] &&= -\frac{1}{2}[A, [A,B]] + [[A,B],B] + \ldots
+  \notag \\
+  &[D,A], D] &&=  [A, [A,B]] + \ldots
+  \notag
+\end{alignat}
+と近似できる.　したがって
+
+\begin{align}
+  C &=
+       \frac{1}{2}D  + \frac{A}{2}
+    -  \frac{1}{4}[D, A]
+    +  \frac{1}{24}[D, [D, A]]
+    +  \frac{1}{48}[[D, A], A]
+    \notag \\
+    &=
+       \frac{1}{2}A + B
+    +  \frac{1}{4}[A, B]
+    +  \frac{1}{24}[D, [D, A]]
+    +  \frac{1}{48}[[D, A], A]
+    \notag \\
+    &+ \frac{1}{2}A
+    \notag \\
+    &+ \frac{1}{4}
+       \left\{
+          - [A,B] - \frac{1}{4}[A, [A,B]] + \ldots
+       \right\}
+    \notag \\
+    &+ \frac{1}{24}
+    \left\{
+      - \frac{1}{2}[A, [A,B]] + [[A,B], B] + \ldots
+    \right\}
+    \notag \\
+    &+ \frac{1}{48}
+    \left\{
+      [A, [A,B]] + \ldots
+    \right\}
+    \notag \\
+    &=
+    A + B - \frac{1}{24}[A, [A,B]] + \frac{1}{12}[[A, B], B] + \dots
+    \notag
+\end{align}
+以上の計算によって
+\begin{equation}
+  C
+  =
+  A + B - \frac{1}{24}[A, [A,B]] + \frac{1}{12}[[A, B], B] + \dots
+  \notag
+\end{equation}
+の表式が得られた.
 
 
 % \subsection{リウヴィル演算子と時間発展演算子}
