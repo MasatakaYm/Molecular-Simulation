@@ -123,7 +123,7 @@ $\bm{\Gamma}^{\prime}$を$\bm{\Gamma}$の関数$\bm{\Gamma}^{\prime}(\bm{\Gamma}
   \label{Eq:Symplectic-Condition}
 \end{equation}
 であることが分かる. 
-式(\ref{Eq:Symplectic-Condition})は変換が正準変換であるための必要十分条件であり, これ\textbf{シンプレクティック条件}という. 
+式(\ref{Eq:Symplectic-Condition})は変換が正準変換であるための必要十分条件であり, これを\textbf{シンプレクティック条件}という. 
 
 \section{シンプレクティック分子動力学法}
 ある時刻$t$における一般座標$q(t)$, 一般運動量$p(t)$がハミルトニアンにしたがって時間発展し, 時刻$\Delta t$後にそれぞれ$q(t + \Delta t)$, $p(t + \Delta t)$に変化したとする. この時間発展は変数変換
@@ -139,7 +139,7 @@ $\bm{\Gamma}^{\prime}$を$\bm{\Gamma}$の関数$\bm{\Gamma}^{\prime}(\bm{\Gamma}
   \end{bmatrix}
 \end{equation}
 とみなせる. 
-変数$(\bm{q}(t),\bm{p}(t))$の組みも, $(\bm{q}(t + \Delta t),\bm{p}(t + \Delta t))$の組みも, ともに同じハミルトニアンに対する正準方程式に従うので, この変換は正準変換である. 既に述べたように, 正準変換に置いてはシンプレクティック条件が成立するので, ハミルトニアンに従う時間発展で得られる一般座標, 一般運動量はシンプレクティック条件(\ref{Eq:Symplectic-Condition})を満たしている. 
+変数$(\bm{q}(t),\bm{p}(t))$の組みも, $(\bm{q}(t + \Delta t),\bm{p}(t + \Delta t))$の組みも, ともに同じハミルトニアンに対する正準方程式に従うので, この変換は正準変換である. 既に述べたように, 正準変換に関してシンプレクティック条件が成立するので, ハミルトニアンに従う時間発展で得られる一般座標, 一般運動量はシンプレクティック条件(\ref{Eq:Symplectic-Condition})を満たしている. 
 このように現実の物体はシンプレクティック条件を満たしながら運動をしているが, 運動方程式を差分化して数値積分を実行した場合は, 必ずしもシンプレクティック条件を満たすとは限らない. 
 シンプレクティック条件を満たしながら時間発展を行う分子動力学法をシンプレクティック分子動力学法という. 
 
@@ -563,7 +563,7 @@ $e^{D_{K} \Delta t}$および$e^{D_{U} \Delta t}$はそれぞれ$K$あるいは$
 \end{equation}
 と定義される. すなわち, $C$は$A$, $B$およびそれらの交換子の組み合わせで表すことができる. 
 このような関係式(\ref{Eq:BHC-formula})を\textbf{ベーカー・キャンベル・ハウスドルフの公式}という。
-例えば, 式(\ref{Eq:Def-Shade-Hamiltonian})
+例えば, 式(\ref{Eq:Def-Shade-Hamiltonian})のように
 \begin{equation}
   e^{C} = e^{\frac{A}{2}}e^{B}e^{\frac{A}{2}}
   \label{Eq:BHCformula-3operator}
@@ -1029,7 +1029,7 @@ BCHの公式を用いると
   \notag
 \end{align}
 
-途中3行目から4行目で第1項目の$i$,$j$のインデックスを取り直した.
+途中3行目から4行目で第1項目の$i$,$j$のインデックスを置換した.
 
 \subsubsection{$[D_{U}, [D_{U}, D_{K}]]$の計算}
 
@@ -1158,7 +1158,7 @@ BCHの公式を用いると
   \partial_{q_{k}}
   \notag
 \end{align}
-また, 途中の計算において$\partial_{q_{i}} \mathcal{H}$と$\partial_{q_{j}} \mathcal{H}$が可換であることと, $p_{i},~p_{j},p_{k}$に関する偏微分の順番を入れ替えられることを用いた.
+また, 途中の計算において$\partial_{q_{i}} \mathcal{H}$と$\partial_{q_{j}} \mathcal{H}$が可換であることと, $\mathcal{H}$に対して$p_{i},~p_{j},p_{k}$に関する偏微分の順番を入れ替えられることを用いた.
 
 \paragraph{第2項目}
 \begin{align}
@@ -1261,7 +1261,7 @@ BCHの公式を用いると
   \partial_{p_{i} p_{k}}
   \notag
 \end{align}
-を得る. まとめると
+を得る. 各項ごとにまとめると
 \begin{align}
   第3項目1式 &=
   -
@@ -1278,23 +1278,34 @@ BCHの公式を用いると
   \partial_{p_{i} p_{k}}
   \notag
 \end{align}
-が得られた. 第3項目1式の$i$と$j$を置換して式を整理すると,
-\begin{equation}
+となる. 第3項目1式の$i$と$j$を置換して式を整理すると,
+\begin{align}
+  第3項目1式 &=
+  -
+  \partial_{q_{i}}       \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{k}}
+  \notag \\
+  &=
   -
   \partial_{q_{j}}       \mathcal{H}
   \partial_{p_{i} p_{j}} \mathcal{H}
   \partial_{q_{i} q_{k}} \mathcal{H}
   \partial_{p_{k}}
-  =
+  ~~~~(iとjを置換)
+  \notag \\
+  &=
   -
   \partial_{q_{k} q_{i}} \mathcal{H}
   \partial_{p_{i} p_{j}} \mathcal{H}
   \partial_{q_{j}}       \mathcal{H}
   \partial_{p_{k}}
-  =
+  \notag \\
+  &=
   - 第2項目2式
   \notag
-\end{equation}
+\end{align}
 となるため第3項目1式と第2項目2式は打ち消し合うことが分かる.
 
 
@@ -1319,7 +1330,7 @@ BCHの公式を用いると
   \partial_{p_{j} p_{k}}
   \notag
 \end{align}
-を得る. まとめると
+を得る. 各項ごとにまとめると
 \begin{align}
   第4項目1式 &=
   \partial_{p_{i}}       \mathcal{H}
@@ -1335,46 +1346,72 @@ BCHの公式を用いると
   \notag
 \end{align}
 である.
-ここで第2項目3式の$i$, $j$を置換すると
+ここで, 第2項目3式の$i$, $j$を置換すると
 \begin{align}
+  第2項目3式 &=
+  -
+  \partial_{q_{i}} \mathcal{H}
+  \partial_{p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{i} p_{k}}
+  \notag \\
+  &=
   -
   \partial_{q_{j}} \mathcal{H}
   \partial_{p_{i}} \mathcal{H}
   \partial_{q_{i} q_{k}} \mathcal{H}
   \partial_{p_{j} p_{k}}
-  =
+  ~~~~(iとjを置換)
+  \notag \\
+  &=
+  -
   \partial_{p_{i}} \mathcal{H}
   \partial_{q_{j}} \mathcal{H}
   \partial_{q_{i} q_{k}} \mathcal{H}
   \partial_{p_{j} p_{k}}
-  =
+  \notag \\
+  &=
   - 第4項目2式
   \notag
 \end{align}
 となり第2項目3式と第4項目2式が打ち消し合うことが分かる.
-更に, 第2項目3式の$i$, $j$を置換した後に$j$, $k$を置換すると
+更に, 第3項目2式の$i$, $j$を置換した後に$j$, $k$を置換すると
 \begin{align}
+  第3項目2式 &=
+  -
+  \partial_{q_{i}} \mathcal{H}
+  \partial_{p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{i} p_{k}}
+  \notag \\
+  &=
   -
   \partial_{q_{j}} \mathcal{H}
   \partial_{p_{i}} \mathcal{H}
   \partial_{q_{i} q_{k}} \mathcal{H}
   \partial_{p_{j} p_{k}}
-  =
+  ~~~~(iとjを置換)
+  \notag \\
+  &=
   -
   \partial_{q_{k}} \mathcal{H}
   \partial_{p_{i}} \mathcal{H}
   \partial_{q_{i} q_{j}} \mathcal{H}
   \partial_{p_{j} p_{k}}
-  =
+  ~~~~(jとkを置換)
+  \notag \\
+  &=
+  -
   \partial_{p_{i}} \mathcal{H}
   \partial_{q_{i} q_{j}} \mathcal{H}
   \partial_{q_{k}} \mathcal{H}
   \partial_{p_{j} p_{k}}
-  =
+  \notag \\
+  &=
   - 第4項目1式
   \notag
 \end{align}
-となり第2項目3式と第4項目1式が打ち消し合うことが分かる.
+となり第3項目2式と第4項目1式が打ち消し合うことが分かる.
 
 \paragraph{$[D_{U} , [D_{U} , D_{K}]]$の計算過程まとめ}
 
@@ -1428,7 +1465,7 @@ BCHの公式を用いると
 1行目から2行目の変形において, 2項目のインデックス$i$, $k$を置換した.
 
 \subsubsection{$[[D_{U}, D_{K}], D_{K}]$の計算}
-{$[D_{U} , [D_{U} , D_{K}]]$の計算過程と同じように頑張れば得られる.
+{$[D_{U} , [D_{U} , D_{K}]]$の計算過程と同じように頑張ればポアソン括弧が得られる.
 
 
 % \subsection{リウヴィル演算子と時間発展演算子}
