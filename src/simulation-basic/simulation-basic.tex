@@ -56,7 +56,7 @@
 レナードジョーンズポテンシャルは希ガスの気体・液体・固体の相転移などの現象をよく
 再現することが知られている.
 
-\section{単位の無次元化}
+\section{単位の無次元化・単位換算}
 計算機シミュレーションでは, 様々な物理量を無次元化した換算単位で表すことが多い.
 これは実単位系における値が計算機で扱うには大きい, あるいは小さすぎることがあるからである.
 問題とする系に対して代表的な量を単位として表すことで, 全ての量が物質に依存する
@@ -72,6 +72,43 @@
 &=\sqrt{\frac{[\mathrm{質量}] \cdot [\mathrm{長さ}]^{2}}{[\mathrm{エネルギー}]}}
 \end{align}
 と表せる. この次元をもとに換算単位を求める.
+
+\subsection{SI単位系}
+
+SI単位系での基本単位の定義は以下の通りになる
+\begin{alignat}{4}
+  [\mathrm{長さ}] =& m ~(\mathrm{メートル}) ~~~~ &&
+  [\mathrm{重さ}] =&& kg ~(\mathrm{キログラム})
+  \notag \\
+  [\mathrm{時間}] =& s ~(\mathrm{秒}) ~~~~ &&
+  [\mathrm{温度}] =&& K ~(\mathrm{ケルビン})
+  \notag \\
+  [\mathrm{電流}] =& A ~(\mathrm{アンペア})
+  \notag
+\end{alignat}
+
+エネルギーの単位は次のようになる
+\begin{alignat}{4}
+  &\mathrm{J}   (\mathrm{ジュール})   &&= 1 \mathrm{kg}~\mathrm{m^{2}}~\mathrm{s^{-2}}
+  \\
+  &\mathrm{eV}  ~(\mathrm{電子ボルト}) &&= 1 e \mathrm{J}
+  \\
+  &\mathrm{cal} ~(\mathrm{カロリー})   &&= 4.184 ~\mathrm{J}
+\end{alignat}
+
+その他の物理系の単位は次のようになる
+\begin{alignat}{4}
+  &\mathrm{力 (N)}    &&= \mathrm{m}~\mathrm{kg}~\mathrm{s^{-2}}
+  \\
+  &\mathrm{圧力 (Pa)} &&= \mathrm{N}~\mathrm{m^{-2}}
+  \\
+  &\mathrm{仕事 (J)}  &&= \mathrm{N}~\mathrm{m}
+  \\
+  &\mathrm{電荷 (C)}  &&= \mathrm{A}~\mathrm{s}
+  \\
+  &\mathrm{電位 (V)}  &&= \mathrm{J}~\mathrm{C^{-1}}
+\end{alignat}
+
 
 \subsection{LJ単位系}
 レナードジョーンズパラメータの$\epsilon$はLJポテンシャルの深さ, $\sigma$はLJの直径, $M$は粒子の質量
@@ -165,6 +202,76 @@
 =10\sqrt{4.184} \sqrt{\frac{[\mathrm{g/mol}][\mathrm{\AA}]^{2}}{[\mathrm{kcal/mol}]}}
 \end{align}
 となる.
+
+\subsection{単位換算: エネルギー}
+エネルギーの単位換算をまとめる. なおここでは$T=298\mathrm{K}$を想定する.
+\begin{alignat}{3}
+  1~\mathrm{kcal/mol}
+  &= 0.04337 &&~\mathrm{eV}      \notag \\
+  &= 349.75  &&~\mathrm{cm^{-1}} \notag \\
+  &= 1.689   &&~k_{\mathrm{B}}T  \notag \\
+  &= 4.184   &&~\mathrm{kal/mol} \notag
+\end{alignat}
+
+\begin{alignat}{3}
+  1~\mathrm{eV}
+  &= 23.06   &&~\mathrm{kcal/mol}      \notag \\
+  &= 8064.6  &&~\mathrm{cm^{-1}} \notag \\
+  &= 38.94   &&~k_{\mathrm{B}}T  \notag \\
+  &= 96.49   &&~\mathrm{kal/mol} \notag
+\end{alignat}
+
+\begin{alignat}{3}
+  1~~k_{\mathrm{B}}T
+  &= 0.5922  &&~\mathrm{kcal/mol} \notag \\
+  &= 0.02568 &&~\mathrm{eV}      \notag \\
+  &= 207.1   &&~\mathrm{cm^{-1}} \notag \\
+  &= 2.476   &&~\mathrm{kal/mol} \notag
+\end{alignat}
+
+\subsection{単位換算: 静電相互作用の係数}
+エネルギーの単位をkcal/molとした時の静電相互作用にかかる係数$1/(4\pi \epsilon_{0})$の単位換算を考える.　ここで$\epsilon_{0}$は真空での誘電率である.
+
+\begin{align}
+  \epsilon_{0} &= 8.8542 \times 10^{-12}
+               ~~ \mathrm{kg}^{-1} \mathrm{m}^{-3} \mathrm{s}^{4} \mathrm{A}^{4}
+  \notag \\
+               &= 8.8542 \times 10^{-12}
+               ~~ \mathrm{J}^{-1} \mathrm{m}^{-1} \mathrm{C}^{2}
+  \notag
+\end{align}
+またアボガドロ定数$N_{\mathrm{A}}$, 電気素量$e$はそれぞれ
+\begin{align}
+  N_{\mathrm{A}} &= 6.022 140 76 \times 10^{23}
+                 ~~ \mathrm{mol}^{-1}
+  \notag \\
+  e &= 1.602 176 634 \times 10^{-19} ~~ \mathrm{C}
+  \notag
+%  \notag \\
+%    &= 4.803204673 ~~ \mathrm{esu}
+\end{align}
+である. 電気素量$e$を1とする単位系を考え, 具体的に計算をすると
+
+\begin{align}
+  \frac{1}{4 \pi \epsilon_{0}}
+  &=
+  \frac{1}{4 \pi (8.8542 \times 10^{-12})} ~~ [\mathrm{Jm/C^{2}}]
+  \notag \\
+  &=
+  \frac
+  {N_{\mathrm{A}} \times (4184^{-1} ~\mathrm{kcal}) \times (10^{10} ~\mathrm{\AA}) \times e^{2}}
+  {4 \pi (8.8542 \times 10^{-12})}
+  \notag \\
+  &=
+  \frac
+  {(6.0221 \times 10^{23} \times 4184^{-1} \mathrm{kcal/mol}) \times (10^{10}~\mathrm{\AA}) \times (1.6022 \times 10^{-19})^{2}}
+  {4 \pi (8.8542 \times 10^{-12})}
+  \notag \\
+  &\simeq
+  332 ~~ \mathrm{[\AA~kcal/mol]}
+  \notag
+\end{align}
+を得る.
 
 \section{周期境界条件}
 分子シミュレーションでは境界条件として周期境界条件を課すことが多い.
