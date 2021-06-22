@@ -75,28 +75,28 @@
 
 \subsection{SI単位系}
 
-SI単位系での基本単位の定義は以下の通りになる
+SI単位系での基本単位の定義は以下の通りになる:
 \begin{alignat}{4}
-  [\mathrm{長さ}] =& m ~(\mathrm{メートル}) ~~~~ &&
-  [\mathrm{重さ}] =&& kg ~(\mathrm{キログラム})
+  [\mathrm{長さ}] =&  \mathrm{m}  ~(\mathrm{メートル}) ~~~~ &&
+  [\mathrm{重さ}] =&& \mathrm{kg} ~(\mathrm{キログラム})
   \notag \\
-  [\mathrm{時間}] =& s ~(\mathrm{秒}) ~~~~ &&
-  [\mathrm{温度}] =&& K ~(\mathrm{ケルビン})
+  [\mathrm{時間}] =& \mathrm{s}  ~(\mathrm{秒}) ~~~~ &&
+  [\mathrm{温度}] =&& \mathrm{K} ~(\mathrm{ケルビン})
   \notag \\
-  [\mathrm{電流}] =& A ~(\mathrm{アンペア})
+  [\mathrm{電流}] =& \mathrm{A}  ~(\mathrm{アンペア})
   \notag
 \end{alignat}
 
-エネルギーの単位は次のようになる
+エネルギーの単位は次のようになる:
 \begin{alignat}{4}
-  &\mathrm{J}   (\mathrm{ジュール})   &&= 1 \mathrm{kg}~\mathrm{m^{2}}~\mathrm{s^{-2}}
+  &\mathrm{J}   ~(\mathrm{ジュール})   &&= 1 \mathrm{kg}~\mathrm{m^{2}}~\mathrm{s^{-2}}
   \\
   &\mathrm{eV}  ~(\mathrm{電子ボルト}) &&= 1 e \mathrm{J}
   \\
   &\mathrm{cal} ~(\mathrm{カロリー})   &&= 4.184 ~\mathrm{J}
 \end{alignat}
 
-その他の物理系の単位は次のようになる
+その他の物理系の単位は次のようになる:
 \begin{alignat}{4}
   &\mathrm{力 (N)}    &&= \mathrm{m}~\mathrm{kg}~\mathrm{s^{-2}}
   \\
@@ -230,7 +230,8 @@ SI単位系での基本単位の定義は以下の通りになる
 \end{alignat}
 
 \subsection{単位換算: 静電相互作用の係数}
-エネルギーの単位をkcal/molとした時の静電相互作用にかかる係数$1/(4\pi \epsilon_{0})$の単位換算を考える.　ここで$\epsilon_{0}$は真空での誘電率である.
+エネルギーの単位をkcal/molとした時の静電相互作用にかかる係数$1/(4\pi \epsilon_{0})$の単位換算を考える.
+ここで$\epsilon_{0}$は真空での誘電率である.
 
 \begin{align}
   \epsilon_{0} &= 8.8542 \times 10^{-12}
@@ -271,7 +272,35 @@ SI単位系での基本単位の定義は以下の通りになる
   332 ~~ \mathrm{[\AA~kcal/mol]}
   \notag
 \end{align}
-を得る.
+を得る. エネルギーの単位を$k_{\mathrm{B}}T$に取り直す場合, 温度$T=300$Kでは
+\begin{align}
+  1 k_{\mathrm{B}}T
+  &=
+  (1.380658 \times 10^{-23} ~\mathrm{JK^{-1}})
+  \times
+  (300~\mathrm{K})
+  \notag \\
+  &=
+  (1.380658 \times 10^{-23} ~\mathrm{K^{-1}})
+  \times
+  (1.43930 \times 10^{20} ~\mathrm{kcal/mol})
+  \times
+  (300~\mathrm{K})
+  \notag \\
+  &=
+  0.5961~\mathrm{kcal/mol}
+  \notag
+\end{align}
+であるので.
+\begin{align}
+  \frac{1}{4 \pi \epsilon_{0}}
+  =
+  332 ~~ \times 0.5961^{-1}
+  =
+  556.95~~[\mathrm{\AA}~k_{\mathrm{B}}T]
+  \notag
+\end{align}
+となる.
 
 \section{周期境界条件}
 分子シミュレーションでは境界条件として周期境界条件を課すことが多い.
