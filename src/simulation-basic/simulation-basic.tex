@@ -56,7 +56,7 @@
 レナードジョーンズポテンシャルは希ガスの気体・液体・固体の相転移などの現象をよく
 再現することが知られている.
 
-\section{単位の無次元化}
+\section{単位の無次元化・単位換算}
 計算機シミュレーションでは, 様々な物理量を無次元化した換算単位で表すことが多い.
 これは実単位系における値が計算機で扱うには大きい, あるいは小さすぎることがあるからである.
 問題とする系に対して代表的な量を単位として表すことで, 全ての量が物質に依存する
@@ -203,7 +203,33 @@ SI単位系での基本単位の定義は以下の通りになる
 \end{align}
 となる.
 
-\subsubsection{静電相互作用の係数の単位変換}
+\subsection{単位換算: エネルギー}
+エネルギーの単位換算をまとめる. なおここでは$T=298\mathrm{K}$を想定する.
+\begin{alignat}{3}
+  1~\mathrm{kcal/mol}
+  &= 0.04337 &&~\mathrm{eV}      \notag \\
+  &= 349.75  &&~\mathrm{cm^{-1}} \notag \\
+  &= 1.689   &&~k_{\mathrm{B}}T  \notag \\
+  &= 4.184   &&~\mathrm{kal/mol} \notag
+\end{alignat}
+
+\begin{alignat}{3}
+  1~\mathrm{eV}
+  &= 23.06   &&~\mathrm{kcal/mol}      \notag \\
+  &= 8064.6  &&~\mathrm{cm^{-1}} \notag \\
+  &= 38.94   &&~k_{\mathrm{B}}T  \notag \\
+  &= 96.49   &&~\mathrm{kal/mol} \notag
+\end{alignat}
+
+\begin{alignat}{3}
+  1~~k_{\mathrm{B}}T
+  &= 0.5922  &&~\mathrm{kcal/mol} \notag \\
+  &= 0.02568 &&~\mathrm{eV}      \notag \\
+  &= 207.1   &&~\mathrm{cm^{-1}} \notag \\
+  &= 2.476   &&~\mathrm{kal/mol} \notag
+\end{alignat}
+
+\subsection{単位換算: 静電相互作用の係数}
 エネルギーの単位をkcal/molとした時の静電相互作用にかかる係数$1/(4\pi \epsilon_{0})$の単位換算を考える.　ここで$\epsilon_{0}$は真空での誘電率である.
 
 \begin{align}
