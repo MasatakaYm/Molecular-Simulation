@@ -586,6 +586,1045 @@ $r_{ij}$は原子$i$と原子$j$の距離である.
 
 \clearpage
 \section{計算ノート: 力・ヴィリアルの導出}
+\subsection{2点間の距離$r_{ij}$を粒子の位置ベクトル$\bm{r}_{\alpha}$で微分する}
+\subsubsection{ベクトルの定義}
+2点間の距離を
+\begin{align}
+   \bm{r}_{ij}
+&= \bm{r}_{j} - \bm{r}_{i}
+\end{align}
+と定義する.
+
+\subsubsection{座標ベクトル微分の計算}
+\begin{align}
+\frac{d r_{ij}}{d \bm{r}_{i}}
+&=
+\left[
+   \frac{d}{d \bm{r}_{i}}
+   \left\{ (\bm{r}_{j} - \bm{r}_{i} )^{2} \right\}^{\frac{1}{2}}
+\right]
+=
+\frac{1}{2}
+\frac{ -2 (\bm{r}_{j} - \bm{r}_{i}) }
+     { \left\{ ( \bm{r}_{j} - \bm{r}_{i} )^{2} \right\}^{\frac{1}{2}} }
+=
+-
+\frac{\bm{r}_{ij}}{r_{ij}}
+\label{Eq:dr_ij-dr_i}
+\\
+\frac{d r_{ij}}{d \bm{r}_{j}}
+&=
+\left[
+   \frac{d}{d \bm{r}_{j}}
+   \left\{ (\bm{r}_{j} - \bm{r}_{i} )^{2} \right\}^{\frac{1}{2}}
+\right]
+=
+\frac{1}{2}
+\frac{ 2 (\bm{r}_{j} - \bm{r}_{i}) }
+     { \left\{ ( \bm{r}_{j} - \bm{r}_{i} )^{2} \right\}^{\frac{1}{2}} }
+=
+\frac{\bm{r}_{ij}}{r_{ij}}
+\label{Eq:dr_ij-dr_j}
+\end{align}
+
+\subsection{3点間の角度$\theta_{ijk}$を粒子の位置ベクトル$\bm{r}_{\alpha}$で微分する}
+\subsubsection{ベクトルと角度の定義}
+3点間の角度$\theta_{ijk}$を
+\begin{align}
+   \bm{r}_{ji}
+&= \bm{r}_{i} - \bm{r}_{j}
+\\
+   \bm{r}_{jk}
+&= \bm{r}_{k} - \bm{r}_{j}
+\\
+   \theta_{ijk}
+&= \arccos \left( \frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}} \right)
+\\
+   \cos(\theta_{ijk})
+&= \frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}
+ = \frac{(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})}
+        {\left\{(\bm{r}_{i} - \bm{r}_{j})\right\}^{\frac{1}{2}}
+         \left\{(\bm{r}_{k} - \bm{r}_{j})\right\}^{\frac{1}{2}}}
+\end{align}
+と定義する.
+
+\subsubsection{座標ベクトル微分の計算}
+3点間の角度$\theta_{ijk}$を粒子の位置ベクトル$\bm{r}_{\alpha}$で微分すると
+\begin{align}
+    \frac{d \theta_{ijk}}{d \bm{r}_{\alpha}}
+ &=
+    \frac{d}{d \bm{r}_{\alpha}}
+    \arccos \left( \frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}} \right)
+ \notag \\
+ &=
+   -\frac{1}
+         {\sqrt{1- \left(\frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}\right)^{2}}}
+    \left\{
+            \frac{d}{d \bm{r}_{\alpha}}
+            \left(\frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}\right)
+    \right\}
+ \notag \\
+ &=
+   -\frac{1}{\sin\theta_{ijk}}
+    \left\{
+            \frac{d}{d \bm{r}_{\alpha}}
+            \left(\frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}\right)
+    \right\}
+  \notag
+\end{align}
+を得る. 第2式から第3式において, $\arccos(x)$の微分公式
+\begin{equation}
+\frac{d}{dx}\arccos(x) = - \frac{1}{\sqrt{1-x^2}}
+\notag
+\end{equation}
+を用いた. 続いて
+\begin{equation}
+ \frac{d}{d \bm{r}_{\alpha}}
+ \left(\frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}\right)
+ \notag
+\end{equation}
+を各粒子$i$,$j$,$k$について計算していく.
+
+\paragraph{$\alpha = i$のとき}
+\begin{align}
+    \frac{d}{d \bm{r}_{i}}
+    \left(\frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}\right)
+ &=
+    \frac{d}{d \bm{r}_{i}}
+    \left[\frac{(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})}
+               {\left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}
+                \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}}
+    \right]
+ \notag \\
+ &=
+    \frac{d}{d \bm{r}_{i}}
+    \left[(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})
+           \left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{-\frac{1}{2}}
+           \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{-\frac{1}{2}}
+    \right]
+ \notag \\
+ &=
+     \frac{(\bm{r}_{k} - \bm{r}_{j})}{r_{ji} r_{jk}}
+   - \frac{1}{2}
+     \frac{2(\bm{r}_{i} - \bm{r}_{j})
+           \{(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})\}}
+          {\left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{\frac{3}{2}}
+           \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}}
+ \notag \\
+ &=
+     \frac{\bm{r}_{jk}}{r_{ji} r_{jk}}
+   - \frac{(\bm{r}_{ji} \cdot \bm{r}_{jk}) \bm{r}_{ji}}{r_{ji}^{3} r_{jk}}
+ \notag \\
+ &=
+     \frac{1}{r_{ji}}
+     \left\{
+              \frac{\bm{r}_{jk}}{r_{jk}}
+            - \cos\theta_{ijk} \frac{\bm{r}_{ji}}{r_{ji}}
+     \right\}
+\notag
+\end{align}
+と計算できる.
+
+\paragraph{$\alpha = k$のときの$\bm{F}^{\mathrm{angle}}$の導出} \
+
+$\alpha=i$と同様の計算により, 
+\begin{align}
+   \frac{d}{d \bm{r}_{k}}
+   \left(\frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}\right)
+&=
+   \frac{1}{r_{jk}}
+   \left(
+           \frac{\bm{r}_{ji}}{r_{ji}}
+         - \cos\theta_{ijk} \frac{\bm{r}_{jk}}{r_{jk}}
+   \right)
+\notag
+\end{align}
+と計算される. \\
+
+\paragraph{$\alpha = j$のときの$\bm{F}^{\mathrm{angle}}$の導出} \
+\begin{align}
+    \frac{d}{d \bm{r}_{j}}
+    \left(\frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}\right)
+ =&
+    \frac{d}{d \bm{r}_{j}}
+    \left[\frac{(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})}
+               {\left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}
+                \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}}
+    \right]
+ \notag \\
+ =&
+    \frac{d}{d \bm{r}_{j}}
+    \left[(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})
+           \left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{-\frac{1}{2}}
+           \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{-\frac{1}{2}}
+    \right]
+ \notag \\
+ =&
+   - \frac{(\bm{r}_{k} - \bm{r}_{j})}{r_{ji} r_{jk}}
+   - \frac{1}{2}
+     \frac{-2(\bm{r}_{i} - \bm{r}_{j})
+            \{(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})\}}
+          {\left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{\frac{3}{2}}
+           \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}}
+ \notag \\
+ & - \frac{(\bm{r}_{k} - \bm{r}_{j})}{r_{ji} r_{jk}}
+   - \frac{1}{2}
+     \frac{-2(\bm{r}_{k} - \bm{r}_{j})
+            \{(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})\}}
+          {\left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}
+           \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{\frac{3}{2}}}
+ \notag \\
+ =& - \left\{
+               \frac{\bm{r}_{jk}}{r_{ji} r_{jk}}
+             - \frac{(\bm{r}_{ji} \cdot \bm{r}_{jk}) \bm{r}_{ji}}{r_{ji}^{3} r_{jk}}
+      \right\}
+    - \left\{
+               \frac{\bm{r}_{ji}}{r_{ji} r_{ji}}
+             - \frac{(\bm{r}_{ji} \cdot \bm{r}_{jk}) \bm{r}_{jk}}{r_{ji} r_{jk}^{3}}
+      \right\}
+ \notag \\
+ =&
+   - \frac{1}{r_{ji}}
+     \left\{
+              \frac{\bm{r}_{jk}}{r_{jk}}
+            - \cos\theta_{ijk} \frac{\bm{r}_{ji}}{r_{ji}}
+     \right\}
+   - \frac{1}{r_{jk}}
+     \left\{
+              \frac{\bm{r}_{ji}}{r_{ji}}
+            - \cos\theta_{ijk} \frac{\bm{r}_{jk}}{r_{jk}}
+     \right\}
+\notag
+\end{align}
+と計算できる.
+
+\paragraph{まとめ}
+以上の計算をまとめると, 3点間の角度$\theta_{ijk}$の粒子の位置ベクトル$\bm{r}_{\alpha}$微分は,
+
+\begin{alignat}{3}
+   \frac{d \theta_{ijk}}{d \bm{r}_{i}}
+   &=
+   -&&
+   \frac{1}{r_{ji} \sin\theta_{ijk}}
+   \left(
+            \frac{\bm{r}_{jk}}{r_{jk}}
+          - \cos\theta_{ijk} \frac{\bm{r}_{ji}}{r_{ji}}
+   \right)
+   \label{Eq:dtheta_dri}
+   \\
+   \frac{d \theta_{ijk}}{d \bm{r}_{j}}
+   &=&&
+   \frac{1}{r_{ji} \sin\theta_{ijk}}
+   \left(
+            \frac{\bm{r}_{jk}}{r_{jk}}
+          - \cos\theta_{ijk} \frac{\bm{r}_{ji}}{r_{ji}}
+   \right)
+   +
+   \frac{1}{r_{jk} \sin\theta_{ijk}}
+   \left(
+            \frac{\bm{r}_{ji}}{r_{ji}}
+          - \cos\theta_{ijk} \frac{\bm{r}_{jk}}{r_{jk}}
+   \right)
+   \label{Eq:dtheta_drj}
+   \\
+   \frac{d \theta_{ijk}}{d \bm{r}_{k}}
+   &=
+   -&&
+   \frac{1}{r_{jk} \sin\theta_{ijk}}
+   \left(
+           \frac{\bm{r}_{ji}}{r_{ji}}
+         - \cos\theta_{ijk} \frac{\bm{r}_{jk}}{r_{jk}}
+   \right)
+   \label{Eq:dtheta_drk}
+\end{alignat}
+
+\subsection{二面角$\phi_{ijkl}$を粒子の位置ベクトル$\bm{r}_{\alpha}$で微分する}
+\subsubsection{ベクトルと二面角の定義}
+二面角$\phi_{ijkl}$を
+\begin{alignat}{1}
+   \bm{r}_{ji} &= \bm{r}_{i} - \bm{r}_{j}
+   \notag \\
+   \bm{r}_{kj} &= \bm{r}_{j} - \bm{r}_{k}
+   \notag \\
+   \bm{r}_{lk} &= \bm{r}_{k} - \bm{r}_{l}
+   \notag \\
+   \bm{n}_{j}  &= \bm{r}_{ji} \times \bm{r}_{jk}
+   \notag \\
+   \bm{n}_{k}  &= \bm{r}_{kj} \times \bm{r}_{kl}
+   \notag
+   \\
+   \phi_{ijkl} &=
+   - \mathrm{sign}
+     \left[
+           \arccos \left( \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j} n_{k}}\right),
+           \bm{r}_{kj} \cdot \bm{n}_{j} \times \bm{n}_{k}
+     \right]
+   \notag
+\end{alignat}
+と定義する.
+
+\subsubsection{座標ベクトル微分の計算}
+
+$\cos$の微分 
+\begin{align}
+ d \cos\phi &= -\sin\phi d\phi
+ \notag
+\end{align}
+から, 二面角$\phi_{ijkl}$の位置座標ベクトル微分は
+\begin{align}
+     \frac{d \phi_{ijkl}}{d \bm{r}_{\alpha}}
+ = - \frac{1}{\sin\phi_{ijkl}} \frac{d \cos\phi_{ijkl}}{d \bm{r}_{\alpha}}
+ = - \frac{1}{\sin\phi_{ijkl}} \frac{d} {d \bm{r}_{\alpha}}
+     \left(
+           \frac{\bm{n}_{j} \cdot \bm{n}_{k}} {n_{j} n_{k}}
+     \right)
+ \notag
+\end{align}
+と計算できる. よって, $\alpha = i, j, k, l$に対する二面角$\phi_{ijkl}$の位置座標ベクトル微分は
+\begin{align}
+    \frac{d}{d \bm{r}_{\alpha}}
+    \left( \frac{\bm{n}_{j} \cdot \bm{n}_{k}} {n_{j} n_{k}} \right)
+ =
+    \frac{1}{n_{j}n_{k}}
+    \left\{
+           \frac{d}{d \bm{r}_{\alpha}} (\bm{n}_{j} \cdot \bm{n}_{k})
+    \right\}
+  +
+    \frac{\bm{n}_{k} \cdot \bm{n}_{k}}{n_{k}}
+    \left\{
+           \frac{d}{d \bm{r}_{\alpha}} \frac{1}{n_{j}}
+    \right\}
+  +
+    \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}}
+    \left\{
+           \frac{d}{d \bm{r}_{\alpha}} \frac{1}{n_{k}}
+    \right\}
+ \notag
+\end{align}
+を求めることに帰着する. ここで, 
+\begin{alignat}{3}
+ \bm{n}_{j} &=  \bm{r}_{ji} \times \bm{r}_{jk}
+ \notag \\
+                &=  \bm{r}_{i} \times \bm{r}_{k}
+                  - \bm{r}_{i} \times \bm{r}_{j}
+                  - \bm{r}_{j} \times \bm{r}_{k}
+ \notag \\
+ \bm{n}_{k} &=  \bm{r}_{kj} \times \bm{r}_{kl}
+ \notag \\
+                &=  \bm{r}_{j} \times \bm{r}_{l}
+                  - \bm{r}_{j} \times \bm{r}_{k}
+                  - \bm{r}_{k} \times \bm{r}_{l}
+ \notag \\
+ \frac{1}{n_{j}} &= \left\{(  \bm{r}_{i} \times \bm{r}_{k}
+                            - \bm{r}_{i} \times \bm{r}_{j}
+                            - \bm{r}_{j} \times \bm{r}_{k} )^{2}
+                    \right\}^{-\frac{1}{2}}
+ \notag \\
+ \frac{1}{n_{k}} &= \left\{(  \bm{r}_{j} \times \bm{r}_{l}
+                            - \bm{r}_{j} \times \bm{r}_{k}
+                            - \bm{r}_{k} \times \bm{r}_{l} )^{2}
+                    \right\}^{-\frac{1}{2}}
+ \notag
+\end{alignat}
+と書き下せる. 
+\\
+
+\paragraph{いくつかの便利な公式} \
+ここで, ベクトルの微分に関する公式を導出する. 以下, ベクトル$\bm{a}, \bm{b}, \bm{c}$を考える. 
+\begin{align}
+ \bm{a}= \left(
+              \begin{array}{c}
+               a_{x} \\
+               a_{y} \\
+               a_{z} 
+              \end{array}
+              \right)
+ ,~~~
+ \bm{b}= \left(
+              \begin{array}{c}
+               b_{x} \\
+               b_{y} \\
+               b_{z} 
+              \end{array}
+              \right)
+ ,~~~
+ \bm{c}= \left(
+              \begin{array}{c}
+               c_{x} \\
+               c_{y} \\
+               c_{z} 
+              \end{array}
+              \right)
+\notag
+\end{align}
+ベクトルの内積は
+\begin{align}
+   \bm{a} \cdot \bm{b}
+ =
+   a_{x}b_{x} + a_{y}b_{y} + a_{z}b_{z} 
+\notag
+\end{align}
+であることより, 
+\begin{align}
+ \frac{d}{d \bm{a}} (\bm{a} \cdot \bm{b}) &= \bm{b}
+ \notag \\
+ \frac{d}{d \bm{b}} (\bm{a} \cdot \bm{b}) &= \bm{a}
+ \notag
+\end{align}
+また, 
+\begin{align}
+   \frac{d}{d \bm{a}} (\bm{a} \times \bm{b})
+ &=
+   \left(
+              \begin{array}{ccc}
+               \frac{d A_{x}}{d a_{x}} & \frac{d A_{y}}{d a_{x}} & \frac{d A_{z}}{d a_{x}} \\
+               \frac{d A_{x}}{d a_{y}} & \frac{d A_{y}}{d a_{y}} & \frac{d A_{z}}{d a_{y}} \\
+               \frac{d A_{x}}{d a_{z}} & \frac{d A_{y}}{d a_{z}} & \frac{d A_{z}}{d a_{z}} \\
+              \end{array}
+   \right)
+ =
+  \left(
+              \begin{array}{ccc}
+                   0  & -b_{z} &  b_{y} \\
+                b_{z} &      0 & -b_{x} \\
+               -b_{y} &  b_{x} &     0  \\
+              \end{array}
+  \right)
+ \notag
+ \\
+   \frac{d}{d \bm{b}} (\bm{a} \times \bm{b})
+ &=
+   \left(
+              \begin{array}{ccc}
+               \frac{d A_{x}}{d b_{x}} & \frac{d A_{y}}{d b_{x}} & \frac{d A_{z}}{d b_{x}} \\
+               \frac{d A_{x}}{d b_{y}} & \frac{d A_{y}}{d b_{y}} & \frac{d A_{z}}{d b_{y}} \\
+               \frac{d A_{x}}{d b_{z}} & \frac{d A_{y}}{d b_{z}} & \frac{d A_{z}}{d b_{z}} \\
+              \end{array}
+   \right)
+ =
+  \left(
+              \begin{array}{ccc}
+                   0  & -a_{z} &  a_{y} \\
+                a_{z} &      0 & -a_{x} \\
+               -a_{y} &  a_{x} &     0  \\
+              \end{array}
+  \right)
+ \notag
+\end{align}
+であることより, 
+\begin{alignat}{3}
+   \left\{ \frac{d}{d \bm{a}} (\bm{a} \times \bm{b}) \right\} \cdot \bm{c}
+&=
+   \left(
+         \begin{array}{ccc}
+             0  & -b_{z} &  b_{y} \\
+          b_{z} &      0 & -b_{x} \\
+         -b_{y} &  b_{x} &     0  \\
+         \end{array}
+   \right)
+   \left(
+         \begin{array}{ccc}
+           c_{x}  \\
+           c_{y} \\
+           c_{z}  \\
+         \end{array}
+   \right)
+&&=
+   \left(
+         \begin{array}{ccc}
+          b_{y}c_{z} - b_{z}c_{y} \\
+          b_{z}c_{x} - b_{x}c_{z} \\
+          b_{x}c_{y} - b_{y}c_{x} \\
+         \end{array}
+   \right)
+&&=
+   \bm{b} \times \bm{c}
+ \notag
+ \\
+   \left\{ \frac{d}{d \bm{b}} (\bm{a} \times \bm{b}) \right\} \cdot \bm{c}
+&=
+   \left(
+         \begin{array}{ccc}
+             0  & -a_{z} &  a_{y} \\
+          a_{z} &      0 & -a_{x} \\
+         -a_{y} &  a_{x} &     0  \\
+         \end{array}
+  \right)
+  \left(
+         \begin{array}{ccc}
+           c_{x}  \\
+           c_{y} \\
+           c_{z}  \\
+         \end{array}
+  \right)
+&&=
+  \left(
+        \begin{array}{ccc}
+         c_{y}a_{z} - c_{z}a_{y} \\
+         c_{z}a_{x} - c_{x}a_{z} \\
+         c_{x}a_{y} - c_{y}a_{x} \\
+        \end{array}
+  \right)
+&&=
+  \bm{c} \times \bm{a}
+ \notag
+\end{alignat}
+を得る. 
+\\
+
+\paragraph{$\alpha = i$のとき} \
+\begin{align}
+    \frac{d} {d \bm{r}_{i}} (\bm{n}_{j} \cdot \bm{n}_{k})
+ &=
+    \frac{d} {d \bm{r}_{i}}
+    \left\{
+           (  \bm{r}_{i} \times \bm{r}_{k}
+            - \bm{r}_{i} \times \bm{r}_{j}
+            - \bm{r}_{j} \times \bm{r}_{k}
+            ) \cdot \bm{n}_{k}
+   \right\}
+ \notag \\
+ &=
+   \frac{d}{d \bm{r}_{i}}
+   \left\{
+           (\bm{r}_{i} \times \bm{r}_{jk}) \cdot \bm{n}_{k}
+   \right\}
+ \notag \\
+ &=
+   \left\{
+          \frac{d}{d \bm{r}_{i}}
+          (\bm{r}_{i} \times \bm{r}_{jk})
+   \right\}
+   \cdot \bm{n}_{k}
+ \notag \\
+ &=
+   \bm{r}_{jk} \times \bm{n}_{k}
+ \notag
+\end{align}
+
+\begin{align}
+    \frac{d}{d \bm{r}_{i}} \left(\frac{1}{n_{j}} \right)
+ &=
+    \frac{d}{d \bm{r}_{i}}
+    \left\{(  \bm{r}_{i} \times \bm{r}_{k}
+            - \bm{r}_{i} \times \bm{r}_{j}
+            - \bm{r}_{j} \times \bm{r}_{k} )^{2}
+    \right\}^{-\frac{1}{2}}
+ \notag \\
+ &=
+   -\frac{1}{2} \frac{1}{n_{j}^{3}}
+    \left\{
+           \frac{d}{d \bm{r}_{i}}
+           \left(  \bm{r}_{i} \times \bm{r}_{k}
+                 - \bm{r}_{i} \times \bm{r}_{j}
+                 - \bm{r}_{j} \times \bm{r}_{k}
+            \right)^{2}
+    \right\}
+ \notag \\
+ &=
+   - \frac{1}{2} \frac{1}{n_{j}^{3}}
+    2\bm{n}_{j} \cdot
+    \left\{
+           \frac{d}{d \bm{r}_{i}} (\bm{r}_{i} \times \bm{r}_{jk})
+    \right\}
+ \notag \\
+ &=
+   - \frac{1}{n_{j}^{3}} \bm{r}_{jk} \times \bm{n}_{j}
+\notag
+\end{align}
+\begin{align}
+    \frac{d}{d \bm{r}_{i}} \left(\frac{1}{n_{k}} \right)
+ =
+    \frac{d}{d \bm{r}_{i}}
+    \left\{(  \bm{r}_{j} \times \bm{r}_{l}
+            - \bm{r}_{j} \times \bm{r}_{k}
+            - \bm{r}_{k} \times \bm{r}_{l} )^{2}
+    \right\}^{-\frac{1}{2}}
+ =
+   0
+\notag
+\end{align}
+であるので, 
+\begin{align}
+     \frac{d}{d \bm{r}_{i}}
+     \left( \frac{\bm{n}_{j} \cdot \bm{n}_{k}} {n_{j} n_{k}} \right)
+ &=
+     \frac{1}{n_{j}n_{k}} (\bm{r}_{jk} \times \bm{n}_{k})
+   - \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}^{3}n_{k}} (\bm{r}_{jk} \times \bm{n}_j)
+ \notag
+ \\
+ &=
+     \bm{r}_{jk} \times
+     \left\{
+            \frac{1}{n_{j}}
+            \left(
+                   \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+            \right)
+     \right\}
+\notag
+\end{align}
+を得る.
+\\
+
+\paragraph{$\alpha = j$のとき} \
+\begin{align}
+    \frac{d} {d \bm{r}_{j}} (\bm{n}_{j} \cdot \bm{n}_{k})
+ =&
+      \left( \frac{d}{d \bm{r}_{j}} \bm{n}_{j} \right) \cdot \bm{n}_{k}
+    + \left( \frac{d}{d \bm{r}_{j}} \bm{n}_{k} \right) \cdot \bm{n}_{j}
+ \notag
+ \\
+ =&
+    \left\{
+            \frac{d} {d \bm{r}_{j}}
+            (  \bm{r}_{i} \times \bm{r}_{k}
+             - \bm{r}_{i} \times \bm{r}_{j}
+             - \bm{r}_{j} \times \bm{r}_{k}
+             )
+    \right\} \cdot \bm{n}_{k}
+ \notag
+ \\
+ &~~
+ + 
+    \left\{
+            \frac{d} {d \bm{r}_{j}}
+           (  \bm{r}_{j} \times \bm{r}_{l}
+            - \bm{r}_{j} \times \bm{r}_{k}
+            - \bm{r}_{k} \times \bm{r}_{l}
+            ) 
+   \right\} \cdot \bm{n}_{j}
+ \notag
+ \\
+ =&
+   \left\{
+          \frac{d}{d \bm{r}_{j}}
+          (\bm{r}_{j} \times \bm{r}_{ki})
+   \right\} \cdot \bm{n}_{k}
+  +
+   \left\{
+          \frac{d}{d \bm{r}_{j}}
+          (\bm{r}_{j} \times \bm{r}_{kl})
+   \right\} \cdot \bm{n}_{j}
+ \notag
+ \\
+ =&
+   \bm{r}_{ki} \times \bm{n}_{k} + \bm{r}_{kl} \times \bm{n}_{j}
+ \notag
+\end{align}
+
+\begin{align}
+    \frac{d}{d \bm{r}_{j}} \left(\frac{1}{n_{j}} \right)
+ &=
+    \frac{d}{d \bm{r}_{j}}
+    \left\{(  \bm{r}_{i} \times \bm{r}_{k}
+            - \bm{r}_{i} \times \bm{r}_{j}
+            - \bm{r}_{j} \times \bm{r}_{k} )^{2}
+    \right\}^{-\frac{1}{2}}
+ \notag
+ \\
+ &=
+   -\frac{1}{2} \frac{1}{n_{j}^{3}}
+    \left\{
+           \frac{d}{d \bm{r}_{j}}
+           \left(  \bm{r}_{i} \times \bm{r}_{k}
+                 - \bm{r}_{i} \times \bm{r}_{j}
+                 - \bm{r}_{j} \times \bm{r}_{k}
+            \right)^{2}
+    \right\}
+ \notag
+ \\
+ &=
+   - \frac{1}{2} \frac{1}{n_{j}^{3}}
+    2\bm{n}_{j} \cdot
+    \left\{
+           \frac{d}{d \bm{r}_{j}} (\bm{r}_{j} \times \bm{r}_{ki})
+    \right\}
+ \notag
+ \\
+ &=
+   - \frac{1}{n_{j}^{3}} \bm{r}_{ki} \times \bm{n}_{j}
+\notag
+\end{align}
+\begin{align}
+    \frac{d}{d \bm{r}_{j}} \left(\frac{1}{n_{k}} \right)
+ &=
+    \frac{d}{d \bm{r}_{j}}
+    \left\{(  \bm{r}_{j} \times \bm{r}_{l}
+            - \bm{r}_{j} \times \bm{r}_{k}
+            - \bm{r}_{k} \times \bm{r}_{l} )^{2}
+    \right\}^{-\frac{1}{2}}
+ \notag
+ \\
+ &=
+   -\frac{1}{2} \frac{1}{n_{k}^{3}}
+    \left\{
+           \frac{d}{d \bm{r}_{j}}
+           \left(  \bm{r}_{j} \times \bm{r}_{l}
+                 - \bm{r}_{j} \times \bm{r}_{k}
+                 - \bm{r}_{k} \times \bm{r}_{l}
+            \right)^{2}
+    \right\}
+ \notag
+ \\
+ &=
+   - \frac{1}{2} \frac{1}{n_{k}^{3}}
+    2\bm{n}_{k} \cdot
+    \left\{
+           \frac{d}{d \bm{r}_{j}} (\bm{r}_{j} \times \bm{r}_{kl})
+    \right\}
+ \notag
+ \\
+ &=
+   - \frac{1}{n_{k}^{3}} \bm{r}_{kl} \times \bm{n}_{k}
+\notag
+\end{align}
+であるので, 
+\begin{align}
+     \frac{d}{d \bm{r}_{j}}
+     \left( \frac{\bm{n}_{j} \cdot \bm{n}_{k}} {n_{j} n_{k}} \right)
+ &=
+     \frac{1}{n_{j}n_{k}}
+      (\bm{r}_{ki} \times \bm{n}_{k} + \bm{r}_{kl} \times \bm{n}_{j})
+   - \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}^{3}n_{k}}
+      (\bm{r}_{ki} \times \bm{n}_{j})
+   - \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}n_{k}^{3}}
+      (\bm{r}_{kl} \times \bm{n}_{k})
+ \notag
+ \\
+ &=
+     \bm{r}_{kl} \times
+     \left\{
+            \frac{1}{n_{k}}
+            \left(
+                   \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+            \right)
+     \right\}
+   +
+     \bm{r}_{ki} \times
+     \left\{
+            \frac{1}{n_{j}}
+            \left(
+                   \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+            \right)
+     \right\}
+ \notag
+\end{align}
+を得る.
+\\
+\paragraph{$\alpha = k$のとき} \
+\begin{align}
+    \frac{d} {d \bm{r}_{k}} (\bm{n}_{j} \cdot \bm{n}_{k})
+ =&
+      \left( \frac{d}{d \bm{r}_{k}} \bm{n}_{j} \right) \cdot \bm{n}_{k}
+    + \left( \frac{d}{d \bm{r}_{k}} \bm{n}_{k} \right) \cdot \bm{n}_{j}
+ \notag
+ \\
+ =&
+    \left\{
+            \frac{d} {d \bm{r}_{k}}
+            (  \bm{r}_{i} \times \bm{r}_{k}
+             - \bm{r}_{i} \times \bm{r}_{j}
+             - \bm{r}_{j} \times \bm{r}_{k}
+             )
+    \right\} \cdot \bm{n}_{k}
+ \notag
+ \\
+ &~~
+ + 
+    \left\{
+            \frac{d} {d \bm{r}_{k}}
+           (  \bm{r}_{j} \times \bm{r}_{l}
+            - \bm{r}_{j} \times \bm{r}_{k}
+            - \bm{r}_{k} \times \bm{r}_{l}
+            ) 
+   \right\} \cdot \bm{n}_{j}
+ \notag
+ \\
+ =&
+   \left\{
+          \frac{d}{d \bm{r}_{k}}
+          (\bm{r}_{ji} \times \bm{r}_{k})
+   \right\} \cdot \bm{n}_{k}
+  +
+   \left\{
+          \frac{d}{d \bm{r}_{k}}
+          (\bm{r}_{jl} \times \bm{r}_{k})
+   \right\} \cdot \bm{n}_{j}
+ \notag
+ \\
+ =&
+   - \bm{r}_{ji} \times \bm{n}_{k} - \bm{r}_{jl} \times \bm{n}_{j}
+ \notag
+\end{align}
+
+\begin{align}
+    \frac{d}{d \bm{r}_{k}} \left(\frac{1}{n_{j}} \right)
+ &=
+    \frac{d}{d \bm{r}_{k}}
+    \left\{(  \bm{r}_{i} \times \bm{r}_{k}
+            - \bm{r}_{i} \times \bm{r}_{j}
+            - \bm{r}_{j} \times \bm{r}_{k} )^{2}
+    \right\}^{-\frac{1}{2}}
+ \notag
+ \\
+ &=
+   -\frac{1}{2} \frac{1}{n_{j}^{3}}
+    \left\{
+           \frac{d}{d \bm{r}_{k}}
+           \left(  \bm{r}_{i} \times \bm{r}_{k}
+                 - \bm{r}_{i} \times \bm{r}_{j}
+                 - \bm{r}_{j} \times \bm{r}_{k}
+            \right)^{2}
+    \right\}
+ \notag
+ \\
+ &=
+   - \frac{1}{2} \frac{1}{n_{j}^{3}}
+    2\bm{n}_{j} \cdot
+    \left\{
+           \frac{d}{d \bm{r}_{k}} (\bm{r}_{ji} \times \bm{r}_{k})
+    \right\}
+ \notag
+ \\
+ &=
+    \frac{1}{n_{j}^{3}} \bm{r}_{ji} \times \bm{n}_{j}
+\notag
+\end{align}
+\begin{align}
+    \frac{d}{d \bm{r}_{k}} \left(\frac{1}{n_{k}} \right)
+ &=
+    \frac{d}{d \bm{r}_{k}}
+    \left\{(  \bm{r}_{j} \times \bm{r}_{l}
+            - \bm{r}_{j} \times \bm{r}_{k}
+            - \bm{r}_{k} \times \bm{r}_{l} )^{2}
+    \right\}^{-\frac{1}{2}}
+ \notag
+ \\
+ &=
+   -\frac{1}{2} \frac{1}{n_{k}^{3}}
+    \left\{
+           \frac{d}{d \bm{r}_{k}}
+           \left(  \bm{r}_{j} \times \bm{r}_{l}
+                 - \bm{r}_{j} \times \bm{r}_{k}
+                 - \bm{r}_{k} \times \bm{r}_{l}
+            \right)^{2}
+    \right\}
+ \notag
+ \\
+ &=
+   - \frac{1}{2} \frac{1}{n_{k}^{3}}
+    2\bm{n}_{k} \cdot
+    \left\{
+            \frac{d}{d \bm{r}_{k}} (\bm{r}_{jl} \times \bm{r}_{k})
+    \right\}
+ \notag
+ \\
+ &=
+    \frac{1}{n_{k}^{3}} \bm{r}_{jl} \times \bm{n}_{k}
+\notag
+\end{align}
+であるので, 
+\begin{align}
+     \frac{d}{d \bm{r}_{k}}
+     \left( \frac{\bm{n}_{j} \cdot \bm{n}_{k}} {n_{j} n_{k}} \right)
+ &=
+     \frac{1}{n_{j}n_{k}}
+      (- \bm{r}_{ji} \times \bm{n}_{k} - \bm{r}_{jl} \times \bm{n}_{j})
+   + \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}^{3}n_{k}}
+      (\bm{r}_{ji} \times \bm{n}_{j})
+   + \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}n_{k}^{3}}
+      (\bm{r}_{jl} \times \bm{n}_{k})
+ \notag
+ \\
+ &=
+   - \bm{r}_{ji} \times
+     \left\{
+            \frac{1}{n_{j}}
+            \left(
+                   \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+            \right)
+     \right\}
+   -
+     \bm{r}_{jl} \times
+     \left\{
+            \frac{1}{n_{k}}
+            \left(
+                   \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+            \right)
+     \right\}
+ \notag
+\end{align}
+を得る.
+\\
+
+
+\paragraph{$\alpha = l$のとき} \
+\begin{align}
+    \frac{d} {d \bm{r}_{l}} (\bm{n}_{j} \cdot \bm{n}_{k})
+ =&
+    \frac{d} {d \bm{r}_{l}}
+    \left\{
+            \bm{n}_{j} \cdot
+            (  \bm{r}_{j} \times \bm{r}_{l}
+             - \bm{r}_{j} \times \bm{r}_{k}
+             - \bm{r}_{k} \times \bm{r}_{l}
+             )
+    \right\}
+ \notag
+ \\
+ =&
+   \left\{
+          \frac{d}{d \bm{r}_{l}}
+          (\bm{r}_{kj} \times \bm{r}_{l})
+   \right\} \cdot \bm{n}_{j}
+ \notag
+ \\
+ =&
+   - \bm{r}_{kj} \times \bm{n}_{j}
+ \notag
+\end{align}
+
+\begin{align}
+    \frac{d}{d \bm{r}_{l}} \left(\frac{1}{n_{j}} \right)
+ =
+    \frac{d}{d \bm{r}_{l}}
+    \left\{(  \bm{r}_{i} \times \bm{r}_{k}
+            - \bm{r}_{i} \times \bm{r}_{j}
+            - \bm{r}_{j} \times \bm{r}_{k} )^{2}
+    \right\}^{-\frac{1}{2}}
+ =
+   0
+ \notag
+\end{align}
+\begin{align}
+    \frac{d}{d \bm{r}_{l}} \left(\frac{1}{n_{k}} \right)
+ &=
+    \frac{d}{d \bm{r}_{l}}
+    \left\{(  \bm{r}_{j} \times \bm{r}_{l}
+            - \bm{r}_{j} \times \bm{r}_{k}
+            - \bm{r}_{k} \times \bm{r}_{l} )^{2}
+    \right\}^{-\frac{1}{2}}
+ \notag
+ \\
+ &=
+   -\frac{1}{2} \frac{1}{n_{k}^{3}}
+    \left\{
+           \frac{d}{d \bm{r}_{l}}
+           \left(  \bm{r}_{j} \times \bm{r}_{l}
+                 - \bm{r}_{j} \times \bm{r}_{k}
+                 - \bm{r}_{k} \times \bm{r}_{l}
+            \right)^{2}
+    \right\}
+ \notag
+ \\
+ &=
+   - \frac{1}{2} \frac{1}{n_{k}^{3}}
+    2\bm{n}_{k} \cdot
+    \left\{
+           \frac{d}{d \bm{r}_{l}} (\bm{r}_{kj} \times \bm{r}_{l})
+    \right\}
+ \notag
+ \\
+ &=
+   \frac{1}{n_{k}^{3}} \bm{r}_{kj} \times \bm{n}_{k}
+\notag
+\end{align}
+であるので, 
+\begin{align}
+     \frac{d}{d \bm{r}_{l}}
+     \left( \frac{\bm{n}_{j} \cdot \bm{n}_{k}} {n_{j} n_{k}} \right)
+ &=
+     \frac{1}{n_{j}n_{k}}
+      (- \bm{r}_{kj} \times \bm{n}_{j})
+   + \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}n_{k}^{3}}
+      (\bm{r}_{kj} \times \bm{n}_{k})
+ \notag
+ \\
+ &=
+   - \bm{r}_{kj} \times
+     \left\{
+            \frac{1}{n_{k}}
+            \left(
+                   \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+            \right)
+     \right\}
+ \notag
+\end{align}
+を得る.
+\\
+
+\paragraph{まとめ}
+以上の計算をまとめると, 二面角$\phi_{ijkl}$の粒子の位置ベクトル$\bm{r}_{\alpha}$微分は
+\begin{alignat}{4}
+   \frac{d \phi_{ijkl}}{d \bm{r}_{i}}
+   &=
+   -&&
+   \frac{1}{\sin \theta_{ijkl}}
+   \bm{r}_{jk} \times
+   \left\{
+          \frac{1}{n_{j}}
+          \left(
+                 \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+          \right)
+   \right\}
+   \\
+   \frac{d \phi_{ijkl}}{d \bm{r}_{j}}
+   &=
+   -&&
+   \frac{1}{\sin \theta_{ijkl}}
+   \left[
+      \bm{r}_{kl} \times
+      \left\{
+             \frac{1}{n_{k}}
+             \left(
+                    \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+             \right)
+      \right\}
+    +
+      \bm{r}_{ki} \times
+      \left\{
+             \frac{1}{n_{j}}
+             \left(
+                    \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+             \right)
+      \right\}
+   \right]
+   \\
+   \frac{d \phi_{ijkl}}{d \bm{r}_{k}}
+   &=&&
+   \frac{1}{\sin \theta_{ijkl}}
+   \left[
+      \bm{r}_{ji} \times
+      \left\{
+             \frac{1}{n_{j}}
+             \left(
+                    \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+             \right)
+      \right\}
+    +
+      \bm{r}_{jl} \times
+      \left\{
+             \frac{1}{n_{k}}
+             \left(
+                    \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+             \right)
+      \right\}
+   \right]
+   \\
+   \frac{d \phi_{ijkl}}{d \bm{r}_{l}}
+   &=&&
+   \frac{1}{\sin \theta_{ijkl}}
+   \bm{r}_{kj} \times
+   \left\{
+          \frac{1}{n_{k}}
+          \left(
+                 \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+          \right)
+   \right\}
+\end{alignat}
+である。
+
+\clearpage
 \subsection{結合長ポテンシャル: 調和振動子型}
 \paragraph{ポテンシャル} \
 
