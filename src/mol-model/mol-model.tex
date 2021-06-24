@@ -585,7 +585,7 @@ $r_{ij}$は原子$i$と原子$j$の距離である.
 となる.
 
 \clearpage
-\section{計算ノート: 力・ヴィリアルの導出}
+\section{計算ノート: 微分・力・ヴィリアルの導出}
 \subsection{2点間の距離$r_{ij}$を粒子の位置ベクトル$\bm{r}_{\alpha}$で微分する}
 \subsubsection{ベクトルの定義}
 2点間の距離を
@@ -799,7 +799,7 @@ $\alpha=i$と同様の計算により,
 と計算できる.
 
 \paragraph{まとめ}
-以上の計算をまとめると, 3点間の角度$\theta_{ijk}$の粒子の位置ベクトル$\bm{r}_{\alpha}$微分は,
+以上をまとめると, 3点間の角度$\theta_{ijk}$の粒子の位置ベクトル$\bm{r}_{\alpha}$微分は,
 
 \begin{alignat}{3}
    \frac{d \theta_{ijk}}{d \bm{r}_{i}}
@@ -837,6 +837,7 @@ $\alpha=i$と同様の計算により,
    \right)
    \label{Eq:dtheta_drk}
 \end{alignat}
+と計算される. 
 
 \subsection{二面角$\phi_{ijkl}$を粒子の位置ベクトル$\bm{r}_{\alpha}$で微分する}
 \subsubsection{ベクトルと二面角の定義}
@@ -930,7 +931,7 @@ $\cos$の微分
 \\
 
 \paragraph{いくつかの便利な公式} \
-ここで, ベクトルの微分に関する公式を導出する. 以下, ベクトル$\bm{a}, \bm{b}, \bm{c}$を考える. 
+今後の計算の便利のためにベクトルの微分に関する公式を導出する. ベクトル$\bm{a}, \bm{b}, \bm{c}$を考える. 
 \begin{align}
  \bm{a}= \left(
               \begin{array}{c}
@@ -964,13 +965,14 @@ $\cos$の微分
    a_{x}b_{x} + a_{y}b_{y} + a_{z}b_{z} 
 \notag
 \end{align}
-であることより, 
+であるので, 
 \begin{align}
  \frac{d}{d \bm{a}} (\bm{a} \cdot \bm{b}) &= \bm{b}
  \notag \\
  \frac{d}{d \bm{b}} (\bm{a} \cdot \bm{b}) &= \bm{a}
  \notag
 \end{align}
+と計算できる. 
 また, 
 \begin{align}
    \frac{d}{d \bm{a}} (\bm{a} \times \bm{b})
@@ -1011,7 +1013,7 @@ $\cos$の微分
   \right)
  \notag
 \end{align}
-であることより, 
+であるので, 
 \begin{alignat}{3}
    \left\{ \frac{d}{d \bm{a}} (\bm{a} \times \bm{b}) \right\} \cdot \bm{c}
 &=
@@ -1554,7 +1556,7 @@ $\cos$の微分
 \\
 
 \paragraph{まとめ}
-以上の計算をまとめると, 二面角$\phi_{ijkl}$の粒子の位置ベクトル$\bm{r}_{\alpha}$微分は
+以上をまとめると, 二面角$\phi_{ijkl}$の粒子の位置ベクトル$\bm{r}_{\alpha}$微分は
 \begin{alignat}{4}
    \frac{d \phi_{ijkl}}{d \bm{r}_{i}}
    &=
@@ -1567,6 +1569,7 @@ $\cos$の微分
                  \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
           \right)
    \right\}
+   \label{Eq:dphi_dri}
    \\
    \frac{d \phi_{ijkl}}{d \bm{r}_{j}}
    &=
@@ -1589,6 +1592,7 @@ $\cos$の微分
              \right)
       \right\}
    \right]
+   \label{Eq:dphi_drj}
    \\
    \frac{d \phi_{ijkl}}{d \bm{r}_{k}}
    &=&&
@@ -1610,6 +1614,7 @@ $\cos$の微分
              \right)
       \right\}
    \right]
+   \label{Eq:dphi_drk}
    \\
    \frac{d \phi_{ijkl}}{d \bm{r}_{l}}
    &=&&
@@ -1621,8 +1626,9 @@ $\cos$の微分
                  \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
           \right)
    \right\}
+   \label{Eq:dphi_drl}
 \end{alignat}
-である。
+と計算できる. 
 
 \clearpage
 \subsection{結合長ポテンシャル: 調和振動子型}
@@ -1742,184 +1748,89 @@ $\cos$の微分
 
 $\alpha = i,j,k$に対する結合角による力は
 \begin{align}
-    \bm{F}_{\alpha}^{\mathrm{angle}}
-  = 
-    -\frac{d U_{\mathrm{angle}}(\theta_{ijk})}{d \bm{r}_{i}}
- &=
-    -\frac{d}{d \bm{r}_{\alpha}}
-     k_{\theta} (\theta_{ijk} - \theta_{\mathrm{eq}})^{2}
+   \bm{F}_{\alpha}^{\mathrm{angle}}
+   =
+   -
+   \frac{d U_{\mathrm{angle}}(\theta_{ijk})}{d \bm{r}_{\alpha}}
+   &=
+   \frac{d}{d \bm{r}_{\alpha}}
+   k_{\theta} (\theta_{ijk} - \theta_{\mathrm{eq}})^{2}
+   \notag \\
+   &=
+   2 k_{\theta} (\theta_{ijk} - \theta_{\mathrm{eq}})
+   \left\{
+        - \frac{d}{d \bm{r}_{\alpha}}
+         (\theta_{ijk} - \theta_{\mathrm{eq}})
+   \right\}
  \notag \\
- &=
-     2 k_{\theta} (\theta_{ijk} - \theta_{\mathrm{eq}})
-     \left\{
-            - \frac{d}{d \bm{r}_{\alpha}}
-            (\theta_{ijk} - \theta_{\mathrm{eq}})
-     \right\}
- \notag
+   &=
+   -
+   2 k_{\theta} (\theta_{ijk} - \theta_{\mathrm{eq}})
+      \frac{d \theta_{ijk}}{d \bm{r}_{\alpha}}
+   \notag
 \end{align}
-
-ここで, 
-\begin{align}
-    \frac{d}{d \bm{r}_{\alpha}} (\theta_{ijk} - \theta_{\mathrm{eq}})
- &=
-    \frac{d}{d \bm{r}_{\alpha}}
-    \arccos \left( \frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}} \right)
- \notag \\
- &=
-   -\frac{1}
-         {\sqrt{1- \left(\frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}\right)^{2}}}
-    \left\{
-            \frac{d}{d \bm{r}_{\alpha}}
-            \left(\frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}\right)
-    \right\}
- \notag \\
- &=
-   -\frac{1}{\sin\theta_{ijk}}
-    \left\{
-            \frac{d}{d \bm{r}_{\alpha}}
-            \left(\frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}\right)
-    \right\}
-\end{align}
-第2式から第3式において, $\arccos(x)$の微分公式
-\begin{equation}
-\frac{d}{dx}\arccos(x) = - \frac{1}{\sqrt{1-x^2}}
-\end{equation}
-を用いた. 結局, 結合角の力の計算は
-\begin{equation}
- \frac{d}{d \bm{r}_{\alpha}}
- \left(\frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}\right)
-\end{equation}
-の計算に帰着する. 
-
-\subparagraph{$\alpha = i$のときの$\bm{F}^{\mathrm{angle}}$の導出}
-\begin{align}
-    \frac{d}{d \bm{r}_{i}}
-    \left(\frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}\right)
- &=
-    \frac{d}{d \bm{r}_{i}}
-    \left[\frac{(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})}
-               {\left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}
-                \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}}
-    \right]
- \notag \\
- &=
-    \frac{d}{d \bm{r}_{i}}
-    \left[(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})
-           \left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{-\frac{1}{2}}
-           \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{-\frac{1}{2}}
-    \right]
- \notag \\
- &=
-     \frac{(\bm{r}_{k} - \bm{r}_{j})}{r_{ji} r_{jk}}
-   - \frac{1}{2}
-     \frac{2(\bm{r}_{i} - \bm{r}_{j})
-           \{(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})\}}
-          {\left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{\frac{3}{2}}
-           \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}}
- \notag \\
- &=
-     \frac{\bm{r}_{jk}}{r_{ji} r_{jk}}
-   - \frac{(\bm{r}_{ji} \cdot \bm{r}_{jk}) \bm{r}_{ji}}{r_{ji}^{3} r_{jk}}
- \notag \\
- &=
-     \frac{1}{r_{ji}}
-     \left\{
-              \frac{\bm{r}_{jk}}{r_{jk}}
-            - \cos\theta_{ijk} \frac{\bm{r}_{ji}}{r_{ji}}
-     \right\}
- \notag
-\end{align}
-であるので, 
+と計算できる. ここで, 3点間の角度$\theta_{ijk}$を粒子の位置ベクトル$\bm{r}_{\alpha}$で微分すると, 式(\ref{Eq:dtheta_dri}), (\ref{Eq:dtheta_drj}), (\ref{Eq:dtheta_drk})より
+\begin{alignat}{3}
+   \frac{d \theta_{ijk}}{d \bm{r}_{i}}
+   &=
+   -&&
+   \frac{1}{r_{ji} \sin\theta_{ijk}}
+   \left(
+            \frac{\bm{r}_{jk}}{r_{jk}}
+          - \cos\theta_{ijk} \frac{\bm{r}_{ji}}{r_{ji}}
+   \right)
+   \notag
+   \\
+   \frac{d \theta_{ijk}}{d \bm{r}_{j}}
+   &=&&
+   \frac{1}{r_{ji} \sin\theta_{ijk}}
+   \left(
+            \frac{\bm{r}_{jk}}{r_{jk}}
+          - \cos\theta_{ijk} \frac{\bm{r}_{ji}}{r_{ji}}
+   \right)
+   +
+   \frac{1}{r_{jk} \sin\theta_{ijk}}
+   \left(
+            \frac{\bm{r}_{ji}}{r_{ji}}
+          - \cos\theta_{ijk} \frac{\bm{r}_{jk}}{r_{jk}}
+   \right)
+   \notag
+   \\
+   \frac{d \theta_{ijk}}{d \bm{r}_{k}}
+   &=
+   -&&
+   \frac{1}{r_{jk} \sin\theta_{ijk}}
+   \left(
+           \frac{\bm{r}_{ji}}{r_{ji}}
+         - \cos\theta_{ijk} \frac{\bm{r}_{jk}}{r_{jk}}
+   \right)
+   \notag
+\end{alignat}
+と計算されるため, 各粒子$i$, $j$, $k$にかかる力は
 \begin{align}
    \bm{F}_{i}^{\mathrm{angle}}
- =
+   &=
    2 k_{\theta} (\theta_{ijk} - \theta_{\mathrm{eq}})
    \frac{1}{r_{ji} \sin\theta_{ijk}}
    \left(
             \frac{\bm{r}_{jk}}{r_{jk}}
           - \cos\theta_{ijk} \frac{\bm{r}_{ji}}{r_{ji}}
    \right)
-\end{align}
-と求まる.  \\
-
-\subparagraph{$\alpha = k$のときの$\bm{F}^{\mathrm{angle}}$の導出} \
-
-$\alpha=i$と同様の計算により,  
-\begin{align}
-   \bm{F}_{k}
- =
+   \\
+   \bm{F}_{k}^{\mathrm{angle}}
+   &=
    2 k_{\theta} (\theta_{ijk} - \theta_{\mathrm{eq}})
    \frac{1}{r_{jk} \sin\theta_{ijk}}
    \left(
            \frac{\bm{r}_{ji}}{r_{ji}}
          - \cos\theta_{ijk} \frac{\bm{r}_{jk}}{r_{jk}}
    \right)
+   \\
+   \bm{F}_{j}^{\mathrm{angle}}
+   &=
+   - \bm{F}_{i}^{\mathrm{angle}} - \bm{F}_{k}^{\mathrm{angle}}
 \end{align}
-と求められる. \\
-
-\subparagraph{$\alpha = j$のときの$\bm{F}^{\mathrm{angle}}$の導出} \
-\begin{align}
-    \frac{d}{d \bm{r}_{j}}
-    \left(\frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}\right)
- =&
-    \frac{d}{d \bm{r}_{j}}
-    \left[\frac{(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})}
-               {\left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}
-                \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}}
-    \right]
- \notag \\
- =&
-    \frac{d}{d \bm{r}_{j}}
-    \left[(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})
-           \left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{-\frac{1}{2}}
-           \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{-\frac{1}{2}}
-    \right]
- \notag \\
- =&
-   - \frac{(\bm{r}_{k} - \bm{r}_{j})}{r_{ji} r_{jk}}
-   - \frac{1}{2}
-     \frac{-2(\bm{r}_{i} - \bm{r}_{j})
-            \{(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})\}}
-          {\left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{\frac{3}{2}}
-           \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}}
- \notag \\
- & - \frac{(\bm{r}_{k} - \bm{r}_{j})}{r_{ji} r_{jk}}
-   - \frac{1}{2}
-     \frac{-2(\bm{r}_{k} - \bm{r}_{j})
-            \{(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})\}}
-          {\left\{ (\bm{r}_{i} - \bm{r}_{j})^{2} \right\}^{\frac{1}{2}}
-           \left\{ (\bm{r}_{k} - \bm{r}_{j})^{2} \right\}^{\frac{3}{2}}}
- \notag \\
- =& - \left\{
-               \frac{\bm{r}_{jk}}{r_{ji} r_{jk}}
-             - \frac{(\bm{r}_{ji} \cdot \bm{r}_{jk}) \bm{r}_{ji}}{r_{ji}^{3} r_{jk}}
-      \right\}
-    - \left\{
-               \frac{\bm{r}_{ji}}{r_{ji} r_{ji}}
-             - \frac{(\bm{r}_{ji} \cdot \bm{r}_{jk}) \bm{r}_{jk}}{r_{ji} r_{jk}^{3}}
-      \right\}
- \notag \\
- =&
-   - \frac{1}{r_{ji}}
-     \left\{
-              \frac{\bm{r}_{jk}}{r_{jk}}
-            - \cos\theta_{ijk} \frac{\bm{r}_{ji}}{r_{ji}}
-     \right\}
-   - \frac{1}{r_{jk}}
-     \left\{
-              \frac{\bm{r}_{ji}}{r_{ji}}
-            - \cos\theta_{ijk} \frac{\bm{r}_{jk}}{r_{jk}}
-     \right\}
- \notag
-\end{align}
-であるので, 
-\begin{equation}
-    \bm{F}_{j}^{\mathrm{angle}}
-  =
-    - \bm{F}_{i}^{\mathrm{angle}} - \bm{F}_{k}^{\mathrm{angle}}
-\end{equation}
-が得られる. 
-\\
+と求められる.
 
 \paragraph{ヴィリアルの導出}
 \begin{align}
@@ -2029,315 +1940,81 @@ $\alpha = i, j, k, l$に対する二面角による力は,
  \frac{nV}{2} \sin(n\phi - \gamma) \frac{d \phi}{d \bm{r}_{\alpha}}
  \notag
 \end{align}
-ここで, 
-\begin{align}
- d \cos\phi &= -\sin\phi d\phi
- \notag
-\end{align}
-より
-\begin{align}
-     \frac{d \phi}{d \bm{r}_{\alpha}}
- = - \frac{1}{\sin\phi} \frac{d \cos\phi}{d \bm{r}_{\alpha}}
- = - \frac{1}{\sin\phi} \frac{d} {d \bm{r}_{\alpha}}
-     \left(
-           \frac{\bm{n}_{j} \cdot \bm{n}_{k}} {n_{j} n_{k}}
-     \right)
- \notag
-\end{align}
-であるので, 力の表式は
-\begin{align}
-   \bm{F}_{\alpha}^{\mathrm{dihedral}}
- =
-   - \frac{nV}{2} \frac{\sin(n\phi - \gamma)}{\sin\phi}
-     \left\{
-            \frac{d}{d \bm{r}_{\alpha}}
-            \left(
-                  \frac{\bm{n}_{j} \cdot \bm{n}_{k}} {n_{j} n_{k}}
-            \right)
-     \right\}
- \notag
-\end{align}
-となる. したがって, $\alpha = i, j, k, l$に対する二面角の力の計算は
-\begin{align}
-    \frac{d}{d \bm{r}_{\alpha}}
-    \left( \frac{\bm{n}_{j} \cdot \bm{n}_{k}} {n_{j} n_{k}} \right)
- =
-    \frac{1}{n_{j}n_{k}}
-    \left\{
-           \frac{d}{d \bm{r}_{\alpha}} (\bm{n}_{j} \cdot \bm{n}_{k})
-    \right\}
-  +
-    \frac{\bm{n}_{k} \cdot \bm{n}_{k}}{n_{k}}
-    \left\{
-           \frac{d}{d \bm{r}_{\alpha}} \frac{1}{n_{j}}
-    \right\}
-  +
-    \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}}
-    \left\{
-           \frac{d}{d \bm{r}_{\alpha}} \frac{1}{n_{k}}
-    \right\}
- \notag
-\end{align}
-を求めることに帰着する. ここで, 
-\begin{alignat}{3}
- \bm{n}_{j} &=  \bm{r}_{ji} \times \bm{r}_{jk}
- \notag \\
-                &=  \bm{r}_{i} \times \bm{r}_{k}
-                  - \bm{r}_{i} \times \bm{r}_{j}
-                  - \bm{r}_{j} \times \bm{r}_{k}
- \notag \\
- \bm{n}_{k} &=  \bm{r}_{kj} \times \bm{r}_{kl}
- \notag \\
-                &=  \bm{r}_{j} \times \bm{r}_{l}
-                  - \bm{r}_{j} \times \bm{r}_{k}
-                  - \bm{r}_{k} \times \bm{r}_{l}
- \notag \\
- \frac{1}{n_{j}} &= \left\{(  \bm{r}_{i} \times \bm{r}_{k}
-                            - \bm{r}_{i} \times \bm{r}_{j}
-                            - \bm{r}_{j} \times \bm{r}_{k} )^{2}
-                    \right\}^{-\frac{1}{2}}
- \notag \\
- \frac{1}{n_{k}} &= \left\{(  \bm{r}_{j} \times \bm{r}_{l}
-                            - \bm{r}_{j} \times \bm{r}_{k}
-                            - \bm{r}_{k} \times \bm{r}_{l} )^{2}
-                    \right\}^{-\frac{1}{2}}
- \notag
-\end{alignat}
-と書き下せる. 
-\\
-
-\subparagraph{いくつかの便利な公式} \
-ベクトルの微分に関する公式を導出する. 以下, ベクトル$\bm{a}, \bm{b}, \bm{c}$を考える. 
-\begin{align}
- \bm{a}= \left(
-              \begin{array}{c}
-               a_{x} \\
-               a_{y} \\
-               a_{z} 
-              \end{array}
-              \right)
- ,~~~
- \bm{b}= \left(
-              \begin{array}{c}
-               b_{x} \\
-               b_{y} \\
-               b_{z} 
-              \end{array}
-              \right)
- ,~~~
- \bm{c}= \left(
-              \begin{array}{c}
-               c_{x} \\
-               c_{y} \\
-               c_{z} 
-              \end{array}
-              \right)
-\end{align}
-ベクトルの内積は
-\begin{align}
-   \bm{a} \cdot \bm{b}
- =
-   a_{x}b_{x} + a_{y}b_{y} + a_{z}b_{z} 
-\end{align}
-であることより, 
-\begin{align}
- \frac{d}{d \bm{a}} (\bm{a} \cdot \bm{b}) &= \bm{b}
- \\
- \frac{d}{d \bm{b}} (\bm{a} \cdot \bm{b}) &= \bm{a}
-\end{align}
-また, 
-\begin{align}
-   \frac{d}{d \bm{a}} (\bm{a} \times \bm{b})
- &=
-   \left(
-              \begin{array}{ccc}
-               \frac{d A_{x}}{d a_{x}} & \frac{d A_{y}}{d a_{x}} & \frac{d A_{z}}{d a_{x}} \\
-               \frac{d A_{x}}{d a_{y}} & \frac{d A_{y}}{d a_{y}} & \frac{d A_{z}}{d a_{y}} \\
-               \frac{d A_{x}}{d a_{z}} & \frac{d A_{y}}{d a_{z}} & \frac{d A_{z}}{d a_{z}} \\
-              \end{array}
-   \right)
- =
-  \left(
-              \begin{array}{ccc}
-                   0  & -b_{z} &  b_{y} \\
-                b_{z} &      0 & -b_{x} \\
-               -b_{y} &  b_{x} &     0  \\
-              \end{array}
-  \right)
- \notag
- \\
-   \frac{d}{d \bm{b}} (\bm{a} \times \bm{b})
- &=
-   \left(
-              \begin{array}{ccc}
-               \frac{d A_{x}}{d b_{x}} & \frac{d A_{y}}{d b_{x}} & \frac{d A_{z}}{d b_{x}} \\
-               \frac{d A_{x}}{d b_{y}} & \frac{d A_{y}}{d b_{y}} & \frac{d A_{z}}{d b_{y}} \\
-               \frac{d A_{x}}{d b_{z}} & \frac{d A_{y}}{d b_{z}} & \frac{d A_{z}}{d b_{z}} \\
-              \end{array}
-   \right)
- =
-  \left(
-              \begin{array}{ccc}
-                   0  & -a_{z} &  a_{y} \\
-                a_{z} &      0 & -a_{x} \\
-               -a_{y} &  a_{x} &     0  \\
-              \end{array}
-  \right)
- \notag
-\end{align}
-であることより, 
-\begin{alignat}{3}
-   \left\{ \frac{d}{d \bm{a}} (\bm{a} \times \bm{b}) \right\} \cdot \bm{c}
-&=
-   \left(
-         \begin{array}{ccc}
-             0  & -b_{z} &  b_{y} \\
-          b_{z} &      0 & -b_{x} \\
-         -b_{y} &  b_{x} &     0  \\
-         \end{array}
-   \right)
-   \left(
-         \begin{array}{ccc}
-           c_{x}  \\
-           c_{y} \\
-           c_{z}  \\
-         \end{array}
-   \right)
-&&=
-   \left(
-         \begin{array}{ccc}
-          b_{y}c_{z} - b_{z}c_{y} \\
-          b_{z}c_{x} - b_{x}c_{z} \\
-          b_{x}c_{y} - b_{y}c_{x} \\
-         \end{array}
-   \right)
-&&=
-   \bm{b} \times \bm{c}
- \notag
- \\
-   \left\{ \frac{d}{d \bm{b}} (\bm{a} \times \bm{b}) \right\} \cdot \bm{c}
-&=
-   \left(
-         \begin{array}{ccc}
-             0  & -a_{z} &  a_{y} \\
-          a_{z} &      0 & -a_{x} \\
-         -a_{y} &  a_{x} &     0  \\
-         \end{array}
-  \right)
-  \left(
-         \begin{array}{ccc}
-           c_{x}  \\
-           c_{y} \\
-           c_{z}  \\
-         \end{array}
-  \right)
-&&=
-  \left(
-        \begin{array}{ccc}
-         c_{y}a_{z} - c_{z}a_{y} \\
-         c_{z}a_{x} - c_{x}a_{z} \\
-         c_{x}a_{y} - c_{y}a_{x} \\
-        \end{array}
-  \right)
-&&=
-  \bm{c} \times \bm{a}
- \notag
-\end{alignat}
-を得る. 
-\\
-
-\subparagraph{$\alpha = i$のときの$\bm{F}^{\mathrm{dihedral}}$の導出} \
-\begin{align}
-    \frac{d} {d \bm{r}_{i}} (\bm{n}_{j} \cdot \bm{n}_{k})
- &=
-    \frac{d} {d \bm{r}_{i}}
-    \left\{
-           (  \bm{r}_{i} \times \bm{r}_{k}
-            - \bm{r}_{i} \times \bm{r}_{j}
-            - \bm{r}_{j} \times \bm{r}_{k}
-            ) \cdot \bm{n}_{k}
-   \right\}
- \notag \\
- &=
-   \frac{d}{d \bm{r}_{i}}
+と計算される. ここで, 二面角$\phi_{ijkl}$を粒子の位置ベクトル$\bm{r}_{\alpha}$で微分すると,
+式(\ref{Eq:dphi_dri}), (\ref{Eq:dphi_drj}), (\ref{Eq:dphi_drk}), (\ref{Eq:dphi_drl})より
+\begin{alignat}{4}
+   \frac{d \phi_{ijkl}}{d \bm{r}_{i}}
+   &=
+   -&&
+   \frac{1}{\sin \theta_{ijkl}}
+   \bm{r}_{jk} \times
    \left\{
-           (\bm{r}_{i} \times \bm{r}_{jk}) \cdot \bm{n}_{k}
+          \frac{1}{n_{j}}
+          \left(
+                 \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+          \right)
    \right\}
- \notag \\
- &=
+   \notag
+   \\
+   \frac{d \phi_{ijkl}}{d \bm{r}_{j}}
+   &=
+   -&&
+   \frac{1}{\sin \theta_{ijkl}}
+   \left[
+      \bm{r}_{kl} \times
+      \left\{
+             \frac{1}{n_{k}}
+             \left(
+                    \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+             \right)
+      \right\}
+    +
+      \bm{r}_{ki} \times
+      \left\{
+             \frac{1}{n_{j}}
+             \left(
+                    \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+             \right)
+      \right\}
+   \right]
+   \notag
+   \\
+   \frac{d \phi_{ijkl}}{d \bm{r}_{k}}
+   &=&&
+   \frac{1}{\sin \theta_{ijkl}}
+   \left[
+      \bm{r}_{ji} \times
+      \left\{
+             \frac{1}{n_{j}}
+             \left(
+                    \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+             \right)
+      \right\}
+    +
+      \bm{r}_{jl} \times
+      \left\{
+             \frac{1}{n_{k}}
+             \left(
+                    \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+             \right)
+      \right\}
+   \right]
+   \notag
+   \\
+   \frac{d \phi_{ijkl}}{d \bm{r}_{l}}
+   &=&&
+   \frac{1}{\sin \theta_{ijkl}}
+   \bm{r}_{kj} \times
    \left\{
-          \frac{d}{d \bm{r}_{i}}
-          (\bm{r}_{i} \times \bm{r}_{jk})
+          \frac{1}{n_{k}}
+          \left(
+                 \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+          \right)
    \right\}
-   \cdot \bm{n}_{k}
- \notag \\
- &=
-   \bm{r}_{jk} \times \bm{n}_{k}
- \notag
-\end{align}
+   \notag
+\end{alignat}
+と計算されるので, 各粒子に$i$, $j$, $k$, $l$にかかる力は
 
-\begin{align}
-    \frac{d}{d \bm{r}_{i}} \left(\frac{1}{n_{j}} \right)
- &=
-    \frac{d}{d \bm{r}_{i}}
-    \left\{(  \bm{r}_{i} \times \bm{r}_{k}
-            - \bm{r}_{i} \times \bm{r}_{j}
-            - \bm{r}_{j} \times \bm{r}_{k} )^{2}
-    \right\}^{-\frac{1}{2}}
- \notag \\
- &=
-   -\frac{1}{2} \frac{1}{n_{j}^{3}}
-    \left\{
-           \frac{d}{d \bm{r}_{i}}
-           \left(  \bm{r}_{i} \times \bm{r}_{k}
-                 - \bm{r}_{i} \times \bm{r}_{j}
-                 - \bm{r}_{j} \times \bm{r}_{k}
-            \right)^{2}
-    \right\}
- \notag \\
- &=
-   - \frac{1}{2} \frac{1}{n_{j}^{3}}
-    2\bm{n}_{j} \cdot
-    \left\{
-           \frac{d}{d \bm{r}_{i}} (\bm{r}_{i} \times \bm{r}_{jk})
-    \right\}
- \notag \\
- &=
-   - \frac{1}{n_{j}^{3}} \bm{r}_{jk} \times \bm{n}_{j}
-\notag
-\end{align}
-\begin{align}
-    \frac{d}{d \bm{r}_{i}} \left(\frac{1}{n_{k}} \right)
- =
-    \frac{d}{d \bm{r}_{i}}
-    \left\{(  \bm{r}_{j} \times \bm{r}_{l}
-            - \bm{r}_{j} \times \bm{r}_{k}
-            - \bm{r}_{k} \times \bm{r}_{l} )^{2}
-    \right\}^{-\frac{1}{2}}
- =
-   0
-\notag
-\end{align}
-であるので, 
-\begin{align}
-     \frac{d}{d \bm{r}_{i}}
-     \left( \frac{\bm{n}_{j} \cdot \bm{n}_{k}} {n_{j} n_{k}} \right)
- &=
-     \frac{1}{n_{j}n_{k}} (\bm{r}_{jk} \times \bm{n}_{k})
-   - \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}^{3}n_{k}} (\bm{r}_{jk} \times \bm{n}_j)
- \notag
- \\
- &=
-     \bm{r}_{jk} \times
-     \left\{
-            \frac{1}{n_{j}}
-            \left(
-                   \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
-            \right)
-     \right\}
-\notag
-\end{align}
-以上より, 
 \begin{align}
    \bm{F}_{i}^{\mathrm{dihedral}}
  &=
@@ -2370,354 +2047,64 @@ $\alpha = i, j, k, l$に対する二面角による力は,
   f_{0} (\bm{r}_{kj} \times \bm{f}_{kj})
  \notag
 \end{align}
-\\
-
-\subparagraph{$\alpha = j$のときの$\bm{F}^{\mathrm{dihedral}}$の導出} \
-\begin{align}
-    \frac{d} {d \bm{r}_{j}} (\bm{n}_{j} \cdot \bm{n}_{k})
- =&
-      \left( \frac{d}{d \bm{r}_{j}} \bm{n}_{j} \right) \cdot \bm{n}_{k}
-    + \left( \frac{d}{d \bm{r}_{j}} \bm{n}_{k} \right) \cdot \bm{n}_{j}
- \notag
- \\
- =&
-    \left\{
-            \frac{d} {d \bm{r}_{j}}
-            (  \bm{r}_{i} \times \bm{r}_{k}
-             - \bm{r}_{i} \times \bm{r}_{j}
-             - \bm{r}_{j} \times \bm{r}_{k}
-             )
-    \right\} \cdot \bm{n}_{k}
- \notag
- \\
- &~~
- + 
-    \left\{
-            \frac{d} {d \bm{r}_{j}}
-           (  \bm{r}_{j} \times \bm{r}_{l}
-            - \bm{r}_{j} \times \bm{r}_{k}
-            - \bm{r}_{k} \times \bm{r}_{l}
-            ) 
-   \right\} \cdot \bm{n}_{j}
- \notag
- \\
- =&
-   \left\{
-          \frac{d}{d \bm{r}_{j}}
-          (\bm{r}_{j} \times \bm{r}_{ki})
-   \right\} \cdot \bm{n}_{k}
-  +
-   \left\{
-          \frac{d}{d \bm{r}_{j}}
-          (\bm{r}_{j} \times \bm{r}_{kl})
-   \right\} \cdot \bm{n}_{j}
- \notag
- \\
- =&
-   \bm{r}_{ki} \times \bm{n}_{k} + \bm{r}_{kl} \times \bm{n}_{j}
- \notag
-\end{align}
 
 \begin{align}
-    \frac{d}{d \bm{r}_{j}} \left(\frac{1}{n_{j}} \right)
- &=
-    \frac{d}{d \bm{r}_{j}}
-    \left\{(  \bm{r}_{i} \times \bm{r}_{k}
-            - \bm{r}_{i} \times \bm{r}_{j}
-            - \bm{r}_{j} \times \bm{r}_{k} )^{2}
-    \right\}^{-\frac{1}{2}}
- \notag
- \\
- &=
-   -\frac{1}{2} \frac{1}{n_{j}^{3}}
-    \left\{
-           \frac{d}{d \bm{r}_{j}}
-           \left(  \bm{r}_{i} \times \bm{r}_{k}
-                 - \bm{r}_{i} \times \bm{r}_{j}
-                 - \bm{r}_{j} \times \bm{r}_{k}
-            \right)^{2}
-    \right\}
- \notag
- \\
- &=
-   - \frac{1}{2} \frac{1}{n_{j}^{3}}
-    2\bm{n}_{j} \cdot
-    \left\{
-           \frac{d}{d \bm{r}_{j}} (\bm{r}_{j} \times \bm{r}_{ki})
-    \right\}
- \notag
- \\
- &=
-   - \frac{1}{n_{j}^{3}} \bm{r}_{ki} \times \bm{n}_{j}
-\notag
-\end{align}
-\begin{align}
-    \frac{d}{d \bm{r}_{j}} \left(\frac{1}{n_{k}} \right)
- &=
-    \frac{d}{d \bm{r}_{j}}
-    \left\{(  \bm{r}_{j} \times \bm{r}_{l}
-            - \bm{r}_{j} \times \bm{r}_{k}
-            - \bm{r}_{k} \times \bm{r}_{l} )^{2}
-    \right\}^{-\frac{1}{2}}
- \notag
- \\
- &=
-   -\frac{1}{2} \frac{1}{n_{k}^{3}}
-    \left\{
-           \frac{d}{d \bm{r}_{j}}
-           \left(  \bm{r}_{j} \times \bm{r}_{l}
-                 - \bm{r}_{j} \times \bm{r}_{k}
-                 - \bm{r}_{k} \times \bm{r}_{l}
-            \right)^{2}
-    \right\}
- \notag
- \\
- &=
-   - \frac{1}{2} \frac{1}{n_{k}^{3}}
-    2\bm{n}_{k} \cdot
-    \left\{
-           \frac{d}{d \bm{r}_{j}} (\bm{r}_{j} \times \bm{r}_{kl})
-    \right\}
- \notag
- \\
- &=
-   - \frac{1}{n_{k}^{3}} \bm{r}_{kl} \times \bm{n}_{k}
-\notag
-\end{align}
-であるので, 
-\begin{align}
-     \frac{d}{d \bm{r}_{j}}
-     \left( \frac{\bm{n}_{j} \cdot \bm{n}_{k}} {n_{j} n_{k}} \right)
- &=
-     \frac{1}{n_{j}n_{k}}
-      (\bm{r}_{ki} \times \bm{n}_{k} + \bm{r}_{kl} \times \bm{n}_{j})
-   - \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}^{3}n_{k}}
-      (\bm{r}_{ki} \times \bm{n}_{j})
-   - \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}n_{k}^{3}}
-      (\bm{r}_{kl} \times \bm{n}_{k})
- \notag
- \\
- &=
-     \bm{r}_{kl} \times
-     \left\{
-            \frac{1}{n_{k}}
-            \left(
-                   \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
-            \right)
-     \right\}
-   +
-     \bm{r}_{ki} \times
-     \left\{
-            \frac{1}{n_{j}}
-            \left(
-                   \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
-            \right)
-     \right\}
- \notag
-\end{align}
-以上より, 
-\begin{align}
- \bm{F}_{j}^{\mathrm{dihedral}} &
- \notag
- \\
- =&
-   -\frac{nV}{2} \frac{\sin(n\phi - \gamma)}{\sin{\phi}}
-    \left[
-            \bm{r}_{kl} \times
-            \left\{
-            \frac{1}{n_{k}}
-            \left(
-                   \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
-            \right)
-            \right\}
-          +
-            \bm{r}_{ki} \times
-            \left\{
-            \frac{1}{n_{j}}
-            \left(
-                   \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
-            \right)
-            \right\}
-    \right]
- \notag
- \\
- =&
-    \frac{nV}{2} \frac{\sin(n\phi - \gamma)}{\sin{\phi}}
-    \left[
-            \bm{r}_{lk} \times
-            \left\{
-            \frac{1}{n_{k}}
-            \left(
-                   \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
-            \right)
-            \right\}
-          -
-            \bm{r}_{ki} \times
-            \left\{
-            \frac{1}{n_{j}}
-            \left(
-                   \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
-            \right)
-            \right\}
-    \right]
- \notag
- \\
- \equiv&
-   f_{0} (\bm{r}_{lk} \times \bm{f}_{jk} - \bm{r}_{ki} \times \bm{f}_{kj})
- \notag
- \\
- =&
-   f_{0} (  \bm{r}_{lk} \times \bm{f}_{jk}
-          - \bm{r}_{kj} \times \bm{f}_{kj}
-          - \bm{r}_{ji} \times \bm{f}_{kj} )
- \notag
-\end{align}
-\\
-
-\subparagraph{$\alpha = k$のときの$\bm{F}^{\mathrm{dihedral}}$の導出} \
-\begin{align}
-    \frac{d} {d \bm{r}_{k}} (\bm{n}_{j} \cdot \bm{n}_{k})
- =&
-      \left( \frac{d}{d \bm{r}_{k}} \bm{n}_{j} \right) \cdot \bm{n}_{k}
-    + \left( \frac{d}{d \bm{r}_{k}} \bm{n}_{k} \right) \cdot \bm{n}_{j}
- \notag
- \\
- =&
-    \left\{
-            \frac{d} {d \bm{r}_{k}}
-            (  \bm{r}_{i} \times \bm{r}_{k}
-             - \bm{r}_{i} \times \bm{r}_{j}
-             - \bm{r}_{j} \times \bm{r}_{k}
-             )
-    \right\} \cdot \bm{n}_{k}
- \notag
- \\
- &~~
- + 
-    \left\{
-            \frac{d} {d \bm{r}_{k}}
-           (  \bm{r}_{j} \times \bm{r}_{l}
-            - \bm{r}_{j} \times \bm{r}_{k}
-            - \bm{r}_{k} \times \bm{r}_{l}
-            ) 
-   \right\} \cdot \bm{n}_{j}
- \notag
- \\
- =&
-   \left\{
-          \frac{d}{d \bm{r}_{k}}
-          (\bm{r}_{ji} \times \bm{r}_{k})
-   \right\} \cdot \bm{n}_{k}
-  +
-   \left\{
-          \frac{d}{d \bm{r}_{k}}
-          (\bm{r}_{jl} \times \bm{r}_{k})
-   \right\} \cdot \bm{n}_{j}
- \notag
- \\
- =&
-   - \bm{r}_{ji} \times \bm{n}_{k} - \bm{r}_{jl} \times \bm{n}_{j}
- \notag
+   \bm{F}_{j}^{\mathrm{dihedral}} &
+   \notag
+   \\
+   =&
+     -\frac{nV}{2} \frac{\sin(n\phi - \gamma)}{\sin{\phi}}
+      \left[
+              \bm{r}_{kl} \times
+              \left\{
+              \frac{1}{n_{k}}
+              \left(
+                     \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+              \right)
+              \right\}
+            +
+              \bm{r}_{ki} \times
+              \left\{
+              \frac{1}{n_{j}}
+              \left(
+                     \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+              \right)
+              \right\}
+      \right]
+   \notag
+   \\
+   =&
+      \frac{nV}{2} \frac{\sin(n\phi - \gamma)}{\sin{\phi}}
+      \left[
+              \bm{r}_{lk} \times
+              \left\{
+              \frac{1}{n_{k}}
+              \left(
+                     \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+              \right)
+              \right\}
+            -
+              \bm{r}_{ki} \times
+              \left\{
+              \frac{1}{n_{j}}
+              \left(
+                     \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+              \right)
+              \right\}
+      \right]
+   \notag
+   \\
+   \equiv&
+     f_{0} (\bm{r}_{lk} \times \bm{f}_{jk} - \bm{r}_{ki} \times \bm{f}_{kj})
+   \notag
+   \\
+   =&
+     f_{0} (  \bm{r}_{lk} \times \bm{f}_{jk}
+            - \bm{r}_{kj} \times \bm{f}_{kj}
+            - \bm{r}_{ji} \times \bm{f}_{kj} )
+   \notag
 \end{align}
 
-\begin{align}
-    \frac{d}{d \bm{r}_{k}} \left(\frac{1}{n_{j}} \right)
- &=
-    \frac{d}{d \bm{r}_{k}}
-    \left\{(  \bm{r}_{i} \times \bm{r}_{k}
-            - \bm{r}_{i} \times \bm{r}_{j}
-            - \bm{r}_{j} \times \bm{r}_{k} )^{2}
-    \right\}^{-\frac{1}{2}}
- \notag
- \\
- &=
-   -\frac{1}{2} \frac{1}{n_{j}^{3}}
-    \left\{
-           \frac{d}{d \bm{r}_{k}}
-           \left(  \bm{r}_{i} \times \bm{r}_{k}
-                 - \bm{r}_{i} \times \bm{r}_{j}
-                 - \bm{r}_{j} \times \bm{r}_{k}
-            \right)^{2}
-    \right\}
- \notag
- \\
- &=
-   - \frac{1}{2} \frac{1}{n_{j}^{3}}
-    2\bm{n}_{j} \cdot
-    \left\{
-           \frac{d}{d \bm{r}_{k}} (\bm{r}_{ji} \times \bm{r}_{k})
-    \right\}
- \notag
- \\
- &=
-    \frac{1}{n_{j}^{3}} \bm{r}_{ji} \times \bm{n}_{j}
-\notag
-\end{align}
-\begin{align}
-    \frac{d}{d \bm{r}_{k}} \left(\frac{1}{n_{k}} \right)
- &=
-    \frac{d}{d \bm{r}_{k}}
-    \left\{(  \bm{r}_{j} \times \bm{r}_{l}
-            - \bm{r}_{j} \times \bm{r}_{k}
-            - \bm{r}_{k} \times \bm{r}_{l} )^{2}
-    \right\}^{-\frac{1}{2}}
- \notag
- \\
- &=
-   -\frac{1}{2} \frac{1}{n_{k}^{3}}
-    \left\{
-           \frac{d}{d \bm{r}_{k}}
-           \left(  \bm{r}_{j} \times \bm{r}_{l}
-                 - \bm{r}_{j} \times \bm{r}_{k}
-                 - \bm{r}_{k} \times \bm{r}_{l}
-            \right)^{2}
-    \right\}
- \notag
- \\
- &=
-   - \frac{1}{2} \frac{1}{n_{k}^{3}}
-    2\bm{n}_{k} \cdot
-    \left\{
-            \frac{d}{d \bm{r}_{k}} (\bm{r}_{jl} \times \bm{r}_{k})
-    \right\}
- \notag
- \\
- &=
-    \frac{1}{n_{k}^{3}} \bm{r}_{jl} \times \bm{n}_{k}
-\notag
-\end{align}
-であるので, 
-\begin{align}
-     \frac{d}{d \bm{r}_{k}}
-     \left( \frac{\bm{n}_{j} \cdot \bm{n}_{k}} {n_{j} n_{k}} \right)
- &=
-     \frac{1}{n_{j}n_{k}}
-      (- \bm{r}_{ji} \times \bm{n}_{k} - \bm{r}_{jl} \times \bm{n}_{j})
-   + \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}^{3}n_{k}}
-      (\bm{r}_{ji} \times \bm{n}_{j})
-   + \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}n_{k}^{3}}
-      (\bm{r}_{jl} \times \bm{n}_{k})
- \notag
- \\
- &=
-   - \bm{r}_{ji} \times
-     \left\{
-            \frac{1}{n_{j}}
-            \left(
-                   \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
-            \right)
-     \right\}
-   -
-     \bm{r}_{jl} \times
-     \left\{
-            \frac{1}{n_{k}}
-            \left(
-                   \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
-            \right)
-     \right\}
- \notag
-\end{align}
-以上より, 
 \begin{align}
    \bm{F}_{k}^{\mathrm{dihedral}} &
  \notag
@@ -2774,100 +2161,7 @@ $\alpha = i, j, k, l$に対する二面角による力は,
           - \bm{r}_{kj} \times \bm{f}_{jk})
  \notag
 \end{align}
-\\
 
-\subparagraph{$\alpha = l$のときの$\bm{F}^{\mathrm{dihedral}}$の導出} \
-\begin{align}
-    \frac{d} {d \bm{r}_{l}} (\bm{n}_{j} \cdot \bm{n}_{k})
- =&
-    \frac{d} {d \bm{r}_{l}}
-    \left\{
-            \bm{n}_{j} \cdot
-            (  \bm{r}_{j} \times \bm{r}_{l}
-             - \bm{r}_{j} \times \bm{r}_{k}
-             - \bm{r}_{k} \times \bm{r}_{l}
-             )
-    \right\}
- \notag
- \\
- =&
-   \left\{
-          \frac{d}{d \bm{r}_{l}}
-          (\bm{r}_{kj} \times \bm{r}_{l})
-   \right\} \cdot \bm{n}_{j}
- \notag
- \\
- =&
-   - \bm{r}_{kj} \times \bm{n}_{j}
- \notag
-\end{align}
-
-\begin{align}
-    \frac{d}{d \bm{r}_{l}} \left(\frac{1}{n_{j}} \right)
- =
-    \frac{d}{d \bm{r}_{l}}
-    \left\{(  \bm{r}_{i} \times \bm{r}_{k}
-            - \bm{r}_{i} \times \bm{r}_{j}
-            - \bm{r}_{j} \times \bm{r}_{k} )^{2}
-    \right\}^{-\frac{1}{2}}
- =
-   0
-\end{align}
-\begin{align}
-    \frac{d}{d \bm{r}_{l}} \left(\frac{1}{n_{k}} \right)
- &=
-    \frac{d}{d \bm{r}_{l}}
-    \left\{(  \bm{r}_{j} \times \bm{r}_{l}
-            - \bm{r}_{j} \times \bm{r}_{k}
-            - \bm{r}_{k} \times \bm{r}_{l} )^{2}
-    \right\}^{-\frac{1}{2}}
- \notag
- \\
- &=
-   -\frac{1}{2} \frac{1}{n_{k}^{3}}
-    \left\{
-           \frac{d}{d \bm{r}_{l}}
-           \left(  \bm{r}_{j} \times \bm{r}_{l}
-                 - \bm{r}_{j} \times \bm{r}_{k}
-                 - \bm{r}_{k} \times \bm{r}_{l}
-            \right)^{2}
-    \right\}
- \notag
- \\
- &=
-   - \frac{1}{2} \frac{1}{n_{k}^{3}}
-    2\bm{n}_{k} \cdot
-    \left\{
-           \frac{d}{d \bm{r}_{l}} (\bm{r}_{kj} \times \bm{r}_{l})
-    \right\}
- \notag
- \\
- &=
-   \frac{1}{n_{k}^{3}} \bm{r}_{kj} \times \bm{n}_{k}
-\notag
-\end{align}
-であるので, 
-\begin{align}
-     \frac{d}{d \bm{r}_{l}}
-     \left( \frac{\bm{n}_{j} \cdot \bm{n}_{k}} {n_{j} n_{k}} \right)
- &=
-     \frac{1}{n_{j}n_{k}}
-      (- \bm{r}_{kj} \times \bm{n}_{j})
-   + \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j}n_{k}^{3}}
-      (\bm{r}_{kj} \times \bm{n}_{k})
- \notag
- \\
- &=
-   - \bm{r}_{kj} \times
-     \left\{
-            \frac{1}{n_{k}}
-            \left(
-                   \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
-            \right)
-     \right\}
- \notag
-\end{align}
-以上より, 
 \begin{align}
    \bm{F}_{l}^{\mathrm{dihedral}}
  &=
@@ -2887,7 +2181,7 @@ $\alpha = i, j, k, l$に対する二面角による力は,
    f_{0} (\bm{r}_{kj} \times \bm{f}_{jk})
  \notag
 \end{align}
-\\
+と求められる.
 
 \paragraph{ヴィリアルの導出}
 \subparagraph{$f_{kj}$の展開} \
@@ -2977,6 +2271,7 @@ $\bm{n}_{k}$と$\bm{r}_{jk}$は直交するベクトルのため, その内積�
            (\bm{r}_{jk} \cdot \bm{r}_{jk}) \bm{r}_{ji}
           -(\bm{r}_{jk} \cdot \bm{r}_{ji}) \bm{r}_{jk}
    \right\}
+   \notag
 \end{align}
 を得る. したがって, 
 \begin{align}
@@ -2987,6 +2282,7 @@ $\bm{n}_{k}$と$\bm{r}_{jk}$は直交するベクトルのため, その内積�
           (\bm{r}_{jk} \cdot \bm{r}_{jk}) \bm{r}_{ji}
          -(\bm{r}_{jk} \cdot \bm{r}_{ji}) \bm{r}_{jk}
   \right\}
+  \notag
 \end{align}
 と書き下すことができる. 
 \\
