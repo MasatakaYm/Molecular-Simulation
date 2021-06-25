@@ -528,6 +528,55 @@ LJ相互作用の計算は$\mathcal{O}(N^2)$となり計算コストがかかる
 で計算される. 
 
 \clearpage
+
+\subsection{モースポテンシャル}
+\paragraph{モースポテンシャル}
+モースポテンシャルは2原子の結合・解離を記述するときに使用されるポテンシャルである.
+具体的なポテンシャル関数は,
+
+\begin{equation}
+   U_{\mathrm{morse}} (r_{ij})
+   =
+   \epsilon
+   \left\{
+      1 - e^{-\alpha(r_{ij} - r_{0})}
+   \right\}^{2}
+\end{equation}
+とかける. ここで, $r_{ij}$は2原子間の距離, $\epsilon$はポテンシャルの深さ, $\alpha$はポテンシャルの幅, $r_{i}$は2原子の平衡結合距離を表す.
+
+\paragraph{モースポテンシャルによる力}
+
+モースポテンシャルによって原子がうける力は以下のように計算される.
+\begin{alignat}{3}
+   \bm{F}_{i}
+   &=&&
+   2\epsilon \alpha
+   \left\{
+      e^{-\alpha(r_{ij} - r_{0})}
+      -
+      e^{-2\alpha(r_{ij} - r_{0})}
+   \right\}
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \\
+   \bm{F}_{j}
+   &=
+   -&&
+   2\epsilon \alpha
+   \left\{
+      e^{-\alpha(r_{ij} - r_{0})}
+      -
+      e^{-2\alpha(r_{ij} - r_{0})}
+   \right\}
+   \frac{\bm{r}_{ij}}{r_{ij}}
+\end{alignat}
+ただし,
+\begin{align}
+   \bm{r}_{ij} = \bm{r}_{j} - \bm{r}_{i}
+\end{align}
+と定義した.
+
+\clearpage
+
 \subsection{静電相互作用}
 \paragraph{静電ポテンシャル} \
 
@@ -2682,6 +2731,88 @@ $\bm{n}_{j}$と$\bm{r}_{kj}$は直交するベクトルのため, その内積�
 と計算することができる. 
 \clearpage
 
+
+\subsection{モースポテンシャル}
+\paragraph{ポテンシャル}
+
+\begin{equation}
+   U_{\mathrm{morse}} (r_{ij})
+   =
+   \epsilon
+   \left\{
+      1 - e^{-\alpha(r_{ij} - r_{0})}
+   \right\}^{2}
+   \notag
+\end{equation}
+
+\paragraph{力の導出}
+
+$\alpha = i, j$について, ポテンシャルを座標ベクトルで微分する. 連鎖律を使うと
+\begin{equation}
+   \bm{F}_{\alpha}
+   =
+   -
+   \frac{d U_{\mathrm{morse}}(r_{ij})}{d \bm{r}_{\alpha}}
+   =
+   -
+   \frac{d U_{\mathrm{morse}}(r_{ij})}{d r_{ij}}
+   \frac{d r_{ij}}{d \bm{r}_{\alpha}}
+   \notag
+\end{equation}
+となる. 具体的に計算すると
+\begin{align}
+   \frac{d U_{\mathrm{morse}}(r_{ij})}{d r_{ij}}
+   &=
+   2\epsilon
+   \left\{
+      1 - e^{-\alpha(r_{ij} - r_{0})}
+   \right\}
+   \cdot
+   \alpha
+   e^{-\alpha(r_{ij} - r_{0})}
+   \notag
+\end{align}
+を得る. また2点間の距離を座標ベクトル$\bm{r}_{\alpha}$で微分すると, 式(\ref{Eq:dr_ij-dr_i}), (\ref{Eq:dr_ij-dr_j})より
+\begin{alignat}{3}
+   \frac{d r_{ij}}{d \bm{r}_{i}}
+   &=
+   -&&
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \notag
+   \\
+   \frac{d r_{ij}}{d \bm{r}_{j}}
+   &=&&
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \notag
+\end{alignat}
+と計算されるので, 粒子$i$, $j$に加わる力はそれぞれ
+\begin{alignat}{3}
+   \bm{F}_{i}
+   &=&&
+   2\epsilon \alpha
+   \left\{
+      e^{-\alpha(r_{ij} - r_{0})}
+      -
+      e^{-2\alpha(r_{ij} - r_{0})}
+   \right\}
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \notag \\
+   \bm{F}_{j}
+   &=
+   -&&
+   2\epsilon \alpha
+   \left\{
+      e^{-\alpha(r_{ij} - r_{0})}
+      -
+      e^{-2\alpha(r_{ij} - r_{0})}
+   \right\}
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \notag
+\end{alignat}
+である.
+
+
+\clearpage
 \subsection{静電ポテンシャル}
 \paragraph{ポテンシャル} \
 
