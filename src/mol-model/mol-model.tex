@@ -2688,6 +2688,28 @@ $\bm{n}_{j}$と$\bm{r}_{kj}$は直交するベクトルのため, その内積�
    e^{-\frac{1}{2\sigma^{2}}(\phi_{ijkl} - \phi_{0})^{2}}
    \notag
 \end{equation}
+ただし, 
+\begin{alignat}{1}
+ \bm{r}_{ji} &= \bm{r}_{i} - \bm{r}_{j}
+ \notag \\
+ \bm{r}_{kj} &= \bm{r}_{j} - \bm{r}_{k}
+ \notag \\
+ \bm{r}_{lk} &= \bm{r}_{k} - \bm{r}_{l}
+ \notag \\
+ \bm{n}_{j}  &= \bm{r}_{ji} \times \bm{r}_{jk}
+ \notag \\
+ \bm{n}_{k}  &= \bm{r}_{kj} \times \bm{r}_{kl}
+ \notag
+ \\
+ \phi_{ijkl} &=
+ - \mathrm{sign}
+   \left[
+         \arccos \left( \frac{\bm{n}_{j} \cdot \bm{n}_{k}}{n_{j} n_{k}}\right),
+         \bm{r}_{kj} \cdot \bm{n}_{j} \times \bm{n}_{k}
+   \right]
+ \notag
+\end{alignat}
+と定義する.
 
 \paragraph{力の導出}
 $\alpha = i, j, k, l$について, ポテンシャルを座標ベクトルで微分する. 連鎖律を使うと
@@ -2723,7 +2745,7 @@ $\alpha = i, j, k, l$について, ポテンシャルを座標ベクトルで微
    e^{-\frac{1}{2\sigma^{2}}(\phi_{ijkl} - \phi_{0})^{2}}
    \notag
 \end{align}
-また, 二面角$\phi_{ijkl}$を粒子の位置ベクトル$\bm{r}_{\alpha}$で微分すると,
+を得る. また, 二面角$\phi_{ijkl}$を粒子の位置ベクトル$\bm{r}_{\alpha}$で微分すると,
 式(\ref{Eq:dphi_dri}), (\ref{Eq:dphi_drj}), (\ref{Eq:dphi_drk}), (\ref{Eq:dphi_drl})より
 \begin{alignat}{4}
    \frac{d \phi_{ijkl}}{d \bm{r}_{i}}
@@ -2796,8 +2818,54 @@ $\alpha = i, j, k, l$について, ポテンシャルを座標ベクトルで微
    \right\}
    \notag
 \end{alignat}
-と計算されるので, 各粒子$i$, $j$, $k$, $l$にかかる力は
-
+と計算される. ここで
+\begin{align}
+   f_{0}
+   &\equiv
+   \frac{\epsilon(\phi_{ijkl} - \phi_{0})}{\sigma^{2} \sin \phi_{ijkl}}
+   e^{-\frac{1}{2\sigma^{2}}(\phi_{ijkl} - \phi_{0})^{2}}
+   \notag \\
+   \bm{f}_{kj}
+   &\equiv
+   \left\{
+      \frac{1}{n_{j}}
+      \left(
+             \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+      \right)
+   \right\}
+   \notag \\
+   \bm{f}_{jk}
+   &\equiv
+   \left\{
+      \frac{1}{n_{k}}
+      \left(
+             \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+      \right)
+   \right\}
+   \notag
+\end{align}
+と定義すると, 各粒子$i$, $j$, $k$, $l$にかかる力は
+\begin{alignat}{3}
+   \bm{F}_{i}
+   &=
+   -&&
+   f_{0} (\bm{r}_{jk} \times \bm{f}_{kj})
+   \notag \\
+   \bm{F}_{j}
+   &=
+   -&&
+   f_{0} (\bm{r}_{kl} \times \bm{f}_{jk} \times \bm{r}_{ki} \times \bm{f}_{kj})
+   \notag \\
+   \bm{F}_{k}
+   &=&&
+   f_{0} (\bm{r}_{ji} \times \bm{f}_{kj} \times \bm{r}_{jl} \times \bm{f}_{jk})
+   \notag \\
+   \bm{F}_{l}
+   &=&&
+   f_{0} (\bm{r}_{kj} \times \bm{f}_{jk})
+   \notag
+\end{alignat}
+となる.
 
 \clearpage
 \subsection{ファンデル・ワールスポテンシャル: 12-6型}
