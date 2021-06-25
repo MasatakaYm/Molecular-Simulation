@@ -1610,7 +1610,7 @@ $\cos$の微分
    \frac{d \phi_{ijkl}}{d \bm{r}_{i}}
    &=
    -&&
-   \frac{1}{\sin \theta_{ijkl}}
+   \frac{1}{\sin \phi_{ijkl}}
    \bm{r}_{jk} \times
    \left\{
           \frac{1}{n_{j}}
@@ -1623,11 +1623,11 @@ $\cos$の微分
    \frac{d \phi_{ijkl}}{d \bm{r}_{j}}
    &=
    -&&
-   \frac{1}{\sin \theta_{ijkl}}
+   \frac{1}{\sin \phi_{ijkl}}
    \left[
       \bm{r}_{kl} \times
       \left\{
-             \frac{1}{n_{k}}
+      \frac{1}{n_{k}}
              \left(
                     \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
              \right)
@@ -1645,7 +1645,7 @@ $\cos$の微分
    \\
    \frac{d \phi_{ijkl}}{d \bm{r}_{k}}
    &=&&
-   \frac{1}{\sin \theta_{ijkl}}
+   \frac{1}{\sin \phi_{ijkl}}
    \left[
       \bm{r}_{ji} \times
       \left\{
@@ -1667,7 +1667,7 @@ $\cos$の微分
    \\
    \frac{d \phi_{ijkl}}{d \bm{r}_{l}}
    &=&&
-   \frac{1}{\sin \theta_{ijkl}}
+   \frac{1}{\sin \phi_{ijkl}}
    \bm{r}_{kj} \times
    \left\{
           \frac{1}{n_{k}}
@@ -1765,6 +1765,87 @@ $\cos$の微分
    \sum_{\mathrm{bonds}} 2 k_{r} (r_{ij} - r_{\mathrm{eq}}) r_{ij}
    \right\rangle
 \end{align}
+\clearpage
+
+\subsection{結合長ポテンシャル: ガウス分布型}
+\paragraph{ポテンシャル}
+\begin{equation}
+   U_{\mathrm{gauss}} (r_{ij})
+   =
+   \epsilon
+   e^{-\frac{1}{2\sigma^{2}}(r_{ij} - r_{0})^{2}}
+   \notag
+\end{equation}
+
+\paragraph{力の導出}
+$\alpha = i, j$について, ポテンシャルを座標ベクトルで微分する. 連鎖律を使うと
+\begin{equation}
+   \bm{F}_{\alpha}
+   =
+   -
+   \frac{d U_{\mathrm{gauss}}(r_{ij})}{d \bm{r}_{\alpha}}
+   =
+   -
+   \frac{d U_{\mathrm{gauss}}(r_{ij})}{d r_{ij}}
+   \frac{d r_{ij}}{d \bm{r}_{\alpha}}
+   \notag
+\end{equation}
+となる. 具体的に計算すると
+\begin{align}
+   \frac{d U_{\mathrm{gauss}}(r_{ij})}{d r_{ij}}
+   &=
+   -
+   \frac{1}{2\sigma^{2}}
+   \cdot 2
+   (r_{ij} - r_{0})
+   \cdot
+   \epsilon
+   e^{-\frac{1}{2\sigma^{2}}(r_{ij} - r_{0})^{2}}
+   \notag
+   \\
+   &=
+   -
+   \frac{\epsilon}{\sigma^{2}}
+   (r_{ij} - r_{0})
+   \cdot
+   e^{-\frac{1}{2\sigma^{2}}(r_{ij} - r_{0})^{2}}
+   \notag
+\end{align}
+を得る. また2点間の距離を座標ベクトル$\bm{r}_{\alpha}$で微分すると, 式(\ref{Eq:dr_ij-dr_i}), (\ref{Eq:dr_ij-dr_j})より
+\begin{alignat}{3}
+   \frac{d r_{ij}}{d \bm{r}_{i}}
+   &=
+   -&&
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \notag
+   \\
+   \frac{d r_{ij}}{d \bm{r}_{j}}
+   &=&&
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \notag
+\end{alignat}
+と計算されるので, 粒子$i$, $j$に加わる力はそれぞれ
+\begin{alignat}{3}
+   \bm{F}_{i}
+   &=
+   -&&
+   \frac{\epsilon}{\sigma^{2}}
+   (r_{ij} - r_{0})
+   \cdot
+   e^{-\frac{1}{2\sigma^{2}}(r_{ij} - r_{0})^{2}}
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \notag \\
+   \bm{F}_{j}
+   &=&&
+   \frac{\epsilon}{\sigma^{2}}
+   (r_{ij} - r_{0})
+   \cdot
+   e^{-\frac{1}{2\sigma^{2}}(r_{ij} - r_{0})^{2}}
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \notag
+\end{alignat}
+である.
+
 \clearpage
 
 \subsection{結合角ポテンシャル: 調和振動子型}
@@ -1995,7 +2076,7 @@ $\alpha = i, j, k, l$に対する二面角による力は,
    \frac{d \phi_{ijkl}}{d \bm{r}_{i}}
    &=
    -&&
-   \frac{1}{\sin \theta_{ijkl}}
+   \frac{1}{\sin \phi_{ijkl}}
    \bm{r}_{jk} \times
    \left\{
           \frac{1}{n_{j}}
@@ -2008,7 +2089,7 @@ $\alpha = i, j, k, l$に対する二面角による力は,
    \frac{d \phi_{ijkl}}{d \bm{r}_{j}}
    &=
    -&&
-   \frac{1}{\sin \theta_{ijkl}}
+   \frac{1}{\sin \phi_{ijkl}}
    \left[
       \bm{r}_{kl} \times
       \left\{
@@ -2030,7 +2111,7 @@ $\alpha = i, j, k, l$に対する二面角による力は,
    \\
    \frac{d \phi_{ijkl}}{d \bm{r}_{k}}
    &=&&
-   \frac{1}{\sin \theta_{ijkl}}
+   \frac{1}{\sin \phi_{ijkl}}
    \left[
       \bm{r}_{ji} \times
       \left\{
@@ -2052,7 +2133,7 @@ $\alpha = i, j, k, l$に対する二面角による力は,
    \\
    \frac{d \phi_{ijkl}}{d \bm{r}_{l}}
    &=&&
-   \frac{1}{\sin \theta_{ijkl}}
+   \frac{1}{\sin \phi_{ijkl}}
    \bm{r}_{kj} \times
    \left\{
           \frac{1}{n_{k}}
@@ -2598,7 +2679,127 @@ $\bm{n}_{j}$と$\bm{r}_{kj}$は直交するベクトルのため, その内積�
 したがって, 二面角に由来するヴィリアルはゼロである. 
 
 \clearpage
+\subsection{二面角ポテンシャル: ガウス分布型}
+\paragraph{ポテンシャル}
+\begin{equation}
+   U_{\mathrm{gauss}} (\phi_{ijkl})
+   =
+   \epsilon
+   e^{-\frac{1}{2\sigma^{2}}(\phi_{ijkl} - \phi_{0})^{2}}
+   \notag
+\end{equation}
 
+\paragraph{力の導出}
+$\alpha = i, j, k, l$について, ポテンシャルを座標ベクトルで微分する. 連鎖律を使うと
+\begin{equation}
+   \bm{F}_{\alpha}
+   =
+   -
+   \frac{d U_{\mathrm{gauss}}(r_{ij})}{d \bm{r}_{\alpha}}
+   =
+   -
+   \frac{d U_{\mathrm{gauss}}(\phi_{ijkl})}{d \phi_{ijkl}}
+   \frac{d \phi_{ijkl}}{d \bm{r}_{\alpha}}
+   \notag
+\end{equation}
+となる. 具体的に計算すると
+\begin{align}
+   \frac{d U_{\mathrm{gauss}}(\phi_{ijkl})}{d \phi_{ijkl}}
+   &=
+   -
+   \frac{1}{2\sigma^{2}}
+   \cdot 2
+   (\phi_{ijkl} - \phi_{0})
+   \cdot
+   \epsilon
+   e^{-\frac{1}{2\sigma^{2}}(\phi_{ijkl} - \phi_{0})^{2}}
+   \notag
+   \\
+   &=
+   -
+   \frac{\epsilon}{\sigma^{2}}
+   (\phi_{ijkl} - \phi_{0})
+   \cdot
+   e^{-\frac{1}{2\sigma^{2}}(\phi_{ijkl} - \phi_{0})^{2}}
+   \notag
+\end{align}
+また, 二面角$\phi_{ijkl}$を粒子の位置ベクトル$\bm{r}_{\alpha}$で微分すると,
+式(\ref{Eq:dphi_dri}), (\ref{Eq:dphi_drj}), (\ref{Eq:dphi_drk}), (\ref{Eq:dphi_drl})より
+\begin{alignat}{4}
+   \frac{d \phi_{ijkl}}{d \bm{r}_{i}}
+   &=
+   -&&
+   \frac{1}{\sin \phi_{ijkl}}
+   \bm{r}_{jk} \times
+   \left\{
+          \frac{1}{n_{j}}
+          \left(
+                 \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+          \right)
+   \right\}
+   \notag
+   \\
+   \frac{d \phi_{ijkl}}{d \bm{r}_{j}}
+   &=
+   -&&
+   \frac{1}{\sin \phi_{ijkl}}
+   \left[
+      \bm{r}_{kl} \times
+      \left\{
+             \frac{1}{n_{k}}
+             \left(
+                    \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+             \right)
+      \right\}
+    +
+      \bm{r}_{ki} \times
+      \left\{
+             \frac{1}{n_{j}}
+             \left(
+                    \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+             \right)
+      \right\}
+   \right]
+   \notag
+   \\
+   \frac{d \phi_{ijkl}}{d \bm{r}_{k}}
+   &=&&
+   \frac{1}{\sin \phi_{ijkl}}
+   \left[
+      \bm{r}_{ji} \times
+      \left\{
+             \frac{1}{n_{j}}
+             \left(
+                    \frac{\bm{n}_{k}}{n_{k}} - \cos\phi \frac{\bm{n}_{j}}{n_{j}}
+             \right)
+      \right\}
+    +
+      \bm{r}_{jl} \times
+      \left\{
+             \frac{1}{n_{k}}
+             \left(
+                    \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+             \right)
+      \right\}
+   \right]
+   \notag
+   \\
+   \frac{d \phi_{ijkl}}{d \bm{r}_{l}}
+   &=&&
+   \frac{1}{\sin \phi_{ijkl}}
+   \bm{r}_{kj} \times
+   \left\{
+          \frac{1}{n_{k}}
+          \left(
+                 \frac{\bm{n}_{j}}{n_{j}} - \cos\phi \frac{\bm{n}_{k}}{n_{k}}
+          \right)
+   \right\}
+   \notag
+\end{alignat}
+と計算されるので, 各粒子$i$, $j$, $k$, $l$にかかる力は
+
+
+\clearpage
 \subsection{ファンデル・ワールスポテンシャル: 12-6型}
 \paragraph{ポテンシャル} \
 
@@ -2728,7 +2929,7 @@ $\bm{n}_{j}$と$\bm{r}_{kj}$は直交するベクトルのため, その内積�
         \right\}
    \right\rangle
 \end{align}
-と計算することができる. 
+と計算することができる.
 \clearpage
 
 
@@ -2819,7 +3020,7 @@ $\alpha = i, j$について, ポテンシャルを座標ベクトルで微分す
 \begin{equation}
 U_{\mathrm{elec}}(r_{ij}) = \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
                             \frac{1}{r_{ij}}
-\notag                            
+\notag
 \end{equation}
 
 \paragraph{力の導出} \
