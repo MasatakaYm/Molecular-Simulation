@@ -2034,6 +2034,146 @@ $\alpha = i, j, k$について, ポテンシャルを座標ベクトルで微分
 であることから, 結合角ポテンシャルに由来するヴィリアルはゼロである. 
 \clearpage
 
+\subsection{角度に対するフィルター関数}
+\paragraph{ポテンシャル}
+\begin{align}
+   f(K, \Delta \theta)
+   \begin{cases}
+      1 &
+      (\text{when}~\frac{-\pi}{2K} \le \Delta \theta \le \frac{\pi}{2K})\\
+      1 - \cos^{2} (K \Delta \theta) &
+      (\text{when}~\frac{-\pi}{K} < \Delta \theta < \frac{-\pi}{2K}~
+       \text{or}~  \frac{\pi}{2K} < \Delta \theta < \frac{\pi}{K}) \\
+      0 &
+      (\text{when}~ \Delta \theta \le \frac{-\pi}{K}~
+       \text{or}~ \Delta \theta \ge \frac{\pi}{K})
+   \end{cases}
+   \notag
+\end{align}
+ここで, $K$はフィルター関数の幅を指定するパラメータ, $\Delta \theta = \theta_{ijk} - \theta_{0}$は目的の角度$\theta_{0}$からのずれである.
+角度については,
+\begin{align}
+   \bm{r}_{ji}
+   &= \bm{r}_{i} - \bm{r}_{j}
+   \notag \\
+   \bm{r}_{jk}
+   &= \bm{r}_{k} - \bm{r}_{j}
+   \notag \\
+    \theta_{ijk}
+   &= \arccos \left( \frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}} \right)
+   \notag \\
+   \cos(\theta_{ijk})
+   &= \frac{\bm{r}_{ji} \cdot \bm{r}_{jk}}{r_{ji} r_{jk}}
+   = \frac{(\bm{r}_{i} - \bm{r}_{j}) \cdot (\bm{r}_{k} - \bm{r}_{j})}
+         {\left\{(\bm{r}_{i} - \bm{r}_{j})\right\}^{\frac{1}{2}}
+          \left\{(\bm{r}_{k} - \bm{r}_{j})\right\}^{\frac{1}{2}}}
+   \notag
+\end{align}
+と定義する.
+
+\paragraph{力の導出}
+$\alpha = i, j, k$について, ポテンシャルを座標ベクトルで微分する. 連鎖律を使うと
+\begin{align}
+   \bm{F}_{\alpha}
+   =
+   -
+   \frac{d f(K, \Delta \theta)}{d \bm{r}_{\alpha}}
+   =
+   \frac{d f(K, \Delta \theta)}{d \Delta \theta}
+   \frac{d \Delta \theta}{d \bm{r}_{\alpha}}
+   \notag
+\end{align}
+となる. $\frac{-\pi}{K} < \Delta \theta < \frac{-\pi}{2K}$, あるいは$\frac{\pi}{2K} < \Delta \theta < \frac{\pi}{K}$の場合について, 具体的に計算すると
+\begin{align}
+   \frac{d f(K, \Delta \theta)}{d \bm{r}_{\alpha}}
+   &=
+   \frac{d}{d \Delta \theta}
+   \left[
+      1 - \cos^{2} (K \Delta \theta)
+   \right]
+   \notag \\
+   &=
+   - 2K \left\{-\sin(K \Delta \theta) \cos(K \Delta \theta)\right\}
+   \notag \\
+   &=
+   2K \sin(K \Delta \theta) \cos(K \Delta \theta)
+   \notag \\
+   &=
+   2K \sin (2K \Delta \theta)
+   \notag
+\end{align}
+を得る.　一方,
+\begin{align}
+   \frac{d \Delta \theta}{d \bm{r}_{\alpha}}
+   =
+   \frac{d (\theta_{ijk} - \theta_{0})}{d \bm{r}_{\alpha}}
+   =
+   \frac{d \theta_{ijk}}{d \bm{r}_{\alpha}}
+   \notag
+\end{align}
+である. 3点間の角度$\theta_{ijk}$の粒子の位置ベクトル$\bm{r}_{\alpha}$での微分は, 式(\ref{Eq:dtheta_dri}), (\ref{Eq:dtheta_drj}), (\ref{Eq:dtheta_drk})より
+\begin{alignat}{3}
+   \frac{d \theta_{ijk}}{d \bm{r}_{i}}
+   &=
+   -&&
+   \frac{1}{r_{ji} \sin\theta_{ijk}}
+   \left(
+            \frac{\bm{r}_{jk}}{r_{jk}}
+          - \cos\theta_{ijk} \frac{\bm{r}_{ji}}{r_{ji}}
+   \right)
+   \notag
+   \\
+   \frac{d \theta_{ijk}}{d \bm{r}_{j}}
+   &=&&
+   \frac{1}{r_{ji} \sin\theta_{ijk}}
+   \left(
+            \frac{\bm{r}_{jk}}{r_{jk}}
+          - \cos\theta_{ijk} \frac{\bm{r}_{ji}}{r_{ji}}
+   \right)
+   +
+   \frac{1}{r_{jk} \sin\theta_{ijk}}
+   \left(
+            \frac{\bm{r}_{ji}}{r_{ji}}
+          - \cos\theta_{ijk} \frac{\bm{r}_{jk}}{r_{jk}}
+   \right)
+   \notag
+   \\
+   \frac{d \theta_{ijk}}{d \bm{r}_{k}}
+   &=
+   -&&
+   \frac{1}{r_{jk} \sin\theta_{ijk}}
+   \left(
+           \frac{\bm{r}_{ji}}{r_{ji}}
+         - \cos\theta_{ijk} \frac{\bm{r}_{jk}}{r_{jk}}
+   \right)
+   \notag
+\end{alignat}
+であるため, 各粒子$i$, $j$, $k$にかかる力は
+\begin{align}
+   \bm{F}_{i}^{\mathrm{angle}}
+   &=
+   \frac{2K \sin (2K \Delta \theta)}{r_{ji} \sin\theta_{ijk}}
+   \left(
+            \frac{\bm{r}_{jk}}{r_{jk}}
+          - \cos\theta_{ijk} \frac{\bm{r}_{ji}}{r_{ji}}
+   \right)
+   \notag \\
+   \bm{F}_{k}^{\mathrm{angle}}
+   &=
+   \frac{2K \sin (2K \Delta \theta)}{r_{jk} \sin\theta_{ijk}}
+   \left(
+           \frac{\bm{r}_{ji}}{r_{ji}}
+         - \cos\theta_{ijk} \frac{\bm{r}_{jk}}{r_{jk}}
+   \right)
+   \notag \\
+   \bm{F}_{j}^{\mathrm{angle}}
+   &=
+   - \bm{F}_{i}^{\mathrm{angle}} - \bm{F}_{k}^{\mathrm{angle}}
+   \notag
+\end{align}
+と計算できる.
+
+\clearpage
 \subsection{二面角ポテンシャル: フーリエ級数型}
 \paragraph{ポテンシャル} \
 \begin{alignat}{1}
