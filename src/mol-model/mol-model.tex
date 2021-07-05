@@ -575,6 +575,25 @@ LJ相互作用の計算は$\mathcal{O}(N^2)$となり計算コストがかかる
 \end{align}
 と定義した.
 
+\paragraph{モースポテンシャルに由来するヴィリアル}
+モースポテンシャル相互作用に由来するヴィリアルは、
+\begin{align}
+   \left\langle
+        \sum_{i=1}^{N} \bm{r}_{i} \cdot \bm{F}_{i}^{\mathrm{morse}}
+   \right\rangle
+ =
+   \left\langle
+        \sum_{\mathrm{nonbonds}}
+        -2\epsilon \alpha r_{ij}
+        \left\{
+           e^{-\alpha(r_{ij} - r_{0})}
+           -
+           e^{-2\alpha(r_{ij} - r_{0})}
+        \right\}
+   \right\rangle
+\end{align}
+と計算できる.
+
 \clearpage
 
 \subsection{静電相互作用}
@@ -2102,7 +2121,8 @@ $\alpha = i, j, k$について, ポテンシャルを座標ベクトルで微分
    2K \sin (2K \Delta \theta)
    \notag
 \end{align}
-を得る.　一方,
+を得る.
+一方,
 \begin{align}
    \frac{d \Delta \theta}{d \bm{r}_{\alpha}}
    =
@@ -2111,7 +2131,7 @@ $\alpha = i, j, k$について, ポテンシャルを座標ベクトルで微分
    \frac{d \theta_{ijk}}{d \bm{r}_{\alpha}}
    \notag
 \end{align}
-である. 3点間の角度$\theta_{ijk}$の粒子の位置ベクトル$\bm{r}_{\alpha}$での微分は, 式(\ref{Eq:dtheta_dri}), (\ref{Eq:dtheta_drj}), (\ref{Eq:dtheta_drk})より
+である. 3点間の角度$\theta_{ijk}$に対する粒子の位置ベクトル$\bm{r}_{\alpha}$微分は, 式(\ref{Eq:dtheta_dri}), (\ref{Eq:dtheta_drj}), (\ref{Eq:dtheta_drk})より
 \begin{alignat}{3}
    \frac{d \theta_{ijk}}{d \bm{r}_{i}}
    &=
@@ -3081,40 +3101,55 @@ $\alpha = i, j, k, l$について, ポテンシャルを座標ベクトルで微
 \end{align}
 \paragraph{力の導出} \
 
+$\alpha = i, j$について, ポテンシャルを座標ベクトルで微分する. 連鎖律を使うと
+\begin{equation}
+   \bm{F}_{\alpha}^{\mathrm{LJ}}
+   =
+   -
+   \frac{d U_{\mathrm{LJ}}(r_{ij})}{d \bm{r}_{\alpha}}
+   =
+   -
+   \frac{d U_{\mathrm{LJ}}(r_{ij})}{d r_{ij}}
+   \frac{d r_{ij}}{d \bm{r}_{\alpha}}
+   \notag
+\end{equation}
+となる. 具体的に計算すると,
 \begin{align}
-   \bm{F}_{i}^{\mathrm{LJ}}
- =
-   -\frac{d U_{\mathrm{LJ}} (r_{ij})}{d \bm{r}_{i}}
- &=
-   -\frac{d U_{\mathrm{LJ}}(r_{ij})}{d r_{ij}}
-    \frac{d r_{ij}}{d \bm{r}_{i}}
- \notag
- \\
- &=
-   -4\epsilon_{ij}
-    \left(
-           -12\frac{\sigma_{ij}^{12}}{r_{ij}^{13}}
-           + 6\frac{\sigma_{ij}^{6}}{r_{ij}^{7}}
-    \right)
-    \left[
-           \frac{d}{d \bm{r}_{i}}
-           \left\{
-                  (\bm{r}_{j} - \bm{r}_{i})^{2}
-           \right\}^{\frac{1}{2}}
-    \right]
- \notag
- \\
- &=
-   -\frac{24\epsilon_{ij}}{\sigma_{ij}}
+   \frac{d U_{\mathrm{LJ}}(r_{ij})}{d \bm{r}_{i}}
+   &=
+   4\epsilon_{ij}
+   \left(
+          -12\frac{\sigma_{ij}^{12}}{r_{ij}^{13}}
+          + 6\frac{\sigma_{ij}^{6}}{r_{ij}^{7}}
+   \right)
+   \notag \\
+   &=
+   \frac{-24\epsilon_{ij}}{r_{ij}}
    \left\{
-           2\left( \frac{\sigma_{ij}}{r_{ij}} \right)^{13}
-           -\left( \frac{\sigma_{ij}}{r_{ij}} \right)^{7}
+       2 \left(\frac{\sigma_{ij}}{r_{ij}}\right)^{12}
+      -  \left(\frac{\sigma_{ij}}{r_{ij}}\right)^{6}
    \right\}
+   \notag
+\end{align}
+を得る. また2点間の距離を座標ベクトル$\bm{r}_{\alpha}$で微分すると, 式(\ref{Eq:dr_ij-dr_i}), (\ref{Eq:dr_ij-dr_j})より
+\begin{alignat}{3}
+   \frac{d r_{ij}}{d \bm{r}_{i}}
+   &=
+   -&&
    \frac{\bm{r}_{ij}}{r_{ij}}
- \notag
- \\
- &=
-   -24\epsilon_{ij}
+   \notag
+   \\
+   \frac{d r_{ij}}{d \bm{r}_{j}}
+   &=&&
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \notag
+\end{alignat}
+であるので, 粒子$i$, $j$に加わる力はそれぞれ
+
+\begin{alignat}{3}
+ \bm{F}_{i}^{\mathrm{LJ}}
+ &=-&&
+ 24\epsilon_{ij}
    \left\{
            2\left( \frac{\sigma_{ij}}{r_{ij}} \right)^{12}
            -\left( \frac{\sigma_{ij}}{r_{ij}} \right)^{6}
@@ -3122,21 +3157,8 @@ $\alpha = i, j, k, l$について, ポテンシャルを座標ベクトルで微
    \frac{\bm{r}_{ij}}{r_{ij}^{2}}
  \notag
  \\
- \notag
- \\
  \bm{F}_{j}^{\mathrm{LJ}}
- =
-   -\frac{d U_{\mathrm{LJ}} (r_{ij})}{d \bm{r}_{j}}
- &=
-   \frac{24\epsilon_{ij}}{\sigma_{ij}}
-   \left\{
-           2\left( \frac{\sigma_{ij}}{r_{ij}} \right)^{13}
-           -\left( \frac{\sigma_{ij}}{r_{ij}} \right)^{7}
-   \right\}
-   \frac{\bm{r}_{ij}}{r_{ij}}
- \notag
- \\
- &=
+ &=&&
    24\epsilon_{ij}
    \left\{
            2\left( \frac{\sigma_{ij}}{r_{ij}} \right)^{12}
@@ -3144,7 +3166,7 @@ $\alpha = i, j, k, l$について, ポテンシャルを座標ベクトルで微
    \right\}
    \frac{\bm{r}_{ij}}{r_{ij}^{2}}
  \notag
-\end{align}
+\end{alignat}
 \\
 
 \paragraph{ヴィリアルの導出}
@@ -3276,10 +3298,63 @@ $\alpha = i, j$について, ポテンシャルを座標ベクトルで微分す
    \frac{\bm{r}_{ij}}{r_{ij}}
    \notag
 \end{alignat}
-である.
+と計算できる.
 
+\paragraph{ヴィリアルの導出}
 
+\begin{align}
+    \bm{r}_{i} \cdot \bm{F}_{i}^{\mathrm{LJ}}
+   +\bm{r}_{j} \cdot \bm{F}_{j}^{\mathrm{LJ}}
+ &=
+    \bm{r}_{i} \cdot \bm{F}_{i}^{\mathrm{LJ}}
+   -\bm{r}_{j} \cdot \bm{F}_{i}^{\mathrm{LJ}}
+ \notag
+ \\
+ &=
+    \bm{r}_{ji} \cdot \bm{F}_{i}^{\mathrm{LJ}}
+ \notag
+ \\
+ &=
+    \bm{r}_{ji} \cdot
+    \left[
+      2\epsilon \alpha
+      \left\{
+         e^{-\alpha(r_{ij} - r_{0})}
+         -
+         e^{-2\alpha(r_{ij} - r_{0})}
+      \right\}
+      \frac{\bm{r}_{ij}}{r_{ij}}
+    \right]
+ \notag
+ \\
+ &=
+ -2\epsilon \alpha r_{ij}
+ \left\{
+    e^{-\alpha(r_{ij} - r_{0})}
+    -
+    e^{-2\alpha(r_{ij} - r_{0})}
+ \right\}
+ \notag
+\end{align}
+したがって, ヴィリアルは
+\begin{align}
+   \left\langle
+        \sum_{i=1}^{N} \bm{r}_{i} \cdot \bm{F}_{i}^{\mathrm{morse}}
+   \right\rangle
+ =
+   \left\langle
+        \sum_{\mathrm{nonbonds}}
+        -2\epsilon \alpha r_{ij}
+        \left\{
+           e^{-\alpha(r_{ij} - r_{0})}
+           -
+           e^{-2\alpha(r_{ij} - r_{0})}
+        \right\}
+   \right\rangle
+\end{align}
+と計算することができる.
 \clearpage
+
 \subsection{静電ポテンシャル}
 \paragraph{ポテンシャル} \
 
@@ -3290,58 +3365,58 @@ U_{\mathrm{elec}}(r_{ij}) = \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
 \end{equation}
 
 \paragraph{力の導出} \
-
+$\alpha = i, j$について, ポテンシャルを座標ベクトルで微分する. 連鎖律を使うと
+\begin{equation}
+   \bm{F}_{\alpha}^{\mathrm{elec}}
+   =
+   -
+   \frac{d U_{\mathrm{elec}}(r_{ij})}{d \bm{r}_{\alpha}}
+   =
+   -
+   \frac{d U_{\mathrm{elec}}(r_{ij})}{d r_{ij}}
+   \frac{d r_{ij}}{d \bm{r}_{\alpha}}
+   \notag
+\end{equation}
+となる. 具体的に計算をすると,
 \begin{align}
-   \bm{F}_{i}^{\mathrm{elec}}
- =
-   -\frac{d U_{\mathrm{elec}} (r_{ij})}{d \bm{r}_{i}}
-&=
-   -\frac{d U_{\mathrm{elec}} (r_{ij})}{d r_{ij}}
-    \frac{d \bm{r}_{i}}{d r_{ij}}
- \notag
- \\
-&=
-    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
-    \frac{1}{r_{ij}^{2}}
-    \left[
-           \frac{d}{d \bm{r}_{i}}
-           \left\{
-                  (\bm{r}_{j} - \bm{r}_{i})^{2}
-           \right\}^{\frac{1}{2}}
-    \right]
- \notag
- \\
-&=
-   -\frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
-    \frac{1}{r_{ij}^{2}}
-    \frac{\bm{r}_{ij}}{r_{ij}}
- \notag
- \\
- \notag
- \\
-   \bm{F}_{j}^{\mathrm{elec}}
- =
-   -\frac{d U_{\mathrm{elec}} (r_{ij})}{d \bm{r}_{j}}
- &=
-   -\frac{d U_{\mathrm{elec}} (r_{ij})}{d r_{ij}}
-    \frac{d \bm{r}_{j}}{d r_{ij}}
- \\
- &=
-    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
-    \frac{1}{r_{ij}^{2}}
-    \left[
-           \frac{d}{d \bm{r}_{j}}
-           \left\{
-                  (\bm{r}_{j} - \bm{r}_{i})^{2}
-           \right\}^{\frac{1}{2}}
-    \right]
- \\
- &=
-    \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
-    \frac{1}{r_{ij}^{2}}
-    \frac{\bm{r}_{ij}}{r_{ij}}
- \notag
+   \frac{d U_{\mathrm{elec}}(r_{ij})}{d \bm{r}_{i}}
+   &=
+   -
+   \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+   \frac{1}{r_{ij}^{2}}
+   \notag
 \end{align}
+を得る. また2点間の距離を座標ベクトル$\bm{r}_{\alpha}$で微分すると, 式(\ref{Eq:dr_ij-dr_i}), (\ref{Eq:dr_ij-dr_j})より
+\begin{alignat}{3}
+   \frac{d r_{ij}}{d \bm{r}_{i}}
+   &=
+   -&&
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \notag
+   \\
+   \frac{d r_{ij}}{d \bm{r}_{j}}
+   &=&&
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \notag
+\end{alignat}
+であるので, 粒子$i$, $j$に加わる力はそれぞれ
+
+\begin{alignat}{3}
+   \bm{F}_{i}^{\mathrm{elec}}
+   &=-&&
+   \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+   \frac{1}{r_{ij}^{2}}
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \notag
+   \\
+   \bm{F}_{j}^{\mathrm{elec}}
+   &=&&
+   \frac{q_{i}q_{j}}{4 \pi \epsilon_{0}}
+   \frac{1}{r_{ij}^{2}}
+   \frac{\bm{r}_{ij}}{r_{ij}}
+   \notag
+\end{alignat}
+と計算される.
 \\
 
 \paragraph{ヴィリアルの導出}
