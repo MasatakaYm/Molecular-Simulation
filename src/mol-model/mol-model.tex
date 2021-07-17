@@ -548,7 +548,10 @@ LJ相互作用の計算は$\mathcal{O}(N^2)$となり計算コストがかかる
 
 モースポテンシャルによって原子がうける力は以下のように計算される.
 \begin{alignat}{3}
-   \bm{F}_{i}
+   \bm{F}_{i}^{\mathrm{morse}}
+   =
+   -
+   \frac{d U_{\mathrm{morse}}(r_{ij})}{d \bm{r}_{i}}
    &=&&
    2\epsilon \alpha
    \left\{
@@ -558,7 +561,10 @@ LJ相互作用の計算は$\mathcal{O}(N^2)$となり計算コストがかかる
    \right\}
    \frac{\bm{r}_{ij}}{r_{ij}}
    \\
-   \bm{F}_{j}
+   \bm{F}_{j}^{\mathrm{morse}}
+   =
+   -
+   \frac{d U_{\mathrm{morse}}(r_{ij})}{d \bm{r}_{j}}
    &=
    -&&
    2\epsilon \alpha
@@ -665,8 +671,8 @@ $r_{ij}$は原子$i$と原子$j$の距離である.
 \end{align}
 と計算できる.
 代表的なポテンシャル関数として(1)調和振動子, (2)ガウス関数, (3) フーリエ級数 ($\cos$関数, $\sin$関数), (4) レナード・ジョーンズポテンシャル, (5) モースポテンシャル, (6)静電相互作用がある.
-さらに, 多くのポテンシャル関数は2体相互作用, 3体相互作用, 4体相互作用に分類される.
-2体相互作用であれば, 2点間の距離$r_{ij}$, 3体相互作用であれば, 3点間の角度$\theta_{ijk}$, 4体相互作用であれば4点間の二面角$\phi_{ijkl}$の関数で表されることが多い.
+さらに, 多くの場合でポテンシャル関数は内部座標を用いて表されることが多い.
+例えば, 2体相互作用であれば, 2点間の距離$r_{ij}$, 3体相互作用であれば, 3点間の角度$\theta_{ijk}$, 4体相互作用であれば4点間の二面角$\phi_{ijkl}$の関数で表されることが多い.
 
 微分の連鎖率を用いると, 力の計算は(i)ポテンシャルの変数に関する微分, (ii)ポテンシャルの変数の座標ベクトル微分の積で書くことができる. すなわち
 \begin{align}
@@ -676,18 +682,21 @@ $r_{ij}$は原子$i$と原子$j$の距離である.
    \frac{d U}{d \lambda}
    \frac{d \lambda}{d \bm{r}_{\alpha}}
 \end{align}
-となる. 第1項目はポテンシャル関数形ごとに計算でき, 第2項目は相互作用の種類ごとに計算できる項である.
+となる. 第1項目はポテンシャル関数形ごとに計算される項である. 第2項目は内部座標に依存する項で、力の向きに関係してくる.
 
 
 \subsection{2点間の距離$r_{ij}$を粒子の位置ベクトル$\bm{r}_{\alpha}$で微分する}
 \subsubsection{ベクトルの定義}
-2点間の距離を
+質点の位置$\bm{r}_{i}$から$\bm{r}_{j}$に向かうベクトルを
 \begin{align}
    \bm{r}_{ij}
 &= \bm{r}_{j} - \bm{r}_{i}
 \end{align}
-と定義する.
-
+と定義する. 2点間の距離は
+\begin{align}
+   r_{ij} = \left(\bm{r}_{ij} \cdot \bm{r}_{ij} \right)^{\frac{1}{2}}
+\end{align}
+と計算される.
 \subsubsection{座標ベクトル微分の計算}
 \begin{align}
 \frac{d r_{ij}}{d \bm{r}_{i}}
@@ -1869,7 +1878,7 @@ $\alpha = i, j$について, ポテンシャルを座標ベクトルで微分す
 \end{alignat}
 であるので, 粒子$i$, $j$に加わる力はそれぞれ
 \begin{alignat}{3}
-   \bm{F}_{i}
+   \bm{F}_{i}^{\mathrm{gauss}}
    &=
    -&&
    \frac{\epsilon}{\sigma^{2}}
@@ -1878,7 +1887,7 @@ $\alpha = i, j$について, ポテンシャルを座標ベクトルで微分す
    e^{-\frac{1}{2\sigma^{2}}(r_{ij} - r_{0})^{2}}
    \frac{\bm{r}_{ij}}{r_{ij}}
    \notag \\
-   \bm{F}_{j}
+   \bm{F}_{j}^{\mathrm{gauss}}
    &=&&
    \frac{\epsilon}{\sigma^{2}}
    (r_{ij} - r_{0})
@@ -1889,6 +1898,45 @@ $\alpha = i, j$について, ポテンシャルを座標ベクトルで微分す
 \end{alignat}
 と計算される.
 
+\paragraph{ヴィリアルの導出}
+\begin{alignat}{3}
+   \bm{r}_{i} \cdot \bm{F}_{i}^{\mathrm{gauss}}
+   +
+   \bm{r}_{j} \cdot \bm{F}_{j}^{\mathrm{gauss}}
+   &=&&
+   (\bm{r}_{i} - \bm{r}_{j}) \cdot \bm{F}_{i}^{\mathrm{gauss}}
+   \notag \\
+   &=&&
+   \bm{r}_{ji} \cdot \bm{F}_{i}^{\mathrm{gauss}}
+   \notag \\
+   &=
+   -&&
+   \frac{\epsilon}{\sigma^{2}} (r_{ij} - r_{0})
+   \cdot
+   e^{-\frac{1}{2\sigma^{2}}(r_{ij} - r_{0})^{2}}
+   \frac{\bm{r}_{ji} \cdot \bm{r}_{ij}}{r_{ij}}
+   \notag \\
+   &= &&
+   \frac{\epsilon}{\sigma^{2}} r_{ij} (r_{ij} - r_{0})
+   \cdot
+   e^{-\frac{1}{2\sigma^{2}}(r_{ij} - r_{0})^{2}}
+   \notag
+\end{alignat}
+と計算できるので, ヴィリアルは
+\begin{alignat}{3}
+   \left\langle
+      \bm{r}_{i} \cdot \bm{F}_{i}^{\mathrm{gauss}}
+   \right\rangle
+   =
+   \left\langle
+      \sum_{\mathrm{bonds}}
+      \frac{\epsilon}{\sigma^{2}} r_{ij} (r_{ij} - r_{0})
+      \cdot
+      e^{-\frac{1}{2\sigma^{2}}(r_{ij} - r_{0})^{2}}
+   \right\rangle
+   \notag
+\end{alignat}
+と計算できる.
 \clearpage
 
 \subsection{結合角ポテンシャル: 調和振動子型}
@@ -1899,7 +1947,7 @@ $\alpha = i, j$について, ポテンシャルを座標ベクトルで微分す
    k_{\theta} (\theta_{ijk} - \theta_{\mathrm{eq}})^{2}
    \notag
 \end{equation}
-ここで, 
+ここで,
 \begin{align}
    \bm{r}_{ji}
    &= \bm{r}_{i} - \bm{r}_{j}
@@ -1928,6 +1976,7 @@ $\alpha = i, j, k$について, ポテンシャルを座標ベクトルで微分
    -
    \frac{d U_{\mathrm{angle}}(\theta_{ijk})}{d \bm{r}_{\alpha}}
    =
+   -
    \frac{d U_{\mathrm{angle}}(\theta_{ijk})}{d \theta_{ijk}}
    \frac{d \theta_{ijk}}{d \bm{r}_{\alpha}}
    \notag
@@ -3026,7 +3075,8 @@ $\alpha = i, j, k, l$について, ポテンシャルを座標ベクトルで微
    \right\}
    \notag
 \end{alignat}
-と計算される. ここで
+と計算される. 
+ここで, フーリエ級数型の二面角ポテンシャルと同じように
 \begin{align}
    f_{0}
    &\equiv
@@ -3083,7 +3133,47 @@ $\alpha = i, j, k, l$について, ポテンシャルを座標ベクトルで微
    f_{0} (\bm{r}_{kj} \times \bm{f}_{jk})
    \notag
 \end{alignat}
-となる.
+となる. 係数$f_{0}$を除いてフーリエ級数型の二面角ポテンシャルと同じ表式になっていることが分かる.
+
+\paragraph{ヴィリアルの表式}
+
+力の表式が、係数$f_{0}$を除いてフーリエ級数型の二面角ポテンシャルと同じであるので, フーリエ級数型の二面角ポテンシャルの時と同様の計算によって
+\begin{align}
+   &\bm{r}_{i} \cdot \bm{F}_{i}^{\mathrm{dihedral}} +
+    \bm{r}_{j} \cdot \bm{F}_{j}^{\mathrm{dihedral}} +
+    \bm{r}_{k} \cdot \bm{F}_{k}^{\mathrm{dihedral}} +
+    \bm{r}_{l} \cdot \bm{F}_{l}^{\mathrm{dihedral}}
+ \notag
+ \\
+ =&~
+    \bm{r}_{i} \cdot \bm{f}_{1}
+   +\bm{r}_{j} \cdot \{\bm{f}_{2} - \bm{f}_{1} - \bm{f}_{3}\}
+   +\bm{r}_{k} \cdot \{\bm{f}_{3} - \bm{f}_{2} - \bm{f}_{4}\}
+   +\bm{r}_{l} \cdot \bm{f}_{4}
+ \notag
+ \\
+ =&~
+    \bm{r}_{ji} \cdot \bm{f}_{1}
+   +\bm{r}_{kj} \cdot \bm{f}_{2}
+   +\bm{r}_{jk} \cdot \bm{f}_{3}
+   +\bm{r}_{kl} \cdot \bm{f}_{4}
+ \notag
+ \\
+ =&~
+    \bm{r}_{ji} \cdot \{ C_{1} (\bm{r}_{kj} \times \bm{r}_{ji}) \}
+   +\bm{r}_{kj} \cdot \{ C_{2} (\bm{r}_{lk} \times \bm{r}_{kj}) \}
+ \notag
+ \\
+   &~~~
+   +\bm{r}_{jk} \cdot \{ C_{3} (\bm{r}_{ji} \times \bm{r}_{jk}) \}
+   +\bm{r}_{kl} \cdot \{ C_{4} (\bm{r}_{kj} \times \bm{r}_{kl}) \}
+ \notag
+ \\
+ =&~
+   0
+ \notag
+\end{align}
+と計算される. 最後の式変形で, 全ての項において直交するベクトルの内積がゼロであることを利用した. このように, 二面角に由来するヴィリアルはガウス型のポテンシャルを用いた時も, ゼロとなることが分かった.
 
 \clearpage
 \subsection{ファンデル・ワールスポテンシャル: 12-6型}
@@ -3216,6 +3306,7 @@ $\alpha = i, j$について, ポテンシャルを座標ベクトルで微分す
                -\left( \frac{\sigma_{ij}}{r_{ij}} \right)^{6}
         \right\}
    \right\rangle
+   \notag
 \end{align}
 と計算することができる.
 \clearpage
@@ -3351,6 +3442,7 @@ $\alpha = i, j$について, ポテンシャルを座標ベクトルで微分す
            e^{-2\alpha(r_{ij} - r_{0})}
         \right\}
    \right\rangle
+   \notag
 \end{align}
 と計算することができる.
 \clearpage
@@ -3456,6 +3548,7 @@ $\alpha = i, j$について, ポテンシャルを座標ベクトルで微分す
         \sum_{\mathrm{nonbonds}}
         \frac{q_{i}q_{j}}{4 \pi \epsilon_{0} r_{ij}}
    \right\rangle
+   \notag
 \end{align}
 と計算することができる. 
 \clearpage
