@@ -598,9 +598,9 @@ $\bm{r}_{ij}$と$\bm{f}_{ij}$は反対向きであるため圧力に対してヴ
 まず初めに平行六面体の数学的表現を与える. 
 平行六面体は3つの基本並進ベクトル
 \begin{align}
-\bm{a}_{1} &= (a_{1x}, a_{1y}, a_{1z})^{t},~ \\ \notag
-\bm{a}_{2} &= (a_{2x}, a_{2y}, a_{2z})^{t},~ \\ \notag
-\bm{a}_{3} &= (a_{3x}, a_{3y}, a_{3z})^{t}      \notag
+\bm{a}_{1} &= (a_{1x}, a_{1y}, a_{1z})^{t}, \notag \\
+\bm{a}_{2} &= (a_{2x}, a_{2y}, a_{2z})^{t}, \notag \\
+\bm{a}_{3} &= (a_{3x}, a_{3y}, a_{3z})^{t}   \notag
 \end{align}
 で張られる. 
 基本セルはセル行列$\bm{L}$を使って
@@ -939,6 +939,7 @@ $\bm{L}$と$\bm{L}^{\prime}$の区別がなくなるため
 \end{equation}
 の関係が成り立つことを用いた. 
 
+\paragraph{物理系のラグランジアン}
 スケール座標$\tilde{\bm{r}}$と$\bm{L}$を用いて物理系のラグランジアン
 \begin{equation}
   \mathcal{L} (\tilde{\bm{r}}, \dot{\tilde{\bm{r}}})
@@ -1028,12 +1029,13 @@ $\alpha,\beta,\cdots$は1,2,3の値をとる.
   \notag
   \sum_{\alpha,\gamma} L_{\alpha\lambda} L_{\alpha\gamma} \dot{\tilde{r}}_{i\gamma}
 \end{align}
-を得る. 計量テンソル$\bm{G}$を用いれば
+を得る.
+ここで計量テンソル$\bm{G}$の縮約表記は$G_{\beta\gamma} = \sum_{\alpha}L_{\alpha\beta}L_{\alpha\gamma}$であるので, これを用いれば
 \begin{equation}
   \pi_{j\lambda}
   =
   m_{j}
-  \sum_{\alpha,\gamma} L_{\alpha,\lambda} L_{\alpha\gamma} \dot{\tilde{r}}_{i\gamma}
+  \sum_{\alpha,\gamma} L_{\alpha\lambda} L_{\alpha\gamma} \dot{\tilde{r}}_{i\gamma}
   =
   m_{j}
   \sum_{\gamma} G_{\lambda\gamma} \dot{\tilde{r}}_{i\gamma}
@@ -1061,7 +1063,8 @@ $\alpha,\beta,\cdots$は1,2,3の値をとる.
 \end{align}
 で変換できることがわかる. 
 
-続いて, ハミルトニアンを導出する. ラグランジアンのルジャンドル変換よりハミルトニアンは
+\paragraph{物理系のハミルトニアン}
+ハミルトニアンを導出する. ラグランジアンのルジャンドル変換よりハミルトニアンは
 \begin{equation}
   \mathcal{H}(\tilde{\bm{r}}, \bm{\pi})
   =
@@ -1134,7 +1137,7 @@ $\dot{\tilde{\bm{r}}} = \bm{L}^{-1} \dot{\bm{r}}_{i} = \bm{L}^{-1}\bm{p}_{i}/m_{
 \end{align}
 である. 続いてハミルトニアン$\mathcal{H}$の$L$に関する微分を計算していく:
 \begin{align}
-  \frac{\partial H}{\partial L_{\alpha\gamma}} =
+  \frac{\partial \mathcal{H}}{\partial L_{\alpha\gamma}} =
   \sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
   \left(
     \frac{\partial L_{\mu\lambda}^{-1}}{\partial L_{\alpha\gamma}} L_{\nu\lambda}^{-1} +
@@ -1153,7 +1156,7 @@ $d\bm{M}^{-1}(\lambda)/d\lambda$について解くと,
 \end{equation}
 を得る. この恒等式を用いると, ハミルトニアン$\mathcal{H}$の$L$に関する微分は, 
 \begin{align}
-  \frac{\partial H}{\partial L_{\alpha\gamma}} =&
+  \frac{\partial \mathcal{H}}{\partial L_{\alpha\gamma}} =&
   -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
   \sum_{\rho,\sigma}
   \left(
@@ -1164,7 +1167,7 @@ $d\bm{M}^{-1}(\lambda)/d\lambda$について解くと,
 \end{align}
 となる. $\partial L_{\rho\sigma}/\partial_{\alpha\gamma} = \delta_{\alpha\rho}\delta_{\sigma\gamma}$を用いて, $\rho$と$\sigma$に関する和をとると,
 \begin{align}
-  \frac{\partial H}{\partial L_{\alpha\gamma}} =&
+  \frac{\partial \mathcal{H}}{\partial L_{\alpha\gamma}} =&
   -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
   \sum_{\rho,\sigma}
   \left(
@@ -1187,7 +1190,7 @@ $d\bm{M}^{-1}(\lambda)/d\lambda$について解くと,
 \end{align}
 以上の計算によって, ハミルトニアン$\mathcal{H}$の$L$に関する微分を
 \begin{align}
-  \frac{\partial H}{\partial L_{\alpha\gamma}} =
+  \frac{\partial \mathcal{H}}{\partial L_{\alpha\gamma}} =
   -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
   \sum_{\rho,\sigma}
   \left(
@@ -1200,7 +1203,7 @@ $d\bm{M}^{-1}(\lambda)/d\lambda$について解くと,
 と計算することができた. 圧力テンソルの表式(\ref{Eq:Pressure-Tensor-NVT})より, 式(\ref{Eq:partial-H-partial-L})に$L_{\beta\gamma}$を乗じて$\gamma$について和をとる. 
 $\sum_{\gamma} L_{\beta\gamma}L_{\gamma\lambda}^{-1} = \delta_{\beta\lambda}$を用いて, $\gamma$に関して和を計算した後に$\lambda$について和を計算する:
 \begin{align}
-  \sum_{\gamma=1}^{3} L_{\beta\gamma} \frac{\partial H}{\partial L_{\alpha\gamma}} =&
+  \sum_{\gamma=1}^{3} L_{\beta\gamma} \frac{\partial \mathcal{H}}{\partial L_{\alpha\gamma}} =&
   -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
   \sum_{\rho,\sigma} \sum_{\gamma=1}^{3} L_{\beta\gamma}
   \left(

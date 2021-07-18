@@ -123,7 +123,7 @@ $\bm{\Gamma}^{\prime}$を$\bm{\Gamma}$の関数$\bm{\Gamma}^{\prime}(\bm{\Gamma}
   \label{Eq:Symplectic-Condition}
 \end{equation}
 であることが分かる. 
-式(\ref{Eq:Symplectic-Condition})は変換が正準変換であるための必要十分条件であり, これ\textbf{シンプレクティック条件}という. 
+式(\ref{Eq:Symplectic-Condition})は変換が正準変換であるための必要十分条件であり, これを\textbf{シンプレクティック条件}という. 
 
 \section{シンプレクティック分子動力学法}
 ある時刻$t$における一般座標$q(t)$, 一般運動量$p(t)$がハミルトニアンにしたがって時間発展し, 時刻$\Delta t$後にそれぞれ$q(t + \Delta t)$, $p(t + \Delta t)$に変化したとする. この時間発展は変数変換
@@ -139,7 +139,7 @@ $\bm{\Gamma}^{\prime}$を$\bm{\Gamma}$の関数$\bm{\Gamma}^{\prime}(\bm{\Gamma}
   \end{bmatrix}
 \end{equation}
 とみなせる. 
-変数$(\bm{q}(t),\bm{p}(t))$の組みも, $(\bm{q}(t + \Delta t),\bm{p}(t + \Delta t))$の組みも, ともに同じハミルトニアンに対する正準方程式に従うので, この変換は正準変換である. 既に述べたように, 正準変換に置いてはシンプレクティック条件が成立するので, ハミルトニアンに従う時間発展で得られる一般座標, 一般運動量はシンプレクティック条件(\ref{Eq:Symplectic-Condition})を満たしている. 
+変数$(\bm{q}(t),\bm{p}(t))$の組みも, $(\bm{q}(t + \Delta t),\bm{p}(t + \Delta t))$の組みも, ともに同じハミルトニアンに対する正準方程式に従うので, この変換は正準変換である. 既に述べたように, 正準変換に関してシンプレクティック条件が成立するので, ハミルトニアンに従う時間発展で得られる一般座標, 一般運動量はシンプレクティック条件(\ref{Eq:Symplectic-Condition})を満たしている. 
 このように現実の物体はシンプレクティック条件を満たしながら運動をしているが, 運動方程式を差分化して数値積分を実行した場合は, 必ずしもシンプレクティック条件を満たすとは限らない. 
 シンプレクティック条件を満たしながら時間発展を行う分子動力学法をシンプレクティック分子動力学法という. 
 
@@ -228,21 +228,22 @@ $\bm{\Gamma}^{\prime}$を$\bm{\Gamma}$の関数$\bm{\Gamma}^{\prime}(\bm{\Gamma}
   D_{K} + D_{U}
 \end{align}
 と分離することができる. ここで, 運動量のみに依存する項と座標のみに依存する項に対応する演算子をそれぞれ
-\begin{align}
+\begin{alignat}{3}
   D_{K}
-  \equiv&
+  &\equiv&&
   \sum_{i=1}^{3N}
   \frac{\partial \mathcal{H}}{\partial p_{i}}
   \frac{\partial}{\partial q_{i}}
   \label{Eq:Symplectic-Definition-DK}
   \\
   D_{U}
-  \equiv&
+  &\equiv
+  -&&
   \sum_{i=1}^{3N}
   \frac{\partial \mathcal{H}}{\partial q_{i}}
   \frac{\partial}{\partial p_{i}}
   \label{Eq:Symplectic-Definition-DU}
-\end{align}
+\end{alignat}
 と定義した. 
 
 鈴木・トロッター分解を用いると全体の時間発展演算子$D_{\mathcal{H}}$を各項の時間発展演算子$D_{K}$, $D_{U}$を用いて, 例えば
@@ -257,7 +258,18 @@ $\bm{\Gamma}^{\prime}$を$\bm{\Gamma}$の関数$\bm{\Gamma}^{\prime}(\bm{\Gamma}
 のように書くことができる. 
 一般に分子動力学シミュレーションでは, $e^{D_{\mathcal{H}}}$に基づく時間発展を厳密に解くことはできないが, 近似として$e^{D_{U} \frac{\Delta t}{2}}e^{D_{K} \Delta t}e^{D_{U} \frac{\Delta t}{2}}$による時間発展を実行することはできる. もちろん, より高次の鈴木・トロッター分解に基づく時間発展も可能である. 
 
-$e^{D_{K} \Delta t}$および$e^{D_{U} \Delta t}$はそれぞれ$K$あるいは$U$をハミルトニアンと見なした場合の時間発展演算子であるので, これらの時間発展はシンプレクティック条件(\ref{Eq:Symplectic-Condition})を満たす. すなわち, それぞれが作用したときに発生した状態が正準方程式を満たし, これらの時間発展演算子による写像によって位相空間の体積が変化しないことも意味している. 各部分がシンプレクティック条件を満たしているので, $e^{D_{U} \frac{\Delta t}{2}}e^{D_{K} \Delta t}e^{D_{U} \frac{\Delta t}{2}}$による時間発展もシンプレクティック条件を満たす. 
+$e^{D_{K} \Delta t}$および$e^{D_{U} \Delta t}$はそれぞれ$K$あるいは$U$をハミルトニアンと見なした場合の時間発展演算子であるので, これらの時間発展はシンプレクティック条件(\ref{Eq:Symplectic-Condition})を満たす. すなわち, それぞれが作用したときに発生した状態が正準方程式を満たし, これらの時間発展演算子による写像によって位相空間の体積が変化しないことも意味している. 各部分がシンプレクティック条件を満たしているので, $e^{D_{U} \frac{\Delta t}{2}}e^{D_{K} \Delta t}e^{D_{U} \frac{\Delta t}{2}}$による時間発展もシンプレクティック条件を満たす. 加えて, 式(\ref{Eq:Symplectic-Suzuki-Trottor-Decomposition-UKU})では時間発展演算子を時間反転に対して対称になるように分割している.
+このため, シンプレクティック分子動力学法は時間反転可逆な時間発展アルゴリズムになっている.
+すなわち,
+\begin{equation}
+  e^{-D_{\mathcal{H}} \Delta t}
+  e^{ D_{\mathcal{H}} \Delta t}
+  =
+  e^{ D_{\mathcal{H}} \Delta t}
+  e^{-D_{\mathcal{H}} \Delta t}
+  = 1
+\end{equation}
+が成立する.
 
 演算子$D_{K}$, $D_{U}$はその定義式(\ref{Eq:Symplectic-Definition-DK}), (\ref{Eq:Symplectic-Definition-DU})により, $\bm{q}$と$\bm{p}$に以下のように作用する:
 \begin{alignat}{10}
@@ -516,7 +528,944 @@ $e^{D_{K} \Delta t}$および$e^{D_{U} \Delta t}$はそれぞれ$K$あるいは$
 \end{align}
 となり, シンプレクティック条件を満たしていることが確認できる. 
 
-% \section{シンプレクティク分子動力学法における保存量}
+\section{シンプレクティク分子動力学法における保存量}
+シンプレクティック分子動力学法における保存量を見るために, 式(\ref{Eq:Symplectic-Suzuki-Trottor-Decomposition-UKU})のように近似的に分解された時間発展演算子を逆に一つにまとめた演算子を
+\begin{align}
+  e^{D_{\tilde{\mathcal{H}}} \Delta t}
+  \equiv
+  e^{D_{U} \frac{\Delta t}{2}}
+  e^{D_{K} \Delta t}
+  e^{D_{U} \frac{\Delta t}{2}}
+  \simeq
+  e^{D_{\mathcal{H}} \Delta t}
+  \label{Eq:Def-Shade-Hamiltonian}
+\end{align}
+と定義する.
+ベーカー・キャンベル・ハウスドルフの公式を使うことで, $D_{\tilde{\mathcal{H}}}$を$D_{K}$, $D_{U}$で表していく.
+演算子$A$, $B$, $C$,の間に
+\begin{equation}
+  e^{A}e^{B} = e^{C}
+\end{equation}
+の関係が成り立つとき, 演算子$C$は演算子$A$, $B$を用いて
+\begin{equation}
+  C = A + B
+    + \frac{1}{2} [A, B]
+    + \frac{1}{12}
+      \left\{
+        [A, [A,B]] + [[A,B], B]
+      \right\}
+    + \ldots
+  \label{Eq:BHC-formula}
+\end{equation}
+と表わされる. ここで, $[A, B]$は$A$, $B$の交換子で
+\begin{equation}
+  [A, B] \equiv AB - BA
+\end{equation}
+と定義される. すなわち, $C$は$A$, $B$およびそれらの交換子の組み合わせで表すことができる. 
+このような関係式(\ref{Eq:BHC-formula})を\textbf{ベーカー・キャンベル・ハウスドルフの公式}という. 
+例えば, 式(\ref{Eq:Def-Shade-Hamiltonian})のように
+\begin{equation}
+  e^{C} = e^{\frac{A}{2}}e^{B}e^{\frac{A}{2}}
+  \label{Eq:BHCformula-3operator}
+\end{equation}
+と3つの演算子で定義される演算子を1つにまとめるには, ベーカー・キャンベル・ハウスドルフの公式を2回繰り返して適用すればいい. 詳しい導出は付録にまわして結果だけ述べると演算子$C$は
+\begin{equation}
+  C = A + B
+    - \frac{1}{24}[A, [A,B]]
+    + \frac{1}{12}[[A,B], B]
+    + \ldots
+  \label{Eq:BHCformula-3operator-expansion}
+\end{equation}
+と展開することができる.
+この公式を時間発展演算子(\ref{Eq:Def-Shade-Hamiltonian})に適用すると
+\begin{align}
+  D_{\Tilde{\mathcal{H}}} \Delta t
+  =~&
+  D_{U} \Delta t + D_{K} \Delta t
+  \\ \notag
+  +~&
+  \frac{1}{24}
+  \left\{
+      2[[D_{U}\Delta t, D_{K}\Delta t], D_{K} \Delta t]
+    -  [D_{U}\Delta t, [D_{U}\Delta t, D_{K}\Delta t]]
+  \right\}
+  \notag
+\end{align}
+となるので, 
+\begin{align}
+  D_{\Tilde{\mathcal{H}}}
+  =~
+  D_{U} + D_{K}
+  +
+  \frac{1}{24}
+  \left\{
+      2[[D_{U}, D_{K}], D_{K}]
+      -[D_{U}, [D_{U}, D_{K}]]
+  \right\}
+  (\Delta t)^{2}
+  \label{Eq:D_H-Decomposition}
+\end{align}
+を得る. 続いて各項を計算すると以下のようにポアソン括弧を用いて書き直すことができる.
+第１項目と第2項目は, 式(\ref{Eq:Symplectic-Definition-DK}), 式(\ref{Eq:Symplectic-Definition-DU})より
+\begin{align}
+  D_{K} + D_{U}
+  =
+  D_{\mathcal{H}}
+  =
+  \sum_{i=1}^{3N}
+  \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \frac{\partial}{\partial q_{i}}
+  -
+  \sum_{i=1}^{3N}
+  \frac{\partial \mathcal{H}}{\partial q_{i}}
+  \frac{\partial}{\partial p_{i}}
+  =
+  \{~~, \mathcal{H}\}
+  \label{Eq:PoissonBracket-DK+DU}
+\end{align}
+と計算される. $D_{U}$と$D_{K}$の交換子については
+\begin{alignat}{4}
+  [D_{U}, D_{K}]
+  &=
+  -&&
+  \left\{
+    ~~~~,~
+    \sum_{i=1}^{3N}
+    \frac{\partial \mathcal{H}}{\partial q_{i}}
+    \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \right\}
+  \label{Eq:PoissonBracket-DU-DK}
+  \\
+  [D_{U}, [D_{U}, D_{K}]]
+  &=&&
+  \left\{
+    ~~~~,~
+    \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+    \frac{\partial \mathcal{H}}{\partial q_{j}}
+    \frac{\partial^{2} \mathcal{H}}{\partial p_{j} \partial p_{j}}
+    \frac{\partial \mathcal{H}}{\partial q_{i}}
+  \right\}
+  \label{Eq:PoissonBracket-DU-DU-DK}
+  \\
+  [[D_{U}, D_{K}], D_{K}]
+  &=&&
+  \left\{
+    ~~~~,~
+    \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+    \frac{\partial \mathcal{H}}{\partial p_{j}}
+    \frac{\partial^{2} \mathcal{H}}{\partial q_{j} \partial q_{j}}
+    \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \right\}
+  \label{Eq:PoissonBracket-DU-DK-DK}
+\end{alignat}
+と計算される. なお具体的な導出は付録を参照のこと.
+以上で得られたポアソン括弧
+%式(\ref{Eq:PoissonBracket-DK+DU}), \ref{Eq:PoissonBracket-DU-DK}), \ref{Eq:PoissonBracket-DU-DU-DK}, \ref{Eq:PoissonBracket-DU-DK-DK})
+を式(\ref{Eq:D_H-Decomposition})に代入すると,
+\begin{align}
+  D_{\Tilde{\mathcal{H}}}
+  =
+  \{~~, \mathcal{H}\}
+  +
+  \left\{
+    ~~~~,~
+    \frac{1}{24}
+    \left(
+      2
+      \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+      \frac{\partial \mathcal{H}}{\partial q_{j}}
+      \frac{\partial^{2} \mathcal{H}}{\partial p_{j} \partial p_{j}}
+      \frac{\partial \mathcal{H}}{\partial q_{i}}
+    -
+      \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+      \frac{\partial \mathcal{H}}{\partial p_{j}}
+      \frac{\partial^{2} \mathcal{H}}{\partial q_{j} \partial q_{j}}
+      \frac{\partial \mathcal{H}}{\partial p_{i}}
+    \right)
+  \right\}
+  (\Delta t)^{2}
+  +
+  \ldots
+\end{align}
+を得る. すなわち$D_{\Tilde{\mathcal{H}}}$をポアソン括弧によって表すことができた.
+したがって, 時間発展演算子(\ref{Eq:Symplectic-Suzuki-Trottor-Decomposition-UKU})に基づく分子動力学シミュレーションは
+\begin{align}
+  \Tilde{\mathcal{H}}
+  \equiv
+  \mathcal{H}
+  +
+  \frac{1}{24}
+    \left(
+      2
+      \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+      \frac{\partial \mathcal{H}}{\partial q_{j}}
+      \frac{\partial^{2} \mathcal{H}}{\partial p_{j} \partial p_{j}}
+      \frac{\partial \mathcal{H}}{\partial q_{i}}
+    -
+      \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+      \frac{\partial \mathcal{H}}{\partial p_{j}}
+      \frac{\partial^{2} \mathcal{H}}{\partial q_{j} \partial q_{j}}
+      \frac{\partial \mathcal{H}}{\partial p_{i}}
+    \right)
+    (\Delta t)^{2}
+    + \ldots
+\end{align}
+をハミルトニアンと見做した時の時間発展を厳密に解く方法と言える.
+この$\Tilde{\mathcal{H}}$を影のハミルトニアンという.
+ポアソン括弧で表せることから分かるように, 影のハミルトニアンは厳密に保存する.
+そのため, 長時間シミュレーションを行っても誤差が蓄積しにくい.
+また物理系のハミルトニアン$\mathcal{H}$は影のハミルトニアンの値の周りを誤差$(\Delta t)^2$の範囲で揺らぐ.
+一方, シンプレクティックでない方法を用いた場合, $\Tilde{\mathcal{H}}$のような保存量が存在しないため, 長時間シミュレーションを行うと誤差が蓄積してハミルトニアンがだんだん異なる値になっていく.
+
+\clearpage
+
+\section{付録: 計算ノート}
+\subsection{ベーカー・キャンベル・ハウスドルフの公式で3つの演算子をまとめる}
+式(\ref{Eq:BHCformula-3operator}), 式(\ref{Eq:BHCformula-3operator-expansion})で見たように, ベーカー・キャンベル・ハウスドルフ(BCH)の公式を用いて, 以下のような3つの演算子
+\begin{equation}
+  e^{C} = e^{\frac{A}{2}} e^{B} e^{\frac{A}{2}}
+  \notag
+\end{equation}
+を1つにまとめる計算過程を追う.
+ここで
+\begin{equation}
+  e^{D} \equiv e^{\frac{A}{2}} e^{B}
+  \notag
+\end{equation}
+のように演算子$D$を定義する.
+BCHの公式を用いると
+\begin{equation}
+  D = \frac{1}{2}A + B
+    + \frac{1}{4}[A, B]
+    + \frac{1}{48}[A, [A,B]]
+    + \frac{1}{24}[[A, B], B]
+  \notag
+\end{equation}
+が得られる. 続いて
+\begin{equation}
+  e^{C} = e^{D} e^{\frac{A}{2}}
+  \notag
+\end{equation}
+に対して, もう一度BCH公式を用いると
+\begin{equation}
+  C = D + \frac{A}{2}
+    + \frac{1}{4}[D, A]
+    + \frac{1}{24}[D, [D, A]]
+    + \frac{1}{48}[[D, A], A]
+  \notag
+\end{equation}
+を得る. 各項を具体的に計算していく.
+
+\begin{align}
+  [D, A]
+  &=
+  \left[
+      \frac{1}{2}A + B
+    + \frac{1}{4}[A, B]
+    + \frac{1}{48}[A, [A,B]]
+    + \frac{1}{24}[[A, B], B]
+    ,~
+    A
+  \right]
+  \notag \\
+  &=
+    \frac{1}{2} [A,A] + [B, A]
+  + \frac{1}{4}[[A, B], A]
+  + \frac{1}{48}[[A, [A,B]], A]
+  + \frac{1}{24}[[[A,B], B], A]
+  \notag \\
+  &=
+    [B,A]
+  + \frac{1}{4}[[A, B], A]
+  + \frac{1}{48}[[A, [A,B]], A]
+  + \frac{1}{24}[[[A,B], B], A]
+  \notag
+\end{align}
+
+\begin{align}
+  [D, [D,A]]
+  =~&
+  \left[
+    \frac{1}{2}A + B
+    + \frac{1}{4}[A, B]
+    + \frac{1}{48}[A, [A,B]]
+    + \frac{1}{24}[[A, B], B]~,
+  \right.
+  \notag \\
+  ~&
+    \left.
+    [B,A]
+    + \frac{1}{4}[[A, B], A]
+    + \frac{1}{48}[[A, [A,B]], A]
+    + \frac{1}{24}[[[A,B], B], A]
+  \right]
+  \notag \\
+  =~&
+      \frac{1}{2}[A, [B,A]] + [B, [B,A]]
+    + \frac{1}{4}[[A,B], [B,A]]
+    \notag \\
+    &
+    + \frac{1}{48}[[A, [A,B]], [B,A]]
+    + \frac{1}{24}[[[A,B],B], [B,A]]
+    + \ldots
+    \notag
+\end{align}
+
+\begin{align}
+  [[D,A], A]
+  =~&
+  \left[
+    [B,A]
+    + \frac{1}{4}[[A, B], A]
+    + \frac{1}{48}[[A, [A,B]], A]
+    + \frac{1}{24}[[[A,B], B], A]
+    ~,
+    A
+  \right]
+  \notag \\
+  =~&
+    [[B,A], A]
+  + \frac{1}{4} [[[A, B],A],A]
+  + \frac{1}{48} [[[A, [A,B], A], A]
+  + \ldots
+  \notag
+\end{align}
+交換子の性質$[A, B] = -[B, A]$を用いて, 以上の計算をまとめると
+\begin{alignat}{4}
+  &[D, A]    &&= - [A,B] - \frac{1}{4}[A, [A,B]]
+  \notag \\
+  &[D,[D,A]] &&= -\frac{1}{2}[A, [A,B]] + [[A,B],B] + \ldots
+  \notag \\
+  &[D,A], D] &&=  [A, [A,B]] + \ldots
+  \notag
+\end{alignat}
+と近似できる. したがって
+
+\begin{align}
+  C &=
+       \frac{1}{2}D  + \frac{A}{2}
+    -  \frac{1}{4}[D, A]
+    +  \frac{1}{24}[D, [D, A]]
+    +  \frac{1}{48}[[D, A], A]
+    \notag \\
+    &=
+       \frac{1}{2}A + B
+    +  \frac{1}{4}[A, B]
+    +  \frac{1}{24}[D, [D, A]]
+    +  \frac{1}{48}[[D, A], A]
+    \notag \\
+    &+ \frac{1}{2}A
+    \notag \\
+    &+ \frac{1}{4}
+       \left\{
+          - [A,B] - \frac{1}{4}[A, [A,B]] + \ldots
+       \right\}
+    \notag \\
+    &+ \frac{1}{24}
+    \left\{
+      - \frac{1}{2}[A, [A,B]] + [[A,B], B] + \ldots
+    \right\}
+    \notag \\
+    &+ \frac{1}{48}
+    \left\{
+      [A, [A,B]] + \ldots
+    \right\}
+    \notag \\
+    &=
+    A + B - \frac{1}{24}[A, [A,B]] + \frac{1}{12}[[A, B], B] + \dots
+    \notag
+\end{align}
+以上の計算によって
+\begin{equation}
+  C
+  =
+  A + B - \frac{1}{24}[A, [A,B]] + \frac{1}{12}[[A, B], B] + \dots
+  \notag
+\end{equation}
+の表式が得られた.
+
+
+
+\subsection{$D_{U}$と$D_{K}$の交換関係の計算}
+
+ここでは, $D_{U}$と$D_{K}$の交換関係式(\ref{Eq:PoissonBracket-DU-DK}), (\ref{Eq:PoissonBracket-DU-DU-DK}), (\ref{Eq:PoissonBracket-DU-DK-DK})の導出過程を見ていく.
+計算の便利のために縮約記号を導入する.
+すなわち, 同じインデックスについては和をとる. また偏微分を表すのに$\partial_{x}$の記号を使用する. 縮約記号を使用すると$D_{U}$, $D_{K}$はそれぞれ
+\begin{alignat}{4}
+  D_{K}
+  &= &&
+  \sum_{i=1}^{3N}
+  \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \frac{\partial}{\partial q_{i}}
+  =&
+  \partial_{p_{i}} \mathcal{H} \partial_{q_{i}}
+  \notag \\
+  D_{U}
+  &= -&&
+  \sum_{i=1}^{3N}
+  \frac{\partial \mathcal{H}}{\partial q_{i}}
+  \frac{\partial}{\partial p_{i}}
+  =&
+  -
+  \partial_{q_{i}} \mathcal{H} \partial_{p_{i}}
+  \notag
+\end{alignat}
+とかける.
+この縮約記号を使うとポアソン括弧は次のようになる:
+\begin{align}
+  \left\{
+    F,~G
+  \right\}
+  &=
+  \sum_{i}
+  \left(
+    \frac{\partial F}{\partial q_{i}}
+    \frac{\partial G}{\partial p_{i}}
+    -
+    \frac{\partial F}{\partial p_{i}}
+    \frac{\partial G}{\partial q_{i}}
+  \right)
+  =
+  \partial_{q_{i}} F \partial_{p_{i}} G
+  -
+  \partial_{p_{i}} F \partial_{q_{i}} G
+  \notag \\
+  \left\{
+    ~~,~G
+  \right\}
+  &=
+  \partial_{p_{i}} G
+  \partial_{q_{i}}
+  -
+  \partial_{q_{i}} G
+  \partial_{p_{i}}
+  \notag
+\end{align}
+示したい交換関係を縮約記号を使って書くと以下のようになる:
+\begin{alignat}{4}
+  [D_{U}, D_{K}]
+  &=
+  -&&
+  \left\{
+    ~~~~,~
+    \sum_{i=1}^{3N}
+    \frac{\partial \mathcal{H}}{\partial q_{i}}
+    \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \right\}
+  &=&- &&
+  \{~~,
+    \partial_{q_{i}} \mathcal{H}
+    \partial_{p_{i}} \mathcal{H}
+  \}
+  \notag \\
+  [D_{U}, [D_{U}, D_{K}]]
+  &=&&
+  \left\{
+    ~~~~,~
+    \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+    \frac{\partial \mathcal{H}}{\partial q_{j}}
+    \frac{\partial^{2} \mathcal{H}}{\partial p_{j} \partial p_{j}}
+    \frac{\partial \mathcal{H}}{\partial q_{i}}
+  \right\}
+  &=& &&
+  \{~~,
+    \partial_{q_{j}}       \mathcal{H}
+    \partial_{p_{i} p_{j}} \mathcal{H}
+    \partial_{q_{i}}       \mathcal{H}
+  \}
+  \notag \\
+  [[D_{U}, D_{K}], D_{K}]
+  &=&&
+  \left\{
+    ~~~~,~
+    \sum_{i=1}^{3N} \sum_{j=1}^{3N}
+    \frac{\partial \mathcal{H}}{\partial p_{j}}
+    \frac{\partial^{2} \mathcal{H}}{\partial q_{j} \partial q_{j}}
+    \frac{\partial \mathcal{H}}{\partial p_{i}}
+  \right\}
+  &=& &&
+  \{~~,
+    \partial_{p_{j}}       \mathcal{H}
+    \partial_{q_{i} q_{j}} \mathcal{H}
+    \partial_{p_{i}}       \mathcal{H}
+  \}
+  \notag
+\end{alignat}
+
+\subsubsection{$[D_{U}, D_{K}]$の計算}
+\begin{align}
+  \left[D_{U},~D_{K}\right]
+  &=
+  \left[
+    -\partial_{q_{i}} \mathcal{H} \partial_{p_{i}},
+     \partial_{p_{j}} \mathcal{H} \partial_{q_{j}}
+  \right]
+  \notag \\
+  &=
+  (-\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  ( \partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  -
+  ( \partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  (-\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  \notag \\
+  &=
+  -\partial_{q_{i}} \mathcal{H} \partial_{p_{i} p_{j}} \mathcal{H} \partial_{q_{j}}
+  +\partial_{p_{j}} \mathcal{H} \partial_{q_{j} q_{i}} \mathcal{H} \partial_{p_{i}}
+  \notag \\
+  &=
+  -\partial_{q_{j}} \mathcal{H} \partial_{p_{j} p_{i}} \mathcal{H} \partial_{q_{i}}
+  +\partial_{p_{j}} \mathcal{H} \partial_{q_{j} q_{i}} \mathcal{H} \partial_{p_{i}}
+  \notag \\
+  &=
+  -\partial_{p_{i}}
+  (\partial_{q_{j}} \mathcal{H} \partial_{p_{j}} \mathcal{H})
+  \partial_{q_{i}}
+  +\partial_{q_{i}}
+   (\partial_{q_{j}} \mathcal{H} \partial_{p_{j}} \mathcal{H})
+   \partial_{p_{i}}
+  \notag \\
+  &=
+  \{~~, \partial_{q_{j}} \mathcal{H} \partial_{p_{j}} \mathcal{H}\}
+  \notag
+\end{align}
+
+途中3行目から4行目で第1項目の$i$,$j$のインデックスを置換した.
+
+\subsubsection{$[D_{U}, [D_{U}, D_{K}]]$の計算}
+
+\begin{align}
+  \left[D_{U}, [D_{U}, D_{K}]\right]
+  &=
+  \left[
+     -\partial_{q_{k}} \mathcal{H} \partial_{p_{k}},
+     (-\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+     ( \partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+     -
+     ( \partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+     (-\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  \right]
+  \notag \\
+  &=
+  (-\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  \left[
+    (-\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+    ( \partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+    -
+    ( \partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+    (-\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  \right]
+  \notag \\
+  &~~~~ -
+  \left[
+    (-\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+    ( \partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+    -
+    ( \partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+    (-\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  \right]
+  (-\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  \notag
+\end{align}
+と展開できる. 各項を並べると,
+
+\begin{alignat}{4}
+  第1項目
+  &=&&
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  &=&&
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{q_{j}} \mathcal{H} \partial_{p_{j}})
+  (\partial_{p_{k}} \mathcal{H} \partial_{q_{k}})
+  \notag \\
+  第2項目
+  &=
+  -&&
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  &=
+  -&&
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  \notag \\
+  第3項目
+  &=
+  -&&
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  &=
+  -&&
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  \notag \\
+  第4項目
+  &=&&
+  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  &=&&
+  (\partial_{p_{i}} \mathcal{H} \partial_{q_{i}})
+  (\partial_{q_{j}} \mathcal{H} \partial_{p_{j}})
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  \notag
+\end{alignat}
+である. 
+左辺から右辺の展開について, インデックス$i, j, k$を置換しても結果が変わらないことを利用して, インデックスの順序を整理した.
+また第2項目と第3項目は同じであることが分かる.
+以下, 各項を具体的に計算していく.
+
+\paragraph{第1項目}
+
+\begin{align}
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{q_{j}} \mathcal{H} \partial_{p_{j}})
+  (\partial_{p_{k}} \mathcal{H} \partial_{q_{k}})
+  &=
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{q_{j}} \mathcal{H} \partial_{p_{j} p_{k}} \mathcal{H} \partial_{q_{k}})
+  \notag \\
+  &=
+  \partial_{q_{i}} \mathcal{H}
+  \partial_{q_{j}} \mathcal{H}
+  \partial_{p_{i}} (\partial_{p_{j} p_{k}} \mathcal{H})
+  \partial_{q_{k}}
+  \notag \\
+  &=
+  \partial_{q_{i}} \mathcal{H}
+  \partial_{q_{j}} \mathcal{H}
+  \partial_{p_{i} p_{j} p_{k}} \mathcal{H}
+  \partial_{q_{k}}
+  \notag \\
+  &=
+  \partial_{q_{i}} \mathcal{H}
+  \partial_{q_{j}} \mathcal{H}
+  \partial_{p_{k}}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{k}}
+  \notag \\
+  &=
+  \partial_{p_{k}}
+  \left[
+    \partial_{q_{i}}       \mathcal{H}
+    \partial_{p_{i} p_{j}} \mathcal{H}
+    \partial_{q_{j}}       \mathcal{H}
+  \right]
+  \partial_{q_{k}}
+  \notag
+\end{align}
+また, 途中の計算において$\partial_{q_{i}} \mathcal{H}$と$\partial_{q_{j}} \mathcal{H}$が可換であることと, $\mathcal{H}$に対して$p_{i},~p_{j},p_{k}$に関する偏微分の順番を入れ替えられることを用いた.
+
+\paragraph{第2項目}
+\begin{align}
+  -
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  =&~
+  -
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (
+    \partial_{p_{j}} \mathcal{H} \partial_{q_{j} q_{k}} \mathcal{H} \partial_{p_{k}}
+  )
+  \notag \\
+  =&~
+  -
+  \partial_{q_{i}}       \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{k}}
+  -
+  \partial_{q_{i}} \mathcal{H}
+  \partial_{p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{i} p_{k}}
+  \notag \\
+  =&~
+  -
+  \partial_{q_{k}}
+  \left[
+    \partial_{q_{i}}       \mathcal{H}
+    \partial_{p_{i} p_{j}} \mathcal{H}
+    \partial_{q_{j}}       \mathcal{H}
+  \right]
+  \partial_{p_{k}}
+  +
+  \partial_{q_{k} q_{i}} \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{j}}       \mathcal{H}
+  \partial_{p_{k}}
+  \notag \\
+  &~-
+  \partial_{q_{i}} \mathcal{H}
+  \partial_{p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{i} p_{k}}
+  \notag
+\end{align}
+2行目から3行目の変形では, 2行第1項目の$q_{j}$に関する偏微分を前に持ってきて, その結果現れる項を足すことで辻褄を合わせている. まとめると
+\begin{align}
+  第2項目1式 &=
+  -
+  \partial_{q_{k}}
+  \left[
+    \partial_{q_{i}}       \mathcal{H}
+    \partial_{p_{i} p_{j}} \mathcal{H}
+    \partial_{q_{j}}       \mathcal{H}
+  \right]
+  \partial_{p_{k}}
+  \notag \\
+  第2項目2式 &=
+  \partial_{q_{k} q_{i}} \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{j}}       \mathcal{H}
+  \partial_{p_{k}}
+  \notag \\
+  第2項目3式 &=
+  -
+  \partial_{q_{i}} \mathcal{H}
+  \partial_{p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{i} p_{k}}
+  \notag
+\end{align}
+が得られた.
+
+\paragraph{第3項目}
+\begin{align}
+  -
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (\partial_{p_{j}} \mathcal{H} \partial_{q_{j}})
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  =&~
+  -
+  (\partial_{q_{i}} \mathcal{H} \partial_{p_{i}})
+  (
+    \partial_{p_{j}} \mathcal{H} \partial_{q_{j} q_{k}} \mathcal{H} \partial_{p_{k}}
+  )
+  \notag \\
+  =&~
+  -
+  \partial_{q_{i}}       \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{k}}
+  -
+  \partial_{q_{i}} \mathcal{H}
+  \partial_{p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{i} p_{k}}
+  \notag
+\end{align}
+を得る. 各項ごとにまとめると
+\begin{align}
+  第3項目1式 &=
+  -
+  \partial_{q_{i}}       \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{k}}
+  \notag \\
+  第3項目2式 &=
+  -
+  \partial_{q_{i}} \mathcal{H}
+  \partial_{p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{i} p_{k}}
+  \notag
+\end{align}
+となる. 第3項目1式の$i$と$j$を置換して式を整理すると,
+\begin{align}
+  第3項目1式 &=
+  -
+  \partial_{q_{i}}       \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{k}}
+  \notag \\
+  &=
+  -
+  \partial_{q_{j}}       \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{i} q_{k}} \mathcal{H}
+  \partial_{p_{k}}
+  ~~~~(iとjを置換)
+  \notag \\
+  &=
+  -
+  \partial_{q_{k} q_{i}} \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{j}}       \mathcal{H}
+  \partial_{p_{k}}
+  \notag \\
+  &=
+  - 第2項目2式
+  \notag
+\end{align}
+となるため第3項目1式と第2項目2式は打ち消し合うことが分かる.
+
+
+\paragraph{第4項目}
+\begin{align}
+  (\partial_{p_{i}} \mathcal{H} \partial_{q_{i}})
+  (\partial_{q_{j}} \mathcal{H} \partial_{p_{j}})
+  (\partial_{q_{k}} \mathcal{H} \partial_{p_{k}})
+  &=
+  (\partial_{p_{i}} \mathcal{H} \partial_{q_{i}})
+  (\partial_{q_{j}} \mathcal{H} \partial_{q_{k}} \mathcal{H} \partial_{p_{j} p_{k}})
+  \notag \\
+  &=
+  \partial_{p_{i}}       \mathcal{H}
+  \partial_{q_{i} q_{j}} \mathcal{H}
+  \partial_{q_{k}}       \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  +
+  \partial_{p_{j}}       \mathcal{H}
+  \partial_{q_{j}}       \mathcal{H}
+  \partial_{q_{i} q_{k}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  \notag
+\end{align}
+を得る. 各項ごとにまとめると
+\begin{align}
+  第4項目1式 &=
+  \partial_{p_{i}}       \mathcal{H}
+  \partial_{q_{i} q_{j}} \mathcal{H}
+  \partial_{q_{k}}       \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  \notag \\
+  第4項目2式 &=
+  \partial_{p_{j}}       \mathcal{H}
+  \partial_{q_{j}}       \mathcal{H}
+  \partial_{q_{i} q_{k}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  \notag
+\end{align}
+である.
+ここで, 第2項目3式の$i$, $j$を置換すると
+\begin{align}
+  第2項目3式 &=
+  -
+  \partial_{q_{i}} \mathcal{H}
+  \partial_{p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{i} p_{k}}
+  \notag \\
+  &=
+  -
+  \partial_{q_{j}} \mathcal{H}
+  \partial_{p_{i}} \mathcal{H}
+  \partial_{q_{i} q_{k}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  ~~~~(iとjを置換)
+  \notag \\
+  &=
+  -
+  \partial_{p_{i}} \mathcal{H}
+  \partial_{q_{j}} \mathcal{H}
+  \partial_{q_{i} q_{k}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  \notag \\
+  &=
+  - 第4項目2式
+  \notag
+\end{align}
+となり第2項目3式と第4項目2式が打ち消し合うことが分かる.
+更に, 第3項目2式の$i$, $j$を置換した後に$j$, $k$を置換すると
+\begin{align}
+  第3項目2式 &=
+  -
+  \partial_{q_{i}} \mathcal{H}
+  \partial_{p_{j}} \mathcal{H}
+  \partial_{q_{j} q_{k}} \mathcal{H}
+  \partial_{p_{i} p_{k}}
+  \notag \\
+  &=
+  -
+  \partial_{q_{j}} \mathcal{H}
+  \partial_{p_{i}} \mathcal{H}
+  \partial_{q_{i} q_{k}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  ~~~~(iとjを置換)
+  \notag \\
+  &=
+  -
+  \partial_{q_{k}} \mathcal{H}
+  \partial_{p_{i}} \mathcal{H}
+  \partial_{q_{i} q_{j}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  ~~~~(jとkを置換)
+  \notag \\
+  &=
+  -
+  \partial_{p_{i}} \mathcal{H}
+  \partial_{q_{i} q_{j}} \mathcal{H}
+  \partial_{q_{k}} \mathcal{H}
+  \partial_{p_{j} p_{k}}
+  \notag \\
+  &=
+  - 第4項目1式
+  \notag
+\end{align}
+となり第3項目2式と第4項目1式が打ち消し合うことが分かる.
+
+\paragraph{$[D_{U} , [D_{U} , D_{K}]]$の計算過程まとめ}
+
+ここまでの計算で残ったのは, 第1項目と第2項目1式であることから
+
+\begin{align}
+  \left[D_{U}, [D_{U}, D_{K}]\right]
+  &=
+  \partial_{p_{k}}
+  \left[
+    \partial_{q_{i}}       \mathcal{H}
+    \partial_{p_{i} p_{j}} \mathcal{H}
+    \partial_{q_{j}}       \mathcal{H}
+  \right]
+  \partial_{q_{k}}
+  -
+  \partial_{q_{i}}
+  \left[
+    \partial_{q_{k}}       \mathcal{H}
+    \partial_{p_{k} p_{j}} \mathcal{H}
+    \partial_{q_{j}}       \mathcal{H}
+  \right]
+  \partial_{p_{i}}
+  \notag \\
+  &=
+  \partial_{p_{k}}
+  \left[
+    \partial_{q_{i}}       \mathcal{H}
+    \partial_{p_{i} p_{j}} \mathcal{H}
+    \partial_{q_{j}}       \mathcal{H}
+  \right]
+  \partial_{q_{k}}
+  -
+  \partial_{q_{k}}
+  \left[
+    \partial_{q_{i}}       \mathcal{H}
+    \partial_{p_{i} p_{j}} \mathcal{H}
+    \partial_{q_{j}}       \mathcal{H}
+  \right]
+  \partial_{p_{k}}
+  \notag \\
+  &=
+  \{~~,
+  \partial_{q_{j}}       \mathcal{H}
+  \partial_{p_{i} p_{j}} \mathcal{H}
+  \partial_{q_{i}}       \mathcal{H}
+  \}
+  \notag
+\end{align}
+が得られる.
+1行目から2行目の変形において, 2項目のインデックス$i$, $k$を置換した.
+
+\subsubsection{$[[D_{U}, D_{K}], D_{K}]$の計算}
+{$[D_{U} , [D_{U} , D_{K}]]$の計算過程と同じように頑張ればポアソン括弧が得られる.
 
 
 % \subsection{リウヴィル演算子と時間発展演算子}

@@ -10,8 +10,7 @@
 ## 目次
 
 執筆状況を示すための指標として、目次に絵文字を添える.
-- 🍊(Mikan): 未完成の項目, 執筆中, 未完成の項目, Todo.
-
+- 🍊(Mikan): 未完成の項目, 執筆中, Todo.
 
 ## 第1部 物理の復習
 
@@ -41,9 +40,18 @@
 6. 分子動力学シミュレーションの手順
 7. 🍊初期速度の与え方
 
-### [4. 原子間・分子間相互作用](src/mol-model/mol-model.pdf)
+### [4. 原子間・分子間相互作用](src/force-field/force-field.pdf)
 1. 生体分子に対する全原子モデル
 2. 様々なポテンシャル関数とその力・ヴィリアルの表式
+   1. 結合長ポテンシャル: 調和振動子型
+   2. 結合長ポテンシャル: ガウス型
+   3. 結合角ポテンシャル: 調和振動子型
+   4. フィルター関数
+   5. 二面角ポテンシャル: フーリエ級数型
+   6. 二面角ポテンシャル: ガウス型
+   7. ファンデルワールス相互作用: 12-6型
+   8. 静電相互作用
+   9. モースポテンシャル
 3. 計算ノート: 力・ヴィリアルの導出
 
 ### [5. 長距離相互作用の計算方法: Ewaldの方法](src/ewald/ewald.pdf)
@@ -61,10 +69,10 @@
 3. 時間発展演算子による取り扱い
 4. 時間反転多時間刻み法(RESPA法)
 
-### [7. 🍊シンプレクティック分子動力学法](src/symplectic/symplectic.pdf)
+### [7. シンプレクティック分子動力学法](src/symplectic/symplectic.pdf)
 1. ハミルトンの正準方程式とシンプレクティック条件
 2. シンプレクティック分子動力学法
-3. 🍊シンプレクティック分子動力学法における保存量
+3. シンプレクティック分子動力学法における保存量
 
 ### [8. 拘束条件付き分子動力学法](src/constrain-dynamics/constrain-dynamics.pdf)
 1. ホロノミックな拘束条件の具体的な例
@@ -76,22 +84,22 @@
 2. 剛体の回転運動に対するハミルトニアン
 3. 剛体の回転運動の時間発展
 
-### [10. 温度制御法](src/temperature-control/temperature-control.pdf)
-1. 能勢・Hoover熱浴
-2. 🍊速度スケーリングの方法
-3. 🍊Berensenの方法
-4. 🍊ガウス束縛法
-5. 🍊能勢・ポアンカレ法
+### [10. 拡張系の方法](src/extended-phase-space-method/extended-phase-space-method.pdf)
+1. 温度制御: 能勢・Hoover熱浴
+2. 圧力制御: Andersenの方法
+5. 温度・圧力制御: 能勢・Andersenの方法
+6. 温度・圧力制御: Martyna, Tobias, Klein (MTK)の運動方程式
+7. 温度・圧力制御: 能勢・ポアンカレ・Andersenの方法
+8. 🍊温度制御: 能勢・Poincare熱浴
+9. 🍊圧力制御: パリネロ・ラマンの方法
 
-### [11. 圧力制御法](src/pressure-control/pressure-control.pdf)
-1. Andersenの方法
-2. 🍊パリネロ・ラマンの方法
+### 11. 🍊ガウス束縛法
+   1. 温度制御
+   2.  圧力制御
+   3.  温度・圧力制御
 
-### [12. 温度・圧力制御法](src/temperature-pressure-control/temperature-pressure-control.pdf)
-1. 能勢・Andersenの方法
-2. Martyna, Tobias, Klein (MTK)の運動方程式
-3. 🍊Berensenの方法
-4. 🍊ガウス束縛法
+### 12. 🍊その他の温度・圧力制御
+   1. Berensenの方法
 
 ### [13. マルコフ連鎖モンテカルロ法](src/markov-chain-monte-carlo/markov-chain-monte-carlo.pdf)
 1. マルコフ連鎖
@@ -139,7 +147,7 @@
 ### [20. 自己相関関数](src/auto-correlation-function/auto-correlation-function.pdf)
 1. 自己相関関数の定義
 2. 解析的に自己相関関数が計算できる関数の例
-3. 自己相関関数と物理
+3. 🍊自己相関関数と物理
 
 ### [21. 慣性半径](src/radius-of-gyration/radius-of-gyration.pdf)
 
