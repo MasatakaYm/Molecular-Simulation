@@ -1163,7 +1163,7 @@ $d\bm{M}^{-1}(\lambda)/d\lambda$について解くと,
     L_{\mu\rho}^{-1} \frac{\partial L_{\rho\sigma}}{\partial L_{\alpha\gamma}} L_{\sigma\lambda}^{-1} L_{\nu\lambda}^{-1} +
     L_{\mu\lambda}^{-1} L_{\mu\rho}^{-1} \frac{\partial L_{\rho\sigma}}{\partial L_{\alpha\gamma}} L_{\sigma\lambda}^{-1}
   \right) +
-  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{L_{\alpha\gamma}}
+  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{\partial L_{\alpha\gamma}}
 \end{align}
 となる. $\partial L_{\rho\sigma}/\partial_{\alpha\gamma} = \delta_{\alpha\rho}\delta_{\sigma\gamma}$を用いて, $\rho$と$\sigma$に関する和をとると,
 \begin{align}
@@ -1174,12 +1174,12 @@ $d\bm{M}^{-1}(\lambda)/d\lambda$について解くと,
     L_{\mu\alpha}^{-1} L_{\gamma\lambda}^{-1} L_{\nu\lambda}^{-1} +
     L_{\mu\lambda}^{-1} L_{\nu\alpha}^{-1} L_{\gamma\lambda}^{-1}
   \right) +
-  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{L_{\alpha\gamma}}
+  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{\partial L_{\alpha\gamma}}
 \end{align}
 を得る. 一方, ポテンシャルに対する微分は, 
 \begin{align}
-  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{L_{\alpha\gamma}} =
-  \frac{\partial U(\bm{L}\tilde{\bm{r}}_{1},\ldots,\bm{L}\tilde{\bm{r}}_{N})}{L_{\alpha\gamma}} &=
+  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{\partial L_{\alpha\gamma}} =
+  \frac{\partial U(\bm{L}\tilde{\bm{r}}_{1},\ldots,\bm{L}\tilde{\bm{r}}_{N})}{\partial L_{\alpha\gamma}} &=
   \sum_{i}\sum_{\mu,\nu}
   \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\mu}}
   \frac{\partial L_{\mu\nu}}{\partial L_{\alpha\gamma}}\tilde{\bm{r}}_{i\nu} \\ &=
