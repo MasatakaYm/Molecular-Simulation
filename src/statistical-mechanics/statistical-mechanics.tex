@@ -835,24 +835,31 @@ $\mathrm{d}{\bm{\epsilon}}$の対称性$\mathrm{d}\bm{\epsilon} = \mathrm{d}\bm{
 \end{equation}
 を得る. 成分で表示すると
 \begin{equation}
-  \mathrm{d} L_{\mu\chi}^{\prime}
+  \mathrm{d} L_{\chi\eta}^{\prime}
   =
-  \sum_{\nu} (\mathrm{d}\epsilon_{\mu\nu} + \mathrm{d}\omega_{\mu\nu})
-  L_{\mu\chi}
+  \sum_{\mu}
+  (\mathrm{d}\epsilon_{\chi\mu} + \mathrm{d}\omega_{\chi\mu})
+  L_{\mu\eta}
 \end{equation}
 であるので, 
 \begin{equation}
-  \frac{\mathrm{\partial} L_{\mu\chi}^{\prime}}{\partial \epsilon_{\eta\nu}}
+  \frac{\partial L_{\chi\eta}^{\prime}}{\partial \epsilon_{\alpha\beta}}
   =
-  \delta_{\mu\eta} L_{\nu\chi}
+  \sum_{\mu}
+  \frac{d \epsilon_{\chi\mu}}{d \epsilon_{\alpha\beta}} L_{\mu\eta}
+  =
+  \sum_{\mu}
+  \delta_{\chi\alpha} \delta_{\mu\beta} L_{\mu\eta}
+  =
+  \delta_{\chi\alpha} L_{\beta\eta}
 \end{equation}
 と計算される.
 変形前後でのセル行列$\bm{L}$, $\bm{L}^{\prime}$が無限に近づいたとすれば,
 $\bm{L}$と$\bm{L}^{\prime}$の区別がなくなるため
 \begin{equation}
-  \frac{\mathrm{\partial} L_{\mu\chi}}{\partial \epsilon_{\eta\nu}}
+  \frac{\partial L_{\chi\eta}}{\partial \epsilon_{\alpha\beta}}
   =
-  \delta_{\mu\eta} L_{\nu\chi}
+  \delta_{\chi\alpha} L_{\beta\eta}
 \end{equation}
 となる.
 したがって, 圧力テンソル(\ref{Eq:pressure-tensor2})は
@@ -952,7 +959,7 @@ $\bm{L}$と$\bm{L}^{\prime}$の区別がなくなるため
 \end{equation}
 を導入する.
 ここでテンソル計算の便利のために$\tilde{\bm{r}}_{i}$の$\alpha$成分を$\tilde{r}_{i\alpha}$と書き$\bm{L}$の$(\alpha,~\beta)$成分を$L_{\alpha \beta}$と書くことにする. 
-$\alpha,\beta,\cdots$は1,2,3の値をとる. 
+$\alpha,\beta,\cdots$は1, 2, 3の値をとる. 
 この記法を用いると座標と速度はそれぞれ
 \begin{align}
   r_{i \alpha}
@@ -972,7 +979,8 @@ $\alpha,\beta,\cdots$は1,2,3の値をとる.
   \frac{1}{2}
   \sum_{i=1}^{N} m_{i}
   \sum_{\alpha,\beta,\gamma}
-  L_{\alpha\beta}\dot{\tilde{r}}_{i\beta} L_{\alpha\gamma}\dot{\tilde{r}}_{i\gamma}
+  (L_{\alpha\beta}\dot{\tilde{r}}_{i\beta})
+  (L_{\alpha\gamma}\dot{\tilde{r}}_{i\gamma})
   -
   U(\tilde{\bm{r}}, \bm{L})
   \\
