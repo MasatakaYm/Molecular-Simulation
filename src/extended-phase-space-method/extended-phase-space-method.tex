@@ -1466,6 +1466,7 @@ Parrinello-Rahman方法では, 平行六面体のシミュレーションセル�
     \bm{a}_{3} \times \bm{a}_{1},~
     \bm{a}_{1} \times \bm{a}_{2}
   \right)
+  \label{Eq:def-sigma}
 \end{align}
 となる. ここでセル行列$\bm{L}$に関する関係式をまとめておく. まず初めにセル行列の逆行列$\bm{L}^{-1}$は
 \begin{align}
@@ -1479,6 +1480,7 @@ Parrinello-Rahman方法では, 平行六面体のシミュレーションセル�
   \end{pmatrix}
   =
   \frac{1}{V} \bm{\sigma}^{\mathrm{t}}
+  \label{Eq:inv-cell-matrix}
 \end{align}
 と計算される. さらに$\bm{L}$, $\bm{\sigma}$, $V$の間には
 \begin{align}
@@ -1504,6 +1506,7 @@ Parrinello-Rahman方法では, 平行六面体のシミュレーションセル�
   \notag \\
   &=
   V \bm{1}
+  \label{Eq:relation-Lt-sigma-V}
 \end{align}
 が成立する. ここで$\bm{1}$は単位行列である.
 
@@ -1864,7 +1867,7 @@ L_{\mu\lambda}
 
 
 \subsubsection{シミュレーションセルの運動方程式}
-粒子に対するラグランジアンの運動方程式(\ref{Eq:EoM-Lagrange-PR-cell2})を具体的に計算していく. 左辺について
+シミュレーションセルに対するラグランジアンの運動方程式(\ref{Eq:EoM-Lagrange-PR-cell2})を具体的に計算していく. 左辺について
 \begin{align}
   \frac{d}{dt}
   \frac{\partial \mathcal{L}}{\partial \dot{L}_{\mu\nu}}
@@ -1916,9 +1919,245 @@ L_{\mu\lambda}
   \frac{\partial \mathcal{L}}{\partial \dot{\bm{L}}}
   =
   W \ddot{\bm{L}}
+  \label{Eq:EoM-PR-cell-left1}
 \end{align}
 と書くことができる.
 
+シミュレーションセルに対するラグランジアンの運動方程式(\ref{Eq:EoM-Lagrange-PR-cell2})の右辺は, 
+\begin{align}
+  \frac{\partial \mathcal{L}}{\partial L_{\mu\nu}}
+  &=
+  \frac{\partial}{\partial L_{\mu\nu}}
+  \left(
+    \frac{1}{2}
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta} L_{\alpha\gamma}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+    -
+    U(\tilde{\bm{r}}, \bm{L})
+    +
+    \frac{1}{2} W
+    \mathrm{Tr}
+    \left[
+      \sum_{\beta, \gamma}
+      \dot{L}_{\alpha \beta} \dot{L}_{\alpha \gamma}
+    \right]
+    -
+    P_{0} V
+  \right)
+  \notag \\
+  &=
+  \frac{\partial}{\partial L_{\mu\nu}}
+  \left(
+    \frac{1}{2}
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta} L_{\alpha\gamma}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+    -
+    U(\tilde{\bm{r}}, \bm{L})
+    -
+    P_{0} V
+  \right)
+  \label{Eq:EoM-PR-cell-right-all}
+\end{align}
+となる.
+
+式(\ref{Eq:EoM-PR-cell-right-all})右辺の第1項目は
+\begin{align}
+  \frac{\partial}{\partial L_{\mu\nu}}
+  \left(
+    \frac{1}{2}
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta} L_{\alpha\gamma}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  \right)
+  &=
+  \frac{1}{2}
+  \left(
+    \sum_{\alpha,\beta,\gamma}
+    \frac{\partial L_{\alpha\beta}}{\partial L_{\mu\nu}} L_{\alpha\gamma}
+    +
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta}
+    \frac{\partial L_{\alpha\gamma}}{\partial L_{\mu\nu}}
+  \right)
+  \sum_{i=1}^{N} m_{i}
+  \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  \notag \\
+  &=
+  \frac{1}{2}
+  \left(
+    \sum_{\alpha,\beta,\gamma}
+    \delta_{\alpha\mu} \delta_{\beta\nu} L_{\alpha\gamma}
+    +
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta}
+    \delta_{\alpha\mu} \delta_{\gamma\nu}
+  \right)
+  \sum_{i=1}^{N} m_{i}
+  \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  \notag \\
+  &=
+  \frac{1}{2}
+  \left(
+    \sum_{\beta,\gamma}
+    \delta_{\beta\nu} L_{\mu\gamma}
+    +
+    \sum_{\beta,\gamma}
+    L_{\mu\beta} \delta_{\gamma\nu}
+  \right)
+  \sum_{i=1}^{N} m_{i}
+  \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  \notag \\
+  &=
+  \frac{1}{2}
+  \left(
+    \sum_{\gamma}
+    \delta_{\beta\nu} L_{\mu\gamma}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\nu} \dot{\tilde{r}}_{i\gamma}
+    +
+    \sum_{\beta}
+    L_{\mu\beta}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\nu}
+  \right)
+  \notag \\
+  &=
+  \sum_{i=1}^{N}
+  m_{i}
+  \sum_{\gamma} L_{\mu\gamma}
+  \dot{\tilde{r}}_{i\gamma} \dot{\tilde{r}}_{i\nu}
+\end{align}
+を得る. ここで, 関係式(\ref{Eq:relation-Lt-sigma-V})を使うと
+\begin{align}
+  \frac{\partial}{\partial L_{\mu\nu}}
+  \left(
+    \frac{1}{2}
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta} L_{\alpha\gamma}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  \right)
+  &=
+  \frac{1}{V}
+  \sum_{i=1}^{N} m_{i}
+  \sum_{\gamma} L_{\mu\gamma}
+  \dot{\tilde{r}}_{i\gamma} \dot{\tilde{r}}_{i\nu} (L_{\nu\mu}\sigma_{\mu\nu})
+  \notag \\
+  &=
+  \frac{1}{V}
+  \sum_{i=1}^{N} m_{i} \sum_{\gamma}
+  (L_{\mu\gamma} \dot{\tilde{r}}_{i\gamma})
+  (L_{\nu\mu} \dot{\tilde{r}}_{i\nu}) \sigma_{\mu\nu}
+\end{align}
+のように書くことができる. これをベクトル形式に直すと
+\begin{align}
+  \frac{\partial}{\partial \bm{L}}
+  \left(
+    \frac{1}{2}
+    \sum_{i=1}^{n} m_{i}
+    \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{G} \dot{\tilde{\bm{r}}}_{i}
+  \right)
+  =
+  \frac{1}{V}
+  \sum_{i=1}^{N} m_{i}
+  (\bm{L}\dot{\tilde{\bm{r}}}_{i})
+  (\bm{L}\dot{\tilde{\bm{r}}}_{i})^{\mathrm{t}}
+  \bm{\sigma}
+  \label{Eq:EoM-PR-cell-right1}
+\end{align}
+となる. 
+
+式(\ref{Eq:EoM-PR-cell-right-all})右辺の第2項目はポテンシャルに対する微分であり,
+\begin{alignat}{4}
+  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{\partial L_{\mu\nu}}
+  =
+  \frac{\partial U(\bm{L}\tilde{\bm{r}}_{1},\ldots,\bm{L}\tilde{\bm{r}}_{N})}{\partial L_{\mu\nu}}
+  &=
+  \sum_{i=1}^{N}\sum_{\alpha,\beta}
+  \frac{\partial U}{\partial (L_{\alpha\beta} \Tilde{r}_{i\mu})}
+  \frac{\partial (L_{\alpha\beta}\tilde{r}_{\beta})}{\partial L_{\mu\nu}}
+  &&=
+  \sum_{i=1}^{N}\sum_{\alpha,\beta}
+  \frac{\partial U}{\partial (L_{\alpha\beta} \Tilde{r}_{i\beta})}
+  \frac{\partial L_{\alpha\beta}}{\partial L_{\mu\nu}} \tilde{r}_{\beta}
+  \\
+  &=
+  \sum_{i=1}^{N}\sum_{\alpha,\beta}
+  \frac{\partial U}{\partial (L_{\alpha\beta} \Tilde{r}_{i\beta})}
+  \delta_{\alpha\mu}\delta_{\beta\nu}\tilde{r}_{\beta}
+  &&=
+  \sum_{i=1}^{N}
+  \frac{\partial U}{\partial (L_{\mu\nu} \Tilde{r}_{i\nu})}
+  \tilde{r}_{\nu}
+  \\
+  &=
+  \sum_{i=1}^{N}
+  \frac{\partial U}{\partial r_{i\mu}} \tilde{r}_{\nu}
+  \\
+  &=
+  -\sum_{i=1}^{N}
+  F_{i\mu} \tilde{r}_{\nu}
+\end{alignat}
+と計算できる. なお, 途中の連鎖律のところでベクトル・行列の微分に関して$\partial M_{ij}/\partial M_{ji} = \delta_{ij}$ (すなわち, $\partial \bm{M}^{\mathrm{t}}/\partial \bm{M} = \bm{I})$を利用した. スケール座標からデカルト座標への変換式
+\begin{align}
+  \tilde{r}_{i\nu} = \sum_{\gamma} L_{\nu\gamma}^{-1} r_{i\gamma}
+\end{align}
+とセル行列の逆行列(\ref{Eq:inv-cell-matrix})を用いると,
+\begin{align}
+  -\frac{\partial U(\tilde{\bm{r}}, \bm{L})}{\partial L_{\mu\nu}}
+  =
+  \sum_{i=1}^{N} \sum_{\gamma}
+  F_{i\mu} L_{\nu\gamma}^{-1} r_{i\gamma}
+  =
+  \frac{1}{V}
+  \sum_{i=1}^{N} \sum_{\gamma}
+  F_{i\mu} r_{i\gamma} \sigma_{\gamma\nu}
+\end{align}
+が得られる. ベクトル形式で書き直すと,
+\begin{align}
+  -\frac{\partial U}{\partial \bm{L}}
+  =
+  \frac{1}{V}
+  \left(
+    \sum_{i=1}^{N}
+    \bm{F}_{i} \bm{r}_{i}^{\mathrm{t}}
+  \right)
+  \bm{\sigma}
+  \label{Eq:EoM-PR-cell-right2}
+\end{align}
+を得る.
+
+最後に式(\ref{Eq:EoM-PR-cell-right-all})右辺第3項目を計算する.
+式(\ref{Eq:def-sigma})で既に見たように, 体積$V$の$\bm{L}$微分は$\bm{\sigma}$であるので
+\begin{align}
+  \frac{\partial}{\partial \bm{L}}(-P_{0} V) = -P_{0} \bm{\sigma}
+  \label{Eq:EoM-PR-cell-right3}
+\end{align}
+と計算できる.
+
+以上, (\ref{Eq:EoM-PR-cell-left1}), (\ref{Eq:EoM-PR-cell-right1}), (\ref{Eq:EoM-PR-cell-right2}), (\ref{Eq:EoM-PR-cell-right3})式よりシミュレーションセルの運動方程式は, 
+\begin{align}
+\ddot{\bm{L}} =
+\left[
+  \frac{1}{V}
+  \left\{
+    \sum_{i=1}^{N} m_{i}
+    (\bm{L}\dot{\tilde{\bm{r}}}_{i})
+    (\bm{L}\dot{\tilde{\bm{r}}}_{i})^{\mathrm{t}}
+    +
+    \sum_{i=1}^{N}
+    \bm{F}_{i} \bm{r}_{i}^{\mathrm{t}}
+  \right\}
+  - P_{0} \bm{1}
+\right]
+\bm{\sigma}
+\end{align}
+と計算できる. ここで, 波括弧$\{\}$の中は圧力テンソルに対応する. したがって, シミュレーションセルは設定圧力と瞬間圧力テンソルの差に応じて運動することが分かる.
 
 \clearpage
 
