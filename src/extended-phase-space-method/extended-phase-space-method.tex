@@ -1416,6 +1416,512 @@ Andersenの運動方程式(\ref{eq:Andersen7.1})--(\ref{eq:Andersen7.4})は
 
 \clearpage
 
+\section{圧力制御: Parrinello-Rahmanの方法}
+Andersenの方法では、シミュレーションセルを等方的に動かして圧力を制御することを見た.
+ここでは、シミュレーションセルの変形を許しながら圧力制御を行うParrinello-Rahmanの方法を見ていく. なお、ここでの議論は統計力学の章で圧力テンソルを導出したときの議論と重複する部分があるが、必要な部分はできるだけ省略しないで記述することにする.
+
+\subsection{シミュレーションセル: 平行六面体}
+\subsubsection{平行六面体の数学的基礎}
+Parrinello-Rahman方法では, 平行六面体のシミュレーションセルを使用する.
+平行六面体の基本並進ベクトルを
+\begin{align}
+  \bm{a}_{1} &= (a_{1x}, a_{1y}, a_{1z})^{t}, \\
+  \bm{a}_{2} &= (a_{2x}, a_{2y}, a_{2z})^{t}, \\
+  \bm{a}_{3} &= (a_{3x}, a_{3y}, a_{3z})^{t}
+\end{align}
+とする. 基本セルはセル行列$\bm{L}$を用いて
+\begin{align}
+  \bm{L} = (\bm{a}_{1}, \bm{a}_{2}, \bm{a}_{3})
+\end{align}
+と書くことができる. 基本セルの体積は
+\begin{align}
+  V
+   = \det \bm{L}
+   = \bm{a}_{1} \cdot (\bm{a}_{2} \times \bm{a}_{3})
+   = \bm{a}_{2} \cdot (\bm{a}_{3} \times \bm{a}_{1})
+   = \bm{a}_{3} \cdot (\bm{a}_{1} \times \bm{a}_{2})
+\end{align}
+と計算できる. ここで, 体積を基本並進ベクトルで微分すると,
+\begin{align}
+  \frac{\partial V}{\partial \bm{a}_{1}}
+  &=
+  \bm{a}_{2} \times \bm{a}_{3}
+  \\
+  \frac{\partial V}{\partial \bm{a}_{2}}
+  &=
+  \bm{a}_{3} \times \bm{a}_{1}
+  \\
+  \frac{\partial V}{\partial \bm{a}_{3}}
+  &=
+  \bm{a}_{1} \times \bm{a}_{2}
+\end{align}
+である. これらをまとめると
+\begin{align}
+  \bm{\sigma}
+  \equiv
+  \frac{\partial V}{\partial \bm{L}}
+  =
+  \left(
+    \bm{a}_{2} \times \bm{a}_{3},~
+    \bm{a}_{3} \times \bm{a}_{1},~
+    \bm{a}_{1} \times \bm{a}_{2}
+  \right)
+\end{align}
+となる. ここでセル行列$\bm{L}$に関する関係式をまとめておく. まず初めにセル行列の逆行列$\bm{L}^{-1}$は
+\begin{align}
+  \bm{L}^{-1}
+  =
+  \frac{1}{V}
+  \begin{pmatrix}
+    (\bm{a}_{2} \times \bm{a}_{3})^{\mathrm{t}} \\
+    (\bm{a}_{3} \times \bm{a}_{1})^{\mathrm{t}} \\
+    (\bm{a}_{1} \times \bm{a}_{2})^{\mathrm{t}}
+  \end{pmatrix}
+  =
+  \frac{1}{V} \bm{\sigma}^{\mathrm{t}}
+\end{align}
+と計算される. さらに$\bm{L}$, $\bm{\sigma}$, $V$の間には
+\begin{align}
+  \bm{L}^{\mathrm{t}} \bm{\sigma}
+  &=
+  \begin{pmatrix}
+    \bm{a}_{1}^{\mathrm{t}} \\
+    \bm{a}_{2}^{\mathrm{t}} \\
+    \bm{a}_{3}^{\mathrm{t}}
+  \end{pmatrix}
+  \left(
+    \bm{a}_{2} \times \bm{a}_{3},~
+    \bm{a}_{3} \times \bm{a}_{1},~
+    \bm{a}_{1} \times \bm{a}_{2}
+  \right)
+  \notag \\
+  &=
+  \begin{pmatrix}
+    \bm{a}_{1} \cdot (\bm{a}_{2} \times \bm{a}_{3}) & 0 & 0 \\
+    0 & \bm{a}_{2} \cdot (\bm{a}_{3} \times \bm{a}_{1}) & 0 \\
+    0 & 0 & \bm{a}_{3} \cdot (\bm{a}_{1} \times \bm{a}_{2})
+  \end{pmatrix}
+  \notag \\
+  &=
+  V \bm{1}
+\end{align}
+が成立する. ここで$\bm{1}$は単位行列である.
+
+\subsubsection{スケールした座標と速度}
+Andersenの方法の時と同じように, Parrinello-Rahmanの方法でもスケールした座標と速度を使用する. スケールした座標と速度はセル行列を使用して
+\begin{align}
+  \bm{r}_{i}       &= \bm{L} \tilde{\bm{r}}_{i} \\
+  \dot{\bm{r}}_{i} &= \bm{L} \dot{\tilde{\bm{r}}}_{i}
+\end{align}
+とかける. 以降, スケール座標と速度は上付のチルダ$\tilde{}$で表す.
+ここで計量テンソル
+\begin{equation}
+  \bm{G}
+  =
+  \bm{L}^{\mathrm{t}} \bm{L}
+  =
+  \left(
+       \begin{array}{c}
+        \bm{a}_{1}^{\mathrm{t}}  \\
+        \bm{a}_{2}^{\mathrm{t}}  \\
+        \bm{a}_{3}^{\mathrm{t}}  \\
+       \end{array}
+  \right)
+  \left(\bm{a}_{1}~ \bm{a}_{2}~ \bm{a}_{3}\right)
+  =
+  \left(
+       \begin{array}{ccc}
+          \bm{a}_{1}\cdot\bm{a}_{1}
+        & \bm{a}_{1}\cdot\bm{a}_{2}
+        & \bm{a}_{1}\cdot\bm{a}_{3} \\
+          \bm{a}_{2}\cdot\bm{a}_{1}
+        & \bm{a}_{2}\cdot\bm{a}_{2}
+        & \bm{a}_{2}\cdot\bm{a}_{3} \\
+          \bm{a}_{3}\cdot\bm{a}_{1}
+        & \bm{a}_{3}\cdot\bm{a}_{2}
+        & \bm{a}_{3}\cdot\bm{a}_{3}
+       \end{array}
+  \right)
+\end{equation}
+を導入する.
+計量テンソル$\bm{G}$を用いると速度の二乗は
+\begin{equation}
+  \dot{\bm{r}}_{i}^{2}
+  =
+  \dot{\bm{r}}_{i}^{\mathrm{t}} \dot{\bm{r}}_{i}
+  =
+  \left(\bm{L} \dot{\tilde{\bm{r}}} \right)^{\mathrm{t}} \bm{L} \dot{\tilde{\bm{r}}}
+  =
+  \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{L}^{\mathrm{L}} \bm{L} \dot{\tilde{r}}_{i}
+  =
+  \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{G} \dot{\tilde{\bm{r}}}_{i}
+\end{equation}
+とかける. ここで任意の行列$A$と$B$について
+\begin{equation}
+  A^{\mathrm{t}} B^{\mathrm{t}} = (BA)^{\mathrm{t}}
+\end{equation}
+の関係が成り立つことを用いた. 
+
+
+\subsection{Parrinello-Rahmanのラグランジアンと運動方程式}
+Parrinello-Rahmanのラグランジアンは, スケールした座標$\tilde{\bm{r}}$とセル行列$\bm{L}$を用いて
+\begin{equation}
+  \mathcal{L}_{\mathrm{PR}}
+  (\tilde{\bm{r}}, \bm{L}, \dot{\tilde{\bm{r}}}, \dot{\bm{L}})
+  =
+  \frac{1}{2}
+  \sum_{i=1}^{N}
+  m_{i} \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{G} \dot{\tilde{\bm{r}}}_{i}
+  -
+  U(\tilde{\bm{r}}, \bm{L})
+  +
+  \frac{1}{2} W
+  \mathrm{Tr} [\dot{\bm{L}}^{\mathrm{t}} \dot{\bm{L}}]
+  -
+  P_{0}V
+\end{equation}
+と書くことができる.
+ここで, $W$はピストンの仮想的な質量であり, $P_{0}$は設定圧力である.
+また第3項目の対角和$\mathrm{Tr}$は
+\begin{align}
+  \frac{1}{2} W \mathrm{Tr} (\dot{\bm{L}}^{\mathrm{t}} \dot{\bm{L}})
+  &=
+  \frac{1}{2} W
+  \mathrm{Tr}
+  \begin{pmatrix}
+    \dot{\bm{a}}_{1} \cdot \dot{\bm{a}}_{1} & 0 & 0 \\
+    0 & \dot{\bm{a}}_{2} \cdot \dot{\bm{a}}_{2} & 0 \\
+    0 & 0 & \dot{\bm{a}}_{2} \cdot \dot{\bm{a}}_{2} \\
+  \end{pmatrix}
+  \notag \\
+  &=
+  \frac{1}{2} W
+  (\dot{\bm{a}}_{1}^{2} + \dot{\bm{a}}_{2}^{2} + \dot{\bm{a}}_{3}^{2})
+\end{align}
+と計算される. これはシミュレーションセルの運動エネルギーを意味する.
+粒子とシミュレーションセルに対するラグランジュの運動方程式はそれぞれ, 
+\begin{align}
+  \frac{d}{dt}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial \dot{\tilde{\bm{r}}}_{j}}
+  &=
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial \tilde{\bm{r}}_{j}}
+  \label{Eq:EoM-Lagrange-PR-particle1}
+  \\
+  \frac{d}{dt}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial \dot{\bm{L}}}
+  &=
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial \bm{L}}
+  \label{Eq:EoM-Lagrange-PR-cell1}
+\end{align}
+とかける.
+
+ここで, この後のテンソル計算の便利のために縮約記号を導入する.
+すなわち, $\tilde{\bm{r}}_{i}$の$\alpha$成分を$\tilde{r}_{i\alpha}$と書き$\bm{L}$の$(\alpha,~\beta)$成分を$L_{\alpha \beta}$と書くことにする. 
+$\alpha,\beta,\cdots$は1, 2, 3の値をとる. 
+この記法を用いると座標と速度はそれぞれ
+\begin{align}
+  r_{i \alpha}
+ &=
+  \sum_{\beta = 1}^{3} L_{\alpha \beta} \tilde{r}_{i\beta}
+  \\
+  \notag
+  \dot{r}_{i \alpha}
+ &=
+  \sum_{\beta = 1}^{3} L_{\alpha \beta} \dot{\tilde{r}}_{i\beta}
+\end{align}
+とかける. 
+この記法を用いてラグランジアンを書き直せば
+\begin{align}
+  \mathcal{L}_{\mathrm{PR}}
+ &=
+  \frac{1}{2}
+  \sum_{i=1}^{N} m_{i}
+  \sum_{\alpha,\beta,\gamma}
+  (L_{\alpha\beta}\dot{\tilde{r}}_{i\beta})
+  (L_{\alpha\gamma}\dot{\tilde{r}}_{i\gamma})
+  -
+  U(\tilde{\bm{r}}, \bm{L})
+  +
+  \frac{1}{2} W
+  \mathrm{Tr}
+  \left[
+    \sum_{\beta, \gamma}
+    \dot{L}_{\alpha \beta} \dot{L}_{\alpha \gamma}
+  \right]
+  -
+  P_{0} V
+  \\
+  &=
+  \frac{1}{2}
+  \sum_{\alpha,\beta,\gamma}
+  L_{\alpha\beta} L_{\alpha\gamma}
+  \sum_{i=1}^{N} m_{i}
+  \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  -
+  U(\tilde{\bm{r}}, \bm{L})
+  +
+  \frac{1}{2} W
+  \mathrm{Tr}
+  \left[
+    \sum_{\beta, \gamma}
+    \dot{L}_{\alpha \beta} \dot{L}_{\alpha \gamma}
+  \right]
+  -
+  P_{0} V
+\end{align}
+となる. また, 縮約記号を用いると, 粒子とシミュレーションセルに対するラグランジュの運動方程式はそれぞれ
+\begin{align}
+  \frac{d}{dt}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}
+  {\partial \dot{\tilde{r}}_{j \lambda}}
+  \label{Eq:EoM-Lagrange-PR-particle2}
+  &=
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial \tilde{r}_{j \lambda}}
+  \\
+  \frac{d}{dt}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}
+  {\partial \dot{L}_{\mu \nu}}
+  &=
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial L_{\mu \nu}}
+  \label{Eq:EoM-Lagrange-PR-cell2}
+\end{align}
+と書ける.
+
+\subsubsection{粒子の運動方程式}
+粒子に対するラグランジアンの運動方程式(\ref{Eq:EoM-Lagrange-PR-particle2})を具体的に計算していく.
+まず左辺について
+\begin{align}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}
+       {\partial \dot{\tilde{r}}_{j \lambda}}
+  &=
+  \frac{\partial}{\partial \dot{\tilde{r}}_{j \lambda}}
+  \left(
+    \frac{1}{2}
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta} L_{\alpha\gamma}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  \right)
+  \\
+  &=
+  \frac{1}{2} m_{j}
+  \left(
+      \sum_{\alpha,\beta,\gamma}
+      L_{\alpha\beta} L_{\alpha\gamma}
+      \dot{\tilde{r}}_{j\gamma} \delta_{\beta \lambda}
+      +
+      \sum_{\alpha,\beta,\gamma}
+      L_{\alpha\beta} L_{\alpha\gamma}
+      \dot{\tilde{r}}_{j\beta} \delta_{\gamma \lambda}
+  \right)
+  \\
+  &=
+  \frac{1}{2} m_{j}
+  \left(
+      \sum_{\alpha,\gamma}
+      L_{\alpha\lambda} L_{\alpha\gamma}
+      \dot{\tilde{r}}_{j\gamma}
+      +
+      \sum_{\alpha,\beta}
+      L_{\alpha\beta} L_{\alpha\lambda}
+      \dot{\tilde{r}}_{j\beta}
+  \right)
+  \\
+  &=
+  m_{j}
+  \sum_{\alpha,\gamma}
+  L_{\alpha\gamma} L_{\alpha\gamma} \dot{\tilde{r}}_{j \gamma}
+  =
+  m_{j}
+  \sum_{\gamma}
+  G_{\lambda\gamma}\dot{\tilde{r}}_{j \gamma}
+\end{align}
+であるので,
+\begin{align}
+  \frac{d}{dt}
+  \left(
+    \frac{\partial \mathcal{L}_{\mathrm{PR}}}
+         {\partial \dot{\tilde{r}}_{j \lambda}}
+  \right)
+  =
+  \frac{d}{dt}
+  \left(
+    m_{j}
+    \sum_{\gamma}
+    G_{\lambda\gamma}\dot{\tilde{r}}_{j \gamma}
+  \right)
+  =
+  m_{j}
+  \sum_{\gamma}
+  \dot{G}_{\lambda\gamma}\dot{\tilde{r}}_{j \gamma}
+  +
+  m_{j}
+  \sum_{\gamma}
+  G_{\lambda\gamma} \ddot{\tilde{r}}_{j \gamma}
+\end{align}
+と計算される. ベクトル形式で書き直すと,
+\begin{align}
+  \frac{d}{dt}
+  \left(
+    \frac{\partial \mathcal{L}_{\mathrm{RP}}}{\partial \dot{\tilde{\bm{r}}}}
+  \right)
+  =
+  \frac{d}{dt}
+  \left(
+    m_{j} \bm{G} \dot{\tilde{\bm{r}}}_{i}
+  \right)
+  =
+  m_{j} \dot{\bm{G}} \dot{\tilde{\bm{r}}}_{j}
+  +
+  m_{j} \bm{G} \ddot{\tilde{\bm{r}}}_{j}
+  \label{Eq:EoM-PR-particle-left}
+\end{align}
+となる。
+
+次に, ラグランジアンの運動方程式(\ref{Eq:EoM-Lagrange-PR-particle2})を右辺を具体的に計算する.
+\begin{align}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}
+  {\partial \tilde{r}_{j \lambda}}
+&=
+\frac{\partial U(\tilde{\bm{r}}, \bm{L})}{\partial \tilde{r}_{j \lambda}}
+=
+\frac{\partial U (\bm{L}\tilde{\bm{r}}_{1}, \ldots, \bm{L}\tilde{\bm{r}}_{N})}
+     {\partial \tilde{r}_{j \lambda}}
+\notag \\
+&=
+\frac{\partial U}{\partial (L_{\nu\mu} \tilde{r}_{j\mu})}
+\frac{\partial (L_{\mu\nu} \tilde{r}_{j\nu})}{\partial \tilde{r}_{j \lambda}}
+=
+\frac{\partial U}{\partial (L_{\nu\mu} \tilde{r}_{j\mu})}
+\frac{\partial \tilde{r}_{j\nu}}{\partial \tilde{r}_{j \lambda}}
+L_{\mu\nu}
+=
+\frac{\partial U}{\partial (L_{\nu\mu} \tilde{r}_{j\mu})}
+\delta_{\nu\lambda}
+L_{\mu\nu}
+\notag \\
+&=
+\frac{\partial U}{\partial (L_{\lambda\mu} \tilde{r}_{j\mu})}
+L_{\mu\lambda}
+=
+\frac{\partial U}{\partial r_{j\mu}}
+L_{\mu\lambda}
+=
+L_{\mu\lambda}
+\frac{\partial U}{\partial r_{j\mu}}
+\end{align}
+と計算される. これをベクトル形式に書き直せば
+\begin{align}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial \tilde{\bm{r}}_{j}}
+  =
+  \bm{L}^{\mathrm{t}} \frac{\partial U}{\partial \bm{r}}
+  \label{Eq:EoM-PR-particle-right}
+\end{align}
+となる.
+
+
+以上, 得られた式(\ref{Eq:EoM-PR-particle-left}), (\ref{Eq:EoM-PR-particle-right})をまとめると, Parinnelo-Rahman法における粒子の運動方程式は
+\begin{align}
+  m_{j} \dot{\bm{G}} \dot{\tilde{\bm{r}}}_{j}
+  +
+  m_{j} \bm{G} \ddot{\tilde{\bm{r}}}_{j}
+  =
+  \bm{L}^{\mathrm{t}} \frac{\partial U}{\partial \bm{r}_{j}}
+\end{align}
+より, 
+\begin{align}
+  \ddot{\bm{r}}_{j}
+  &=
+  -\frac{1}{m_{j}}
+  \bm{G}^{-1} \bm{L}^{\mathrm{t}} \frac{\partial U}{\partial \bm{r}_{j}}
+  -
+  \bm{G}^{-1}\dot{\bm{G}}\dot{\tilde{r}}_{i}
+\end{align}
+とかける. ここで, 
+\begin{align}
+  \bm{G}^{-1} \bm{L}^{t}
+  =
+  (\bm{L}^{\mathrm{t}} \bm{L})^{-1} \bm{L}^{t}
+  =
+  \bm{L}^{-1} (\bm{L}^{\mathrm{t}})^{-1} \bm{L}^{t}
+  =
+  \bm{L}^{-1}
+\end{align}
+であることと, 粒子$j$に働く力が
+\begin{align}
+  \bm{F}_{j} = \frac{\partial U}{\partial \bm{r}_{j}}
+\end{align}
+であることを利用すると, Parinnelo-Rahman法における粒子の運動方程式は
+\begin{align}
+  \ddot{\bm{r}}_{j}
+  &=
+  -\frac{1}{m_{j}}
+  \bm{L}^{-1} \bm{F}_{j}
+  -
+  \bm{G}^{-1}\dot{\bm{G}}\dot{\tilde{r}}_{i}
+\end{align}
+と書くことができる.
+
+
+\subsubsection{シミュレーションセルの運動方程式}
+粒子に対するラグランジアンの運動方程式(\ref{Eq:EoM-Lagrange-PR-cell2})を具体的に計算していく. 左辺について
+\begin{align}
+  \frac{d}{dt}
+  \frac{\partial \mathcal{L}}{\partial \dot{L}_{\mu\nu}}
+  &=
+  \frac{d}{dt}
+  \frac{\partial}{\partial \dot{L}_{\mu\nu}}
+  \left(
+    \frac{1}{2} W
+    \mathrm{Tr}
+    \left[
+      \sum_{\alpha}
+      \dot{L}_{\alpha \beta}
+      \dot{L}_{\alpha \gamma}
+    \right]
+  \right)
+  =
+  \frac{d}{dt}
+  \frac{\partial}{\partial \dot{L}_{\mu\nu}}
+  \left(
+    \frac{1}{2} W
+    \sum_{\alpha, \beta}
+    \dot{L}_{\alpha \beta}^{2}
+  \right)
+  \notag \\
+  &=
+  \frac{d}{dt}
+  \left(
+    W
+    \sum_{\alpha,\beta}
+    \frac{\partial \dot{L}_{\alpha \beta}}{\partial \dot{L}_{\mu\nu}}
+    \dot{L}_{\alpha \beta}
+  \right)
+  =
+  \frac{d}{dt}
+  \left(
+    W
+    \dot{L}_{\alpha\beta}
+    \delta_{\alpha\mu}
+    \delta_{\beta \nu}
+  \right)
+  \notag \\
+  &=
+  W \ddot{L}_{\mu\nu}
+  \notag
+\end{align}
+と計算される. ベクトル形式に書き直すと,
+\begin{align}
+  \frac{d}{dt}
+  \frac{\partial \mathcal{L}}{\partial \dot{\bm{L}}}
+  =
+  W \ddot{\bm{L}}
+\end{align}
+と書くことができる.
+
+
+\clearpage
+
 \section{温度・圧力制御: 能勢・Andersenの方法}
 
 \subsection{能勢・Andersenの運動方程式}
