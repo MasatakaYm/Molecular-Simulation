@@ -87,11 +87,11 @@
 ### [10. 拡張系の方法](https://masatakaym.github.io/documents/Molecular-Simulation/extended-phase-space-method.pdf)
 1. 温度制御: 能勢・Hoover熱浴
 2. 圧力制御: Andersenの方法
-5. 温度・圧力制御: 能勢・Andersenの方法
-6. 温度・圧力制御: Martyna, Tobias, Klein (MTK)の運動方程式
-7. 温度・圧力制御: 能勢・ポアンカレ・Andersenの方法
-8. 🍊温度制御: 能勢・Poincare熱浴
-9. 🍊圧力制御: パリネロ・ラマンの方法
+3. 圧力制御: パリネロ・ラマンの方法
+4. 温度・圧力制御: 能勢・Andersenの方法
+5. 温度・圧力制御: Martyna, Tobias, Klein (MTK)の運動方程式
+6. 🍊温度制御: 能勢・Poincare熱浴
+7. 🍊温度・圧力制御: 能勢・ポアンカレ・Andersenの方法
 
 ### 11. 🍊ガウス束縛法
    1. 温度制御
