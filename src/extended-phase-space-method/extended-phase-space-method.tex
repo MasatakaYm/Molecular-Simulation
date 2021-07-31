@@ -929,12 +929,12 @@ $\Delta t$の高次項がゼロにならないが, 指数関数のテイラー�
 さらに式(\ref{eq:NoseHoover32})における時間発展演算子$e^{\mathcal{D} \Delta t}$の分割が時間反転について対称であるので, 上記のアルゴリズムも時間反転対称である.
 
 \section{温度制御: 能勢・Poincar\'{e}の方法}
-仮装時間$t^{\prime}$におけ能勢の熱浴の運動方程式(\ref{eq:NoseHoover9.1}), (\ref{eq:NoseHoover9.2}), (\ref{eq:NoseHoover9.3}), (\ref{eq:NoseHoover9.4})は能勢のハミルトニアン$\mathcal{H}_{\mathrm{N}}$から導かれる正準方程式である.
-したがって, ハミルトニアン$\mathcal{H}_{\mathrm{N}}$を分割し, そこから導かれる時間発展演算子によって位相空間の時間発展アルゴリズムを構築することで, 仮装時間$t^{\prime}$におけるシンプレクティック分子動力学法を実行することは可能である. しかしこの場合, 実時間$t$は時間スケール$s$によって時間刻みが速くなったり遅くなるため不便である. 運動方程式(\ref{eq:NoseHoover10.1}), (\ref{eq:NoseHoover10.2}), (\ref{eq:NoseHoover10.3}), (\ref{eq:NoseHoover10.4})のように現実時間に書き換えることはできるが、仮装時間から現実時間への変換は正準変換でない. したがって, 運動方程式(\ref{eq:NoseHoover10.1}), (\ref{eq:NoseHoover10.2}), (\ref{eq:NoseHoover10.3}), (\ref{eq:NoseHoover10.4})には基となるハミルトニアンが存在せず, この運動方程式に基づいて導かれた分子動力学法はシンプレクティック性を満たさない. そこで, 実時間$t$においてシンプレクティック性を満たす温度制御法として, \textbf{能勢・Poincar\'{e}熱浴}が提案されている.
+仮想時間$t^{\prime}$におけ能勢の熱浴の運動方程式(\ref{eq:NoseHoover9.1})--(\ref{eq:NoseHoover9.4})は, 能勢のハミルトニアン$\mathcal{H}_{\mathrm{N}}$から導かれる正準方程式である.
+したがって, ハミルトニアン$\mathcal{H}_{\mathrm{N}}$を分割し, そこから導かれる時間発展演算子によって位相空間の時間発展アルゴリズムを構築することで, 仮想時間$t^{\prime}$におけるシンプレクティック分子動力学法を実行することは可能である. しかしこの場合, 実時間$t$は時間スケール$s$によって時間刻みが速くなったり遅くなるため不便である. 運動方程式(\ref{eq:NoseHoover10.1})--(\ref{eq:NoseHoover10.4})のように現実時間に書き換えることはできるが、仮想時間から現実時間への変換は正準変換でない. したがって, 運動方程式(\ref{eq:NoseHoover10.1})--(\ref{eq:NoseHoover10.4})には基となるハミルトニアンが存在せず, この運動方程式に基づいて導かれた分子動力学法はシンプレクティック性を満たさない. そこで, 実時間$t$においてシンプレクティック性を満たす温度制御法として, \textbf{能勢・Poincar\'{e}熱浴}が提案されている.
 
 \subsection{能勢・Poincar\'{e}のハミルトニアンと運動方程式}
-能勢の方法で現実時間$t$でシンプレクティック性が失われるのは, 仮装時間$t^{\prime}$から現実時間$t$の変換が正準変換でなく, ハミルトン形式を失うからである. 能勢・Poincar\'{e}熱浴では, 能勢のハミルトニアンにポアンカレ変換\cite{Okazaki2011}を施すことで, 仮装時間$t^{\prime}$から現実時間$t$に変換してもハミルトン形式が失わないようにしている.
-能勢・Poincar\'{e}のハミルトニアンは以下のようにかかれる:
+能勢の方法で現実時間$t$でシンプレクティック性が失われるのは, 仮想時間$t^{\prime}$から現実時間$t$の変換が正準変換でなく, 得られた運動方程式はもはやハミルトン形式でないからである. 能勢・Poincar\'{e}熱浴では, 能勢のハミルトニアンにポアンカレ変換\cite{Okazaki2011}を施すことで, 仮想時間$t^{\prime}$から現実時間$t$に変換しても運動方程式のハミルトン形式が保たれるようにしている.
+能勢・Poincar\'{e}のハミルトニアンは次のように書かれる:
 \begin{align}
   \mathcal{H}_{\mathrm{NP}}
   &=
@@ -993,8 +993,8 @@ $\mathcal{H}_{\mathrm{N}}$は保存されることから,　
 \begin{equation}
   \mathcal{H}_{\mathrm{N}} - \mathcal{H}_{0} = 0
 \end{equation}
-という関係式を用いると, 運動方程式(\ref{Eq:EoM-Nose-Poincare1}),(\ref{Eq:EoM-Nose-Poincare2}),(\ref{Eq:EoM-Nose-Poincare3}),(\ref{Eq:EoM-Nose-Poincare4})は能勢・Hoover熱浴の運動方程式(\ref{eq:NoseHoover13.1}), (\ref{eq:NoseHoover13.2}), (\ref{eq:NoseHoover13.3})と一致することが確認できる\footnote{
-  $\bm{p}_{i}^{\prime}/s$を用いると, 
+という関係式を用いると, 運動方程式(\ref{Eq:EoM-Nose-Poincare1})--(\ref{Eq:EoM-Nose-Poincare4})は能勢・Hoover熱浴の運動方程式(\ref{eq:NoseHoover13.1})--(\ref{eq:NoseHoover13.3})と一致することが確認できる\footnote{
+  $\bm{p}= \bm{p}_{i}^{\prime}/s$であることを用いると, 
   運動方程式(\ref{Eq:EoM-Nose-Poincare1})から$\dot{\bm{r}}_{i} = \bm{p}_{i} / m_{i}$を得る.
   運動方程式(\ref{Eq:EoM-Nose-Poincare2})より
   $\frac{d}{dt}(\bm{p}_{i}/s)
@@ -1009,14 +1009,13 @@ $\mathcal{H}_{\mathrm{N}}$は保存されることから,　
   $\zeta = P_{s} / Q$を得る.
   最後に運動方程式(\ref{Eq:EoM-Nose-Poincare4})からは
   $\dot{\zeta} = \frac{1}{Q}(\sum_{i=1}^{N} \bm{p}_{i}^{2}/m_{i}) - g k_{\mathrm{B}} T_{\mathrm{eq}}$を得る.
-  このように, 能勢・Hooverの運動方程式(\ref{eq:NoseHoover13.1}), (\ref{eq:NoseHoover13.2}), (\ref{eq:NoseHoover13.3})と同様の運動方程式が得られることが分かる.
+  このように, 能勢・Hooverの運動方程式(\ref{eq:NoseHoover13.1})--(\ref{eq:NoseHoover13.3})と同様の運動方程式が得られることが分かる.
 }.
-ただし, 実際の数値計算では$\mathcal{H}_{\mathrm{N}} - \mathcal{H}_{0}$はゼロの周りを揺らぐ.
+ただし, 実際の数値計算では$\mathcal{H}_{\mathrm{N}} - \mathcal{H}_{0}$はゼロの周りを揺らぐことに注意のこと.
 
 \subsection{能勢・Poincar\'{e}の方法の時間発展アルゴリズム}
 能勢・Poincar\'{e}熱浴における時間発展アルゴリズムを導出していく.
 まず, ハミルトニアン$\mathcal{H}_{\mathrm{NP}}$を以下のように3つに分割する:
-
 \begin{alignat}{3}
   &\mathcal{H}_{\mathrm{NP}}
   &&=
@@ -1043,8 +1042,7 @@ $\mathcal{H}_{\mathrm{N}}$は保存されることから,　
   &&=
   s \frac{P_{s}^{2}}{2Q}
 \end{alignat}
-
-続いて, 各ハミルトニアンによる時間発展を考える. 演算子$D$を
+続いて, 各ハミルトニアンによる時間発展を考える. ある物理量$A$の時間微分から演算子$D$を
 \begin{align}
   \frac{dA}{dt}
   &=
@@ -1066,7 +1064,7 @@ $\mathcal{H}_{\mathrm{N}}$は保存されることから,　
   &\equiv
   DA
 \end{align}
-のように定義する. さらに運動方程式(\ref{Eq:EoM-Nose-Poincare1}),(\ref{Eq:EoM-Nose-Poincare2}),(\ref{Eq:EoM-Nose-Poincare3}),(\ref{Eq:EoM-Nose-Poincare4})を考慮すると
+のように定義する. さらに運動方程式(\ref{Eq:EoM-Nose-Poincare1})--(\ref{Eq:EoM-Nose-Poincare4})を考慮すると
 \begin{align}
   \frac{dA}{dt}
   =
@@ -1263,6 +1261,204 @@ $\mathcal{H}_{\mathrm{N}}$は保存されることから,　
   &P_{s} &&\gets
   \frac{P_{s}}{\left(1 + \frac{P_{s}}{2Q} \frac{\Delta t}{2}\right)}
 \end{alignat}
+
+\subsection{能勢・Poincar\'{e}熱浴における影のハミルトニアン}
+シンプレクティック分子動力学法の特徴として, 影のハミルトニアンの存在があげられる.
+そこで, 能勢・Poincar\'{e}熱浴における影のハミルトニアンがどのような表式であるかを見ていく. まず, 時間発展演算子を
+\begin{equation}
+  e^{D_{Z} \Delta t}
+  =
+  e^{D_{X} \Delta t}
+  e^{D_{Y} \Delta t}
+\end{equation}
+と2つに分割した時, ベーカー・ハウスドルフ・キャンベルの公式より演算子$D$の間には
+\begin{align}
+  D_{Z} \Delta t
+  =&
+  D_{X} \Delta t + D_{Y} \Delta t
+  +
+  \frac{1}{2}
+  \left[D_{X}\Delta t,~ D_{Y}\Delta t\right]
+  \notag \\
+  +&
+  \frac{1}{12}
+  \left\{
+    \left[D_{X}\Delta t, \left[D_{X}\Delta t, D_{Y}\Delta t\right]  \right]
+    +
+    \left[D_{Y}\Delta t, \left[D_{Y}\Delta t, D_{X}\Delta t\right]\right]
+  \right\}
+  +\cdots
+\end{align}
+と展開できる. ここで$[X, Y]= XY- YX$とした. まとめると,
+\begin{equation}
+  D_{Z}
+  =
+  D_{X} + D_{Y}
+  +
+  \frac{\Delta t}{2}
+  \left[D_{X},~ D_{Y}\right]
+  +
+  \frac{(\Delta t)^{2}}{12}
+  \left\{
+    \left[D_{X}, \left[D_{X}t, D_{Y}\right] \right]
+    +
+    \left[D_{Y}, \left[D_{Y}, D_{X}\right]\right]
+  \right\}
+\end{equation}
+となる.
+演算子$D$について
+\begin{align}
+  \left[D_{X},~ D_{Y}\right] &= D_{\{Y,~ X\}}
+  \\
+  \left\{Y,~ X\right\} &=
+  \sum_{i}
+  \left(
+    \frac{\partial Y}{\partial \bm{r}_{i}}
+    \frac{\partial X}{\partial \bm{p}_{i}}
+    -
+    \frac{\partial Y}{\partial \bm{p}_{i}}
+    \frac{\partial X}{\partial \bm{r}_{i}}
+    +
+    \frac{\partial Y}{\partial s}
+    \frac{\partial X}{\partial P_{s}}
+    -
+    \frac{\partial Y}{\partial P_{s}}
+    \frac{\partial X}{\partial x}
+  \right)
+\end{align}
+である. ここで$\{\}$はポアソン括弧を意味する.
+能勢・Poincar\'{e}熱浴では, 式(\ref{Eq:TimeDev-NP})のようにさらに細かく時間発展演算子を分割した. 
+すなわち, 時間発展演算子は
+\begin{align}
+  e^{B} = 
+  e^{A_{3}/2} e^{A_{2}/2}
+  e^{A_{1}}
+  e^{A_{3}/2} e^{A_{2}/2}
+  =
+  e^{A_{3}/2} e^{A^{\prime}} e^{A_{3}/2}
+\end{align}
+のような形をしている. この時, ベーカー・ハウスドルフ・キャンベルの公式を繰り返し適用することで, 演算子$B$や$A^{\prime}$は, $A_1$, $A_2$, $A_{3}$を用いて
+\begin{align}
+  A^{\prime}
+  &=
+  A_{2} + A_{1}
+  -\frac{1}{24}[A_{2},~[A_{2},~A_{1}]] 
+  +\frac{1}{12}[[A_{2},~A_{1}],~A_{1}] + \cdots
+  \\
+  B
+  &=
+  A_{3} + A^{\prime}
+  -\frac{1}{24}[A_{3},~[A_{3},~A^{\prime}]] 
+  +\frac{1}{12}[[A_{3},~A^{\prime}],~A^{\prime}] + \cdots
+\end{align}
+と計算できる. これを用いると
+\begin{align}
+  \Tilde{\mathcal{H}}
+  &=
+  \mathcal{H}_\mathrm{NP}
+  \notag \\
+  &-
+  \frac{(\Delta t)^{2}}{24}
+  \left(
+    \left\{
+      \left\{\mathcal{H}_{\mathrm{NP1}},~ \mathcal{H}_{\mathrm{NP2}}\right\},
+      \mathcal{H}_{\mathrm{NP2}}
+    \right\}
+    -2
+    \left\{
+      \left\{\mathcal{H}_{\mathrm{NP2}},~ \mathcal{H}_{\mathrm{NP1}}\right\},
+      \mathcal{H}_{\mathrm{NP1}}
+    \right\}
+  \right)
+  \notag \\
+  &-
+  \frac{(\Delta t)^{2}}{24}
+  \left(
+    \left\{
+    \left\{
+      \mathcal{H}_{\mathrm{NP1}}+\mathcal{H}_{\mathrm{NP2}},~
+      \mathcal{H}_{\mathrm{NP3}}
+    \right\},~
+    \mathcal{H}_{\mathrm{NP3}}
+    \right\}
+    -2
+    \left\{
+    \left\{
+      \mathcal{H}_{\mathrm{NP3}},~
+      \mathcal{H}_{\mathrm{NP1}}+\mathcal{H}_{\mathrm{NP2}}
+    \right\},~
+    \mathcal{H}_{\mathrm{NP1}}+\mathcal{H}_{\mathrm{NP2}}
+    \right\}
+  \right)
+\end{align}
+となる. これを具体的に計算すると能勢・Poincar\'{e}熱浴における影のハミルトニアン
+\begin{alignat}{4}
+  \Tilde{\mathcal{H}}
+  &=
+  \mathcal{H}_\mathrm{NP}
+  \notag \\
+  &+
+  \frac{(\Delta t)^{2}}{24}
+  \Biggl[
+    -s
+    \sum_{i=1}^{N}
+    \frac{1}{m}
+    \left(\frac{\partial U}{\partial \bm{r}_{i}}\right)^{2}
+    +
+    2s
+    \sum_{i=1}^{N-1}\sum_{j>i}^{N}
+    \frac{\bm{p}_{i}^{\prime}}{m_{i}s}
+    \frac{\partial^{2} U}{\partial \bm{r}_{i} \bm{r}_{j}}
+    \frac{\bm{p}_{j}^{\prime}}{m_{j}s}
+    \notag \\
+    &-
+    \frac{P_{s}^{2}}{2Q^{2}}
+    \left(
+      -s
+      \sum_{i=1}^{N}
+      \frac{\bm{p}_{i}^{2}}{m_{i}s^{2}}
+      +
+      \mathcal{H}_{\mathrm{NP}}
+      -
+      \frac{s P_{s}^{2}}{2Q}
+      + 3g k_{\mathrm{B}} T_{\mathrm{eq}} s
+    \right)
+    \notag \\
+    &+
+    \frac{2}{sQ}
+    \left(
+      -s
+      \sum_{i=1}^{N}
+      \frac{\bm{p}_{i}^{2}}{m_{i}s^{2}}
+      +
+      \mathcal{H}_{\mathrm{NP}}
+      -
+      \frac{sP_{s}^{2}}{2Q}
+      +
+      g k_{\mathrm{B}} T_{\mathrm{eq}} s
+    \right)^{2}
+  \Biggr]
+  +
+  \mathcal{O}((\Delta t)^{4})
+\end{alignat}
+を得ることができる.
+
+\subsection{能勢・Poincar\'{e}熱浴の注意点}
+能勢・Poincar\'{e}熱浴はシンプレクティックな分子動力学法であり, 影のハミルトニアンが存在するためハミルトニアンの安定性が良い. しかしポテンシャルにカットオフを使用するシミュレーション(ほとんど全ての場合)で, 能勢・Poincar\'{e}熱浴を使用するには注意が必要である. 
+
+能勢・Poincar\'{e}の運動方程式(\ref{Eq:EoM-Nose-Poincare4})は
+\begin{equation}
+  \dot{P_{s}}
+  =-
+  \frac{\partial \mathcal{H}_{\mathrm{NP}}}{\partial s}
+  =
+  \sum_{i=1}^{N}
+  \frac{\bm{p}_{i}^{2}}{m_{i}s^{2}}
+  - g k_{\mathrm{B}} T_{\mathrm{eq}}
+  - (\mathcal{H}_{\mathrm{N}} - \mathcal{H}_{0})
+\end{equation}
+のように書かれていることを思い出そう. もしポテンシャルにカットオフを使用した場合, 誤差が積り,シミュレーション中に$\mathcal{H}_{\mathrm{N}}$が徐々に増大していく.
+ここで$\mathcal{H}_{\mathrm{N}} - \mathcal{H}_{0} = g k_{\mathrm{B}} \alpha$のように書けるとすると, $\sum_{i}\bm{p}_{i}^{\prime}/m_{i}s^{2}$が目指すべき温度は$g k_{\mathrm{B}} (T_{\mathrm{eq}} + \alpha)$と書くことができる. すなわち, $\mathcal{H}_{\mathrm{N}}$の誤差の蓄積に伴って$\alpha$が大きくなることで, 設定すべき温度はシミュレーション中に徐々に高くなっていく. このようにポテンシャルカットオフを入れると, 能勢・Poincar\'{e}熱浴で温度を制御しているはずなのに実際には制御できていないという状況がおきてしまう. このことは, 実際に能勢・ポアンカレ熱浴を水分子に適用し, 能勢・Hoover熱浴と比較した研究\cite{Okumura2007}で確認されている.
 
 
 \clearpage
@@ -1754,7 +1950,7 @@ Andersenの運動方程式(\ref{eq:Andersen7.1})--(\ref{eq:Andersen7.4})は
 
 \section{圧力制御: Parrinello-Rahmanの方法}
 Andersenの方法では、シミュレーションセルを等方的に動かして圧力を制御することを見た.
-ここでは、シミュレーションセルの変形を許しながら圧力制御を行うParrinello-Rahmanの方法を見ていく. なお、ここでの議論は統計力学の章で圧力テンソルを導出したときの議論と重複する部分があるが、必要な部分はできるだけ省略しないで記述することにする.
+ここでは、シミュレーションセルの変形を許しながら圧力制御を行うParrinello-Rahman\cite{Parrinello1980, Nose1983}の方法を見ていく. なお、ここでの議論は統計力学の章で圧力テンソルを導出したときの議論と重複する部分があるが、必要な部分はできるだけ省略しないで記述することにする.
 
 \subsection{シミュレーションセル: 平行六面体}
 \subsubsection{平行六面体の数学的基礎}
