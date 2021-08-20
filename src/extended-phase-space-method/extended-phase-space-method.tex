@@ -620,20 +620,28 @@ $\bm{p}_{i}^{\prime} = \bm{p}_{i}/s$であるから,
 \subsubsection{能勢・Hooverの運動方程式}
 W.G.Hooverは現実時間$t$での能勢の運動方程式を変形することで,
 時間スケーリング$s$が必須でない形を持つ運動方程式を導出した~\cite{1985Hoover, 1992Martyna}.
-仮想時間における能勢の方程式(\ref{eq:NoseHoover9.1}--\ref{eq:NoseHoover9.4})に対して, 次のような非正準変換を考える:
+仮想時間における能勢の方程式(\ref{eq:NoseHoover9.1})--(\ref{eq:NoseHoover9.4})に対して, 次のような非正準変換を考える:
 \begin{align}
  \bm{r}_{i} = \bm{r}^{\prime}_{i},~~~~~
  \bm{p}_{i} = \frac{\bm{p}^{\prime}_{i}}{s},~~~~~
  dt         = \frac{dt^{\prime}}{s},~~~~~
  \frac{1}{s}\frac{ds}{dt} = \frac{d \eta}{dt},~~~~~
  p_{s}      = p_{\eta}~~~~~
+ \label{Eq:Nose_Hoover_Transformation}
 \end{align}
 現実時間における運動方程式は,
 \begin{align}
- \frac{d \bm{r}_{i}}{dt} &= \frac{\bm{p}_{i}}{m_{i}} \\
- \frac{d \bm{p}_{i}}{dt} &= \bm{F}_{i} - \frac{p_{\eta}}{Q} \bm{p}_{i} \\
- \frac{d \eta}{dt}       &= \frac{p_{\eta}}{Q} \\
- \frac{d p_{\eta}}{dt}   &= \sum_{i=1}^{N}\frac{\bm{p}_{i}^{2}}{m_{i}} - g k_{\mathrm{B}} T_{\mathrm{eq}} \\
+ \frac{d \bm{r}_{i}}{dt} &= \frac{\bm{p}_{i}}{m_{i}}
+ \label{Eq:EoM_Nose_Hover_1.1}
+ \\
+ \frac{d \bm{p}_{i}}{dt} &= \bm{F}_{i} - \frac{p_{\eta}}{Q} \bm{p}_{i}
+ \label{Eq:EoM_Nose_Hover_1.2}
+ \\
+ \frac{d \eta}{dt}       &= \frac{p_{\eta}}{Q}
+ \label{Eq:EoM_Nose_Hover_1.3}
+ \\
+ \frac{d p_{\eta}}{dt}   &= \sum_{i=1}^{N}\frac{\bm{p}_{i}^{2}}{m_{i}} - g k_{\mathrm{B}} T_{\mathrm{eq}}
+ \label{Eq:EoM_Nose_Hover_1.4}
 \end{align}
 と導出される. この運動方程式を能勢・Hooverの運動方程式という.
 さらに
@@ -667,6 +675,21 @@ $\zeta$は一種の抵抗係数のようなものである.
 このように, $\zeta$はその時間変化によって, 瞬間温度$T(t)$が設定温度$T_{\mathrm{eq}}$に近づくよう, 粒子の運動量にフィードバックをかける.
 つまり, 熱浴粒子が摩擦力を通して熱を供給したり奪ったりすることで, 現実系の温度$T$を
 平均として一定値$T_{\mathrm{eq}}$に保つのである.
+
+なお, 能勢・Hoover運動方程式を導出する際に使用した仮想時間から現実時間への変換(\ref{Eq:Nose_Hoover_Transformation})は非正準変換である. すなわち, 能勢・Hooverの運動方程式(\ref{Eq:EoM_Nose_Hover_1.1})--(\ref{Eq:EoM_Nose_Hover_1.4}), (\ref{eq:NoseHoover13.1})--(\ref{eq:NoseHoover13.3})には基になるハミルトニアンが存在しないことに注意する必要がある. このような力学系は\textbf{non-Hamiltonian system}と呼ばれ, 統計力学的な性質などがM. E. Tuckermanらによって詳しく調べられている\cite{Tuckerman2001, Tuckerman2010}.
+以上のように, 能勢・Hoover方程式ではハミルトニアンは存在しないのだが, 実は拡張部分も含めた全エネルギー
+\begin{equation}
+  E_{\mathrm{NH}}
+  =
+  \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{2m_{i}}
+  +
+  U(\bm{r})
+  +
+  \frac{p_{\eta}^{2}}{2Q}
+  +
+  g k_{\mathrm{B}} T_{\mathrm{eq}} \eta
+\end{equation}
+は保存量となっている.
 
 
 \subsubsection{能勢・Hooverの運動方程式の時間発展法}
@@ -929,8 +952,8 @@ $\Delta t$の高次項がゼロにならないが, 指数関数のテイラー�
 さらに式(\ref{eq:NoseHoover32})における時間発展演算子$e^{\mathcal{D} \Delta t}$の分割が時間反転について対称であるので, 上記のアルゴリズムも時間反転対称である.
 
 \section{温度制御: 能勢・Poincar\'{e}の方法}
-仮想時間$t^{\prime}$におけ能勢の熱浴の運動方程式(\ref{eq:NoseHoover9.1})--(\ref{eq:NoseHoover9.4})は, 能勢のハミルトニアン$\mathcal{H}_{\mathrm{N}}$から導かれる正準方程式である.
-したがって, ハミルトニアン$\mathcal{H}_{\mathrm{N}}$を分割し, そこから導かれる時間発展演算子によって位相空間の時間発展アルゴリズムを構築することで, 仮想時間$t^{\prime}$におけるシンプレクティック分子動力学法を実行することは可能である. しかしこの場合, 実時間$t$は時間スケール$s$によって時間刻みが速くなったり遅くなるため不便である. 運動方程式(\ref{eq:NoseHoover10.1})--(\ref{eq:NoseHoover10.4})のように現実時間に書き換えることはできるが、仮想時間から現実時間への変換は正準変換でない. したがって, 運動方程式(\ref{eq:NoseHoover10.1})--(\ref{eq:NoseHoover10.4})には基となるハミルトニアンが存在せず, この運動方程式に基づいて導かれた分子動力学法はシンプレクティック性を満たさない. そこで, 実時間$t$においてシンプレクティック性を満たす温度制御法として, \textbf{能勢・Poincar\'{e}熱浴}が提案されている.
+仮想時間$t^{\prime}$における能勢の熱浴の運動方程式(\ref{eq:NoseHoover9.1})--(\ref{eq:NoseHoover9.4})は, 能勢のハミルトニアン$\mathcal{H}_{\mathrm{N}}$から導かれる正準方程式である.
+したがって, ハミルトニアン$\mathcal{H}_{\mathrm{N}}$を分割し, そこから導かれる時間発展演算子によって位相空間の時間発展アルゴリズムを構築することで, 仮想時間$t^{\prime}$におけるシンプレクティック分子動力学法を実行することは可能である. しかしこの場合, 実時間$t$は時間スケール$s$によって時間刻みが速くなったり遅くなるため不便である. 例えば相関関数など計算することを考えれば直ちにその不便さが分かるだろう. 運動方程式(\ref{eq:NoseHoover10.1})--(\ref{eq:NoseHoover10.4}), あるいは能勢・Hooverの運動方程式(\ref{Eq:EoM_Nose_Hover_1.1})--(\ref{Eq:EoM_Nose_Hover_1.4})あるいは(\ref{eq:NoseHoover13.1})--(\ref{eq:NoseHoover13.3})のように現実時間に書き換えることはできるが, 仮想時間から現実時間への変換は正準変換でない. したがって, これらの運動方程式には基となるハミルトニアンが存在せず, この運動方程式に基づいて導かれた分子動力学法はシンプレクティック性を満たさない. そこで, 実時間$t$においてシンプレクティック性を満たす温度制御法として, \textbf{能勢・Poincar\'{e}熱浴}が提案されている.
 
 \subsection{能勢・Poincar\'{e}のハミルトニアンと運動方程式}
 能勢の方法で現実時間$t$でシンプレクティック性が失われるのは, 仮想時間$t^{\prime}$から現実時間$t$の変換が正準変換でなく, 得られた運動方程式はもはやハミルトン形式でないからである. 能勢・Poincar\'{e}熱浴では, 能勢のハミルトニアンにポアンカレ変換\cite{Okazaki2011}を施すことで, 仮想時間$t^{\prime}$から現実時間$t$に変換しても運動方程式のハミルトン形式が保たれるようにしている.
