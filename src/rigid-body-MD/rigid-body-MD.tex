@@ -6,15 +6,216 @@
 
 \title{剛体系の分子動力学法}
 \maketitle
-
-本章では剛体分子に対する分子動力学シミュレーションについて解説する\cite{Miller2002}.
-分子シミュレーションではしばしば水分子やメチル基(-CH$_{3}$)など, 水素を含む部分の原子間の距離や角度を固定する.
+本章では剛体分子に対する分子動力学法を解説する.
+\textbf{剛体}とは, 任意の2点間 (2質点間)の距離が時間に依存せず常に一定で, 変形しないような物体と定義される.
+分子シミュレーションではしばしば水分子やメチル基(-CH$_{3}$)など, 水素を含む部分の原子間の距離や角度を固定して, 剛体のように取り扱う.
 このようなモデルを剛体回転子モデルという.
-水素の伸縮運動といった速い運動を取り扱う必要がなるので数値積分の時間刻みを長く取ることができるため,
-効率的なシミュレーションが可能となる.
+水素の伸縮運動といった速い運動を取り扱う必要が無くなり, 数値積分の時間刻みを長く取ることができるため,
+より高速なシミュレーションを実現できる.
 % 剛体の運動は重心の並進運動と重心の回転運動に分離することができる.
 
-\section{空間座標と剛体座標}
+\section{剛体運動の古典力学的記述}
+
+\subsection{並進運動と回転運動の分離}
+\subsubsection{剛体分子の重心ベクトル}
+
+空間座標(デカルト座標)系における剛体分子$i$の重心の位置ベクトルを$\bm{R}_{\mathrm{G}i}$と書くことにする.
+分子$i$に属する原子$a$の空間座標における位置ベクトル(相対座標ベクトル)を$\bm{r}_{a}$, 原子$a$の質量を$m_{a}$を用いると, 重心は
+\begin{equation}
+  \bm{R}_{\mathrm{G}i}
+  =
+  \frac{\sum_{a=1}^{n_{i}} m_{a} \bm{r}_{a}}{\sum_{a=1}^{n_{i}} m_{a}}
+  =
+  \frac{1}{M_{i}}
+  \sum_{a=1}^{n_{i}} m_{a} \bm{r}_{a}
+  \label{Eq:Vector_CoM}
+\end{equation}
+と計算される. ここで, $n_{i}$は剛体分子に属する原子数, $M_{i}$は剛体分子の全質量である.
+原子$a$の重心からの位置ベクトルを$\bm{s}_{a}$とすると, 位置ベクトルを$\bm{r}_{a}$は
+\begin{equation}
+  \bm{r}_{a} = \bm{R}_{\mathrm{G}i} + \bm{s}_{a}
+  \label{Eq:Vector_AtomPosition}
+\end{equation}
+と書ける. $\bm{s}_{a}$は重心を起点とするベクトルのため
+\begin{equation}
+  \sum_{a=1}^{n_{i}} m_{a} \bm{s}_{a} = 0
+  \label{Eq:IEq_SiteVector}
+\end{equation}
+が成立する.
+
+
+
+
+\subsubsection{ニュートンの運動方程式}
+
+ニュートンの運動方程式から, 剛体分子中の各原子に対して運動方程式は次のように書ける:
+\begin{equation}
+  m_{a} \frac{d^{2} \bm{r}_{a}}{dt^{2}}
+  =
+  \bm{F}_{a} + \sum_{b \neq a}^{n_{i}} \bm{F}_{ab}
+  \label{Eq:EoM_Newton_RG}
+\end{equation}
+右辺について, 第一項目は剛体分子外の原子との相互作用で生じる力(外力)であり, 第二項目は剛体分子内の原子間相互作用によって生じる力(内力)である. 
+
+\subsubsection{重心の並進運動}
+ニュートンの運動方程式(\ref{Eq:EoM_Newton_RG})の両辺に対して, 剛体分子内の原子について和を取ると
+\begin{equation}
+  \sum_{a=1}^{n_{i}} m_{a} \frac{d^{2} \bm{r}_{a}}{dt^{2}}
+  =
+  \sum_{a=1}^{n_{i}} \bm{F}_{a}
+  +
+  \sum_{a=1}^{n_{i}} \sum_{b \neq a}^{n_{i}} \bm{F}_{ab}
+  =
+  \sum_{a=1}^{n_{i}} \bm{F}_{a}
+\end{equation}
+を得る. なお, 最後の変形で内力は作用反作用によってキャンセルされることを利用した.
+式(\ref{Eq:Vector_AtomPosition})を代入して, 恒等式(\ref{Eq:IEq_SiteVector})を利用すると, 重心の並進に関する運動方程式
+\begin{equation}
+  M_{i} \frac{d^{2} \bm{R}_{\mathrm{G}i}}{dt^{2}} = \sum_{a=1}^{n_{i}} \bm{F}_{a}
+  \label{Eq:EoM_CoM_Translocate}
+\end{equation}
+が得られる.
+
+
+\subsubsection{回転運動}
+まず初めに, 回転を表す物理量として, 角運動量$\bm{L}_{i}$, トルク$\bm{N}_{i}$を次のように定義する:
+\begin{alignat}{3}
+  \bm{L}_{i} &= \sum_{a=1}^{n_{i}} \bm{r}_{a} \times \bm{p}_{a}
+  \label{Eq:Def_AngularMoment}
+  \\
+  \bm{N}_{i} &= \sum_{a=1}^{n_{i}} \bm{r}_{a} \times \bm{F}_{a}
+  \label{Eq:Def_Torque}
+\end{alignat}
+ここで, $\bm{p}_{a}$は運動量で$\bm{p}_{a} = m_{a} \dot{\bm{r}}_{a}$と計算される.
+同様に, 重心の角運動量$\bm{L}_{\mathrm{G}i}$と重心周りの角運動量$\bm{L}_{\mathrm{R}i}$をそれぞれ
+\begin{align}
+  \bm{L}_{\mathrm{G}i} &= \bm{R}_{\mathrm{G}i} \times M_{i} \dot{\bm{R}}_{\mathrm{G}i}
+  \\
+  \bm{L}_{\mathrm{R}i} &= \sum_{a=1}^{n_{i}} (\bm{s}_{a} \times m_{a} \dot{\bm{a}}_{a})
+\end{align}
+と定義する.
+式(\ref{Eq:Vector_AtomPosition})を用いて変形した運動量
+\begin{equation}
+  \bm{p}_{a}
+  =
+  m_{a} \dot{\bm{R}}_{\mathrm{G}i} + m_{a}\dot{\bm{s}}_{a}
+  \label{Eq:Momentum_Rg_s}
+\end{equation}
+と, 恒等式(\ref{Eq:Vector_AtomPosition})を角運動量の定義(\ref{Eq:Def_AngularMoment})に代入して, 恒等式(\ref{Eq:IEq_SiteVector})を用いると
+\begin{align}
+  \bm{L}_{i}
+  &=
+  \frac{d}{dt}
+  \left\{
+    \sum_{a=1}^{n_{i}}
+    \left(\bm{R}_{\mathrm{G}i} + \bm{s}_{a}\right)
+    \times
+    \left(m_{a} \dot{\bm{R}}_{\mathrm{G}i} + m_{a}\dot{\bm{s}}_{a}\right)
+  \right\}
+  \notag \\
+  &=
+  \bm{R}_{\mathrm{G}i} \times M_{i} \dot{\bm{R}}_{\mathrm{G}i}
+  +
+  \sum_{a=1}^{n_{i}} (\bm{s}_{a} \times m_{a} \dot{\bm{a}}_{a})
+  \notag \\
+  &=
+  \bm{L}_{\mathrm{G}i} + \bm{L}_{\mathrm{R}i}
+\end{align}
+のように展開できる.
+この式から, 重心の角運動量と重心周りの角運動量が分離できることが分かる.
+
+続いて, 回転に関する運動を具体的に考えていく.
+ニュートンの運動方程式(\ref{Eq:EoM_Newton_RG})の両辺に対して, $\bm{r}_{a}$をベクトル積として 左からかけて, 剛体分子内の原子について和を取ると
+\begin{equation}
+  \sum_{a=1}^{n_{i}} \bm{r}_{a} \times m_{a} \frac{d^{2} \bm{r}_{a}}{dt^{2}}
+  =
+  \sum_{a=1}^{n_{i}} \bm{r}_{a} \times \bm{F}_{a}
+  +
+  \sum_{a=1}^{n_{i}} \sum_{b \neq a}^{n_{i}} \bm{r}_{a} \times \bm{F}_{ab}
+\end{equation}
+となる. 左辺は運動量$\bm{p}_{a} = m_{a} \dot{\bm{r}}_{a}$を用いて
+\begin{equation}
+  \sum_{a=1}^{n_{i}} \bm{r}_{a} \times m_{a} \frac{d^{2} \bm{r}_{a}}{dt^{2}}
+  =
+  \frac{d}{dt}
+  \left(
+    \sum_{a=1}^{n_{i}} \bm{r}_{a} \times m_{a} \frac{d \bm{r}_{a}}{dt}
+  \right)
+  =
+  \frac{d}{dt}
+  \left(
+    \sum_{a=1}^{n_{i}} \bm{r}_{a} \times \bm{p}_{a}
+  \right)
+\end{equation}
+と変形できる. 一方, 右辺第二項目は
+\begin{align}
+  \sum_{a=1}^{n_{i}} \sum_{b \neq a}^{n_{i}} \bm{r}_{a} \times \bm{F}_{ab}
+  =
+  \sum_{a=1}^{n_{i}} \sum_{b > a}^{n_{i}}
+  \left(
+    \bm{r}_{a} \times \bm{F}_{ab}
+    +
+    \bm{r}_{b} \times \bm{F}_{ba}
+  \right)
+  =
+  \sum_{a=1}^{n_{i}} \sum_{b > a}^{n_{i}}
+  \left(
+    \bm{r}_{a} - \bm{r}_{b}
+  \right)
+  \times \bm{F}_{ab}
+  =0
+\end{align}
+と計算される. 最後の計算では$\bm{r}_{a} - \bm{r}_{a}$と$\bm{F}_{ab}$は平行ベクトルのため外積がゼロになることを用いた. したがって, 
+\begin{equation}
+  \frac{d}{dt}
+  \left(
+    \sum_{a=1}^{n_{i}} \bm{r}_{a} \times \bm{p}_{a}
+  \right)
+  =
+  \sum_{a=1}^{n_{i}} \bm{r}_{a} \times \bm{F}_{a}
+\end{equation}
+が得られる. 角運動量の定義(\ref{Eq:Def_AngularMoment})とトルクの定義(\ref{Eq:Def_Torque})を代入すると, 回転に関する運動方程式
+\begin{equation}
+  \frac{d \bm{L}_{i}}{dt} = \bm{N}_{i}
+\end{equation}
+が得られた.
+さらに, 運動量の式(\ref{Eq:Momentum_Rg_s})を用いると
+\begin{equation}
+  \frac{d}{dt}
+  \left\{
+    \sum_{a=1}^{n_{i}}
+    \left(\bm{R}_{\mathrm{G}i} + \bm{s}_{a}\right)
+    \times
+    \left(m_{a} \dot{\bm{R}}_{\mathrm{G}i} + m_{a}\dot{\bm{s}}_{a}\right)
+  \right\}
+  =
+  \sum_{a=1}^{n_{i}}
+  \left(\bm{R}_{\mathrm{G}i} + \bm{s}_{a}\right)
+  \times
+  \bm{F}_{a}
+\end{equation}
+となる.
+恒等式(\ref{Eq:IEq_SiteVector})と重心の並進に関する運動方程式(\ref{Eq:EoM_CoM_Translocate})を用いて整理すると,
+\begin{equation}
+  \frac{d}{dt}
+  \left(
+    \sum_{a=1}^{n_{i}}
+    \bm{s}_{a} \times m_{a} \dot{\bm{s}}_{a}
+  \right)
+  =
+  \sum_{a=1}^{n_{i}}
+  \bm{s}_{a} \times \bm{F}_{a}
+\end{equation}
+を得る. これより, 剛体の回転を表す運動方程式は重心周りのみが関係し, 重心の角運動量に依存しないことが分かる.
+
+
+
+\subsection{重心周りの回転運動}
+
+\subsection{オイラーの運動方程式}
+
+\subsection{オイラー角: 分子の配向を記述する一般化座標}
+\subsubsection{空間座標と剛体座標}
 剛体の運動を考えるには, 剛体に固定された座標を用いるのが便利である. 
 そこで, 空間座標と剛体座標の変換を考える. 
 空間座標とは空間に固定された座標系である. 
@@ -225,8 +426,14 @@ $\dot{\psi}$は座標系$\tilde{O}$の$\tilde{z}$まわりの変化であるか�
 %  I_{\alpha \beta} = \sum_{k=1}^{N}m_k \left(|\bm{r}_k|^2\delta_{\alpha \beta} - \bm{r}_{k_{\alpha}}\bm{r}_{k_{\beta}}\right)
 % \end{align}
 % $\bm{r}_k$はk番目の原子の座標, $m_k$はk番目の原子の質量を表す. 
+
+\section{剛体運動の解析力学的記述}
+\subsection{ラグランジアンの導出}
+\subsection{ハミルトニアンの導出}
+\subsection{運動方程式の導出}
+
  
- \section{剛体の回転運動に対するハミルトニアン}
+\section{剛体の回転運動に対するハミルトニアン}
 剛体座標上の重心位置からの相対位置ベクトルを$\bm{d}_{k}$とする. 
 このとき, 分子の重心周りの回転の運動エネルギーは, 
 \begin{align}
@@ -513,7 +720,9 @@ $\dot{\bm{q}}^{\mathrm{t}}
 % この時, オイラーの運動方程式と一致する式を得られる. 
 % \clearpage
 
-\section{剛体の回転運動の時間発展}
+
+\section{剛体の回転運動に対する分子動力学アルゴリズム}
+
 ハミルトニアン(\ref{eq:RigidBodyMD24})を5つの部分に分割する. 
 \begin{align}
  \mathcal{H}(\bm{p}, \bm{q})
