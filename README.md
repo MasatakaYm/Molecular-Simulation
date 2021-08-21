@@ -74,17 +74,7 @@
 2. シンプレクティック分子動力学法
 3. シンプレクティック分子動力学法における保存量
 
-### [8. 拘束条件付き分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/constrain-dynamics.pdf)
-1. ホロノミックな拘束条件の具体的な例
-2. 座標に対する拘束動力学: ベルレ法による時間発展とSHAKE法
-3. 速度と座標に対する拘束動力学: 速度ベルレ法による時間発展とRATTLE法
-
-### [9. 剛体の分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/rigid-body-MD.pdf)
-1. 空間座標と剛体座標
-2. 剛体の回転運動に対するハミルトニアン
-3. 剛体の回転運動の時間発展
-
-### [10. 拡張系の方法](https://masatakaym.github.io/documents/Molecular-Simulation/extended-phase-space-method.pdf)
+### [8. 拡張系の方法](https://masatakaym.github.io/documents/Molecular-Simulation/extended-phase-space-method.pdf)
 1. 温度制御: 能勢・Hoover 熱浴
 2. 温度制御: 能勢・Poincare 熱浴
 3. 圧力制御: Andersenの方法
@@ -92,6 +82,16 @@
 5. 温度・圧力制御: 能勢・Andersenの方法
 6. 温度・圧力制御: Martyna-Tobias-Klein (MTK)の運動方程式
 7. 温度・圧力制御: 能勢・ポアンカレ・Andersenの方法
+
+### [9. 拘束条件付き分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/constrain-dynamics.pdf)
+1. ホロノミックな拘束条件の具体的な例
+2. 座標に対する拘束動力学: ベルレ法による時間発展とSHAKE法
+3. 速度と座標に対する拘束動力学: 速度ベルレ法による時間発展とRATTLE法
+
+### [10. 剛体の分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/rigid-body-MD.pdf)
+1. 空間座標と剛体座標
+2. 剛体の回転運動に対するハミルトニアン
+3. 剛体の回転運動の時間発展
 
 ### 11. 🍊ガウス束縛法
    1. 温度制御
