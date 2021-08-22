@@ -620,20 +620,28 @@ $\bm{p}_{i}^{\prime} = \bm{p}_{i}/s$であるから,
 \subsubsection{能勢・Hooverの運動方程式}
 W.G.Hooverは現実時間$t$での能勢の運動方程式を変形することで,
 時間スケーリング$s$が必須でない形を持つ運動方程式を導出した~\cite{1985Hoover, 1992Martyna}.
-仮想時間における能勢の方程式(\ref{eq:NoseHoover9.1}--\ref{eq:NoseHoover9.4})に対して, 次のような非正準変換を考える:
+仮想時間における能勢の方程式(\ref{eq:NoseHoover9.1})--(\ref{eq:NoseHoover9.4})に対して, 次のような非正準変換を考える:
 \begin{align}
  \bm{r}_{i} = \bm{r}^{\prime}_{i},~~~~~
  \bm{p}_{i} = \frac{\bm{p}^{\prime}_{i}}{s},~~~~~
  dt         = \frac{dt^{\prime}}{s},~~~~~
  \frac{1}{s}\frac{ds}{dt} = \frac{d \eta}{dt},~~~~~
  p_{s}      = p_{\eta}~~~~~
+ \label{Eq:Nose_Hoover_Transformation}
 \end{align}
 現実時間における運動方程式は,
 \begin{align}
- \frac{d \bm{r}_{i}}{dt} &= \frac{\bm{p}_{i}}{m_{i}} \\
- \frac{d \bm{p}_{i}}{dt} &= \bm{F}_{i} - \frac{p_{\eta}}{Q} \bm{p}_{i} \\
- \frac{d \eta}{dt}       &= \frac{p_{\eta}}{Q} \\
- \frac{d p_{\eta}}{dt}   &= \sum_{i=1}^{N}\frac{\bm{p}_{i}^{2}}{m_{i}} - g k_{\mathrm{B}} T_{\mathrm{eq}} \\
+ \frac{d \bm{r}_{i}}{dt} &= \frac{\bm{p}_{i}}{m_{i}}
+ \label{Eq:EoM_Nose_Hover_1.1}
+ \\
+ \frac{d \bm{p}_{i}}{dt} &= \bm{F}_{i} - \frac{p_{\eta}}{Q} \bm{p}_{i}
+ \label{Eq:EoM_Nose_Hover_1.2}
+ \\
+ \frac{d \eta}{dt}       &= \frac{p_{\eta}}{Q}
+ \label{Eq:EoM_Nose_Hover_1.3}
+ \\
+ \frac{d p_{\eta}}{dt}   &= \sum_{i=1}^{N}\frac{\bm{p}_{i}^{2}}{m_{i}} - g k_{\mathrm{B}} T_{\mathrm{eq}}
+ \label{Eq:EoM_Nose_Hover_1.4}
 \end{align}
 と導出される. この運動方程式を能勢・Hooverの運動方程式という.
 さらに
@@ -667,6 +675,21 @@ $\zeta$は一種の抵抗係数のようなものである.
 このように, $\zeta$はその時間変化によって, 瞬間温度$T(t)$が設定温度$T_{\mathrm{eq}}$に近づくよう, 粒子の運動量にフィードバックをかける.
 つまり, 熱浴粒子が摩擦力を通して熱を供給したり奪ったりすることで, 現実系の温度$T$を
 平均として一定値$T_{\mathrm{eq}}$に保つのである.
+
+なお, 能勢・Hoover運動方程式を導出する際に使用した仮想時間から現実時間への変換(\ref{Eq:Nose_Hoover_Transformation})は非正準変換である. すなわち, 能勢・Hooverの運動方程式(\ref{Eq:EoM_Nose_Hover_1.1})--(\ref{Eq:EoM_Nose_Hover_1.4}), (\ref{eq:NoseHoover13.1})--(\ref{eq:NoseHoover13.3})には基になるハミルトニアンが存在しないことに注意する必要がある. このような力学系は\textbf{non-Hamiltonian system}と呼ばれ, 統計力学的な性質などがM. E. Tuckermanらによって詳しく調べられている\cite{Tuckerman2001, Tuckerman2010}.
+以上のように, 能勢・Hoover方程式ではハミルトニアンは存在しないのだが, 実は拡張部分も含めた全エネルギー
+\begin{equation}
+  E_{\mathrm{NH}}
+  =
+  \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{2m_{i}}
+  +
+  U(\bm{r})
+  +
+  \frac{p_{\eta}^{2}}{2Q}
+  +
+  g k_{\mathrm{B}} T_{\mathrm{eq}} \eta
+\end{equation}
+は保存量となっている.
 
 
 \subsubsection{能勢・Hooverの運動方程式の時間発展法}
@@ -928,8 +951,616 @@ $\Delta t$の高次項がゼロにならないが, 指数関数のテイラー�
 熱浴がない, つまり$\zeta=0$の時, 速度ベルレ法によるミクロカノニカルアンサンブルでの時間発展の表式を得られる.
 さらに式(\ref{eq:NoseHoover32})における時間発展演算子$e^{\mathcal{D} \Delta t}$の分割が時間反転について対称であるので, 上記のアルゴリズムも時間反転対称である.
 
-\clearpage
+\section{温度制御: 能勢・Poincar\'{e}の方法}
+仮想時間$t^{\prime}$における能勢の熱浴の運動方程式(\ref{eq:NoseHoover9.1})--(\ref{eq:NoseHoover9.4})は, 能勢のハミルトニアン$\mathcal{H}_{\mathrm{N}}$から導かれる正準方程式である.
+したがって, ハミルトニアン$\mathcal{H}_{\mathrm{N}}$を分割し, そこから導かれる時間発展演算子によって位相空間の時間発展アルゴリズムを構築することで, 仮想時間$t^{\prime}$におけるシンプレクティック分子動力学法を実行することは可能である. しかしこの場合, 実時間$t$は時間スケール$s$によって時間刻みが速くなったり遅くなるため不便である. 例えば相関関数など計算することを考えれば直ちにその不便さが分かるだろう. 能勢の運動方程式(\ref{eq:NoseHoover10.1})--(\ref{eq:NoseHoover10.4}), 能勢・Hooverの運動方程式(\ref{Eq:EoM_Nose_Hover_1.1})--(\ref{Eq:EoM_Nose_Hover_1.4}), (\ref{eq:NoseHoover13.1})--(\ref{eq:NoseHoover13.3})のように現実時間に書き換えることはできるが, 仮想時間から現実時間への変換は正準変換でない. したがって, これらの運動方程式には基となるハミルトニアンが存在せず, この運動方程式に基づいて導かれた分子動力学法はシンプレクティック性を満たさない. そこで, 実時間$t$においてシンプレクティック性を満たす温度制御法として, \textbf{能勢・Poincar\'{e}熱浴}が提案されている.
 
+\subsection{能勢・Poincar\'{e}のハミルトニアンと運動方程式}
+能勢の方法で現実時間$t$でシンプレクティック性が失われるのは, 仮想時間$t^{\prime}$から現実時間$t$の変換が正準変換でなく, 得られた運動方程式はもはやハミルトン形式でないからである. 能勢・Poincar\'{e}熱浴では, 能勢のハミルトニアンにポアンカレ変換\cite{Zare1975, Okazaki2011}を施すことで, 仮想時間$t^{\prime}$から現実時間$t$に変換しても運動方程式のハミルトン形式が保たれるようにしている.
+
+\subsubsection{ポアンカレ変換}
+ポアンカレ変換\cite{Zare1975, Okazaki2011}を用いて仮想時間から現実時間にスケールする方法を見ていく.
+ポアンカレ変換では, 時間スケール関数$f (r, p^{\prime}) > 0$を用いてハミルトニアン$\mathcal{H} = \mathcal{H}(r, p^{\prime})$を次のようにスケールする:
+
+\begin{equation}
+  \Tilde{\mathcal{H}}(r, p^{\prime})
+  =
+  f(r, p^{\prime}) (\mathcal{H} - \mathcal{H}_{0})
+  \label{Eq:Hamiltonian-Scaled-Poincare}
+\end{equation}
+ここで, $\mathcal{H}_{0}$はある時刻におけるハミルトニアンの値であり, 通常ハミルトニアンの初期値とする. 以下では, ポアンカレ変換された力学系のダイナミクスが元々の力学系のダイナミクスと同じであることを課し, 時間スケール関数$f$がどのような関数となるべきか考えていく. 
+まず, 仮想時間におけるハミルトニアン$\mathcal{H} = \mathcal{H}(r, p^{\prime})$の正準方程式は
+\begin{alignat}{3}
+  \frac{d r_{i}}{dt^{\prime}}
+  =&&
+  \frac{\partial \mathcal{H}}{\partial p_{i}^{\prime}}
+  \\
+  \frac{d p_{i}^{\prime}}{dt^{\prime}}
+  =&&-
+  \frac{\partial \mathcal{H}}{\partial r_{i}}
+\end{alignat}
+である.
+次に, 現実時間にスケールしたハミルトニアン(\ref{Eq:Hamiltonian-Scaled-Poincare})の正準方程式は
+\begin{alignat}{5}
+  \frac{d r_{i}}{d t}
+  =&&
+  \frac{\partial \Tilde{\mathcal{H}}}{\partial p_{i}^{\prime}}
+  =&&
+  f \frac{\partial \mathcal{H}}{\partial p_{i}^{\prime}}
+  +
+  (\mathcal{H} - \mathcal{H}_{0}) \frac{\partial f}{\partial p_{i}^{\prime}}
+  =&&
+  f \frac{\partial \mathcal{H}}{\partial p_{i}^{\prime}}
+  \\
+  \frac{d p_{i}^{\prime}}{d t}
+  =&& -
+  \frac{\partial \Tilde{\mathcal{H}}}{\partial r_{i}}
+  =&& -
+  f \frac{\partial \mathcal{H}}{\partial r_{i}}
+  -
+  (\mathcal{H} - \mathcal{H}_{0}) \frac{\partial f}{\partial r_{i}}
+  =&& -
+  f \frac{\partial \mathcal{H}}{\partial r_{i}}
+\end{alignat}
+である. 途中の計算でハミルトニアンが保存すること$(\mathcal{H} = \mathcal{H}_{0})$であることを使用した. さらに具体的に変形すると
+\begin{alignat}{5}
+  \frac{d r_{i}}{d t}
+  =&&
+  \frac{dt^{\prime}}{dt}
+  \frac{d r_{i}}{d t^{\prime}}
+  =&&
+  f \frac{\partial \mathcal{H}}{\partial p_{i}^{\prime}}
+  \\
+  \frac{d p_{i}^{\prime}}{d t}
+  = && -
+  \frac{dt^{\prime}}{dt}
+  \frac{d p_{i}^{\prime}}{d t^{\prime}}
+  = && -
+  f \frac{\partial \mathcal{H}}{\partial r_{i}}
+\end{alignat}
+となる.
+変換前後における力学系のダイナミクスが同じであるという制約から, 
+スケール関数$f$が満たすべき条件
+\begin{align}
+  \frac{dt^{\prime}}{dt} = f
+\end{align}
+が得られる. 能勢の方法の場合
+\begin{align}
+  f = \frac{dt^{\prime}}{dt} = s
+\end{align}
+である.
+
+\subsubsection{能勢・Poincar\'{e}のハミルトニアン}
+
+能勢・Poincar\'{e}のハミルトニアンは次のように書かれる:
+\begin{align}
+  \mathcal{H}_{\mathrm{NP}}
+  &=
+  s
+  \left\{
+    \mathcal{H}_{\mathrm{N}}(\bm{r}, \bm{p}^{\prime}, s, p_{s}) - \mathcal{H}_{0}
+  \right\}
+  \\
+  &=
+  s
+  \left\{
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}^{\prime 2}}{2m_{i}s^{2}}
+    + U(\bm{r})
+    +
+    \frac{p_{s}^{2}}{2Q}
+    +
+    g k_{\mathrm{B}} T_{\mathrm{eq}} \log s
+    - \mathcal{H}_{0}
+  \right\}
+  \label{Eq:Hamiltonian-Nose-Poincare}
+\end{align}
+ここで, $\mathcal{H}_{0}$は$\mathcal{H}_{\mathrm{N}}$の初期値である. $p_{s}$の熱浴の自由度$s$に対する正準共役な運動量, $Q$は熱浴の質量に相当する$s$の時間発展を制御するパラメータ, $k_{\mathrm{B}}$はボルツマン定数, $T_{\mathrm{eq}}$は設定温度, $g$は系の自由度であり3次元空間中の$N$粒子系を考えるときは$g=3N$となる.
+
+\subsubsection{能勢・Poincar\'{e}運動方程式}
+ハミルトニアン(\ref{Eq:Hamiltonian-Nose-Poincare})から運動方程式は以下のように導かれる:
+\begin{alignat}{4}
+  \dot{\bm{r}}_{i}
+  &=&&
+  \frac{\partial \mathcal{H}_{\mathrm{NP}}}{\partial \bm{p}_{i}^{\prime}}
+  &&=
+  \frac{\bm{p}_{i}^{\prime}}{m_{i}s}
+  \label{Eq:EoM-Nose-Poincare1} \\
+  \dot{\bm{p}_{i}^{\prime}}
+  &=-&&
+  \frac{\partial \mathcal{H}_{\mathrm{NP}}}{\partial \bm{r}_{i}^{\prime}}
+  &&=
+  s\bm{F}_{i}
+  \label{Eq:EoM-Nose-Poincare2} \\
+  \dot{s}
+  &=&&
+  \frac{\partial \mathcal{H}_{\mathrm{NP}}}{\partial p_{s}}
+  &&=
+  s \frac{p_{s}}{Q}
+  \label{Eq:EoM-Nose-Poincare3} \\
+  \dot{p_{s}}
+  &=-&&
+  \frac{\partial \mathcal{H}_{\mathrm{NP}}}{\partial s}
+  &&=
+  \sum_{i=1}^{N}
+  \frac{\bm{p}_{i}^{2}}{m_{i}s^{2}}
+  - g k_{\mathrm{B}} T_{\mathrm{eq}}
+  - (\mathcal{H}_{\mathrm{N}} - \mathcal{H}_{0})
+  \label{Eq:EoM-Nose-Poincare4}
+\end{alignat}
+$\mathcal{H}_{\mathrm{N}}$は保存されることから,　
+\begin{equation}
+  \mathcal{H}_{\mathrm{N}} - \mathcal{H}_{0} = 0
+\end{equation}
+という関係式を用いると, 運動方程式(\ref{Eq:EoM-Nose-Poincare1})--(\ref{Eq:EoM-Nose-Poincare4})は能勢・Hoover熱浴の運動方程式(\ref{eq:NoseHoover13.1})--(\ref{eq:NoseHoover13.3})と一致することが確認できる\footnote{
+  $\bm{p}= \bm{p}_{i}^{\prime}/s$であることを用いると, 
+  運動方程式(\ref{Eq:EoM-Nose-Poincare1})から$\dot{\bm{r}}_{i} = \bm{p}_{i} / m_{i}$を得る.
+  運動方程式(\ref{Eq:EoM-Nose-Poincare2})より
+  $\frac{d}{dt}(\bm{p}_{i}/s)
+  = \dot{\bm{p}_{i}}/s - \dot{s}/s^{2} \bm{p}_{i}
+  = s\bm{F}_{i}$なので,
+  $\dot{\bm{p}}_{i}
+  = \bm{F}_{i}
+  = \dot{s}/s \bm{p}_{i}
+  = \bm{F}_{i} - \zeta \bm{p}_{i}$
+  を得る. ここで$\zeta = \dot{s}/s$である.
+  運動方程式(\ref{Eq:EoM-Nose-Poincare3})から直ちに, 
+  $\zeta = p_{s} / Q$を得る.
+  最後に運動方程式(\ref{Eq:EoM-Nose-Poincare4})からは
+  $\dot{\zeta} = \frac{1}{Q}(\sum_{i=1}^{N} \bm{p}_{i}^{2}/m_{i}) - g k_{\mathrm{B}} T_{\mathrm{eq}}$を得る.
+  このように, 能勢・Hooverの運動方程式(\ref{eq:NoseHoover13.1})--(\ref{eq:NoseHoover13.3})と同様の運動方程式が得られることが分かる.
+}.
+ただし, 実際の数値計算では$\mathcal{H}_{\mathrm{N}} - \mathcal{H}_{0}$はゼロの周りを揺らぐことに注意のこと.
+
+\subsection{能勢・Poincar\'{e}の方法の時間発展アルゴリズム}
+能勢・Poincar\'{e}熱浴における時間発展アルゴリズムを導出していく.
+まず, ハミルトニアン$\mathcal{H}_{\mathrm{NP}}$を以下のように3つに分割する:
+\begin{alignat}{3}
+  &\mathcal{H}_{\mathrm{NP}}
+  &&=
+  \mathcal{H}_{\mathrm{NP1}} +
+  \mathcal{H}_{\mathrm{NP2}} +
+  \mathcal{H}_{\mathrm{NP3}}
+  \\
+  &\mathcal{H}_{\mathrm{NP1}}
+  &&=
+  s
+  \left(
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}^{\prime 2}}{2m_{i}s^{2}}
+    +
+    g k_{\mathrm{B}} T_{\mathrm{eq}} \log s
+    - \mathcal{H}_{0}
+  \right)
+  \\
+  &\mathcal{H}_{\mathrm{NP1}}
+  &&=
+  s U(\bm{r})
+  \\
+  &\mathcal{H}_{\mathrm{NP1}}
+  &&=
+  s \frac{p_{s}^{2}}{2Q}
+\end{alignat}
+続いて, 各ハミルトニアンによる時間発展を考える. ある物理量$A$の時間微分から演算子$D$を
+\begin{align}
+  \frac{dA}{dt}
+  &=
+  \left(
+    \sum_{i=1}^{N} \dot{\bm{r}}_{i}
+    \frac{\partial}{\partial \bm{r}_{i}}
+    +
+    \sum_{i=1}^{N} \dot{\bm{p}}_{i}^{\prime}
+    \frac{\partial}{\partial \bm{p}_{i}^{\prime}}
+    +
+    \dot{s}
+    \frac{\partial}{\partial s}
+    +
+    \dot{p_{s}}
+    \frac{\partial}{\partial p_{s}}
+  \right)
+  A
+  \\
+  &\equiv
+  DA
+\end{align}
+のように定義する. さらに運動方程式(\ref{Eq:EoM-Nose-Poincare1})--(\ref{Eq:EoM-Nose-Poincare4})を考慮すると
+\begin{align}
+  \frac{dA}{dt}
+  =
+  \left(
+    \sum_{i=1}^{N}
+    \frac{\partial \mathcal{H}_{\mathrm{NP}}}{\partial \bm{p}_{i}^{\prime}}
+    \frac{\partial}{\partial \bm{r}_{i}}
+    -
+    \sum_{i=1}^{N}
+    \frac{\partial \mathcal{H}_{\mathrm{NP}}}{\partial \bm{r}_{i}}
+    \frac{\partial}{\partial \bm{p}_{i}^{\prime}}
+    +
+    \frac{\partial \mathcal{H}_{\mathrm{NP}}}{\partial p_{s}}
+    \frac{\partial}{\partial s}
+    -
+    \frac{\partial \mathcal{H}_{\mathrm{NP}}}{\partial s}
+    \frac{\partial}{\partial p_{s}}
+  \right)
+  A
+\end{align}
+とかけるので, 各ハミルトニアンについてそれぞれ
+\begin{align}
+  D_{\mathcal{H}_{\mathrm{NP1}}}
+  &=
+  \frac{\bm{p}_{i}^{\prime}}{m_{i}s^{2}}
+  \frac{\partial}{\partial \bm{r}_{i}}
+  +
+  \left(
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}^{\prime 2}}{2m_{i}s^{2}}
+    -
+    g k_{\mathrm{B}} T_{\mathrm{eq}} \log s
+    +
+    \mathcal{H}_{0}
+    -
+    g k_{\mathrm{B}} T_{\mathrm{eq}}
+  \right)
+  \frac{\partial}{\partial p_{s}}
+  \\
+  D_{\mathcal{H}_{\mathrm{NP2}}}
+  &=
+  s \bm{F}_{i} \frac{\partial}{\partial \bm{p}_{i}^{\prime}}
+  -
+  U(\bm{r}) \frac{\partial}{\partial p_{s}}
+  \\
+  D_{\mathcal{H}_{\mathrm{NP3}}}
+  &=
+  s \frac{p_{s}}{Q} \frac{\partial}{\partial s}
+  -
+  \frac{p_{s}^{2}}{2Q} \frac{\partial}{\partial p_{s}}
+\end{align}
+を得る.
+これらの演算子を位相空間に作用させると
+\begin{alignat}{4}
+  &D_{\mathcal{H}_{\mathrm{NP1}}} ~ \bm{r}_{i}
+  &&=
+  \frac{\bm{p}_{i}^{\prime}}{m_{i}s}
+  \label{Eq:Liouville-NP1-r} \\
+  &D_{\mathcal{H}_{\mathrm{NP1}}} ~ p_{s}
+  &&=
+  \sum_{i=1}^{N}
+  \frac{\bm{p}_{i}^{\prime 2}}{2m_{i}s^{2}}
+  -
+  g k_{\mathrm{B}} T_{\mathrm{eq}} \log s
+  +
+  \mathrm{H}_{0}
+  -
+  g k_{\mathrm{B}} T_{\mathrm{eq}}
+  \label{Eq:Liouville-NP1-s} \\
+  &D_{\mathcal{H}_{\mathrm{NP2}}} ~ \bm{p}_{i}^{\prime}
+  &&=
+  s \bm{F}_{i}
+  \label{Eq:Liouville-NP2-p} \\
+  &D_{\mathcal{H}_{\mathrm{NP2}}} ~ p_{s}
+  &&=
+  -U(\bm{r})
+  \label{Eq:Liouville-NP2-Ps} \\
+  &D_{\mathcal{H}_{\mathrm{NP3}}} ~ s
+  &&=
+  s \frac{p_{s}}{Q}
+  \label{Eq:Liouville-NP3-s} \\
+  &D_{\mathcal{H}_{\mathrm{NP3}}} ~ p_{s}
+  &&=
+  -\frac{p_{s}^{2}}{2Q}
+  \label{Eq:Liouville-NP3P-s}
+\end{alignat}
+のようになる.
+
+時間発展演算子を例えば次のように分割する:
+\begin{equation}
+  e^{D_{\mathcal{H}_{\mathrm{NP}}}\Delta t/2}
+  =
+  e^{D_{\mathcal{H}_{\mathrm{NP3}}}\Delta t/2}
+  e^{D_{\mathcal{H}_{\mathrm{NP2}}}\Delta t/2}
+  e^{D_{\mathcal{H}_{\mathrm{NP1}}}\Delta t}
+  e^{D_{\mathcal{H}_{\mathrm{NP2}}}\Delta t/2}
+  e^{D_{\mathcal{H}_{\mathrm{NP3}}}\Delta t/2}
+  +
+  \mathcal{O}((\Delta t)^{3})
+  \label{Eq:TimeDev-NP}
+\end{equation}
+演算子$D$を位相空間に作用させた結果(\ref{Eq:Liouville-NP1-r})--(\ref{Eq:Liouville-NP3P-s})を用いると, 時間発展演算子による位相空間の時間発展はそれぞれ次のように計算される:
+\begin{alignat}{4}
+  &e^{D_{\mathcal{H}_{\mathrm{NP1}}}\Delta t} ~ \bm{r}_{i}
+  &&=
+  \bm{r}_{i}
+  +
+  \frac{\bm{p}_{i}^{\prime}}{m_{i}s} \Delta t
+  \label{Eq:TimeDev-NP1-r} \\
+  &e^{D_{\mathcal{H}_{\mathrm{NP1}}}\Delta t} ~ p_{s}
+  &&=
+  p_{s}
+  +
+  \left(
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}^{\prime 2}}{2m_{i}s^{2}}
+    -
+    g k_{\mathrm{B}} T_{\mathrm{eq}} \log s
+    +
+    \mathcal{H}_{0}
+    -
+    g k_{\mathrm{B}} T_{\mathrm{eq}}
+  \right)
+  \Delta t
+  \label{Eq:TimeDev-NP1-Ps} \\
+  &e^{D_{\mathcal{H}_{\mathrm{NP2}}}\Delta t} ~ \bm{p}_{i}^{\prime}
+  &&=
+  \bm{p}_{i}^{\prime}
+  +
+  s \bm{F}_{i} \Delta t
+  \label{Eq:TimeDev-NP2-p} \\
+  &e^{D_{\mathcal{H}_{\mathrm{NP2}}}\Delta t} ~ p_{s}
+  &&=
+  p_{s} - U(\bm{r}) \Delta t
+  \label{Eq:TimeDev-NP2-Ps} \\
+  &e^{D_{\mathcal{H}_{\mathrm{NP3}}}\Delta t} ~ s
+  &&=
+  s + s \frac{p_{s}}{Q} \Delta t + s \frac{p_{s}^{2}}{4Q^2} (\Delta)^{2}
+  =
+  s \left(1 + \frac{p_{s}}{2Q} \Delta t \right)^{2}
+  \label{Eq:TimeDev-NP3-s} \\
+  &e^{D_{\mathcal{H}_{\mathrm{NP3}}}\Delta t} ~ p_{s}
+  &&=
+  p_{s} - \frac{p_{s}^{2}}{2Q} \Delta t + \frac{p_{s}^{3}}{4Q^{2}} (\Delta t)^{2}
+  + \cdots
+  =
+  \frac{p_{s}}{(1 + \frac{p_{s}}{2Q}\Delta t)}
+  \label{Eq:TimeDev-NP3-Ps}
+\end{alignat}
+なお, 最後の式(\ref{Eq:TimeDev-NP3-Ps})において
+\begin{equation}
+  \frac{1}{1+x} = 1 - x + x^2 - x^3 + \cdots
+\end{equation}
+を用いた. 以上で得られた式を用いて, 式(\ref{Eq:TimeDev-NP})の順で位相空間を時間発展させると次のような能勢・Poincar\'{e}熱浴の時間発展アルゴリズムを得る:
+\begin{alignat}{3}
+  &s &&\gets
+  s \left(1 + \frac{p_{s}}{2Q} \frac{\Delta t}{2}\right)^{2}
+  \\
+  &p_{s} &&\gets
+  \frac{p_{s}}{\left(1 + \frac{p_{s}}{2Q} \frac{\Delta t}{2}\right)}
+  \\
+  &\bm{p}_{i}^{\prime} &&\gets
+  \bm{p}_{i}^{\prime} + s \bm{F}_{i} \frac{\Delta t}{2}
+  \\
+  &p_{s} &&\gets
+  p_{s} - U(\bm{r}) \frac{\Delta t}{2}
+  \\
+  &\bm{r}_{i} &&\gets
+  \bm{r}_{i} + \frac{\bm{p}_{i}^{\prime}}{m_{i}s} \Delta t
+  \\
+  &p_{s} &&\gets
+  p_{s} +
+  \left(
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}^{\prime 2}}{2m_{i}s^{2}}
+    -
+    g k_{\mathrm{B}} T_{\mathrm{eq}} \log s
+    +
+    \mathcal{H}_{0}
+    -
+    g k_{\mathrm{B}} T_{\mathrm{eq}}
+  \right)
+  \Delta t
+  \\
+  &\bm{p}_{i}^{\prime} &&\gets
+  \bm{p}_{i}^{\prime} + s \bm{F}_{i} \frac{\Delta t}{2}
+  \\
+  &p_{s} &&\gets
+  p_{s} - U(\bm{r}) \frac{\Delta t}{2}
+  \\
+  &s &&\gets
+  s \left(1 + \frac{p_{s}}{2Q} \frac{\Delta t}{2}\right)^{2}
+  \\
+  &p_{s} &&\gets
+  \frac{p_{s}}{\left(1 + \frac{p_{s}}{2Q} \frac{\Delta t}{2}\right)}
+\end{alignat}
+
+\subsection{能勢・Poincar\'{e}熱浴における影のハミルトニアン}
+シンプレクティック分子動力学法の特徴として, 影のハミルトニアンの存在があげられる.
+そこで, 能勢・Poincar\'{e}熱浴における影のハミルトニアンがどのような表式であるかを見ていく. まず, 時間発展演算子を
+\begin{equation}
+  e^{D_{Z} \Delta t}
+  =
+  e^{D_{X} \Delta t}
+  e^{D_{Y} \Delta t}
+\end{equation}
+と2つに分割した時, ベーカー・ハウスドルフ・キャンベルの公式より演算子$D$の間には
+\begin{align}
+  D_{Z} \Delta t
+  =&
+  D_{X} \Delta t + D_{Y} \Delta t
+  +
+  \frac{1}{2}
+  \left[D_{X}\Delta t,~ D_{Y}\Delta t\right]
+  \notag \\
+  +&
+  \frac{1}{12}
+  \left\{
+    \left[D_{X}\Delta t, \left[D_{X}\Delta t, D_{Y}\Delta t\right]  \right]
+    +
+    \left[D_{Y}\Delta t, \left[D_{Y}\Delta t, D_{X}\Delta t\right]\right]
+  \right\}
+  +\cdots
+\end{align}
+と展開できる. ここで$[X, Y]= XY- YX$とした. まとめると,
+\begin{equation}
+  D_{Z}
+  =
+  D_{X} + D_{Y}
+  +
+  \frac{\Delta t}{2}
+  \left[D_{X},~ D_{Y}\right]
+  +
+  \frac{(\Delta t)^{2}}{12}
+  \left\{
+    \left[D_{X}, \left[D_{X}t, D_{Y}\right] \right]
+    +
+    \left[D_{Y}, \left[D_{Y}, D_{X}\right]\right]
+  \right\}
+\end{equation}
+となる.
+演算子$D$について
+\begin{align}
+  \left[D_{X},~ D_{Y}\right] &= D_{\{Y,~ X\}}
+  \\
+  \left\{Y,~ X\right\} &=
+  \sum_{i}
+  \left(
+    \frac{\partial Y}{\partial \bm{r}_{i}}
+    \frac{\partial X}{\partial \bm{p}_{i}}
+    -
+    \frac{\partial Y}{\partial \bm{p}_{i}}
+    \frac{\partial X}{\partial \bm{r}_{i}}
+    +
+    \frac{\partial Y}{\partial s}
+    \frac{\partial X}{\partial p_{s}}
+    -
+    \frac{\partial Y}{\partial p_{s}}
+    \frac{\partial X}{\partial x}
+  \right)
+\end{align}
+である. ここで$\{\}$はポアソン括弧を意味する.
+能勢・Poincar\'{e}熱浴では, 式(\ref{Eq:TimeDev-NP})のようにさらに細かく時間発展演算子を分割した. 
+すなわち, 時間発展演算子は
+\begin{align}
+  e^{B} = 
+  e^{A_{3}/2} e^{A_{2}/2}
+  e^{A_{1}}
+  e^{A_{3}/2} e^{A_{2}/2}
+  =
+  e^{A_{3}/2} e^{A^{\prime}} e^{A_{3}/2}
+\end{align}
+のような形をしている. この時, ベーカー・ハウスドルフ・キャンベルの公式を繰り返し適用することで, 演算子$B$や$A^{\prime}$は, $A_1$, $A_2$, $A_{3}$を用いて
+\begin{align}
+  A^{\prime}
+  &=
+  A_{2} + A_{1}
+  -\frac{1}{24}[A_{2},~[A_{2},~A_{1}]] 
+  +\frac{1}{12}[[A_{2},~A_{1}],~A_{1}] + \cdots
+  \\
+  B
+  &=
+  A_{3} + A^{\prime}
+  -\frac{1}{24}[A_{3},~[A_{3},~A^{\prime}]] 
+  +\frac{1}{12}[[A_{3},~A^{\prime}],~A^{\prime}] + \cdots
+\end{align}
+と計算できる. これを用いると
+\begin{align}
+  \Tilde{\mathcal{H}}
+  &=
+  \mathcal{H}_\mathrm{NP}
+  \notag \\
+  &-
+  \frac{(\Delta t)^{2}}{24}
+  \left(
+    \left\{
+      \left\{\mathcal{H}_{\mathrm{NP1}},~ \mathcal{H}_{\mathrm{NP2}}\right\},
+      \mathcal{H}_{\mathrm{NP2}}
+    \right\}
+    -2
+    \left\{
+      \left\{\mathcal{H}_{\mathrm{NP2}},~ \mathcal{H}_{\mathrm{NP1}}\right\},
+      \mathcal{H}_{\mathrm{NP1}}
+    \right\}
+  \right)
+  \notag \\
+  &-
+  \frac{(\Delta t)^{2}}{24}
+  \left(
+    \left\{
+    \left\{
+      \mathcal{H}_{\mathrm{NP1}}+\mathcal{H}_{\mathrm{NP2}},~
+      \mathcal{H}_{\mathrm{NP3}}
+    \right\},~
+    \mathcal{H}_{\mathrm{NP3}}
+    \right\}
+    -2
+    \left\{
+    \left\{
+      \mathcal{H}_{\mathrm{NP3}},~
+      \mathcal{H}_{\mathrm{NP1}}+\mathcal{H}_{\mathrm{NP2}}
+    \right\},~
+    \mathcal{H}_{\mathrm{NP1}}+\mathcal{H}_{\mathrm{NP2}}
+    \right\}
+  \right)
+\end{align}
+となる. これを具体的に計算すると能勢・Poincar\'{e}熱浴における影のハミルトニアン
+\begin{alignat}{4}
+  \Tilde{\mathcal{H}}
+  &=
+  \mathcal{H}_\mathrm{NP}
+  \notag \\
+  &+
+  \frac{(\Delta t)^{2}}{24}
+  \Biggl[
+    -s
+    \sum_{i=1}^{N}
+    \frac{1}{m}
+    \left(\frac{\partial U}{\partial \bm{r}_{i}}\right)^{2}
+    +
+    2s
+    \sum_{i=1}^{N-1}\sum_{j>i}^{N}
+    \frac{\bm{p}_{i}^{\prime}}{m_{i}s}
+    \frac{\partial^{2} U}{\partial \bm{r}_{i} \bm{r}_{j}}
+    \frac{\bm{p}_{j}^{\prime}}{m_{j}s}
+    \notag \\
+    &-
+    \frac{p_{s}^{2}}{2Q^{2}}
+    \left(
+      -s
+      \sum_{i=1}^{N}
+      \frac{\bm{p}_{i}^{2}}{m_{i}s^{2}}
+      +
+      \mathcal{H}_{\mathrm{NP}}
+      -
+      \frac{s p_{s}^{2}}{2Q}
+      + 3g k_{\mathrm{B}} T_{\mathrm{eq}} s
+    \right)
+    \notag \\
+    &+
+    \frac{2}{sQ}
+    \left(
+      -s
+      \sum_{i=1}^{N}
+      \frac{\bm{p}_{i}^{2}}{m_{i}s^{2}}
+      +
+      \mathcal{H}_{\mathrm{NP}}
+      -
+      \frac{sp_{s}^{2}}{2Q}
+      +
+      g k_{\mathrm{B}} T_{\mathrm{eq}} s
+    \right)^{2}
+  \Biggr]
+  +
+  \mathcal{O}((\Delta t)^{4})
+\end{alignat}
+を得ることができる.
+
+\subsection{能勢・Poincar\'{e}熱浴の注意点}
+能勢・Poincar\'{e}熱浴はシンプレクティックな分子動力学法であり, 影のハミルトニアンが存在するためハミルトニアンの安定性が良い. しかしポテンシャルにカットオフを使用するシミュレーション(ほとんど全ての場合)で, 能勢・Poincar\'{e}熱浴を使用するには注意が必要である. 
+
+能勢・Poincar\'{e}の運動方程式(\ref{Eq:EoM-Nose-Poincare4})は
+\begin{equation}
+  \dot{p_{s}}
+  =-
+  \frac{\partial \mathcal{H}_{\mathrm{NP}}}{\partial s}
+  =
+  \sum_{i=1}^{N}
+  \frac{\bm{p}_{i}^{2}}{m_{i}s^{2}}
+  - g k_{\mathrm{B}} T_{\mathrm{eq}}
+  - (\mathcal{H}_{\mathrm{N}} - \mathcal{H}_{0})
+\end{equation}
+のように書かれていることを思い出そう. もしポテンシャルにカットオフを使用した場合, 誤差が積り,シミュレーション中に$\mathcal{H}_{\mathrm{N}}$が徐々に増大していく.
+ここで$\mathcal{H}_{\mathrm{N}} - \mathcal{H}_{0} = g k_{\mathrm{B}} \alpha$のように書けるとすると, $\sum_{i}\bm{p}_{i}^{\prime}/m_{i}s^{2}$が目指すべき温度は$g k_{\mathrm{B}} (T_{\mathrm{eq}} + \alpha)$と書くことができる. すなわち, $\mathcal{H}_{\mathrm{N}}$の誤差の蓄積に伴って$\alpha$が大きくなることで, 設定すべき温度はシミュレーション中に徐々に高くなっていく. このようにポテンシャルカットオフを入れると, 能勢・Poincar\'{e}熱浴で温度を制御しているはずなのに実際には制御できていないという状況がおきてしまう. このことは, 実際に能勢・ポアンカレ熱浴を水分子に適用し, 能勢・Hoover熱浴と比較した研究\cite{Okumura2007}で確認されている.
+
+
+\clearpage
 \section{圧力制御: Andersenの方法}
 定圧環境では, 系の体積は揺らいでいる. 
 体積を大きくすれば圧力は下がり, 体積を小さくすれば圧力は上がる. 
@@ -1416,6 +2047,751 @@ Andersenの運動方程式(\ref{eq:Andersen7.1})--(\ref{eq:Andersen7.4})は
 
 \clearpage
 
+\section{圧力制御: Parrinello-Rahmanの方法}
+Andersenの方法では、シミュレーションセルを等方的に動かして圧力を制御することを見た.
+ここでは、シミュレーションセルの変形を許しながら圧力制御を行うParrinello-Rahman\cite{Parrinello1980, Nose1983}の方法を見ていく. なお、ここでの議論は統計力学の章で圧力テンソルを導出したときの議論と重複する部分があるが、必要な部分はできるだけ省略しないで記述することにする.
+
+\subsection{シミュレーションセル: 平行六面体}
+\subsubsection{平行六面体の数学的基礎}
+Parrinello-Rahman方法では, 平行六面体のシミュレーションセルを使用する.
+平行六面体の基本並進ベクトルを
+\begin{align}
+  \bm{a}_{1} &= (a_{1x}, a_{1y}, a_{1z})^{t}, \\
+  \bm{a}_{2} &= (a_{2x}, a_{2y}, a_{2z})^{t}, \\
+  \bm{a}_{3} &= (a_{3x}, a_{3y}, a_{3z})^{t}
+\end{align}
+とする. 基本セルはセル行列$\bm{L}$を用いて
+\begin{align}
+  \bm{L} = (\bm{a}_{1}, \bm{a}_{2}, \bm{a}_{3})
+\end{align}
+と書くことができる. 基本セルの体積は
+\begin{align}
+  V
+   = \det \bm{L}
+   = \bm{a}_{1} \cdot (\bm{a}_{2} \times \bm{a}_{3})
+   = \bm{a}_{2} \cdot (\bm{a}_{3} \times \bm{a}_{1})
+   = \bm{a}_{3} \cdot (\bm{a}_{1} \times \bm{a}_{2})
+\end{align}
+と計算できる. ここで, 体積を基本並進ベクトルで微分すると,
+\begin{align}
+  \frac{\partial V}{\partial \bm{a}_{1}}
+  &=
+  \bm{a}_{2} \times \bm{a}_{3}
+  \\
+  \frac{\partial V}{\partial \bm{a}_{2}}
+  &=
+  \bm{a}_{3} \times \bm{a}_{1}
+  \\
+  \frac{\partial V}{\partial \bm{a}_{3}}
+  &=
+  \bm{a}_{1} \times \bm{a}_{2}
+\end{align}
+である. これらをまとめると
+\begin{align}
+  \bm{\sigma}
+  \equiv
+  \frac{\partial V}{\partial \bm{L}}
+  =
+  \left(
+    \bm{a}_{2} \times \bm{a}_{3},~
+    \bm{a}_{3} \times \bm{a}_{1},~
+    \bm{a}_{1} \times \bm{a}_{2}
+  \right)
+  \label{Eq:def-sigma}
+\end{align}
+となる. ここでセル行列$\bm{L}$に関する関係式をまとめておく. まず初めにセル行列の逆行列$\bm{L}^{-1}$は
+\begin{align}
+  \bm{L}^{-1}
+  =
+  \frac{1}{V}
+  \begin{pmatrix}
+    (\bm{a}_{2} \times \bm{a}_{3})^{\mathrm{t}} \\
+    (\bm{a}_{3} \times \bm{a}_{1})^{\mathrm{t}} \\
+    (\bm{a}_{1} \times \bm{a}_{2})^{\mathrm{t}}
+  \end{pmatrix}
+  =
+  \frac{1}{V} \bm{\sigma}^{\mathrm{t}}
+  \label{Eq:inv-cell-matrix}
+\end{align}
+と計算される. さらに$\bm{L}$, $\bm{\sigma}$, $V$の間には
+\begin{align}
+  \bm{L}^{\mathrm{t}} \bm{\sigma}
+  &=
+  \begin{pmatrix}
+    \bm{a}_{1}^{\mathrm{t}} \\
+    \bm{a}_{2}^{\mathrm{t}} \\
+    \bm{a}_{3}^{\mathrm{t}}
+  \end{pmatrix}
+  \left(
+    \bm{a}_{2} \times \bm{a}_{3},~
+    \bm{a}_{3} \times \bm{a}_{1},~
+    \bm{a}_{1} \times \bm{a}_{2}
+  \right)
+  \notag \\
+  &=
+  \begin{pmatrix}
+    \bm{a}_{1} \cdot (\bm{a}_{2} \times \bm{a}_{3}) & 0 & 0 \\
+    0 & \bm{a}_{2} \cdot (\bm{a}_{3} \times \bm{a}_{1}) & 0 \\
+    0 & 0 & \bm{a}_{3} \cdot (\bm{a}_{1} \times \bm{a}_{2})
+  \end{pmatrix}
+  \notag \\
+  &=
+  V \bm{1}
+  \label{Eq:relation-Lt-sigma-V}
+\end{align}
+が成立する. ここで$\bm{1}$は単位行列である.
+
+\subsubsection{スケールした座標と速度}
+Andersenの方法の時と同じように, Parrinello-Rahmanの方法でもスケールした座標と速度を使用する. スケールした座標と速度はセル行列を使用して
+\begin{align}
+  \bm{r}_{i}       &= \bm{L} \tilde{\bm{r}}_{i} \\
+  \dot{\bm{r}}_{i} &= \bm{L} \dot{\tilde{\bm{r}}}_{i}
+\end{align}
+とかける. 以降, スケール座標と速度は上付のチルダ$\tilde{}$で表す.
+ここで計量テンソル
+\begin{equation}
+  \bm{G}
+  =
+  \bm{L}^{\mathrm{t}} \bm{L}
+  =
+  \left(
+       \begin{array}{c}
+        \bm{a}_{1}^{\mathrm{t}}  \\
+        \bm{a}_{2}^{\mathrm{t}}  \\
+        \bm{a}_{3}^{\mathrm{t}}  \\
+       \end{array}
+  \right)
+  \left(\bm{a}_{1}~ \bm{a}_{2}~ \bm{a}_{3}\right)
+  =
+  \left(
+       \begin{array}{ccc}
+          \bm{a}_{1}\cdot\bm{a}_{1}
+        & \bm{a}_{1}\cdot\bm{a}_{2}
+        & \bm{a}_{1}\cdot\bm{a}_{3} \\
+          \bm{a}_{2}\cdot\bm{a}_{1}
+        & \bm{a}_{2}\cdot\bm{a}_{2}
+        & \bm{a}_{2}\cdot\bm{a}_{3} \\
+          \bm{a}_{3}\cdot\bm{a}_{1}
+        & \bm{a}_{3}\cdot\bm{a}_{2}
+        & \bm{a}_{3}\cdot\bm{a}_{3}
+       \end{array}
+  \right)
+\end{equation}
+を導入する.
+計量テンソル$\bm{G}$を用いると速度の二乗は
+\begin{equation}
+  \dot{\bm{r}}_{i}^{2}
+  =
+  \dot{\bm{r}}_{i}^{\mathrm{t}} \dot{\bm{r}}_{i}
+  =
+  \left(\bm{L} \dot{\tilde{\bm{r}}} \right)^{\mathrm{t}} \bm{L} \dot{\tilde{\bm{r}}}
+  =
+  \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{L}^{\mathrm{L}} \bm{L} \dot{\tilde{r}}_{i}
+  =
+  \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{G} \dot{\tilde{\bm{r}}}_{i}
+\end{equation}
+とかける. ここで任意の行列$A$と$B$について
+\begin{equation}
+  A^{\mathrm{t}} B^{\mathrm{t}} = (BA)^{\mathrm{t}}
+\end{equation}
+の関係が成り立つことを用いた. 
+
+
+\subsection{Parrinello-Rahmanのラグランジアンと運動方程式}
+Parrinello-Rahmanのラグランジアンは, スケールした座標$\tilde{\bm{r}}$とセル行列$\bm{L}$を用いて
+\begin{equation}
+  \mathcal{L}_{\mathrm{PR}}
+  (\tilde{\bm{r}}, \bm{L}, \dot{\tilde{\bm{r}}}, \dot{\bm{L}})
+  =
+  \frac{1}{2}
+  \sum_{i=1}^{N}
+  m_{i} \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{G} \dot{\tilde{\bm{r}}}_{i}
+  -
+  U(\tilde{\bm{r}}, \bm{L})
+  +
+  \frac{1}{2} W
+  \mathrm{Tr} [\dot{\bm{L}}^{\mathrm{t}} \dot{\bm{L}}]
+  -
+  P_{0}V
+\end{equation}
+と書くことができる.
+ここで, $W$はピストンの仮想的な質量であり, $P_{0}$は設定圧力である.
+また第3項目の対角和$\mathrm{Tr}$は
+\begin{align}
+  \frac{1}{2} W \mathrm{Tr} (\dot{\bm{L}}^{\mathrm{t}} \dot{\bm{L}})
+  &=
+  \frac{1}{2} W
+  \mathrm{Tr}
+  \begin{pmatrix}
+    \dot{\bm{a}}_{1} \cdot \dot{\bm{a}}_{1} & 0 & 0 \\
+    0 & \dot{\bm{a}}_{2} \cdot \dot{\bm{a}}_{2} & 0 \\
+    0 & 0 & \dot{\bm{a}}_{2} \cdot \dot{\bm{a}}_{2} \\
+  \end{pmatrix}
+  \notag \\
+  &=
+  \frac{1}{2} W
+  (\dot{\bm{a}}_{1}^{2} + \dot{\bm{a}}_{2}^{2} + \dot{\bm{a}}_{3}^{2})
+\end{align}
+と計算される. これはシミュレーションセルの運動エネルギーを意味する.
+粒子とシミュレーションセルに対するラグランジュの運動方程式はそれぞれ, 
+\begin{align}
+  \frac{d}{dt}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial \dot{\tilde{\bm{r}}}_{j}}
+  &=
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial \tilde{\bm{r}}_{j}}
+  \label{Eq:EoM-Lagrange-PR-particle1}
+  \\
+  \frac{d}{dt}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial \dot{\bm{L}}}
+  &=
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial \bm{L}}
+  \label{Eq:EoM-Lagrange-PR-cell1}
+\end{align}
+とかける.
+
+ここで, この後のテンソル計算の便利のために縮約記号を導入する.
+すなわち, $\tilde{\bm{r}}_{i}$の$\alpha$成分を$\tilde{r}_{i\alpha}$と書き$\bm{L}$の$(\alpha,~\beta)$成分を$L_{\alpha \beta}$と書くことにする. 
+$\alpha,\beta,\cdots$は1, 2, 3の値をとる. 
+この記法を用いると座標と速度はそれぞれ
+\begin{align}
+  r_{i \alpha}
+ &=
+  \sum_{\beta = 1}^{3} L_{\alpha \beta} \tilde{r}_{i\beta}
+  \\
+  \notag
+  \dot{r}_{i \alpha}
+ &=
+  \sum_{\beta = 1}^{3} L_{\alpha \beta} \dot{\tilde{r}}_{i\beta}
+\end{align}
+とかける. 
+この記法を用いてラグランジアンを書き直せば
+\begin{align}
+  \mathcal{L}_{\mathrm{PR}}
+ &=
+  \frac{1}{2}
+  \sum_{i=1}^{N} m_{i}
+  \sum_{\alpha,\beta,\gamma}
+  (L_{\alpha\beta}\dot{\tilde{r}}_{i\beta})
+  (L_{\alpha\gamma}\dot{\tilde{r}}_{i\gamma})
+  -
+  U(\tilde{\bm{r}}, \bm{L})
+  +
+  \frac{1}{2} W
+  \mathrm{Tr}
+  \left[
+    \sum_{\beta, \gamma}
+    \dot{L}_{\alpha \beta} \dot{L}_{\alpha \gamma}
+  \right]
+  -
+  P_{0} V
+  \\
+  &=
+  \frac{1}{2}
+  \sum_{\alpha,\beta,\gamma}
+  L_{\alpha\beta} L_{\alpha\gamma}
+  \sum_{i=1}^{N} m_{i}
+  \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  -
+  U(\tilde{\bm{r}}, \bm{L})
+  +
+  \frac{1}{2} W
+  \mathrm{Tr}
+  \left[
+    \sum_{\beta, \gamma}
+    \dot{L}_{\alpha \beta} \dot{L}_{\alpha \gamma}
+  \right]
+  -
+  P_{0} V
+\end{align}
+となる. また, 縮約記号を用いると, 粒子とシミュレーションセルに対するラグランジュの運動方程式はそれぞれ
+\begin{align}
+  \frac{d}{dt}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}
+  {\partial \dot{\tilde{r}}_{j \lambda}}
+  \label{Eq:EoM-Lagrange-PR-particle2}
+  &=
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial \tilde{r}_{j \lambda}}
+  \\
+  \frac{d}{dt}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}
+  {\partial \dot{L}_{\mu \nu}}
+  &=
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial L_{\mu \nu}}
+  \label{Eq:EoM-Lagrange-PR-cell2}
+\end{align}
+と書ける.
+
+\subsubsection{粒子の運動方程式}
+粒子に対するラグランジアンの運動方程式(\ref{Eq:EoM-Lagrange-PR-particle2})を具体的に計算していく.
+まず左辺について
+\begin{align}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}
+       {\partial \dot{\tilde{r}}_{j \lambda}}
+  &=
+  \frac{\partial}{\partial \dot{\tilde{r}}_{j \lambda}}
+  \left(
+    \frac{1}{2}
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta} L_{\alpha\gamma}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  \right)
+  \\
+  &=
+  \frac{1}{2} m_{j}
+  \left(
+      \sum_{\alpha,\beta,\gamma}
+      L_{\alpha\beta} L_{\alpha\gamma}
+      \dot{\tilde{r}}_{j\gamma} \delta_{\beta \lambda}
+      +
+      \sum_{\alpha,\beta,\gamma}
+      L_{\alpha\beta} L_{\alpha\gamma}
+      \dot{\tilde{r}}_{j\beta} \delta_{\gamma \lambda}
+  \right)
+  \\
+  &=
+  \frac{1}{2} m_{j}
+  \left(
+      \sum_{\alpha,\gamma}
+      L_{\alpha\lambda} L_{\alpha\gamma}
+      \dot{\tilde{r}}_{j\gamma}
+      +
+      \sum_{\alpha,\beta}
+      L_{\alpha\beta} L_{\alpha\lambda}
+      \dot{\tilde{r}}_{j\beta}
+  \right)
+  \\
+  &=
+  m_{j}
+  \sum_{\alpha,\gamma}
+  L_{\alpha\lambda} L_{\alpha\gamma} \dot{\tilde{r}}_{j \gamma}
+  =
+  m_{j}
+  \sum_{\gamma}
+  G_{\lambda\gamma}\dot{\tilde{r}}_{j \gamma}
+\end{align}
+であるので,
+\begin{align}
+  \frac{d}{dt}
+  \left(
+    \frac{\partial \mathcal{L}_{\mathrm{PR}}}
+         {\partial \dot{\tilde{r}}_{j \lambda}}
+  \right)
+  =
+  \frac{d}{dt}
+  \left(
+    m_{j}
+    \sum_{\gamma}
+    G_{\lambda\gamma}\dot{\tilde{r}}_{j \gamma}
+  \right)
+  =
+  m_{j}
+  \sum_{\gamma}
+  \dot{G}_{\lambda\gamma}\dot{\tilde{r}}_{j \gamma}
+  +
+  m_{j}
+  \sum_{\gamma}
+  G_{\lambda\gamma} \ddot{\tilde{r}}_{j \gamma}
+\end{align}
+と計算される. ベクトル形式で書き直すと,
+\begin{align}
+  \frac{d}{dt}
+  \left(
+    \frac{\partial \mathcal{L}_{\mathrm{RP}}}{\partial \dot{\tilde{\bm{r}}}}
+  \right)
+  =
+  \frac{d}{dt}
+  \left(
+    m_{j} \bm{G} \dot{\tilde{\bm{r}}}_{i}
+  \right)
+  =
+  m_{j} \dot{\bm{G}} \dot{\tilde{\bm{r}}}_{j}
+  +
+  m_{j} \bm{G} \ddot{\tilde{\bm{r}}}_{j}
+  \label{Eq:EoM-PR-particle-left}
+\end{align}
+となる。
+
+次に, ラグランジアンの運動方程式(\ref{Eq:EoM-Lagrange-PR-particle2})を右辺を具体的に計算する.
+\begin{align}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}
+  {\partial \tilde{r}_{j \lambda}}
+&=
+\frac{\partial U(\tilde{\bm{r}}, \bm{L})}{\partial \tilde{r}_{j \lambda}}
+=
+\frac{\partial U (\bm{L}\tilde{\bm{r}}_{1}, \ldots, \bm{L}\tilde{\bm{r}}_{N})}
+     {\partial \tilde{r}_{j \lambda}}
+\notag \\
+&=
+\frac{\partial U}{\partial (L_{\nu\mu} \tilde{r}_{j\mu})}
+\frac{\partial (L_{\mu\nu} \tilde{r}_{j\nu})}{\partial \tilde{r}_{j \lambda}}
+=
+\frac{\partial U}{\partial (L_{\nu\mu} \tilde{r}_{j\mu})}
+\frac{\partial \tilde{r}_{j\nu}}{\partial \tilde{r}_{j \lambda}}
+L_{\mu\nu}
+=
+\frac{\partial U}{\partial (L_{\nu\mu} \tilde{r}_{j\mu})}
+\delta_{\nu\lambda}
+L_{\mu\nu}
+\notag \\
+&=
+\frac{\partial U}{\partial (L_{\lambda\mu} \tilde{r}_{j\mu})}
+L_{\mu\lambda}
+=
+\frac{\partial U}{\partial r_{j\mu}}
+L_{\mu\lambda}
+=
+L_{\mu\lambda}
+\frac{\partial U}{\partial r_{j\mu}}
+\end{align}
+と計算される. これをベクトル形式に書き直せば
+\begin{align}
+  \frac{\partial \mathcal{L}_{\mathrm{PR}}}{\partial \tilde{\bm{r}}_{j}}
+  =
+  \bm{L}^{\mathrm{t}} \frac{\partial U}{\partial \bm{r}}
+  \label{Eq:EoM-PR-particle-right}
+\end{align}
+となる.
+
+
+以上, 得られた式(\ref{Eq:EoM-PR-particle-left}), (\ref{Eq:EoM-PR-particle-right})をまとめると, Parinnelo-Rahman法における粒子の運動方程式は
+\begin{align}
+  m_{j} \dot{\bm{G}} \dot{\tilde{\bm{r}}}_{j}
+  +
+  m_{j} \bm{G} \ddot{\tilde{\bm{r}}}_{j}
+  =
+  \bm{L}^{\mathrm{t}} \frac{\partial U}{\partial \bm{r}_{j}}
+\end{align}
+より, 
+\begin{align}
+  \ddot{\bm{r}}_{j}
+  &=
+  -\frac{1}{m_{j}}
+  \bm{G}^{-1} \bm{L}^{\mathrm{t}} \frac{\partial U}{\partial \bm{r}_{j}}
+  -
+  \bm{G}^{-1}\dot{\bm{G}}\dot{\tilde{r}}_{i}
+\end{align}
+とかける. ここで, 
+\begin{align}
+  \bm{G}^{-1} \bm{L}^{t}
+  =
+  (\bm{L}^{\mathrm{t}} \bm{L})^{-1} \bm{L}^{t}
+  =
+  \bm{L}^{-1} (\bm{L}^{\mathrm{t}})^{-1} \bm{L}^{t}
+  =
+  \bm{L}^{-1}
+\end{align}
+であることと, 粒子$j$に働く力が
+\begin{align}
+  \bm{F}_{j} = \frac{\partial U}{\partial \bm{r}_{j}}
+\end{align}
+であることを利用すると, Parinnelo-Rahman法における粒子の運動方程式は
+\begin{align}
+  \ddot{\bm{r}}_{j}
+  &=
+  -\frac{1}{m_{j}}
+  \bm{L}^{-1} \bm{F}_{j}
+  -
+  \bm{G}^{-1}\dot{\bm{G}}\dot{\tilde{r}}_{i}
+\end{align}
+と書くことができる.
+
+
+\subsubsection{シミュレーションセルの運動方程式}
+シミュレーションセルに対するラグランジアンの運動方程式(\ref{Eq:EoM-Lagrange-PR-cell2})を具体的に計算していく. 左辺について
+\begin{align}
+  \frac{d}{dt}
+  \frac{\partial \mathcal{L}}{\partial \dot{L}_{\mu\nu}}
+  &=
+  \frac{d}{dt}
+  \frac{\partial}{\partial \dot{L}_{\mu\nu}}
+  \left(
+    \frac{1}{2} W
+    \mathrm{Tr}
+    \left[
+      \sum_{\alpha}
+      \dot{L}_{\alpha \beta}
+      \dot{L}_{\alpha \gamma}
+    \right]
+  \right)
+  =
+  \frac{d}{dt}
+  \frac{\partial}{\partial \dot{L}_{\mu\nu}}
+  \left(
+    \frac{1}{2} W
+    \sum_{\alpha, \beta}
+    \dot{L}_{\alpha \beta}^{2}
+  \right)
+  \notag \\
+  &=
+  \frac{d}{dt}
+  \left(
+    W
+    \sum_{\alpha,\beta}
+    \frac{\partial \dot{L}_{\alpha \beta}}{\partial \dot{L}_{\mu\nu}}
+    \dot{L}_{\alpha \beta}
+  \right)
+  =
+  \frac{d}{dt}
+  \left(
+    W
+    \dot{L}_{\alpha\beta}
+    \delta_{\alpha\mu}
+    \delta_{\beta \nu}
+  \right)
+  \notag \\
+  &=
+  W \ddot{L}_{\mu\nu}
+  \notag
+\end{align}
+と計算される. ベクトル形式に書き直すと,
+\begin{align}
+  \frac{d}{dt}
+  \frac{\partial \mathcal{L}}{\partial \dot{\bm{L}}}
+  =
+  W \ddot{\bm{L}}
+  \label{Eq:EoM-PR-cell-left1}
+\end{align}
+と書くことができる.
+
+シミュレーションセルに対するラグランジアンの運動方程式(\ref{Eq:EoM-Lagrange-PR-cell2})の右辺は, 
+\begin{align}
+  \frac{\partial \mathcal{L}}{\partial L_{\mu\nu}}
+  &=
+  \frac{\partial}{\partial L_{\mu\nu}}
+  \left(
+    \frac{1}{2}
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta} L_{\alpha\gamma}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+    -
+    U(\tilde{\bm{r}}, \bm{L})
+    +
+    \frac{1}{2} W
+    \mathrm{Tr}
+    \left[
+      \sum_{\beta, \gamma}
+      \dot{L}_{\alpha \beta} \dot{L}_{\alpha \gamma}
+    \right]
+    -
+    P_{0} V
+  \right)
+  \notag \\
+  &=
+  \frac{\partial}{\partial L_{\mu\nu}}
+  \left(
+    \frac{1}{2}
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta} L_{\alpha\gamma}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+    -
+    U(\tilde{\bm{r}}, \bm{L})
+    -
+    P_{0} V
+  \right)
+  \label{Eq:EoM-PR-cell-right-all}
+\end{align}
+となる.
+
+式(\ref{Eq:EoM-PR-cell-right-all})右辺の第1項目は
+\begin{align}
+  \frac{\partial}{\partial L_{\mu\nu}}
+  \left(
+    \frac{1}{2}
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta} L_{\alpha\gamma}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  \right)
+  &=
+  \frac{1}{2}
+  \left(
+    \sum_{\alpha,\beta,\gamma}
+    \frac{\partial L_{\alpha\beta}}{\partial L_{\mu\nu}} L_{\alpha\gamma}
+    +
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta}
+    \frac{\partial L_{\alpha\gamma}}{\partial L_{\mu\nu}}
+  \right)
+  \sum_{i=1}^{N} m_{i}
+  \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  \notag \\
+  &=
+  \frac{1}{2}
+  \left(
+    \sum_{\alpha,\beta,\gamma}
+    \delta_{\alpha\mu} \delta_{\beta\nu} L_{\alpha\gamma}
+    +
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta}
+    \delta_{\alpha\mu} \delta_{\gamma\nu}
+  \right)
+  \sum_{i=1}^{N} m_{i}
+  \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  \notag \\
+  &=
+  \frac{1}{2}
+  \left(
+    \sum_{\beta,\gamma}
+    \delta_{\beta\nu} L_{\mu\gamma}
+    +
+    \sum_{\beta,\gamma}
+    L_{\mu\beta} \delta_{\gamma\nu}
+  \right)
+  \sum_{i=1}^{N} m_{i}
+  \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  \notag \\
+  &=
+  \frac{1}{2}
+  \left(
+    \sum_{\gamma}
+    \delta_{\beta\nu} L_{\mu\gamma}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\nu} \dot{\tilde{r}}_{i\gamma}
+    +
+    \sum_{\beta}
+    L_{\mu\beta}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\nu}
+  \right)
+  \notag \\
+  &=
+  \sum_{i=1}^{N}
+  m_{i}
+  \sum_{\gamma} L_{\mu\gamma}
+  \dot{\tilde{r}}_{i\gamma} \dot{\tilde{r}}_{i\nu}
+\end{align}
+を得る. ここで, 関係式(\ref{Eq:relation-Lt-sigma-V})を使うと
+\begin{align}
+  \frac{\partial}{\partial L_{\mu\nu}}
+  \left(
+    \frac{1}{2}
+    \sum_{\alpha,\beta,\gamma}
+    L_{\alpha\beta} L_{\alpha\gamma}
+    \sum_{i=1}^{N} m_{i}
+    \dot{\tilde{r}}_{i\beta} \dot{\tilde{r}}_{i\gamma}
+  \right)
+  &=
+  \frac{1}{V}
+  \sum_{i=1}^{N} m_{i}
+  \sum_{\gamma} L_{\mu\gamma}
+  \dot{\tilde{r}}_{i\gamma} \dot{\tilde{r}}_{i\nu} (L_{\nu\mu}\sigma_{\mu\nu})
+  \notag \\
+  &=
+  \frac{1}{V}
+  \sum_{i=1}^{N} m_{i} \sum_{\gamma}
+  (L_{\mu\gamma} \dot{\tilde{r}}_{i\gamma})
+  (L_{\nu\mu} \dot{\tilde{r}}_{i\nu}) \sigma_{\mu\nu}
+\end{align}
+のように書くことができる. これをベクトル形式に直すと
+\begin{align}
+  \frac{\partial}{\partial \bm{L}}
+  \left(
+    \frac{1}{2}
+    \sum_{i=1}^{n} m_{i}
+    \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{G} \dot{\tilde{\bm{r}}}_{i}
+  \right)
+  =
+  \frac{1}{V}
+  \sum_{i=1}^{N} m_{i}
+  (\bm{L}\dot{\tilde{\bm{r}}}_{i})
+  (\bm{L}\dot{\tilde{\bm{r}}}_{i})^{\mathrm{t}}
+  \bm{\sigma}
+  \label{Eq:EoM-PR-cell-right1}
+\end{align}
+となる. 
+
+式(\ref{Eq:EoM-PR-cell-right-all})右辺の第2項目はポテンシャルに対する微分であり,
+\begin{alignat}{4}
+  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{\partial L_{\mu\nu}}
+  =
+  \frac{\partial U(\bm{L}\tilde{\bm{r}}_{1},\ldots,\bm{L}\tilde{\bm{r}}_{N})}{\partial L_{\mu\nu}}
+  &=
+  \sum_{i=1}^{N}\sum_{\alpha,\beta}
+  \frac{\partial U}{\partial (L_{\alpha\beta} \Tilde{r}_{i\mu})}
+  \frac{\partial (L_{\alpha\beta}\tilde{r}_{\beta})}{\partial L_{\mu\nu}}
+  &&=
+  \sum_{i=1}^{N}\sum_{\alpha,\beta}
+  \frac{\partial U}{\partial (L_{\alpha\beta} \Tilde{r}_{i\beta})}
+  \frac{\partial L_{\alpha\beta}}{\partial L_{\mu\nu}} \tilde{r}_{\beta}
+  \\
+  &=
+  \sum_{i=1}^{N}\sum_{\alpha,\beta}
+  \frac{\partial U}{\partial (L_{\alpha\beta} \Tilde{r}_{i\beta})}
+  \delta_{\alpha\mu}\delta_{\beta\nu}\tilde{r}_{\beta}
+  &&=
+  \sum_{i=1}^{N}
+  \frac{\partial U}{\partial (L_{\mu\nu} \Tilde{r}_{i\nu})}
+  \tilde{r}_{\nu}
+  \\
+  &=
+  \sum_{i=1}^{N}
+  \frac{\partial U}{\partial r_{i\mu}} \tilde{r}_{\nu}
+  \\
+  &=
+  -\sum_{i=1}^{N}
+  F_{i\mu} \tilde{r}_{\nu}
+\end{alignat}
+と計算できる. なお, 途中の連鎖律のところでベクトル・行列の微分に関して$\partial M_{ij}/\partial M_{ji} = \delta_{ij}$ (すなわち, $\partial \bm{M}^{\mathrm{t}}/\partial \bm{M} = \bm{I})$を利用した. スケール座標からデカルト座標への変換式
+\begin{align}
+  \tilde{r}_{i\nu} = \sum_{\gamma} L_{\nu\gamma}^{-1} r_{i\gamma}
+\end{align}
+とセル行列の逆行列(\ref{Eq:inv-cell-matrix})を用いると,
+\begin{align}
+  -\frac{\partial U(\tilde{\bm{r}}, \bm{L})}{\partial L_{\mu\nu}}
+  =
+  \sum_{i=1}^{N} \sum_{\gamma}
+  F_{i\mu} L_{\nu\gamma}^{-1} r_{i\gamma}
+  =
+  \frac{1}{V}
+  \sum_{i=1}^{N} \sum_{\gamma}
+  F_{i\mu} r_{i\gamma} \sigma_{\gamma\nu}
+\end{align}
+が得られる. ベクトル形式で書き直すと,
+\begin{align}
+  -\frac{\partial U}{\partial \bm{L}}
+  =
+  \frac{1}{V}
+  \left(
+    \sum_{i=1}^{N}
+    \bm{F}_{i} \bm{r}_{i}^{\mathrm{t}}
+  \right)
+  \bm{\sigma}
+  \label{Eq:EoM-PR-cell-right2}
+\end{align}
+となる.
+
+最後に式(\ref{Eq:EoM-PR-cell-right-all})右辺第3項目を計算する.
+式(\ref{Eq:def-sigma})で既に見たように, 体積$V$の$\bm{L}$微分は$\bm{\sigma}$であるので
+\begin{align}
+  \frac{\partial}{\partial \bm{L}}(-P_{0} V) = -P_{0} \bm{\sigma}
+  \label{Eq:EoM-PR-cell-right3}
+\end{align}
+と計算できる.
+
+以上, (\ref{Eq:EoM-PR-cell-left1}), (\ref{Eq:EoM-PR-cell-right1}), (\ref{Eq:EoM-PR-cell-right2}), (\ref{Eq:EoM-PR-cell-right3})式よりシミュレーションセルの運動方程式は, 
+\begin{align}
+\ddot{\bm{L}} =
+\left[
+  \frac{1}{V}
+  \left\{
+    \sum_{i=1}^{N} m_{i}
+    (\bm{L}\dot{\tilde{\bm{r}}}_{i})
+    (\bm{L}\dot{\tilde{\bm{r}}}_{i})^{\mathrm{t}}
+    +
+    \sum_{i=1}^{N}
+    \bm{F}_{i} \bm{r}_{i}^{\mathrm{t}}
+  \right\}
+  - P_{0} \bm{1}
+\right]
+\bm{\sigma}
+\end{align}
+と計算できる. ここで, 波括弧$\{\}$の中は圧力テンソルに対応する. したがって, シミュレーションセルは設定圧力と瞬間圧力テンソルの差に応じて運動することが分かる.
+
+\clearpage
+
 \section{温度・圧力制御: 能勢・Andersenの方法}
 
 \subsection{能勢・Andersenの運動方程式}
@@ -1531,8 +2907,7 @@ $\Tilde{\bm{r}}_{i}^{\prime}$,$\Tilde{\bm{p}}_{i}^{\prime}$,$s$,$p_{s}$,$V$,$p_{
 \end{alignat}
 を得る. 
 運動方程式(\ref{eq:NoseAndersen3.1})-(\ref{eq:NoseAndersen3.6})
-あるいは(\ref{eq:NoseAndersen4.1})-(\ref{eq:NoseAndersen4.6})にしたがって
-時間発展させることにより, 定温定圧アンサンブルの分子動力学シミュレーションを行うことができる. 
+あるいは(\ref{eq:NoseAndersen4.1})-(\ref{eq:NoseAndersen4.6})にしたがって時間発展させることにより, 定温定圧アンサンブルの分子動力学シミュレーションを行うことができる. 
 ここでも, 粒子の運動量と体積にフィードバックがかかってそれぞれ温度と圧力を制御していることがわかる. 
 物理系の瞬間温度
 \begin{equation}
@@ -1847,7 +3222,7 @@ $\mathcal{D}$を
   \\ &~~~~
   +
   \frac{1}{Q} \left(
-                    \sum_{i=1}^{N} \frac{\Tilde{\bm{p}}_{i}^{2}}{m_{i} V^{\frac{2}{3}}}
+                    \sum_{i=1}^{N} \frac{\Tilde{\bm{p}_{i}^{2}}}{m_{i} V^{\frac{2}{3}}}
                    - g k_{B} T_{\mathrm{eq}}
 	       \right)
   \frac{\partial}{\partial \zeta}
@@ -2187,6 +3562,507 @@ $\Tilde{\bm{F}}_{i}$は拘束力を含めた原子$i$に加わる力である.
 この運動方程式に, 能勢・Hooverの熱浴を組み合わせることで定温定圧アンサンブルを実現できる.
 
 
+\section{温度・圧力制御: 能勢・Poincar\'{e}・Andersenの方法}
+
+\subsection{ハミルトニアンと運動方程式}
+能勢・ポアンカレ熱浴とアンダーセンの方法を組み合わせることで, 温度・圧力一定のシンプレクティック分子動力学法を実現することができる\cite{Sturgeon2000}.
+能勢・ポアンカレ・アンダーセンの方法におけるハミルトニアンは以下のように書ける:
+\begin{align}
+  \mathcal{H}_{\mathrm{NPA}}
+  &=
+  s
+  \left[
+    \sum_{i=1}^{N}
+    \frac{\Tilde{\bm{p}}_{i}^{\prime 2}}{2m_{i}s^{2}V^{\frac{2}{3}}}
+    +
+    U(V^{\frac{1}{3}} \Tilde{\bm{r}})
+    +
+    \frac{p_{s}^{2}}{2Q}
+    +
+    g k_{\mathrm{B}} T_{\mathrm{eq}} \ln s
+    +
+    \frac{p_{V}^{2}}{2W}
+    +
+    P_{\mathrm{eq}} V
+    - 
+    \mathcal{H}_{0}
+  \right]
+  \\
+  &=
+  s
+  \left[
+    \mathcal{H}_{\mathrm{NA}}
+    (\Tilde{\bm{r}}, \Tilde{\bm{p}}, s, p_{s}, V, p_{V})
+    -
+    \mathcal{H}_{0}
+  \right]
+\end{align}
+ここで$\mathcal{H}_{0}$はハミルトニアン$\mathcal{H}_{\mathrm{NPA}}$の初期値である. ハミルトンの正準方程式は以下のように導かれる:
+\begin{alignat}{3}
+  &
+  \dot{\Tilde{\bm{r}}}_{i}
+  &&=
+  \frac{\Tilde{\bm{p}}_{i}^{\prime}}{m_{i} s V^{\frac{2}{3}}}
+  \label{Eq:EoM_Nose_Poincare_Andersen1}
+  \\
+  &
+  \dot{\Tilde{\bm{p}}}_{i}^{\prime}
+  &&=
+  s V^{\frac{1}{3}} \bm{F}_{i}
+  \label{Eq:EoM_Nose_Poincare_Andersen2}
+  \\
+  &
+  \dot{s}
+  &&=
+  s \frac{p_{s}}{Q}
+  \label{Eq:EoM_Nose_Poincare_Andersen3}
+  \\
+  &
+  \dot{p_{s}}
+  &&=
+  \sum_{i=1}^{N}
+  \frac{\Tilde{\bm{p}}_{i}^{\prime 2}}{m_{i}s^{2}V^{\frac{2}{3}}}
+  -
+  g k_{\mathrm{B}} T_{\mathrm{eq}}
+  \label{Eq:EoM_Nose_Poincare_Andersen4}
+  \\
+  &
+  \dot{V}
+  &&=
+  s \frac{p_{V}}{W}
+  \label{Eq:EoM_Nose_Poincare_Andersen5}
+  \\
+  &
+  \dot{p_{V}}
+  &&=
+  s
+  \left[
+    \frac{1}{3V}
+    \left(
+      \sum_{i=1}^{N}
+      \frac{\Tilde{\bm{p}}_{i}^{\prime 2}}{m_{i}s^{2}V^{\frac{2}{3}}}
+      +
+      \sum_{i=1}^{N}
+      \bm{F}_{i} \cdot \bm{r}_{i}
+    \right)
+    -
+    P_{\mathrm{eq}}
+  \right]
+  \label{Eq:EoM_Nose_Poincare_Andersen6}
+\end{alignat}
+なお, ここでもハミルトニアンが保存量であること($\mathcal{H}_{\mathrm{NA}} - \mathcal{H}_{0} = 0$)を用いている.
+また, 運動方程式(\ref{Eq:EoM_Nose_Poincare_Andersen1})--(\ref{Eq:EoM_Nose_Poincare_Andersen6})は変数変換を施すことによって, 能勢・アンダーセンの運動方程式(\ref{eq:NoseAndersen4.1})--(\ref{eq:NoseAndersen4.6})を得られることが確認できる.
+
+
+\subsection{時間発展アルゴリズム}
+
+ハミルトニアン$\mathcal{H}_{\mathrm{NPA}}$による時間発展アルゴリズムを導くために$\mathcal{H}_{\mathrm{NPA}}$を次のように4分割する:
+
+\begin{alignat}{3}
+  \mathcal{H}_{\mathrm{NPA}}
+  &=
+  \mathcal{H}_{\mathrm{NPA1}} +
+  \mathcal{H}_{\mathrm{NPA2}} +
+  \mathcal{H}_{\mathrm{NPA3}} +
+  \mathcal{H}_{\mathrm{NPA4}}
+  \\
+  \mathcal{H}_{\mathrm{NPA1}}
+  &=
+  s
+  \left(
+    \sum_{i=1}^{N}
+    \frac{\Tilde{\bm{p}}_{i}^{\prime 2}}{2m_{i}s^{2}V^{\frac{2}{3}}}
+    +
+    g k_{\mathrm{B}} T_{\mathrm{eq}} \ln s
+    -
+    \mathcal{H}_{0}
+  \right)
+  \\
+  \mathcal{H}_{\mathrm{NPA2}}
+  &=
+  s
+  \frac{p_{V}^{2}}{2W}
+  \\
+  \mathcal{H}_{\mathrm{NPA3}}
+  &=
+  s
+  \left\{
+    U(V^{\frac{1}{3}} \Tilde{\bm{r}})
+    +
+    P_{\mathrm{eq}} V
+  \right\}
+  \\
+  \mathcal{H}_{\mathrm{NPA4}}
+  &=
+  s
+  \frac{p_{s}^{2}}{2Q}
+\end{alignat}
+次に, 各ハミルトニアンによる時間発展を考える.
+ある物理量$A$の時間微分から演算子$D$を
+\begin{align}
+  \frac{dA}{dt}
+  &=
+  \left(
+    \sum_{i=1}^{N} \dot{\Tilde{\bm{r}}}_{i}
+    \frac{\partial}{\partial \Tilde{\bm{r}}_{i}}
+    +
+    \sum_{i=1}^{N} \dot{\Tilde{\bm{p}}}_{i}^{\prime}
+    \frac{\partial}{\partial \Tilde{\bm{p}}_{i}^{\prime}}
+    +
+    \dot{s}
+    \frac{\partial}{\partial s}
+    -
+    \dot{p_{s}}
+    \frac{\partial}{\partial p_{s}}
+    +
+    \dot{V}
+    \frac{\partial}{\partial V}
+    -
+    \dot{p_{V}}
+    \frac{\partial}{\partial p_{V}}
+  \right)
+  A
+  \\
+  &\equiv
+  DA
+\end{align}
+のように定義する. さらに運動方程式(\ref{Eq:EoM_Nose_Poincare_Andersen1})--(\ref{Eq:EoM_Nose_Poincare_Andersen6})を考慮すると, 演算子$D$は
+\begin{align}
+  D =
+  \sum_{i=1}^{N}
+  \frac{\partial \mathcal{H}_{\mathrm{NPA}}}{\partial \Tilde{\bm{p}}_{i}^{\prime}}
+  \frac{\partial}{\partial \bm{r}_{i}}
+  -
+  \sum_{i=1}^{N}
+  \frac{\partial \mathcal{H}_{\mathrm{NPA}}}{\partial \Tilde{\bm{r}}_{i}}
+  \frac{\partial}{\partial \Tilde{\bm{p}}_{i}^{\prime}}
+  +
+  \frac{\partial \mathcal{H}_{\mathrm{NPA}}}{\partial p_{s}}
+  \frac{\partial}{\partial s}
+  -
+  \frac{\partial \mathcal{H}_{\mathrm{NPA}}}{\partial s}
+  \frac{\partial}{\partial p_{s}}
+  +
+  \frac{\partial \mathcal{H}_{\mathrm{NPA}}}{\partial p_{V}}
+  \frac{\partial}{\partial V}
+  -
+  \frac{\partial \mathcal{H}_{\mathrm{NPA}}}{\partial V}
+  \frac{\partial}{\partial p_{V}}
+\end{align}
+である. さらに, 時間発展演算子は, 例えば, 以下のように分割することができる:
+\begin{align}
+  e^{D \Delta t} =
+  e^{D_{\mathcal{H}_{\mathrm{NPA}4}} \frac{\Delta t}{2}}
+  e^{D_{\mathcal{H}_{\mathrm{NPA}3}} \frac{\Delta t}{2}}
+  e^{D_{\mathcal{H}_{\mathrm{NPA}2}} \frac{\Delta t}{2}}
+  e^{D_{\mathcal{H}_{\mathrm{NPA}1}} \Delta t}
+  e^{D_{\mathcal{H}_{\mathrm{NPA}2}} \frac{\Delta t}{2}}
+  e^{D_{\mathcal{H}_{\mathrm{NPA}3}} \frac{\Delta t}{2}}
+  e^{D_{\mathcal{H}_{\mathrm{NPA}4}} \frac{\Delta t}{2}}
+  +
+  \mathcal{O}((\Delta t)^{3})
+  \label{Eq:Time_Dev_Operation_Nose_Poincare_Andersen}
+\end{align}
+
+分割したハミルトニアンそれぞれについて, 対応する演算子$D$を書き下すと
+\begin{alignat}{3}
+  D_{\mathcal{H}_{\mathrm{NPA}1}}
+  &=&&
+%  \frac{\Tilde{\bm{p}}_{i}^{\prime}}{m_{i}s^{2}V^{\frac{2}{3}}}
+%  \frac{\partial}{\partial \bm{r}_{i}}
+%  -
+%  \left(
+%    \sum_{i=1}^{N}
+%    \frac{\Tilde{\bm{p}}_{i}^{\prime 2}}{2m_{i}s^{2}V^{\frac{2}{3}}}
+%    +
+%    g k_{\mathrm{B}} T_{\mathrm{eq}} \ln s
+%    -
+%    \mathcal{H}_{0}
+%    -
+%    \frac{\Tilde{\bm{p}}_{i}^{\prime 2}}{m_{i}s^{2}V^{\frac{2}{3}}}
+%    +
+%    g k_{\mathrm{B}} T_{\mathrm{eq}}
+%  \right)
+%  \frac{\partial}{\partial p_{s}}
+%  \notag \\
+%  & && +
+%  \sum_{i=1}^{N}
+%  \frac{\Tilde{\bm{p}}_{i}^{\prime 2}}{3m_{i}s^{2}V^{\frac{5}{3}}}
+%  \frac{\partial}{\partial p_{V}}
+%  \notag \\
+%  &=&&
+  \frac{\Tilde{\bm{p}}_{i}^{\prime}}{m_{i} s V^{\frac{2}{3}}}
+  \frac{\partial}{\partial \bm{r}_{i}}
+  +
+  \left(
+    \sum_{i=1}^{N}
+    \frac{\Tilde{\bm{p}}_{i}^{\prime 2}}{2m_{i}s^{2}V^{\frac{2}{3}}}
+    -
+    g k_{\mathrm{B}} T_{\mathrm{eq}} \ln s
+    +
+    \mathcal{H}_{0}
+    -
+    g k_{\mathrm{B}} T_{\mathrm{eq}}
+  \right)
+  \frac{\partial}{\partial p_{s}}
+  \notag \\
+  & &&+
+  \sum_{i=1}^{N}
+  \frac{\Tilde{\bm{p}}_{i}^{\prime 2}}{3m_{i} s V^{\frac{5}{3}}}
+  \frac{\partial}{\partial p_{V}}
+  \\
+  D_{\mathcal{H}_{\mathrm{NPA}2}}
+  &=&&
+  -
+  \frac{p_{V}^{2}}{2W}
+  \frac{\partial}{\partial p_{s}}
+  +
+  s
+  \frac{p_{V}}{W}
+  \frac{\partial}{\partial V}
+  \\
+  D_{\mathcal{H}_{\mathrm{NPA}3}}
+  &=&&
+  s V^{\frac{1}{3}} \bm{F}_{i}
+  \frac{\partial}{\partial \Tilde{\bm{p}}_{i}^{\prime}}
+  -
+  \left[
+    U(V^{\frac{1}{3}} \Tilde{\bm{r}}) + P_{\mathrm{eq}}V
+  \right]
+  \frac{\partial}{\partial p_{s}}
+  +
+  s
+  \left(
+    \frac{1}{3V}
+    \sum_{i=1}^{N} \bm{F}_{i} \cdot \bm{r}_{i}
+    -
+    P_{\mathrm{eq}}
+  \right)
+  \frac{\partial}{\partial p_{V}}
+  \\
+  D_{\mathcal{H}_{\mathrm{NPA}4}}
+  &=&&
+  s
+  \frac{p_{s}}{Q}
+  \frac{\partial}{\partial s}
+  -
+  \frac{p_{s}^{2}}{2Q}
+  \frac{\partial}{\partial p_{s}}
+\end{alignat}
+となる. 各演算子を位相空間に作用させると
+
+\begin{alignat}{3}
+  &
+  D_{\mathcal{H}_{\mathrm{NPA}1}} \Tilde{\bm{r}}_{i}
+  &&=
+  \frac{\Tilde{\bm{p}}_{i}^{\prime}}{m_{i} s V^{\frac{2}{3}}}
+  \\
+  &
+  D_{\mathcal{H}_{\mathrm{NPA}1}} p_{s}
+  &&=
+  \sum_{i=1}^{N}
+  \frac{\Tilde{\bm{p}}_{i}^{\prime 2}}{2m_{i}s^{2}V^{\frac{2}{3}}}
+  -
+  g k_{\mathrm{B}} T_{\mathrm{eq}} \ln s
+  +
+  \mathcal{H}_{0}
+  -
+  g k_{\mathrm{B}} T_{\mathrm{eq}}
+  \\
+  &
+  D_{\mathcal{H}_{\mathrm{NPA}1}} p_{V}
+  &&=
+  \sum_{i=1}^{N}
+  \frac{\Tilde{\bm{p}}_{i}^{\prime 2}}{3m_{i} s V^{\frac{5}{3}}}
+  \\
+  &
+  D_{\mathcal{H}_{\mathrm{NPA}2}} p_{s}
+  &&=
+  -\frac{p_{V}^{2}}{2W}
+  \\
+  &
+  D_{\mathcal{H}_{\mathrm{NPA}2}} V
+  &&=
+  s \frac{p_{V}}{W}
+  \\
+  &
+  D_{\mathcal{H}_{\mathrm{NPA}3}} \Tilde{\bm{p}}_{i}^{\prime}
+  &&=
+  s V^{\frac{1}{3}} \bm{F}_{i}
+  \\
+  &
+  D_{\mathcal{H}_{\mathrm{NPA}3}} p_{s}
+  &&=
+  -
+  \left[
+    U(V^{\frac{1}{3}} \Tilde{\bm{r}}) + P_{\mathrm{eq}}V
+  \right]
+  \\
+  &
+  D_{\mathcal{H}_{\mathrm{NPA}3}} p_{V}
+  &&=
+  s
+  \left(
+    \frac{1}{3V}
+    \sum_{i=1}^{N} \bm{F}_{i} \cdot \bm{r}_{i}
+    -
+    P_{\mathrm{eq}}
+  \right)
+  \\
+  &
+  D_{\mathcal{H}_{\mathrm{NPA}4}} s
+  &&=
+  s \frac{p_{s}}{Q}
+  \\
+  &
+  D_{\mathcal{H}_{\mathrm{NPA}4}} p_{s}
+  &&=
+  - \frac{p_{s}^{2}}{2Q}
+\end{alignat}
+となる. 式(\ref{Eq:Time_Dev_Operation_Nose_Poincare_Andersen})の順に位相空間に時間発展演算子を作用させることで, 定温定圧アンサンブルにおけるシンプレクティックな時間発展アルゴリズムを得る:
+
+\paragraph{Step 1:}
+$e^{D_{\mathcal{H}_{\mathrm{NPA}4}} \frac{\Delta t}{2}}$による時間発展
+\begin{alignat}{3}
+  & s && \gets
+  s
+  \left(
+    1 + \frac{p_{s}}{2Q} \frac{\Delta t}{2}
+  \right)^{2}
+  \\
+  & p_{s} && \gets
+  \frac{p_{s}}{1 + \frac{p_{s}}{2Q} \frac{\Delta t}{2}}
+\end{alignat}
+
+\paragraph{Step 2:}
+$e^{D_{\mathcal{H}_{\mathrm{NPA}3}} \frac{\Delta t}{2}}$による時間発展
+\begin{alignat}{3}
+  & \Tilde{\bm{p}}_{i}^{\prime} && \gets
+  \Tilde{\bm{p}}_{i}^{\prime}
+  +
+  s V^{\frac{1}{3}} \bm{F}_{i} \frac{\Delta t}{2}
+  \\
+  & p_{s} && \gets
+  p_{s}
+  -
+  \left[
+    U(V^{\frac{1}{3}} \Tilde{\bm{r}}) + P_{\mathrm{eq}}V
+  \right] \frac{\Delta t}{2}
+  \\
+  & p_{V} && \gets
+  p_{V}
+  +
+  s
+  \left(
+    \frac{1}{3V}
+    \sum_{i=1}^{N} \bm{F}_{i} \cdot \bm{r}_{i}
+    -
+    P_{\mathrm{eq}}
+  \right) \frac{\Delta t}{2}
+\end{alignat}
+
+\paragraph{Step 3:}
+$e^{D_{\mathcal{H}_{\mathrm{NPA}2}} \frac{\Delta t}{2}}$による時間発展
+\begin{alignat}{3}
+  & p_{s} && \gets
+  p_{s}
+  -
+  \frac{p_{V}^{2}}{2W} \frac{\Delta t}{2}
+  \\
+  & V && \gets
+  V
+  +
+  s \frac{p_{V}}{W} \frac{\Delta t}{2}
+\end{alignat}
+
+
+\paragraph{Step 4:}
+$e^{D_{\mathcal{H}_{\mathrm{NPA}1}} \Delta t}$による時間発展
+\begin{alignat}{3}
+  & \Tilde{\bm{r}}_{i} && \gets
+  \Tilde{\bm{r}}_{i}
+  +
+  \frac{\Tilde{\bm{p}}_{i}^{\prime}}{m_{i}sV^{\frac{2}{3}}}
+  \Delta t
+  \\
+  & p_{s} && \gets
+  p_{s}
+  +
+  \left(
+    \sum_{i=1}^{N}
+    \frac{\Tilde{\bm{p}}_{i}^{\prime 2}}{2m_{i}s^{2}V^{\frac{2}{3}}}
+    -
+    g k_{\mathrm{B}} T_{\mathrm{eq}} \ln s
+    +
+    \mathcal{H}_{0}
+    -
+    g k_{\mathrm{B}} T_{\mathrm{eq}}
+  \right) \Delta t
+  \\
+  & p_{V} && \gets
+  p_{V}
+  +
+  \sum_{i=1}^{N}
+  \frac{\Tilde{\bm{p}}_{i}^{\prime 2}}{3m_{i} s V^{\frac{5}{3}}}
+  \Delta t
+\end{alignat}
+
+
+\paragraph{Step 5:}
+$e^{D_{\mathcal{H}_{\mathrm{NPA}2}} \frac{\Delta t}{2}}$による時間発展
+\begin{alignat}{3}
+  & p_{s} && \gets
+  p_{s}
+  -
+  \frac{p_{V}^{2}}{2W} \frac{\Delta t}{2}
+  \\
+  & V && \gets
+  V
+  +
+  s \frac{p_{V}}{W} \frac{\Delta t}{2}
+\end{alignat}
+
+\paragraph{Step 6:}
+$e^{D_{\mathcal{H}_{\mathrm{NPA}3}} \frac{\Delta t}{2}}$による時間発展
+\begin{alignat}{3}
+  & \Tilde{\bm{p}}_{i}^{\prime} && \gets
+  \Tilde{\bm{p}}_{i}^{\prime}
+  +
+  s V^{\frac{1}{3}} \bm{F}_{i} \frac{\Delta t}{2}
+  \\
+  & p_{s} && \gets
+  p_{s}
+  -
+  \left[
+    U(V^{\frac{1}{3}} \Tilde{\bm{r}}) + P_{\mathrm{eq}}V
+  \right] \frac{\Delta t}{2}
+  \\
+  & p_{V} && \gets
+  p_{V}
+  +
+  s
+  \left(
+    \frac{1}{3V}
+    \sum_{i=1}^{N} \bm{F}_{i} \cdot \bm{r}_{i}
+    -
+    P_{\mathrm{eq}}
+  \right) \frac{\Delta t}{2}
+\end{alignat}
+
+\paragraph{Step 7:}
+$e^{D_{\mathcal{H}_{\mathrm{NPA}4}} \frac{\Delta t}{2}}$による時間発展
+\begin{alignat}{3}
+  & s && \gets
+  s
+  \left(
+    1 + \frac{p_{s}}{2Q} \frac{\Delta t}{2}
+  \right)^{2}
+  \\
+  & p_{s} && \gets
+  \frac{p_{s}}{1 + \frac{p_{s}}{2Q} \frac{\Delta t}{2}}
+\end{alignat}
+
+\clearpage
 \bibliographystyle{junsrt}
 \bibliography{extended-phase-space-method}
 \input{../include/end}

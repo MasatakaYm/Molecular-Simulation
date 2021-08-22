@@ -6,52 +6,447 @@
 
 \title{剛体系の分子動力学法}
 \maketitle
-
-本章では剛体分子に対する分子動力学シミュレーションについて解説する\cite{Miller2002}.
-分子シミュレーションではしばしば水分子やメチル基(-CH$_{3}$)など, 水素を含む部分の原子間の距離や角度を固定する.
+本章では剛体分子に対する分子動力学法を解説する.
+\textbf{剛体}とは, 任意の2点間 (2質点間)の距離が時間に依存せず常に一定で, 変形しないような物体と定義される.
+分子シミュレーションではしばしば水分子やメチル基(-CH$_{3}$)など, 水素を含む部分の原子間の距離や角度を固定して, 剛体のように取り扱う.
 このようなモデルを剛体回転子モデルという.
-水素の伸縮運動といった速い運動を取り扱う必要がなるので数値積分の時間刻みを長く取ることができるため,
-効率的なシミュレーションが可能となる.
+水素の伸縮運動といった速い運動を取り扱う必要が無くなり, 数値積分の時間刻みを長く取ることができるため,
+より高速なシミュレーションを実現できる.
 % 剛体の運動は重心の並進運動と重心の回転運動に分離することができる.
 
-\section{空間座標と剛体座標}
-剛体の運動を考えるには, 剛体に固定された座標を用いるのが便利である. 
-そこで, 空間座標と剛体座標の変換を考える. 
-空間座標とは空間に固定された座標系である. 
-剛体座標とは剛体の重心$G$を座標原点とする剛体に固定された座標系である. 
-空間座標に対する剛体座標の配向はオイラー角$(\phi,\theta,\psi)$で決めることができる. 
-空間座標から剛体座標への変換はこのオイラー角を用いて, 以下の手続きによって行う. 
-ここで, 空間座標系と剛体座標系の原点$O$, $G$は一致させるものとする. 
-\begin{enumerate}
- \item 座標系$O_{xyz}$を$z$軸を回転軸として逆時計周りに$\phi$だけ回転させる. 
-       \\回転後の座標系を$O^{\prime}_{x^{\prime}y^{\prime}z^{\prime}}$とする. 
- \item 座標系$O^{\prime}_{x^{\prime}y^{\prime}z^{\prime}}$を
-       $x^{\prime}$軸を回転軸として逆時計周りに$\theta$だけ回転させる. 
-       \\回転後の座標系を
-       $O^{\prime \prime}_{x^{\prime \prime} y^{\prime \prime} z^{\prime \prime}}$
-       とする.
+\section{剛体運動の古典力学的記述}
 
- \item 座標系$O^{\prime \prime}_{x^{\prime \prime} y^{\prime \prime} z^{\prime \prime}}$を$z^{\prime \prime}$軸を回転軸として逆時計周りに$\psi$だけ回転させる. 
-       \\回転後の座標系を$\tilde{O}_{\tilde{x} \tilde{y} \tilde{z}}$とする. 
-\end{enumerate}
-以上の操作においてオイラー角$(\phi,\theta,\psi)$の変域は
+\subsection{並進運動と回転運動の分離}
+\subsubsection{分子の重心ベクトル}
+
+空間座標(デカルト座標)系における分子$i$の重心の位置ベクトルを$\bm{R}_{\mathrm{G}i}$と書くことにする.
+分子$i$に属する原子$a$の空間座標における位置ベクトル(相対座標ベクトル)を$\bm{r}_{a}$, 原子$a$の質量を$m_{a}$を用いると, 重心は
+\begin{equation}
+  \bm{R}_{\mathrm{G}i}
+  =
+  \frac{\sum_{a=1}^{n_{i}} m_{a} \bm{r}_{a}}{\sum_{a=1}^{n_{i}} m_{a}}
+  =
+  \frac{1}{M_{i}}
+  \sum_{a=1}^{n_{i}} m_{a} \bm{r}_{a}
+  \label{Eq:Vector_CoM}
+\end{equation}
+と計算される. ここで, $n_{i}$は分子に属する原子数, $M_{i}$は分子の全質量である.
+原子$a$の重心からの位置ベクトルを$\bm{s}_{a}$とすると, 位置ベクトルを$\bm{r}_{a}$は
+\begin{equation}
+  \bm{r}_{a} = \bm{R}_{\mathrm{G}i} + \bm{s}_{a}
+  \label{Eq:Vector_AtomPosition}
+\end{equation}
+と書ける. $\bm{s}_{a}$は重心を起点とするベクトルのため
+\begin{equation}
+  \sum_{a=1}^{n_{i}} m_{a} \bm{s}_{a} = 0
+  \label{Eq:IEq_SiteVector}
+\end{equation}
+が成立する.
+
+
+
+
+\subsubsection{ニュートンの運動方程式}
+
+ニュートンの運動方程式から, 分子中の各原子に対して運動方程式は次のように書ける:
+\begin{equation}
+  m_{a} \frac{d^{2} \bm{r}_{a}}{dt^{2}}
+  =
+  \bm{F}_{a} + \sum_{b \neq a}^{n_{i}} \bm{F}_{ab}
+  \label{Eq:EoM_Newton_RG}
+\end{equation}
+右辺について, 第一項目は分子外の原子との相互作用で生じる力(外力)であり, 第二項目は分子内の原子間相互作用によって生じる力(内力)である. 
+
+\subsubsection{重心の並進運動}
+ニュートンの運動方程式(\ref{Eq:EoM_Newton_RG})の両辺に対して, 分子内の原子について和を取ると
+\begin{equation}
+  \sum_{a=1}^{n_{i}} m_{a} \frac{d^{2} \bm{r}_{a}}{dt^{2}}
+  =
+  \sum_{a=1}^{n_{i}} \bm{F}_{a}
+  +
+  \sum_{a=1}^{n_{i}} \sum_{b \neq a}^{n_{i}} \bm{F}_{ab}
+  =
+  \sum_{a=1}^{n_{i}} \bm{F}_{a}
+\end{equation}
+を得る. なお, 最後の変形で内力は作用反作用によってキャンセルされることを利用した.
+式(\ref{Eq:Vector_AtomPosition})を代入して, 恒等式(\ref{Eq:IEq_SiteVector})を利用すると, 重心の並進に関する運動方程式
+\begin{equation}
+  M_{i} \frac{d^{2} \bm{R}_{\mathrm{G}i}}{dt^{2}} = \sum_{a=1}^{n_{i}} \bm{F}_{a}
+  \label{Eq:EoM_CoM_Translocate}
+\end{equation}
+が得られる.
+
+
+\subsubsection{回転運動}
+まず初めに, 回転に関する物理量として, 分子の角運動量$\bm{L}_{i}$, トルク$\bm{N}_{i}$を次のように定義する:
+\begin{alignat}{3}
+  \bm{L}_{i} &= \sum_{a=1}^{n_{i}} \bm{r}_{a} \times \bm{p}_{a}
+  \label{Eq:Def_AngularMoment}
+  \\
+  \bm{N}_{i} &= \sum_{a=1}^{n_{i}} \bm{r}_{a} \times \bm{F}_{a}
+  \label{Eq:Def_Torque}
+\end{alignat}
+ここで, $\bm{p}_{a}$は運動量で$\bm{p}_{a} = m_{a} \dot{\bm{r}}_{a}$と計算される.
+同様に, 重心の角運動量$\bm{L}_{\mathrm{G}i}$と重心周りの角運動量$\bm{L}_{\mathrm{R}i}$をそれぞれ
 \begin{align}
- 0 \leq \phi,\psi \leq 2\pi && 0 \leq \theta \leq \pi
+  \bm{L}_{\mathrm{G}i} &= \bm{R}_{\mathrm{G}i} \times M_{i} \dot{\bm{R}}_{\mathrm{G}i}
+  \\
+  \bm{L}_{\mathrm{R}i} &= \sum_{a=1}^{n_{i}} (\bm{s}_{a} \times m_{a} \dot{\bm{s}}_{a})
+\end{align}
+と定義する.
+式(\ref{Eq:Vector_AtomPosition})を用いて変形した運動量
+\begin{equation}
+  \bm{p}_{a}
+  =
+  m_{a} \dot{\bm{R}}_{\mathrm{G}i} + m_{a}\dot{\bm{s}}_{a}
+  \label{Eq:Momentum_Rg_s}
+\end{equation}
+と, 恒等式(\ref{Eq:Vector_AtomPosition})を角運動量の定義(\ref{Eq:Def_AngularMoment})に代入して, 恒等式(\ref{Eq:IEq_SiteVector})を用いると
+\begin{align}
+  \bm{L}_{i}
+  &=
+  \frac{d}{dt}
+  \left\{
+    \sum_{a=1}^{n_{i}}
+    \left(\bm{R}_{\mathrm{G}i} + \bm{s}_{a}\right)
+    \times
+    \left(m_{a} \dot{\bm{R}}_{\mathrm{G}i} + m_{a}\dot{\bm{s}}_{a}\right)
+  \right\}
+  \notag \\
+  &=
+  \bm{R}_{\mathrm{G}i} \times M_{i} \dot{\bm{R}}_{\mathrm{G}i}
+  +
+  \sum_{a=1}^{n_{i}} (\bm{s}_{a} \times m_{a} \dot{\bm{s}}_{a})
+  \notag \\
+  &=
+  \bm{L}_{\mathrm{G}i} + \bm{L}_{\mathrm{R}i}
+\end{align}
+のように展開できる.
+この式から, 重心の角運動量と重心周りの角運動量が分離できることが分かる.
+
+続いて, 回転に関する運動を具体的に考えていく.
+ニュートンの運動方程式(\ref{Eq:EoM_Newton_RG})の両辺に対して, $\bm{r}_{a}$をベクトル積として左からかけて, 分子内の原子について和を取ると
+\begin{equation}
+  \sum_{a=1}^{n_{i}} \bm{r}_{a} \times m_{a} \frac{d^{2} \bm{r}_{a}}{dt^{2}}
+  =
+  \sum_{a=1}^{n_{i}} \bm{r}_{a} \times \bm{F}_{a}
+  +
+  \sum_{a=1}^{n_{i}} \sum_{b \neq a}^{n_{i}} \bm{r}_{a} \times \bm{F}_{ab}
+\end{equation}
+となる. 左辺は運動量$\bm{p}_{a} = m_{a} \dot{\bm{r}}_{a}$を用いて
+\begin{equation}
+  \sum_{a=1}^{n_{i}} \bm{r}_{a} \times m_{a} \frac{d^{2} \bm{r}_{a}}{dt^{2}}
+  =
+  \frac{d}{dt}
+  \left(
+    \sum_{a=1}^{n_{i}} \bm{r}_{a} \times m_{a} \frac{d \bm{r}_{a}}{dt}
+  \right)
+  =
+  \frac{d}{dt}
+  \left(
+    \sum_{a=1}^{n_{i}} \bm{r}_{a} \times \bm{p}_{a}
+  \right)
+\end{equation}
+と変形できる. 一方, 右辺第二項目は
+\begin{align}
+  \sum_{a=1}^{n_{i}} \sum_{b \neq a}^{n_{i}} \bm{r}_{a} \times \bm{F}_{ab}
+  =
+  \sum_{a=1}^{n_{i}} \sum_{b > a}^{n_{i}}
+  \left(
+    \bm{r}_{a} \times \bm{F}_{ab}
+    +
+    \bm{r}_{b} \times \bm{F}_{ba}
+  \right)
+  =
+  \sum_{a=1}^{n_{i}} \sum_{b > a}^{n_{i}}
+  \left(
+    \bm{r}_{a} - \bm{r}_{b}
+  \right)
+  \times \bm{F}_{ab}
+  =0
+\end{align}
+と計算される. 最後の計算では$\bm{r}_{a} - \bm{r}_{a}$と$\bm{F}_{ab}$は平行ベクトルのため外積がゼロになることを用いた. したがって, 
+\begin{equation}
+  \frac{d}{dt}
+  \left(
+    \sum_{a=1}^{n_{i}} \bm{r}_{a} \times \bm{p}_{a}
+  \right)
+  =
+  \sum_{a=1}^{n_{i}} \bm{r}_{a} \times \bm{F}_{a}
+\end{equation}
+が得られる. 角運動量の定義(\ref{Eq:Def_AngularMoment})とトルクの定義(\ref{Eq:Def_Torque})を代入すると, 回転に関する運動方程式
+\begin{equation}
+  \frac{d \bm{L}_{i}}{dt} = \bm{N}_{i}
+  \label{Eq:EoM_AngularMoment_Torque1}
+\end{equation}
+が得られた.
+さらに, 式(\ref{Eq:Vector_AtomPosition})と運動量の式(\ref{Eq:Momentum_Rg_s})を用いると
+\begin{equation}
+  \frac{d}{dt}
+  \left\{
+    \sum_{a=1}^{n_{i}}
+    \left(\bm{R}_{\mathrm{G}i} + \bm{s}_{a}\right)
+    \times
+    \left(m_{a} \dot{\bm{R}}_{\mathrm{G}i} + m_{a}\dot{\bm{s}}_{a}\right)
+  \right\}
+  =
+  \sum_{a=1}^{n_{i}}
+  \left(\bm{R}_{\mathrm{G}i} + \bm{s}_{a}\right)
+  \times
+  \bm{F}_{a}
+\end{equation}
+となる.
+恒等式(\ref{Eq:IEq_SiteVector})と重心の並進に関する運動方程式(\ref{Eq:EoM_CoM_Translocate})を用いて整理すると,
+\begin{equation}
+  \frac{d}{dt}
+  \left(
+    \sum_{a=1}^{n_{i}}
+    \bm{s}_{a} \times m_{a} \dot{\bm{s}}_{a}
+  \right)
+  =
+  \sum_{a=1}^{n_{i}}
+  \bm{s}_{a} \times \bm{F}_{a}
+  \label{Eq:EoM_AngularMoment_Torque2}
+\end{equation}
+を得る. これより, 分子の回転を表す運動方程式は重心周りの角運動量のみが関係し, 重心の角運動量に依存しないことが分かる. 
+なお, 回転を表す運動方程式(\ref{Eq:EoM_AngularMoment_Torque1})では, 実は分子を構成する原子が剛体として拘束されているという条件を課していない.
+続く節では, 剛体拘束を課すことで剛体の回転に関する運動方程式を導いていく.
+
+\subsection{剛体の回転運動}
+
+ここまで, 分子の運動は(1) 重心の並進運動, (2) 重心周りの回転運動に分離することができることを見てきた. この節では, 重心周りの回転運動を詳しく見ることで, 剛体の回転に関する運動方程式(オイラーの方程式)を導出していく.
+
+\subsubsection{空間座標系と分子座標系}
+剛体運動を考える際には, 剛体に固定された座標系を用いるのが便利である. 
+そこで, \textbf{空間座標系}と\textbf{分子座標系}を導入する. 
+空間座標系とは, 空間に固定された座標系である. 例えば, デカルト座標などである.
+分子座標系とは, 分子の重心を原点として張られる座標系であり, 空間座標から見ると分子とともに回転している. 分子を構成する原子座標は, この回転座標中に固定されている.
+
+次に, 空間を運動する任意の点$B$を考える.
+点Bの運動は, 空間座標系から見るか, 分子座標系から見るかで, 当然異なって見える.
+そこで, 空間座標系における位置ベクトルを$\bm{B}$, 分子座標系における位置ベクトルを$\bm{B}^{\prime}$として, その時間変化を考えていく.
+空間座標系での時間微分には$d/dt$, 分子座標系での時間微分には$d^{\prime}/dt$を用いることにする.
+空間座標系での時間変化$d\bm{B}^{\prime}/dt$は, 回転系での時間変化$d^{\prime}/dt$に加えて, 回転による時間変化の項が加わる.
+したがって, 空間座標系における時間微分と分子座標系における時間微分との間には
+\begin{equation}
+  \frac{d\bm{B}^{\prime}}{dt}
+  =
+  \frac{d^{\prime}\bm{B}^{\prime}}{dt}
+  +
+  \bm{\omega} \times \bm{B}^{\prime}
+  \label{Eq:time_dev_coordinate}
+\end{equation}
+が成立する.
+
+回転による時間変化の項, すなわち式(\ref{Eq:time_dev_coordinate})の右辺第二項目がどのように導き出されるかを見ていく.
+空間座標から見ると位置ベクトル$\bm{B}^{\prime}$の時間変化は, 分子座標系の回転に対応する. 
+そこで, 重心を通るある軸の周りで, 分子が角速度$\bm{\omega}_{i}$で回転しているとする状況を考える.
+すなわち, 分子座標系では静止している相対位置ベクトル$\bm{B}^{\prime}$は, 空間座標系から見ると回転軸の周りで角速度$\bm{\omega}$で回転している.
+$\bm{\omega}$は角速度ベクトルであり, 回転軸と同じ方向を向いている.
+ベクトル$\bm{B}^{\prime}$と回転軸のなす角を$\theta$とすると, 微小時間$\Delta t$の間に$|\Delta \bm{B}^{\prime}| =|\bm{\omega}_{i}| |\bm{B}^{\prime}| \sin \theta \Delta t$だけ変化する. さらに, $\Delta \bm{B}^{\prime}$は$\bm{\omega} \times \bm{B}^{\prime}$と同じ方向を向いているので$\Delta \bm{B}^{\prime} = \bm{\omega} \times \bm{B}^{\prime} \Delta t$と書ける. 故に$\Delta t \to 0$とすれば,
+\begin{equation}
+  \dot{\bm{B}}^{\prime}
+  =
+  \bm{\omega} \times \bm{B}^{\prime}
+\end{equation}
+を得る.
+
+剛体分子$i$に属する原子の相対位置ベクトル$\bm{s}_{a}$の場合, 分子座標系で静止しているので,
+\begin{equation}
+  \dot{\bm{s}}_{a}
+  =
+  \bm{\omega}_{i} \times \bm{s}_{a}
+  \label{Eq:dots_omega_x_s}
+\end{equation}
+と計算することができる.
+この関係式は, ベクトルの時間微分公式(\ref{Eq:time_dev_coordinate})から計算できる.
+すなわち, 原子の相対位置ベクトル$\bm{s}_{a}$は分子座標系では固定されており, $d^{\prime}\bm{s}_{a}/dt = 0$であることが直ちに求まる.
+
+
+\subsubsection{重心周りの回転運動}
+重心周りの角運動量を再掲する:
+\begin{equation}
+  \bm{L}_{\mathrm{R}i}
+  =
+  \sum_{a=1}^{n_{i}} (\bm{s}_{a} \times m_{a} \dot{\bm{s}}_{a})
+  \label{Eq:RG_AngularMoment_Lr}
+\end{equation}
+式(\ref{Eq:dots_omega_x_s})を回転の運動方程式(\ref{Eq:RG_AngularMoment_Lr})に代入すると
+\begin{equation}
+  \bm{L}_{\mathrm{R}i}
+  =
+  \sum_{a=1}^{n_{i}} \bm{s}_{a} \times m_{a} (\bm{\omega}_{i} \times \bm{s}_{a})
+\end{equation}
+ベクトル公式
+$
+  \bm{A} \times \bm{B} \times \bm{C}
+  =
+  \bm{B}(\bm{A} \cdot \bm{C}) -
+  \bm{C}(\bm{A} \cdot \bm{B})
+$
+を用いると,
+\begin{equation}
+  \bm{L}_{\mathrm{R}i}
+  =
+  \sum_{a=1}^{n_{i}} m_{a}
+  \left\{
+    \bm{\omega}_{i} (\bm{s}_{a} \cdot \bm{s}_{a})
+    -
+    \bm{s}_{a} (\bm{s}_{a} \cdot \bm{\omega}_{i})
+  \right\}
+\end{equation}
+を得る. 
+角速度ベクトル$\bm{\omega}_{i}$, 原子の重心からの相対座標ベクトル$\bm{s}_{a}$を空間座標系の成分で
+\begin{equation}
+  \bm{\omega}_{i}
+  =
+  \begin{pmatrix}
+    \omega_{ix} \\ \omega_{iy} \\ \omega_{iz}
+  \end{pmatrix},~~~
+  \bm{s}_{a}
+  =
+  \begin{pmatrix}
+    x_{a} \\ y_{a} \\ z_{a}
+  \end{pmatrix}
+\end{equation}
+のように表すと
+\begin{equation}
+  \bm{L}_{\mathrm{R}i}
+  =
+  \sum_{a=1}^{n_{i}} m_{a}
+  \begin{pmatrix}
+    (s_{a}^{2} - x_{a}^{2}) &
+    -x_{a} y_{a} &
+    x_{a} z_{a}  \\
+    -x_{a} y_{a} &
+    (s_{a}^{2} - y_{a}^{2}) &
+     y_{a} z_{a} \\
+    -x_{a} z_{a} &
+    -y_{a} z_{a} &
+    (s_{a}^{2} - z_{a}^{2})
+  \end{pmatrix}
+  \begin{pmatrix}
+    \omega_{ix} \\ \omega_{iy} \\ \omega_{iz}
+  \end{pmatrix}
+\end{equation}
+と具体的に計算できる. 慣性テンソル
+\begin{equation}
+  I_{\mu\nu}
+  \equiv
+  \sum_{a=1}^{n_{i}}
+  ( |\bm{s}_{a}|^{2} \delta_{\mu \nu} - |\bm{s}_{a\mu}| |\bm{s}_{a\nu}|)
+\end{equation}
+を定義することで, 角運動量と角速度の関係式
+\begin{equation}
+  \bm{L}_{\mathrm{R}i}
+  =
+  \bm{I} \bm{\omega}_{i}
+\end{equation}
+が得られる.
+
+ここまで, 分子座標系の座標の選び方は, 重心を原点に選ぶということ以外は任意であるとして議論を進めてきた. 分子座標系の座標軸を, 分子の慣性主軸に沿って軸を固定すると, 議論が簡潔になり便利である. つまり, 慣性テンソル$\bm{I}$が対角化されるように軸を選ぶと,
+\begin{align}
+  L_{x} &= I_{x} \omega_{x} \label{Eq:Lx} \\
+  L_{y} &= I_{y} \omega_{y} \label{Eq:Ly} \\
+  L_{z} &= I_{z} \omega_{z} \label{Eq:Lz}
+\end{align}
+となる. 
+この時, 慣性テンソルの対角成分$I_{x}$, $I_{y}$, $I_{z}$を主慣性モーメントという.
+以降の議論では, 分子座標系は分子の慣性主軸に沿って固定する.
+
+\subsubsection{オイラーの運動方程式}
+角速度$\bm{\omega}$で回転している分子座標系における回転の運動方程式を考える.
+空間座標系と分子座標系の間に成り立つベクトルの時間微分の関係式(\ref{Eq:time_dev_coordinate})を, 回転の運動方程式(\ref{Eq:EoM_AngularMoment_Torque1})に適用すると
+\begin{equation}
+  \frac{d \bm{L}_{i}}{dt}
+  =
+  \frac{d^{\prime} \bm{L}_{i}}{dt}
+  +
+  \bm{\omega} \times \bm{L}_{i}
+  =
+  \bm{N}_{i}
+\end{equation}
+を得る. 
+%成分ごとに書き下すと,
+%\begin{align}
+%  \frac{d^{\prime} L_{ix}}{dt} + (\omega_{y}L_{z} - \omega_{z}L_{y}) &= N_{x}
+%  \\
+%  \frac{d^{\prime} L_{iy}}{dt} + (\omega_{z}L_{x} - \omega_{x}L_{z}) &= N_{y}
+%  \\
+%  \frac{d^{\prime} L_{iz}}{dt} + (\omega_{x}L_{y} - \omega_{y}L_{x}) &= N_{z}
+%\end{align}
+%となる.
+さらに角運動量と角速度の関係式$\bm{L} = \bm{I} \bm{\omega}$を代入すると
+\begin{equation}
+  \bm{I}_{i} \frac{d \bm{\omega}_{i}}{dt}
+  =
+  \bm{N}_{i}
+  -
+  \bm{\omega}_{i} \times (\bm{I}_{i} \bm{\omega}_{i})
+  \label{Eq:Eular_RG}
+\end{equation}
+を得る. なお, 角速度ベクトル$\bm{\omega}$の時間微分は空間座標と分子座標で一致する. このことは, 空間座標系と分子座標系の間に成り立つベクトルの時間微分の関係式(\ref{Eq:time_dev_coordinate})を$\bm{\omega}$に用いたときに, $\bm{\omega} \times \bm{\omega} = 0$であることから分かる.
+式(\ref{Eq:Eular_RG})は, \textbf{オイラーの方程式}と呼ばれる回転の運動方程式である. 
+分子の慣性主軸を分子座標系に選んでいる時, 角運動量と角速度の関係式(\ref{Eq:Lx})--(\ref{Eq:Lz})より各成分は
+\begin{align}
+  I_{x} \frac{d \omega_{x}}{dt}
+  =
+  N_{x} + (I_{y} - I_{z}) \omega_{y} \omega_{z}
+  \label{Eq:EulaerEq_x}
+  \\
+  I_{y} \frac{d \omega_{y}}{dt}
+  =
+  N_{y} + (I_{z} - I_{x}) \omega_{z} \omega_{x}
+  \label{Eq:EulaerEq_y}
+  \\
+  I_{z} \frac{d \omega_{z}}{dt}
+  =
+  N_{z} + (I_{x} - I_{y}) \omega_{x} \omega_{y}
+  \label{Eq:EulaerEq_z}
+\end{align}
+と書き下せる.
+以上により, 角速度ベクトル$\bm{\omega}$の時間変化を, 主慣性モーメント$\bm{I}$とトルク$\bm{N}$で関係づけることができた\footnote{質点系の運動方程式との対応を考えると,　角速度ベクトルは速度ベクトル, 主慣性モーメントは質量, トルクは力のように対応づけて考えると分かりやすい.}.
+後は, 分子の配向を記述する一般化座標を導入すれば, 剛体の回転運動の記述が完成する.
+
+\subsection{オイラー角: 分子の配向を記述する一般化座標}
+
+剛体の回転運動は, 剛体の重心を通るある軸周りでの分子の回転であり, それによって分子の配向は時々刻々変化していく.
+この節では, 分子の配向を記述する一般化座標である\textbf{オイラー角}とその時間変化を見ていく.
+
+
+\subsubsection{オイラー角と空間座標系と分子座標系の変換}
+
+空間座標に対する分子座標の配向は\textbf{オイラー角}$(\phi,\theta,\psi)$で決めることができる. 
+空間座標から分子座標への変換はこのオイラー角を用いて, 以下の手続きによって行う. 
+ここで, 空間座標系と分子座標系の原点$O$, $G$は一致させるものとする. 
+\begin{enumerate}
+ \item $z$軸を回転軸として, 座標系$O_{xyz}$を逆時計周りに$\phi$だけ回転させる. 
+       回転後の座標系は$O^{\prime}_{x^{\prime}y^{\prime}z^{\prime}}$
+ \item $x^{\prime}$軸を回転軸として, 座標系$O^{\prime}_{x^{\prime}y^{\prime}z^{\prime}}$を逆時計周りに$\theta$だけ回転させる. 
+       回転後の座標系は
+       $O^{\prime \prime}_{x^{\prime \prime} y^{\prime \prime} z^{\prime \prime}}$
+ \item $z^{\prime \prime}$軸を回転軸として, 座標系$O^{\prime \prime}_{x^{\prime \prime} y^{\prime \prime} z^{\prime \prime}}$を逆時計周りに$\psi$だけ回転させる. 
+       回転後の座標系は$\tilde{O}_{\tilde{x} \tilde{y} \tilde{z}}$
+\end{enumerate}
+なお, 以上の操作においてオイラー角$(\phi,\theta,\psi)$の変域は
+\begin{align}
+ 0 \leq \phi,\psi \leq 2\pi,~~~~~ 0 \leq \theta \leq \pi
  \label{eq:RigidBodyMD1}
 \end{align}
-空間座標$\bm{r}^{\mathrm{s}}$から剛体座標$\bm{r}^{\mathrm{b}}$
-への変換は行列$\bm{A}$を用いて
+とする.
+空間座標$\bm{r}_{\mathrm{s}}$から分子座標$\bm{r}_{\mathrm{b}}$
+への変換は, 変換行列$\bm{A}$を用いた座標の回転操作と, 分子の並進操作によって
 \begin{align}
- \bm{r}^{\mathrm{b}} &= \bm{A} \bm{r}^{\mathrm{s}}
+ \bm{r}_{\mathrm{b}} &= \bm{A} \bm{r}_{\mathrm{s}} - \bm{R}_{\mathrm{G}}
  \label{eq:RigidBodyMD2}
  \\
- \bm{r}^{\mathrm{s}} &= \bm{A}^{\mathrm{t}} \bm{r}^{\mathrm{b}}
+ \bm{r}_{\mathrm{s}} &= \bm{A}^{\mathrm{t}} \bm{r}_{\mathrm{b}} + \bm{R}_{\mathrm{G}}
  \label{eq:RigidBodyMD3}
 \end{align}
-とかける. ここで変換行列$\bm{A}$は
+とかける. 変換行列$\bm{A}$は
 \begin{align}
- \bm{A(\phi,\theta,\psi)}
- &= \bm{R_{\psi}}\bm{R_{\theta}}\bm{R_{\phi}}
+ \bm{A}(\phi,\theta,\psi)
+ &= \bm{R}_{\psi}\bm{R}_{\theta}\bm{R}_{\phi}
  \notag
  \\
  & =
@@ -74,9 +469,11 @@
  \end{pmatrix}
  \label{eq:RigidBodyMD4}
 \end{align}
-と求まる. 
+と表せる. なお変換行列$\bm{A}$は直行行列であるので, $\bm{A}^{-1} = \bm{A}^{\mathrm{t}}$である.
 
-続いて, 剛体座標における角速度$\tilde{\bm{\omega}}$を
+\subsubsection{オイラー角の時間変化: オイラー角と角速度$\tilde{\bm{\omega}}$の関係式}
+
+続いて, 分子座標系における角速度$\tilde{\bm{\omega}}$を
 オイラー角$(\phi,\theta,\psi)$を用いて表す. 
 $\dot{\phi}$は座標系$O^{\prime}$の$z^{\prime}$軸まわり,
 $\dot{\theta}$は座標系$O^{\prime \prime}$の$x^{\prime \prime}$まわり, 
@@ -87,13 +484,13 @@ $\dot{\psi}$は座標系$\tilde{O}$の$\tilde{z}$まわりの変化であるか�
  \begin{pmatrix}
   0 \\ 0 \\ \dot{\phi}
  \end{pmatrix}
- , &&
+ , ~~~~
   \omega_{\theta}^{\prime \prime}
  =
  \begin{pmatrix}
   \dot{\theta} \\ 0 \\ 0
  \end{pmatrix}
- , &&
+ , ~~~~
   \tilde{\omega}_{\psi}
  =
  \begin{pmatrix}
@@ -102,14 +499,14 @@ $\dot{\psi}$は座標系$\tilde{O}$の$\tilde{z}$まわりの変化であるか�
  \label{eq:RigidBodyMD5}
 \end{align}
 とかける. 
-したがって, 各座標系の角速度を剛体座標系に変換することで, 剛体座標の角速度$\Tilde{\bm{\omega}}$
+各座標系の角速度を分子座標系に変換することで, 分子座標系での角速度$\Tilde{\bm{\omega}}$
 \begin{align}
- \tilde{bm{\omega}}
+ \tilde{\bm{\omega}}
  =
  \begin{pmatrix}
-  \omega_{\tilde{x}} \\
-  \omega_{\tilde{y}} \\
-  \omega_{\tilde{z}} \\
+  \Tilde{\omega}_{x} \\
+  \Tilde{\omega}_{y} \\
+  \Tilde{\omega}_{z} \\
  \end{pmatrix}
  &=
    \bm{R}_{\psi}\bm{R}_{\theta}\omega_{\phi}^{\prime}
@@ -123,36 +520,35 @@ $\dot{\psi}$は座標系$\tilde{O}$の$\tilde{z}$まわりの変化であるか�
   \dot{\phi}\sin\theta \cos\psi - \dot{\theta}\sin\psi \\
   \dot{\phi}\cos\theta + \dot{\psi}
  \end{pmatrix}
- % \notag
- % \\
- % &=
- % \begin{pmatrix}
- %   \cos\psi & \sin\theta \sin\psi & 0 \\
- %  -\sin\psi & \sin\theta \cos\psi & 0 \\
- %  0 & \cos\theta & 1
- % \end{pmatrix}
- % \begin{pmatrix}
- %  \dot{\theta} \\
- %  \dot{\phi}   \\
- %  \dot{\psi}   \\
- % \end{pmatrix}
- \label{eq:RigidBodyMD6}
+ \notag \\
+ &=
+ \begin{pmatrix}
+    \cos\psi & \sin\theta \sin\psi & 0 \\
+   -\sin\psi & \sin\theta \cos\phi & 0 \\
+           0 & \cos\theta          & 1
+ \end{pmatrix}
+ \begin{pmatrix}
+  \dot{\theta} \\ \dot{\phi} \\ \dot{\psi}
+ \end{pmatrix} 
+ \notag
 \end{align}
-を得られる. これを逆に解くと
+と計算できる. これを逆に解くと, オイラー角の時間微分を分子座標系の角速度を用いて表すことができる:
 \begin{align}
- \dot{\theta} &= \omega_{\tilde{x}}\cos\psi - \omega_{\tilde{y}}\sin\psi
+ \dot{\theta} &= \Tilde{\omega}_{x}\cos\psi - \Tilde{\omega}_{y}\sin\psi
 \label{eq:RigidBodyMD7}
  \\
- \dot{\phi}   &= \frac{1}{\sin\theta}\left(\omega_{\tilde{x}}\sin\psi + \omega_{\tilde{y}} \cos\psi \right)
+ \dot{\phi}   &= \frac{1}{\sin\theta}\left(\Tilde{\omega}_{x}\sin\psi + \Tilde{\omega}_{y} \cos\psi \right)
 \label{eq:RigidBodyMD8}
  \\
- \dot{\psi}   &= \omega_{\tilde{z}}- \frac{\cos\theta}{\sin\theta}\left(\omega_{\tilde{x}}\sin\psi + \omega_{\tilde{y}} \cos\psi \right)
+ \dot{\psi}   &= \Tilde{\omega}_{z}- \frac{\cos\theta}{\sin\theta}\left(\Tilde{\omega}_{x}\sin\psi + \Tilde{\omega}_{y} \cos\psi \right)
  \label{eq:RigidBodyMD9}
 \end{align}
-を得る. 
 
-オイラー角の時間変化には$1/\sin \theta$という特異的な項が存在する. 
-この発散を避けるために, ここで以下のように４元数を導入する. 
+
+\subsubsection{オイラー角の時間変化: 四元数表示}
+
+オイラー角の時間変化(\ref{eq:RigidBodyMD7})--(\ref{eq:RigidBodyMD9})には$1/\sin \theta$という特異的な項が存在し, $\theta = 0, \pi$で無限大に発散してしまう.
+この発散を避けるために, 次のような四元数を導入する. 
 \begin{align}
  q_0 & = \cos\left(\frac{\theta}{2}\right)\cos\left(\frac{\phi+\psi}{2}\right)
  \label{eq:RigidBodyMD10}
@@ -166,10 +562,14 @@ $\dot{\psi}$は座標系$\tilde{O}$の$\tilde{z}$まわりの変化であるか�
  q_3 & = \cos\left(\frac{\theta}{2}\right)\sin\left(\frac{\phi+\psi}{2}\right) 
 \label{eq:RigidBodyMD13}
 \end{align}
-４元数には$\sum_{i}q_{i}^{2}=1$が成り立つため自由度は３であることに注意する. \\
-オイラー角の時間変化を4元数を用いて表すと, 
+四元数は$\sum_{i}q_{i}^{2}=1$が成り立つため自由度は３であることに注意する.
+四元数表示したオイラー角の時間変化は, 
 \begin{align}
  \dot{\bm{q}}
+  =
+  \begin{pmatrix}
+    \dot{q}_{0} \\ \dot{q}_{1} \\ \dot{q}_{2} \\ \dot{q}_{3}
+  \end{pmatrix}
   &=
   \frac{1}{2}
     \begin{pmatrix}
@@ -180,9 +580,9 @@ $\dot{\psi}$は座標系$\tilde{O}$の$\tilde{z}$まわりの変化であるか�
     \end{pmatrix}
  \begin{pmatrix}
   0                  \\
-  \omega_{\Tilde{x}} \\
-  \omega_{\Tilde{y}} \\
-  \omega_{\Tilde{z}} \\
+  \Tilde{\omega}_{x} \\
+  \Tilde{\omega}_{y} \\
+  \Tilde{\omega}_{z} \\
  \end{pmatrix}
 \label{eq:RigidBodyMD14}
  \\
@@ -190,72 +590,77 @@ $\dot{\psi}$は座標系$\tilde{O}$の$\tilde{z}$まわりの変化であるか�
  \frac{1}{2} \bm{S}(\bm{q}) \Tilde{\bm{\bm{\omega}}}^{(4)}
 \label{eq:RigidBodyMD15}
 \end{align}
-となる. ここで, 
+と表せる.
+\footnote{四元数の積は行列・ベクトル積で表すことができることが知られている. ここで得られた四元数の時間微分の行列・ベクトル積部分は, 四元数の積$\hat{q}\hat{\omega}$に対応している.}
+ここで定義した行列$\bm{S}(\bm{q})$は非対角成分が反対称となっている. また,
 \begin{equation}
- \left[
-  \bm{S}(\bm{q})\bm{S}^{\mathrm{t}}(\bm{q})
- \right]_{\alpha \beta}
+\bm{S}(\bm{q})\bm{S}^{\mathrm{t}}(\bm{q})
  =
- |q^{2}| \delta_{\alpha \beta}
+ (q_{0}^{2} + q_{1}^{2} + q_{2}^{2} + q_{3}^{2}) \bm{E}
  =
- \delta_{\alpha \beta}
+ |q|^{2} \bm{E}
+ =
+ \bm{E}
 \label{eq:RigidBodyMD16}
 \end{equation}
-の関係式が成り立つ. 
+の関係式が成り立つことが確認できる. ここで, $\bm{E}$は単位行列である.
 
-% また, ４元数を用いると変換行列$\bm{A}$は以下のように表せる. 
-% \begin{align}
-%  \bm{A(\bm{q})} =
-% \begin{pmatrix}
-%  q_0^2 + q_1^2 - q_2^2 - q_3^2 & 2(q_1q_2 + q_0q_3)            & 2(q_1q_3 - q_0q_2) \\
-%  2(q_1q_2 - q_0q_3)            & q_0^2 - q_1^2 + q_2^2 - q_3^2 & 2(q_2q_3 + q_0q_1) \\
-%  2(q_1q_3 + q_0q_2)            & 2(q_2q_3 - q_0q_1)            & q_0^2 - q_1^2 - q_2^2 + q_3^2 
-% \end{pmatrix} 
-% \end{align}
+なお, ここで導入した四元数を用いると変換行列$\bm{A}$(回転操作)は以下のように表せる:
+\begin{align}
+  \bm{A(\bm{q})} =
+ \begin{pmatrix}
+  q_0^2 + q_1^2 - q_2^2 - q_3^2 & 2(q_1q_2 + q_0q_3)            & 2(q_1q_3 - q_0q_2) \\
+  2(q_1q_2 - q_0q_3)            & q_0^2 - q_1^2 + q_2^2 - q_3^2 & 2(q_2q_3 + q_0q_1) \\
+  2(q_1q_3 + q_0q_2)            & 2(q_2q_3 - q_0q_1)            & q_0^2 - q_1^2 - q_2^2 + q_3^2 
+ \end{pmatrix}.
+\end{align}
 
-% \section{剛体の運動方程式}
-% オイラーの運動方程式は以下のようにかける. 
-% \begin{align}
-%  & I_{xx}  \frac{d\omega_{\tilde{x}}}{dt} - \omega_{\tilde{y}} \omega_{\tilde{z}} \left(I_{yy} - I_{xx}\right) = \tau_{\tilde{x}} \\
-%  & I_{yy}  \frac{d\omega_{\tilde{y}}}{dt} - \omega_{\tilde{z}} \omega_{\tilde{x}} \left(I_{zz} - I_{xx}\right) = \tau_{\tilde{y}}  \\
-%  & I_{zz}  \frac{d\omega_{\tilde{z}}}{dt} - \omega_{\tilde{x}} \omega_{\tilde{y}} \left(I_{xx} - I_{yy}\right) = \tau_{\tilde{z}}
-% \end{align}
-% 但し
-% \begin{align}
-%  I_{\alpha \beta} = \sum_{k=1}^{N}m_k \left(|\bm{r}_k|^2\delta_{\alpha \beta} - \bm{r}_{k_{\alpha}}\bm{r}_{k_{\beta}}\right)
-% \end{align}
-% $\bm{r}_k$はk番目の原子の座標, $m_k$はk番目の原子の質量を表す. 
- 
- \section{剛体の回転運動に対するハミルトニアン}
-剛体座標上の重心位置からの相対位置ベクトルを$\bm{d}_{k}$とする. 
-このとき, 分子の重心周りの回転の運動エネルギーは, 
+
+\section{剛体運動の解析力学的記述}
+
+ここまで, 剛体の運動を古典力学に基づいて記述した.
+すなわち, ニュートンの運動方程式を出発点として, 重心の並進運動と重心周りの回転運動に分離し,
+回転に関する運動方程式であるオイラーの方程式を導出した.
+本節では, 剛体分子の回転に関する運動を解析力学の観点から記述する.
+回転運動に関するラグランジアンからハミルトニアンを導入し, ハミルトンの正準方程式より運動方程式を得る.
+最終的には得られる運動方程式は, 古典力学で得られたオイラーの方程式と一致する. 
+すなわち, ハミルトン形式で記述したとしても, 得られる運動方程式は古典力学に基づく記述と一緒である. しかしながら, ハミルトン形式で運動を記述することは, 分子動力学アルゴリズム, とりわけシンプレクティック剛体分子動力学法を構築するのに役に立つ.
+
+
+\subsection{剛体の回転運動に対するハミルトニアン}
+\subsubsection{重心周りの回転運動エネルギー}
+分子座標上の重心位置からの原子の相対位置ベクトルの時間微分を$\dot{\bm{s}}_{a}$を用いると, 分子の重心周りの回転の運動エネルギーは
 \begin{align}
  T(\bm{\omega})
  &=
- \sum_{k} \frac{1}{2} m_{k} \dot{\bm{d}}_{k}^{2}
+ \sum_{a=1}^{n_{i}} \frac{1}{2} m_{a} \dot{\bm{s}}_{a}^{2}
  \notag
  \\
  &=
- \sum_{k} \frac{1}{2} m_{k}
- (\tilde{\bm{\omega}} \times \bm{d}_{k})
- \cdot (\tilde{\bm{\omega}} \times \bm{d}_{k})
+ \sum_{a=1}^{n_{i}} \frac{1}{2} m_{a}
+ (\tilde{\bm{\omega}} \times \bm{s}_{a})
+ \cdot (\tilde{\bm{\omega}} \times \bm{s}_{a})
  \notag
  \\
  &=
  \frac{1}{2}
  (
- I_{xx} \omega_{\Tilde{x}}^{2}
-+I_{xy} \omega_{\Tilde{x}}\omega_{\Tilde{y}}
-+I_{xz} \omega_{\Tilde{x}}\omega_{\Tilde{z}}
-+I_{yy} \omega_{\Tilde{y}}^{2}
+ I_{xx} \Tilde{\omega}_{x}^{2}
++I_{xy} \Tilde{\omega}_{x}\Tilde{\omega}_{y}
++I_{xz} \Tilde{\omega}_{x}\Tilde{\omega}_{z}
++I_{yy} \Tilde{\omega}_{y}^{2}
 \notag
 \\ &~~~~
-+I_{yx} \omega_{\Tilde{y}}\omega_{\Tilde{x}}
-+I_{yz} \omega_{\Tilde{y}}\omega_{\Tilde{z}}
-+I_{zz} \omega_{\Tilde{z}}^{2}
-+I_{zx} \omega_{\Tilde{z}}\omega_{\Tilde{x}}
-+I_{zy} \omega_{\Tilde{z}}\omega_{\Tilde{y}}
++I_{yx} \Tilde{\omega}_{y}\Tilde{\omega}_{x}
++I_{yz} \Tilde{\omega}_{y}\Tilde{\omega}_{z}
++I_{zz} \Tilde{\omega}_{z}^{2}
++I_{zx} \Tilde{\omega}_{z}\Tilde{\omega}_{x}
++I_{zy} \Tilde{\omega}_{z}\Tilde{\omega}_{y}
  )
+ \notag \\
+ &=
+  \frac{1}{2}
+  \Tilde{\bm{\omega}}^{\mathrm{t}} \bm{I} \Tilde{\bm{\omega}}
 \label{eq:RigidBodyMD17}
 \end{align}
 と計算される. 剛体座標系の座標軸を剛体の慣性主軸に一致するように選ぶと
@@ -264,14 +669,15 @@ $\dot{\psi}$は座標系$\tilde{O}$の$\tilde{z}$まわりの変化であるか�
  &=
  \frac{1}{2}
  (
- I_{xx} \omega_{\Tilde{x}}^{2}
-+I_{yy} \omega_{\Tilde{y}}^{2}
-+I_{zz} \omega_{\Tilde{z}}^{2}
+ I_{xx} \Tilde{\omega}_{x}^{2}
++I_{yy} \Tilde{\omega}_{y}^{2}
++I_{zz} \Tilde{\omega}_{z}^{2}
  )
 \label{eq:RigidBodyMD18}
 \end{align}
-となる. 以後, 剛体座標系の座標軸は慣性主軸に一致するように選ぶことにする. \\
-ここで, 回転の運動エネルギーの4元数表示を導入する. 
+となる. 以後, 剛体座標系の座標軸は慣性主軸に一致するように選ぶことにする.
+
+回転の運動エネルギーの四元数表示を導入する:
 \begin{equation}
  T(\bm{\omega}^{(4)})
   =
@@ -280,15 +686,7 @@ $\dot{\psi}$は座標系$\tilde{O}$の$\tilde{z}$まわりの変化であるか�
   \frac{1}{2} \bm{\omega}^{(4) \mathrm{t}} \bm{D}^{-1} \bm{\omega}^{(4)}
 \label{eq:RigidBodyMD19}
 \end{equation}
-ただし, 
-\begin{equation}
- \bm{\omega}^{(4)}
-  \equiv
-  (\omega_{0},\omega_{\Tilde{x}},\omega_{\Tilde{y}},\omega_{\Tilde{z}})^{\mathrm{t}}
-  =
- 2\bm{S}^{\mathrm{t}} (\bm{q}) \dot{\bm{q}}
-\label{eq:RigidBodyMD20}
-\end{equation}
+ここで, 
 \begin{equation}
  \bm{D}
  \equiv
@@ -300,7 +698,19 @@ $\dot{\psi}$は座標系$\tilde{O}$の$\tilde{z}$まわりの変化であるか�
  \end{pmatrix}
 \label{eq:RigidBodyMD21}
 \end{equation}
-で定義される. 4元数を用いた剛体の回転運動に対するラグランジアンは
+で定義される. また, 四元角速度は, $\dot{\bm{q}} = \frac{1}{2} \bm{S}(\bm{q}) \bm{\omega}^{(4)}$, $\bm{S}(\bm{q})\bm{S}^{\mathrm{t}}(\bm{q}) = |q|^{2} \bm{E}$より
+\begin{equation}
+ \bm{\omega}^{(4)}
+  \equiv
+  (\omega_{0},\Tilde{\omega}_{x},\Tilde{\omega}_{y},\Tilde{\omega}_{z})^{\mathrm{t}}
+  =
+  \frac{2}{|q|^{2}}\bm{S}^{\mathrm{t}} (\bm{q}) \dot{\bm{q}}
+\label{eq:RigidBodyMD20}
+\end{equation}
+と表される.
+
+\subsubsection{剛体の回転運動に対するラグランジアン}
+四元数を用いた剛体の回転運動に対するラグランジアンは
 \begin{align}
  \mathcal{L}(\bm{q},\dot{\bm{q}})
  &=
@@ -312,7 +722,8 @@ $\dot{\psi}$は座標系$\tilde{O}$の$\tilde{z}$まわりの変化であるか�
  \notag
  \\
  &=
- 2 \left\{
+ \frac{2}{|q|^{4}}
+ \left\{
          \bm{S}^{\mathrm{t}} (\bm{q}) \dot{\bm{q}}
  \right\}^{\mathrm{t}}
  \bm{D}^{-1}
@@ -323,250 +734,280 @@ $\dot{\psi}$は座標系$\tilde{O}$の$\tilde{z}$まわりの変化であるか�
  \notag
  \\
  &=
- 2 \dot{\bm{q}}^{\mathrm{t}} \bm{S}(\bm{q})
+ \frac{2}{|q|^{4}}
+ \dot{\bm{q}}^{\mathrm{t}} \bm{S}(\bm{q})
  \bm{D}^{-1}
  \bm{S}^{\mathrm{t}}(\bm{q}) \dot{\bm{q}}
  - \phi(\bm{q})
 \label{eq:RigidBodyMD22}
 \end{align}
 と導出される. 
-$\bm{q}$に共役な運動量$\bm{p}$は
+$\bm{q}$に共役な運動量$\bm{\pi}$は
 \begin{align}
- \bm{p}
+ \bm{\pi}
  =
  \frac{\partial \mathcal{L}(\bm{q},\dot{\bm{q}})}{\partial \dot{\bm{q}}}
  =
- 4 \bm{S}(\bm{q}) \bm{D}^{-1}
+ \frac{4}{|q|^4}\bm{S}(\bm{q}) \bm{D}^{-1}
  \bm{S}^{\mathrm{t}}(\bm{q})
  \dot{\bm{q}}
  =
- 2 \bm{S}(\bm{q}) \bm{D}^{-1} \bm{\omega}^{(4)}
+ \frac{2}{|q|^{4}} \bm{S}(\bm{q}) \bm{D}^{-1} \bm{\omega}^{(4)}
 \label{eq:RigidBodyMD23}
 \end{align}
-であることから, 剛体の回転に対するハミルトニアンは
+と表される. 一方で, 四元角速度は
 \begin{align}
- \mathcal{H}(\bm{q},\bm{p})
+  \bm{\omega}^{(4)}
+  =
+  \frac{|q|^{2}}{2}
+  \bm{D}\bm{S}^{\mathrm{t}}(\bm{q})\bm{\pi}
+\end{align}
+と表すことができる.
+
+
+\subsubsection{剛体の回転運動に対するハミルトニアン}
+
+ラグランジアンをルジャンドル変換するすると, 剛体の回転に対するハミルトニアンは
+\begin{align}
+ \mathcal{H}(\bm{q},\bm{\pi})
  &=
- \dot{\bm{q}} \cdot \bm{p} - \mathcal{L}(\bm{q},\dot{\bm{q}})
+ \dot{\bm{q}} \cdot \bm{\pi} - \mathcal{L}(\bm{q},\dot{\bm{q}})
  \\
  &=
  \dot{\bm{q}} \cdot
-  4 \bm{S}(\bm{q}) \bm{D}^{-1} \bm{S}^{\mathrm{t}}(\bm{q})
+ \frac{4}{|q|^{4}} \bm{S}(\bm{q}) \bm{D}^{-1} \bm{S}^{\mathrm{t}}(\bm{q})
  \dot{\bm{q}}
  - \left\{
- 2 \dot{\bm{q}}^{\mathrm{t}} \bm{S}(\bm{q}) \bm{D}^{-1}
+ \frac{2}{|q|^{4}} \dot{\bm{q}}^{\mathrm{t}} \bm{S}(\bm{q}) \bm{D}^{-1}
  \bm{S}^{\mathrm{t}}(\bm{q}) \dot{\bm{q}}
  - \phi(\bm{q})
  \right\}
  \\
  &=
- 2 \dot{\bm{q}}^{\mathrm{t}} \bm{S}(\bm{q}) \bm{D}^{-1}
+ \frac{2}{|q|^{4}} \dot{\bm{q}}^{\mathrm{t}} \bm{S}(\bm{q}) \bm{D}^{-1}
  \bm{S}^{\mathrm{t}}(\bm{q}) \dot{\bm{q}}
  + \phi(\bm{q})
  \\
  &=
+ \frac{2}{|q|^{4}} 
+ \left\{\bm{S}^{\mathrm{t}}(\bm{q}) \dot{\bm{q}}\right\}^{\mathrm{t}}
+ \bm{D}^{-1}
+ \left\{\bm{S}^{\mathrm{t}}(\bm{q}) \dot{\bm{q}}\right\}
+ + \phi(\bm{q})
+ \\
+ &=
  \frac{1}{8}
- \bm{p}^{\mathrm{t}} \bm{S}(\bm{q}) \bm{D}
- \bm{S}^{\mathrm{t}} (\bm{q}) \bm{p}
+ \bm{\pi}^{\mathrm{t}} \bm{S}(\bm{q}) \bm{D}
+ \bm{S}^{\mathrm{t}} (\bm{q}) \bm{\pi}
+ + \phi(\bm{q})
+ \\
+ &=
+ \frac{1}{8}
+ \left\{\bm{S}(\bm{q})^{\mathrm{t}} \bm{\pi} \right\}^{\mathrm{t}}
+ \bm{D}
+ \left\{\bm{S}^{\mathrm{t}} (\bm{q}) \bm{\pi}\right\}
  + \phi(\bm{q})
 \label{eq:RigidBodyMD24}
 \end{align}
-と導出できる. ただし, 最後の変形には式(\ref{eq:RigidBodyMD23})から導かれる
-$\dot{\bm{q}}
- = \frac{1}{4} \bm{S}(\bm{q}) \bm{D}
- \bm{S}^{\mathrm{t}} (\bm{q}) \bm{p}$, 
-$\dot{\bm{q}}^{\mathrm{t}}
- = \frac{1}{4} \bm{p}^{\mathrm{t}} \bm{S}(\bm{q})
- \bm{D} \bm{S}^{\mathrm{t}} (\bm{q})$
-を使用した. 
+と導出できる. ただし, 最後の変形には式(\ref{eq:RigidBodyMD23})から導かれる関係式
+\begin{alignat}{3}
+  \bm{S}^{\mathrm{t}} \dot{\bm{q}} &=
+  \frac{|q|^{2}}{4}
+  \bm{S}^{\mathrm{t}}(\bm{q}) \bm{D} \bm{\pi}
+  \\
+  \left\{\bm{S}^{\mathrm{t}} \dot{\bm{q}}\right\}^{\mathrm{t}} &=
+  \frac{|q|^{2}}{4}
+  \bm{\pi}^{\mathrm{t}} \bm{D}^{\mathrm{t}} \bm{S} (\bm{q})
+\end{alignat}
+を利用した. また, 行列$\bm{D}$は, その定義より対角成分のみ持ち, $\bm{D} = \bm{D}^{\mathrm{t}}$, $\bm{D}\bm{S} = \bm{S}\bm{D}$であるので
+\begin{equation}
+  \bm{D}^{\mathrm{t}} \bm{S} (\bm{q})
+  \bm{D}^{-1}
+  \bm{S}^{\mathrm{t}}(\bm{q}) \bm{D}
+  =
+  \bm{D} \bm{S} (\bm{q})
+  \bm{D}^{-1}
+  \bm{S}^{\mathrm{t}}(\bm{q}) \bm{D}
+  =
+  \bm{S} (\bm{q}) \bm{D} \bm{S}^{\mathrm{t}}(\bm{q})
+\end{equation}
+のように計算できる.
 
-%  \section{オイラーの運動方程式の導出}
-% 剛体分子の角速度の時間微分は
-% \begin{align}
-%  \dot{\bm{\omega}}^{(4)}
-%  &=
-%  \frac{d}{d t}
-%  \left\{
-%  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\bm{q}) \bm{p}
-%  \right\}
-%  \\
-%  &=
-%  |q||\dot{q}| \bm{D} \bm{S}^{\mathrm{t}}(\bm{q}) \bm{p}
-%  +
-%  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\dot{\bm{q}}) \bm{p}
-%  +
-%  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\bm{q}) \dot{\bm{p}}
-%  \\
-%  &=
-%  \omega_{0} \omega^{(4)}
-%  +
-%  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\dot{\bm{q}}) \bm{p}
-%  +
-%  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\bm{q}) \dot{\bm{p}}
-% \end{align}
-% である. 
-% % このハミルトニアンは以下のように分割することができる. 
-% % \begin{equation}
-% %  \mathcal{H}(\bm{p},\bm{q})
-% %   =
-% %   \sum_{k=0}^{3} h_{k}(\bm{p}, \bm{q}) + \phi(\bm{q})
-% % \end{equation}
-% % \begin{align}
-% %  h_{k}(\bm{p}, \bm{q})
-% %  &= \frac{1}{8 I_{k}}
-% %  \left[
-% %  \bm{p}^{\mathrm{t}} \bm{P}_{k} \bm{q}
-% %  \right]^{2}
-% %  \\
-% %  \bm{P}_{0} \bm{q}
-% %  &= (q_{0}, q_{1}, q_{2}, q_{3})^{\mathrm{t}}
-% %   \\
-% %  \bm{P}_{1} \bm{q}
-% %  &= (-q_{1}, q_{0}, q_{3}, -q_{2})^{\mathrm{t}}
-% %   \\
-% %  \bm{P}_{2} \bm{q}
-% %  &= (-q_{2}, -q_{3}, q_{0}, q_{1})^{\mathrm{t}}
-% %   \\
-% %  \bm{P}_{3} \bm{q}
-% %  &= (-q_{3}, q_{2}, -q_{1}, q_{0})^{\mathrm{t}}
-% % \end{align}
-% % ここで, $I_{0}=I_{00}$,$I_{1}=I_{xx}$,$I_{2}=I_{yy}$,$I_{3}=I_{zz}$である. 
-% Hamiltonの正準方程式より, 
-% \begin{alignat}{3}
-%  \dot{q}_{i}
-%  &=&&
-%  \frac{\partial \mathcal{H}(\bm{q}, \bm{p})}{\partial p_{i}}
-%  =&&
-%  \frac{1}{2 |q|^{2}}
-%  \sum_{k=0}^{3} \omega_{k} \frac{\partial}{\partial p_{i}}
-%  \left[ \bm{p}^{\mathrm{t}} \bm{P}_{k} \bm{q} \right]
-%  \\
-%  \dot{p}_{i}
-%  &= -&&
-%  \frac{\partial \mathcal{H}(\bm{q}, \bm{p})}{\partial q_{i}}
-%  =&&
-%  \frac{1}{2 |q|^{2}}
-%  \sum_{k=0}^{3} \omega_{k} \frac{\partial}{\partial q_{i}}
-%  \left[ \bm{p}^{\mathrm{t}} \bm{P}_{k} \bm{q} \right]
-%  - \frac{\partial \phi(\bm{q})}{\partial q_{i}}
-% \end{alignat}
-% である. 各成分について計算すると, 
-% \begin{alignat}{2}
-%  \dot{q}_{0}
-%  &=&&
-%  \frac{1}{2} (q_{0}\omega_{0} - q_{1}\omega_{x} - q_{2}\omega_{y} - q_{3}\omega_{z})
-%  \\
-%  \dot{q}_{1}
-%  &=&&
-%  \frac{1}{2} (q_{1}\omega_{0} + q_{0}\omega_{x} - q_{3}\omega_{y} + q_{2}\omega_{z})
-%  \\
-%  \dot{q}_{2}
-%  &=&&
-%  \frac{1}{2} (q_{2}\omega_{0} + q_{3}\omega_{x} + q_{0}\omega_{y} - q_{1}\omega_{z})
-%  \\
-%  \dot{q}_{3}
-%  &=&&
-%  \frac{1}{2} (q_{3}\omega_{0} - q_{2}\omega_{x} + q_{1}\omega_{y} + q_{0}\omega_{z})
-%  \dot{p}_{0}
-%  &= -&&
-%  \frac{1}{2} (p_{0}\omega_{0} + p_{1}\omega_{x} + p_{2}\omega_{y} + p_{3}\omega_{z})
-%  - \frac{\partial \phi(\bm{q})}{\partial q_{0}}
-%  \\
-%  \dot{p}_{1}
-%  &= -&&
-%  \frac{1}{2} (p_{1}\omega_{0} - p_{0}\omega_{x} + p_{3}\omega_{y} - p_{2}\omega_{z})
-%  - \frac{\partial \phi(\bm{q})}{\partial q_{1}}
-%  \\
-%  \dot{p}_{2}
-%  &= -&&
-%  \frac{1}{2} (p_{2}\omega_{0} - p_{3}\omega_{x} - p_{0}\omega_{y} + p_{1}\omega_{z})
-%  - \frac{\partial \phi(\bm{q})}{\partial q_{2}}
-%  \\
-%  \dot{p}_{3}
-%  &= -&&
-%  \frac{1}{2} (p_{3}\omega_{0} + p_{2}\omega_{x} - p_{1}\omega_{y} - p_{0}\omega_{z})
-%  - \frac{\partial \phi(\bm{q})}{\partial q_{3}}
-%  \end{alignat}
 
-% 式(refs)を代入すると以下の運動方程式が導出される
-% \begin{align}
-%  \dot{\omega}_{0}
-%  &=
-%  \omega_{0}^{2}
-%  \\
-%  \dot{\omega}_{x}
-%  &=
-%  \omega_{0} \omega_{x} + |q|^{2} \frac{\tau_{x}}{I_{xx}}
-%  + \frac{I_{yy} - I_{zz}}{I_{xx}} \omega_{y} \omega_{z}
-%  \\
-%  \dot{\omega}_{y}
-%  &=
-%  \omega_{0} \omega_{y} + |q|^{2} \frac{\tau_{y}}{I_{yy}}
-%  + \frac{I_{zz} - I_{xx}}{I_{yy}} \omega_{x} \omega_{z}
-%  \\
-%  \dot{\omega}_{z}
-%  &=
-%  \omega_{0} \omega_{z} + |q|^{2} \frac{\tau_{z}}{I_{zz}}
-%  + \frac{I_{xx} - I_{yy}}{I_{zz}} \omega_{x} \omega_{y}
-% \end{align}
-% $\omega_{0}(t=0)=0$,$|q(t=0)|^{2}=1$となるようにシミュレーションを始めれば, $\omega_{0}=0, |q|^{2}=1 (t\ge0)$となる. 
-% この時, オイラーの運動方程式と一致する式を得られる. 
-% \clearpage
+\subsection{回転に対する運動方程式}
+ハミルトンの正準方程式は
+\begin{alignat}{5}
+  \dot{\bm{q}}
+  &= &&
+  \frac{\partial \mathcal{H}(\bm{q}, \bm{\pi})}{\partial \bm{\pi}}
+  = &&
+  \frac{1}{2}
+  \bm{S}(\bm{q}) \bm{\omega}^{(4)}
+  \\
+  \dot{\bm{\pi}}
+  &= -&&
+  \frac{\partial \mathcal{H}(\bm{q}, \bm{\pi})}{\partial \bm{q}}
+  = -&&
+  \frac{1}{2}
+  \bm{S}(\bm{\pi}) \bm{\omega}^{(4)}
+  -
+  \frac{\partial \phi(\bm{q})}{\partial \bm{q}}
+\end{alignat}
+と計算される. 各成分について具体的に書き下すと
+\begin{alignat}{5}
+  \dot{\bm{q}} &=
+  \begin{pmatrix}
+    \dot{q}_{0} \\ \dot{q}_{1} \\ \dot{q}_{2} \\ \dot{q}_{3}
+  \end{pmatrix}
+  = &&
+  \frac{1}{2}
+  \begin{pmatrix}
+    q_{0} & -q_{1} & -q_{2} & -q_{3} \\
+    q_{1} &  q_{0} & -q_{3} &  q_{2} \\
+    q_{2} &  q_{3} &  q_{0} & -q_{1} \\
+    q_{3} & -q_{2} &  q_{1} &  q_{0}
+  \end{pmatrix}
+  \begin{pmatrix}
+    \omega_{0} \\ \omega_{x} \\ \omega_{y} \\ \omega_{z}
+  \end{pmatrix}
+  \\
+  \dot{\bm{\pi}} &=
+  \begin{pmatrix}
+    \dot{\pi}_{0} \\ \dot{\pi}_{1} \\ \dot{\pi}_{2} \\ \dot{\pi}_{3}
+  \end{pmatrix}
+  = -&&
+  \frac{1}{2}
+  \begin{pmatrix}
+    \pi_{0} &  \pi_{1} &  \pi_{2} &  \pi_{3} \\
+    \pi_{1} & -\pi_{0} &  \pi_{3} & -\pi_{2} \\
+    \pi_{2} & -\pi_{3} & -\pi_{0} &  \pi_{1} \\
+    \pi_{3} &  \pi_{2} & -\pi_{1} & -\pi_{0}
+  \end{pmatrix}
+  \begin{pmatrix}
+    \omega_{0} \\ \omega_{x} \\ \omega_{y} \\ \omega_{z}
+  \end{pmatrix}
+  -
+  \begin{pmatrix}
+    \frac{\partial \phi(\bm{q})}{\partial q_{0}} \\
+    \frac{\partial \phi(\bm{q})}{\partial q_{1}} \\
+    \frac{\partial \phi(\bm{q})}{\partial q_{2}} \\
+    \frac{\partial \phi(\bm{q})}{\partial q_{3}}
+  \end{pmatrix}
+\end{alignat}
+である.
 
-\section{剛体の回転運動の時間発展}
-ハミルトニアン(\ref{eq:RigidBodyMD24})を5つの部分に分割する. 
+ここで, 四元角速度の時間微分を計算すると
 \begin{align}
- \mathcal{H}(\bm{p}, \bm{q})
- &=
- \sum_{k=0}^{4} h_{k} (\bm{p}, \bm{q})
+  \dot{\bm{\omega}}^{(4)}
+  &=
+  \frac{d}{dt}
+  \left\{
+    \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\bm{q}) \bm{\pi}
+  \right\}
+  \notag \\
+  &=
+  |q||\dot{q}| \bm{D} \bm{S}^{\mathrm{t}} \bm{\pi}
+  +
+  \frac{|q|^{2}}{2} \bm{D} \dot{\bm{S}}^{\mathrm{t}}(\bm{q})\bm{\pi}
+  +
+  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\bm{q})\dot{\bm{\pi}}
+  \notag \\
+  &=
+  2\frac{|\dot{q}|}{|q|} \bm{\omega}^{(4)}
+  +
+  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\dot{\bm{q}})\bm{\pi}
+  +
+  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\bm{q})\dot{\bm{\pi}}
+  \notag \\
+  &=
+  \omega_{0} \bm{\omega}^{(4)}
+  +
+  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\dot{\bm{q}})\bm{\pi}
+  +
+  \frac{|q|^{2}}{2} \bm{D} \bm{S}^{\mathrm{t}}(\bm{q})\dot{\bm{\pi}}
 \end{align}
-ただし, 
+となる. 具体的に各成分を計算すると,
 \begin{align}
- h_{k} (\bm{p}, \bm{q}) &=
+  \dot{\omega_{0}} &= \omega_{0}^{2}
+  \\
+  \dot{\omega_{1}} &=
+  \omega_{0} \omega_{x}
+  +
+  |q|^{2} \frac{N_{x}}{I_{xx}} + \frac{I_{yy} - I_{zz}}{I_{xx}}\omega_{y}\omega_{z}
+  \\
+  \dot{\omega_{2}} &=
+  \omega_{0} \omega_{x}
+  +
+  |q|^{2} \frac{N_{y}}{I_{yy}} + \frac{I_{zz} - I_{xx}}{I_{yy}}\omega_{x}\omega_{z}
+  \\
+  \dot{\omega_{3}} &=
+  \omega_{0} \omega_{x}
+  +
+  |q|^{2} \frac{N_{z}}{I_{zz}} + \frac{I_{xx} - I_{yy}}{I_{zz}}\omega_{x}\omega_{y}
+\end{align}
+を得る. $\omega_{0}(t=0) = 0$, $|q(t=0)|^{2} =1$である時, $\omega_{0} \equiv 0$, $|q|^{2} \equiv 1 ~(t \ge 0)$となり, オイラーの方程式と一致することが確認できる.
+
+\section{剛体の回転運動に対する分子動力学アルゴリズム}
+ミクロカノニカルアンサンブルにおける剛体の回転に対する分子動力学アルゴリズムを考える.
+まず初めに, ハミルトニアン(\ref{eq:RigidBodyMD24})を5つの部分に分割する. 
+\begin{align}
+ \mathcal{H}(\bm{q}, \bm{\pi})
+ &=
+ \sum_{k=0}^{4} h_{k} (\bm{q}, \bm{\pi})
+\end{align}
+ここで, 
+\begin{align}
+ h_{k} (\bm{q}, \bm{\pi}) &=
  \begin{cases}
-  \frac{1}{8 I_{k}} [\bm{p}^{\mathrm{t}}\bm{P}_{k}\bm{q}]^{2}, &\text{for $k=0,1,2,3$} \\
+  \frac{1}{8 I_{k}} [\bm{\pi}^{\mathrm{t}}\bm{P}_{k}\bm{q}]^{2}, &\text{for $k=0,1,2,3$} \\
   \phi(\bm{q}),& \text{for $k=4$}
  \end{cases}
- \\
-  \bm{P}_{0} \bm{q}
- &= (q_{0}, q_{1}, q_{2}, q_{3})^{\mathrm{t}}
-  \\
- \bm{P}_{1} \bm{q}
- &= (-q_{1}, q_{0}, q_{3}, -q_{2})^{\mathrm{t}}
-  \\
- \bm{P}_{2} \bm{q}
- &= (-q_{2}, -q_{3}, q_{0}, q_{1})^{\mathrm{t}}
-  \\
- \bm{P}_{3} \bm{q}
- &= (-q_{3}, q_{2}, -q_{1}, q_{0})^{\mathrm{t}}
 \end{align}
-である. ここで, 演算子$\mathcal{D}_{k}$を導入する. 
+\begin{align}
+  \bm{P}_{0} \bm{q} =
+  \begin{pmatrix}
+    q_{0} \\ q_{1} \\ q_{2} \\ q_{3}
+  \end{pmatrix},~
+ \bm{P}_{1} \bm{q} =
+ \begin{pmatrix}
+   -q_{1} \\ q_{0} \\ q_{3} \\ -q_{2}
+ \end{pmatrix},~
+ \bm{P}_{2} \bm{q} =
+ \begin{pmatrix}
+   -q_{2} \\ -q_{3} \\ q_{0} \\ q_{1}
+ \end{pmatrix},~
+\bm{P}_{3} \bm{q} =
+\begin{pmatrix}
+  -q_{3} \\ q_{2} \\ -q_{1} \\ q_{0}
+\end{pmatrix}
+\end{align}
+と定義した. 次に, 演算子$\mathcal{D}_{k}$を次のように導入する:
 \begin{align}
  \mathcal{D}_{k}
  =
- \nabla_{p} h_{k} (\bm{p},\bm{q}) \cdot \nabla_{q}
+ \nabla_{p} h_{k} (\bm{q}, \bm{\pi}) \cdot \nabla_{q}
  -
- \nabla_{q} h_{k} (\bm{p},\bm{q}) \cdot \nabla_{p}
+ \nabla_{q} h_{k} (\bm{q}, \bm{\pi}) \cdot \nabla_{p}
 \end{align}
 $k=0,1,2,3$に対して
 \begin{align}
- \nabla_{p} h_{k} (\bm{p},\bm{q})
+ \nabla_{p} h_{k} (\bm{q}, \bm{\pi})
  &=
   \zeta_{k} \bm{P}_{k} \bm{q}
  \\
- \nabla_{q} h_{k} (\bm{p},\bm{q})
+ \nabla_{q} h_{k} (\bm{q}, \bm{\pi})
  &=
  \begin{cases}
-  -  \zeta_{k} \bm{P}_{k} \bm{p} &\text{for $k \neq 0$} \\
-     \zeta_{k} \bm{P}_{k} \bm{p} &\text{for $k =    0$} 
+  -  \zeta_{k} \bm{P}_{k} \bm{\pi} &\text{for $k \neq 0$} \\
+     \zeta_{k} \bm{P}_{k} \bm{\pi} &\text{for $k =    0$} 
  \end{cases}
 \end{align}
 と計算される. ただし
 \begin{equation}
  \zeta_{k} = \frac{1}{4I_{k}}
-  \bm{p}^{\mathrm{t}} \bm{P}_{k} \bm{q}
+  \bm{\pi}^{\mathrm{t}} \bm{P}_{k} \bm{q}
 \end{equation}
-を定義した. 
+と定義した. 
 鈴木・トロッター展開を用いると, 時間発展演算子$e^{\mathcal{D} \Delta t}$は
 \begin{equation}
  e^{\mathcal{D} \Delta t}
@@ -590,39 +1031,39 @@ $k=0,1,2,3$に対して
  \\
  &\mathcal{D}_{k} \bm{q} = \zeta_{k} \bm{P}_{k} \bm{q}
  \\
- &\mathcal{D}_{k} \bm{p} = \zeta_{k} \bm{P}_{k} \bm{p}
+ &\mathcal{D}_{k} \bm{\pi} = \zeta_{k} \bm{P}_{k} \bm{\pi}
  \\
  &\mathcal{D}_{k} (\bm{P}_{k} \bm{q}) = - \zeta_{k} \bm{q}
  \\
- &\mathcal{D}_{k} (\bm{P}_{k} \bm{p}) = - \zeta_{k} \bm{p}
+ &\mathcal{D}_{k} (\bm{P}_{k} \bm{\pi}) = - \zeta_{k} \bm{\pi}
 \end{align}
-の関係式が成立することを用いると, $k=1,2,3$に対して位相空間の時間発展は
+が成り立つことを用いると, $k=1,2,3$に対して位相空間の時間発展は
 \begin{align}
  e^{\mathcal{D}_{k} \Delta t} \bm{q}
  &=
  \cos(\zeta_{k} \Delta t) \bm{q} + \sin(\zeta_{k} \Delta t) \bm{P}_{k} \bm{q}
  \\
- e^{\mathcal{D}_{k} \Delta t} \bm{p}
+ e^{\mathcal{D}_{k} \Delta t} \bm{\pi}
  &=
- \cos(\zeta_{k} \Delta t) \bm{p} + \sin(\zeta_{k} \Delta t) \bm{P}_{k} \bm{p} \\
+ \cos(\zeta_{k} \Delta t) \bm{\pi} + \sin(\zeta_{k} \Delta t) \bm{P}_{k} \bm{\pi}
 \end{align}
-で計算されることが示される. また, $k=4$に対する時間発展は
+のように計算されることが示される. また, $k=4$に対する時間発展は
 \begin{align}
- e^{\mathcal{D}_{4} \Delta t} \bm{p}
+ e^{\mathcal{D}_{4} \Delta t} \bm{\pi}
  &=
- \bm{p} + \bm{F}^{(4)} \Delta t 
+ \bm{\pi} + \bm{F}^{(4)} \Delta t 
 \end{align}
 と計算される. ここで, 
 \begin{equation}
- \bm{F}^{(4)} = 2 \bm{S}(\bm{q}) \tau^{(4)}
+ \bm{F}^{(4)} = 2 \bm{S}(\bm{q}) \bm{N}^{(4)}
 \end{equation}
-である. $\tau^{(4)}$は4元数表示したトルクで
+である. $\bm{N}^{(4)}$は4元数表示したトルクで
 \begin{equation}
- \tau^{(4)}
-  = \left\{\sum_{k} \bm{F}_{k} \cdot \bm{d}_{k},
-           \sum_{k} \bm{d}_{k} \times \bm{F}_{k} \right\}
-  + \tau_{\mathrm{int}}^{(4)}
-  = \{0, \tau_{x}, \tau_{y}, \tau_{z} \}
+ \bm{N}^{(4)}
+  = \left\{\sum_{a} \bm{F}_{a} \cdot \bm{s}_{a},
+           \sum_{a} \bm{s}_{a} \times \bm{F}_{a} \right\}
+  + N_{\mathrm{int}}^{(4)}
+  = \{0, N_{x}, N_{y}, N_{z} \}
 \end{equation}
 とかかれる. 
 \clearpage

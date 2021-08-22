@@ -18,8 +18,6 @@
 1. ラグランジュ形式
 2. ハミルトン形式
 3. 拘束条件付きの運動方程式
-4. 🍊ガウスの最小束縛法
-5. 🍊剛体の力学
 
 ### [2. 統計力学の復習](https://masatakaym.github.io/documents/Molecular-Simulation/statistical-mechanics.pdf)
 1. 分布関数、リウビルの定理
@@ -74,29 +72,29 @@
 2. シンプレクティック分子動力学法
 3. シンプレクティック分子動力学法における保存量
 
-### [8. 拘束条件付き分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/constrain-dynamics.pdf)
+### [8. 拡張系の方法](https://masatakaym.github.io/documents/Molecular-Simulation/extended-phase-space-method.pdf)
+1. 温度制御: 能勢・Hoover 熱浴
+2. 温度制御: 能勢・Poincare 熱浴
+3. 圧力制御: Andersenの方法
+4. 圧力制御: パリネロ・ラマンの方法
+5. 温度・圧力制御: 能勢・Andersenの方法
+6. 温度・圧力制御: Martyna-Tobias-Klein (MTK)の運動方程式
+7. 温度・圧力制御: 能勢・ポアンカレ・Andersenの方法
+
+### [9. 拘束条件付き分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/constrain-dynamics.pdf)
 1. ホロノミックな拘束条件の具体的な例
 2. 座標に対する拘束動力学: ベルレ法による時間発展とSHAKE法
 3. 速度と座標に対する拘束動力学: 速度ベルレ法による時間発展とRATTLE法
 
-### [9. 剛体の分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/rigid-body-MD.pdf)
-1. 空間座標と剛体座標
-2. 剛体の回転運動に対するハミルトニアン
-3. 剛体の回転運動の時間発展
-
-### [10. 拡張系の方法](https://masatakaym.github.io/documents/Molecular-Simulation/extended-phase-space-method.pdf)
-1. 温度制御: 能勢・Hoover熱浴
-2. 圧力制御: Andersenの方法
-5. 温度・圧力制御: 能勢・Andersenの方法
-6. 温度・圧力制御: Martyna, Tobias, Klein (MTK)の運動方程式
-7. 温度・圧力制御: 能勢・ポアンカレ・Andersenの方法
-8. 🍊温度制御: 能勢・Poincare熱浴
-9. 🍊圧力制御: パリネロ・ラマンの方法
+### [10. 剛体の分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/rigid-body-MD.pdf)
+1. 剛体運動の古典力学的記述
+2. 剛体運動の解析力学的記述
+3. 剛体の回転運動に対する分子動力学アルゴリズム
 
 ### 11. 🍊ガウス束縛法
    1. 温度制御
-   2.  圧力制御
-   3.  温度・圧力制御
+   2. 圧力制御
+   3. 温度・圧力制御
 
 ### 12. 🍊その他の温度・圧力制御
    1. Berensenの方法
@@ -132,8 +130,9 @@
 3. 多状態ベネット受容比法 (MBAR: Multistate Bennett Acceptance Ration Estimator)
 4. リウェイティング tips
 
-### [17. 最小二乗法](https://masatakaym.github.io/documents/Molecular-Simulation/least-squares-method.pdf)
+### [17. 関数近似と補完法](https://masatakaym.github.io/documents/Molecular-Simulation/interpolation-methods)
 1. 線形最小二乗法
+2. スプライン補完
 
 ### [18. 主成分解析 (Principal Component Analysis; PCA)](https://masatakaym.github.io/documents/Molecular-Simulation/pca.pdf)
 1. 主成分解析の基礎

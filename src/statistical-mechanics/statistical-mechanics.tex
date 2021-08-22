@@ -835,24 +835,31 @@ $\mathrm{d}{\bm{\epsilon}}$の対称性$\mathrm{d}\bm{\epsilon} = \mathrm{d}\bm{
 \end{equation}
 を得る. 成分で表示すると
 \begin{equation}
-  \mathrm{d} L_{\mu\chi}^{\prime}
+  \mathrm{d} L_{\chi\eta}^{\prime}
   =
-  \sum_{\nu} (\mathrm{d}\epsilon_{\mu\nu} + \mathrm{d}\omega_{\mu\nu})
-  L_{\mu\chi}
+  \sum_{\mu}
+  (\mathrm{d}\epsilon_{\chi\mu} + \mathrm{d}\omega_{\chi\mu})
+  L_{\mu\eta}
 \end{equation}
 であるので, 
 \begin{equation}
-  \frac{\mathrm{\partial} L_{\mu\chi}^{\prime}}{\partial \epsilon_{\eta\nu}}
+  \frac{\partial L_{\chi\eta}^{\prime}}{\partial \epsilon_{\alpha\beta}}
   =
-  \delta_{\mu\eta} L_{\nu\chi}
+  \sum_{\mu}
+  \frac{d \epsilon_{\chi\mu}}{d \epsilon_{\alpha\beta}} L_{\mu\eta}
+  =
+  \sum_{\mu}
+  \delta_{\chi\alpha} \delta_{\mu\beta} L_{\mu\eta}
+  =
+  \delta_{\chi\alpha} L_{\beta\eta}
 \end{equation}
 と計算される.
 変形前後でのセル行列$\bm{L}$, $\bm{L}^{\prime}$が無限に近づいたとすれば,
 $\bm{L}$と$\bm{L}^{\prime}$の区別がなくなるため
 \begin{equation}
-  \frac{\mathrm{\partial} L_{\mu\chi}}{\partial \epsilon_{\eta\nu}}
+  \frac{\partial L_{\chi\eta}}{\partial \epsilon_{\alpha\beta}}
   =
-  \delta_{\mu\eta} L_{\nu\chi}
+  \delta_{\chi\alpha} L_{\beta\eta}
 \end{equation}
 となる.
 したがって, 圧力テンソル(\ref{Eq:pressure-tensor2})は
@@ -931,7 +938,7 @@ $\bm{L}$と$\bm{L}^{\prime}$の区別がなくなるため
   =
   \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{L}^{\mathrm{L}} \bm{L} \dot{\tilde{r}}_{i}
   =
-  \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{G} \dot{\tilde{r}}_{i}
+  \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{G} \dot{\tilde{\bm{r}}}_{i}
 \end{equation}
 とかける. ここで任意の行列$A$と$B$について
 \begin{equation}
@@ -946,13 +953,13 @@ $\bm{L}$と$\bm{L}^{\prime}$の区別がなくなるため
   =
   \frac{1}{2}
   \sum_{i=1}^{N}
-  m_{i} \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{G} \dot{\tilde{r}}_{i}
+  m_{i} \dot{\tilde{\bm{r}}}_{i}^{\mathrm{t}} \bm{G} \dot{\tilde{\bm{r}}}_{i}
   -
   U(\tilde{\bm{r}}, \bm{L})
 \end{equation}
 を導入する.
 ここでテンソル計算の便利のために$\tilde{\bm{r}}_{i}$の$\alpha$成分を$\tilde{r}_{i\alpha}$と書き$\bm{L}$の$(\alpha,~\beta)$成分を$L_{\alpha \beta}$と書くことにする. 
-$\alpha,\beta,\cdots$は1,2,3の値をとる. 
+$\alpha,\beta,\cdots$は1, 2, 3の値をとる. 
 この記法を用いると座標と速度はそれぞれ
 \begin{align}
   r_{i \alpha}
@@ -972,7 +979,8 @@ $\alpha,\beta,\cdots$は1,2,3の値をとる.
   \frac{1}{2}
   \sum_{i=1}^{N} m_{i}
   \sum_{\alpha,\beta,\gamma}
-  L_{\alpha\beta}\dot{\tilde{r}}_{i\beta} L_{\alpha\gamma}\dot{\tilde{r}}_{i\gamma}
+  (L_{\alpha\beta}\dot{\tilde{r}}_{i\beta})
+  (L_{\alpha\gamma}\dot{\tilde{r}}_{i\gamma})
   -
   U(\tilde{\bm{r}}, \bm{L})
   \\
@@ -1138,7 +1146,8 @@ $\dot{\tilde{\bm{r}}} = \bm{L}^{-1} \dot{\bm{r}}_{i} = \bm{L}^{-1}\bm{p}_{i}/m_{
 である. 続いてハミルトニアン$\mathcal{H}$の$L$に関する微分を計算していく:
 \begin{align}
   \frac{\partial \mathcal{H}}{\partial L_{\alpha\gamma}} =
-  \sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  \sum_{i=1}^{N}
+  \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
   \left(
     \frac{\partial L_{\mu\lambda}^{-1}}{\partial L_{\alpha\gamma}} L_{\nu\lambda}^{-1} +
     L_{\mu\lambda}^{-1} \frac{\partial L_{\nu\lambda}^{-1}}{\partial L_{\alpha\gamma}}
@@ -1148,94 +1157,121 @@ $\dot{\tilde{\bm{r}}} = \bm{L}^{-1} \dot{\bm{r}}_{i} = \bm{L}^{-1}\bm{p}_{i}/m_{
 $\partial L_{\mu\lambda}^{-1}/\partial L_{\alpha\gamma}$の計算を実行するために, 行列$\bm{M}(\lambda)$の恒等式に関する微分を考える:
 \begin{align}
   &\bm{M}(\lambda)\bm{M}^{-1}(\lambda) = \bm{I} \\
-  &\frac{d\bm{M}(\lambda)}{\lambda} \bm{M}^{-1}(\lambda) + \bm{M}(\lambda)\frac{d\bm{M}^{-1}(\lambda)}{d\lambda} = 0
+  &\frac{d\bm{M}(\lambda)}{d \lambda} \bm{M}^{-1}(\lambda) + \bm{M}(\lambda)\frac{d\bm{M}^{-1}(\lambda)}{d\lambda} = 0
 \end{align}
 $d\bm{M}^{-1}(\lambda)/d\lambda$について解くと, 
 \begin{equation}
-  \frac{d\bm{M}^{-1}(\lambda)}{\lambda} = - \bm{M}^{-1}(\lambda)\frac{d\bm{M}(\lambda)}{d\lambda} \bm{M}^{-1}(\lambda)
+  \frac{d\bm{M}^{-1}(\lambda)}{d \lambda} = - \bm{M}^{-1}(\lambda)\frac{d\bm{M}(\lambda)}{d\lambda} \bm{M}^{-1}(\lambda)
 \end{equation}
 を得る. この恒等式を用いると, ハミルトニアン$\mathcal{H}$の$L$に関する微分は, 
 \begin{align}
   \frac{\partial \mathcal{H}}{\partial L_{\alpha\gamma}} =&
-  -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  -\sum_{i=1}^{N}
+  \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
   \sum_{\rho,\sigma}
   \left(
     L_{\mu\rho}^{-1} \frac{\partial L_{\rho\sigma}}{\partial L_{\alpha\gamma}} L_{\sigma\lambda}^{-1} L_{\nu\lambda}^{-1} +
     L_{\mu\lambda}^{-1} L_{\mu\rho}^{-1} \frac{\partial L_{\rho\sigma}}{\partial L_{\alpha\gamma}} L_{\sigma\lambda}^{-1}
   \right) +
-  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{L_{\alpha\gamma}}
+  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{\partial L_{\alpha\gamma}}
 \end{align}
-となる. $\partial L_{\rho\sigma}/\partial_{\alpha\gamma} = \delta_{\alpha\rho}\delta_{\sigma\gamma}$を用いて, $\rho$と$\sigma$に関する和をとると,
+となる. $\partial L_{\rho\sigma}/\partial L_{\alpha\gamma} = \delta_{\alpha\rho}\delta_{\sigma\gamma}$を用いて, $\rho$と$\sigma$に関する和をとると,
 \begin{align}
   \frac{\partial \mathcal{H}}{\partial L_{\alpha\gamma}} =&
-  -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  -\sum_{i=1}^{N}
+  \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
   \sum_{\rho,\sigma}
   \left(
     L_{\mu\alpha}^{-1} L_{\gamma\lambda}^{-1} L_{\nu\lambda}^{-1} +
     L_{\mu\lambda}^{-1} L_{\nu\alpha}^{-1} L_{\gamma\lambda}^{-1}
   \right) +
-  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{L_{\alpha\gamma}}
+  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{\partial L_{\alpha\gamma}}
 \end{align}
-を得る. 一方, ポテンシャルに対する微分は, 
+を得る. 一方, ポテンシャルに対する微分は
 \begin{align}
-  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{L_{\alpha\gamma}} =
-  \frac{\partial U(\bm{L}\tilde{\bm{r}}_{1},\ldots,\bm{L}\tilde{\bm{r}}_{N})}{L_{\alpha\gamma}} &=
-  \sum_{i}\sum_{\mu,\nu}
-  \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\mu}}
-  \frac{\partial L_{\mu\nu}}{\partial L_{\alpha\gamma}}\tilde{\bm{r}}_{i\nu} \\ &=
-  \sum_{i}\sum_{\mu,\nu}
-  \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\mu}}
-  \delta_{\alpha\mu}\delta_{\gamma\nu}\tilde{\bm{r}}_{i\nu} \\ &=
-  \sum_{i} \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\alpha}} \tilde{\bm{r}}_{i\gamma}
+  \frac{\partial U(\tilde{\bm{r}}, \bm{L})}{\partial L_{\alpha\gamma}}
+  =
+  \frac{\partial U(\bm{L}\tilde{\bm{r}}_{1},\ldots,\bm{L}\tilde{\bm{r}}_{N})}{\partial L_{\alpha\gamma}}
+  &=
+  \sum_{i=1}^{N}\sum_{\mu,\nu}
+  \frac{\partial U}{\partial (L_{\nu\mu} \Tilde{r}_{i\mu})}
+  \frac{\partial (L_{\mu\nu}\tilde{r}_{\nu})}{\partial L_{\alpha\gamma}}
+  \\
+  &=
+  \sum_{i=1}^{N}\sum_{\mu,\nu}
+  \frac{\partial U}{\partial (L_{\nu\mu} \Tilde{r}_{i\mu})}
+  \frac{\partial L_{\mu\nu}}{\partial L_{\alpha\gamma}} \tilde{r}_{\nu}
+  \\
+  &=
+  \sum_{i=1}^{N}\sum_{\mu,\nu}
+  \frac{\partial U}{\partial (L_{\nu\mu} \Tilde{r}_{i\mu})}
+  \delta_{\alpha\mu}\delta_{\gamma\nu}\tilde{r}_{\nu}
+  \\
+  &=
+  \sum_{i=1}^{N}
+  \frac{\partial U}{\partial (L_{\gamma\alpha} \Tilde{r}_{i\alpha})}
+  \tilde{r}_{\gamma}
 \end{align}
+となる. なお, 途中の連鎖律のところでベクトル・行列の微分に関して$\partial M_{ij}/\partial M_{ji} = \delta_{ij}$ (すなわち、$\partial \bm{M}^{\mathrm{t}}/\partial \bm{M} = \bm{I})$を利用した.
 以上の計算によって, ハミルトニアン$\mathcal{H}$の$L$に関する微分を
 \begin{align}
   \frac{\partial \mathcal{H}}{\partial L_{\alpha\gamma}} =
-  -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  -\sum_{i=1}^{N} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
   \sum_{\rho,\sigma}
   \left(
     L_{\mu\alpha}^{-1} L_{\gamma\lambda}^{-1} L_{\nu\lambda}^{-1} +
     L_{\mu\lambda}^{-1} L_{\nu\alpha}^{-1} L_{\gamma\lambda}^{-1}
   \right) +
-  \sum_{i} \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\alpha}} \tilde{\bm{r}}_{i\gamma}
+  \sum_{i=1}^{N}
+  \frac{\partial U}{\partial (L_{\gamma\alpha} \Tilde{r}_{i\alpha})}
+  \tilde{r}_{\gamma}
   \label{Eq:partial-H-partial-L}
 \end{align}
 と計算することができた. 圧力テンソルの表式(\ref{Eq:Pressure-Tensor-NVT})より, 式(\ref{Eq:partial-H-partial-L})に$L_{\beta\gamma}$を乗じて$\gamma$について和をとる. 
 $\sum_{\gamma} L_{\beta\gamma}L_{\gamma\lambda}^{-1} = \delta_{\beta\lambda}$を用いて, $\gamma$に関して和を計算した後に$\lambda$について和を計算する:
 \begin{align}
-  \sum_{\gamma=1}^{3} L_{\beta\gamma} \frac{\partial \mathcal{H}}{\partial L_{\alpha\gamma}} =&
-  -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  \sum_{\gamma=1}^{3} L_{\beta\gamma} \frac{\partial \mathcal{H}}{\partial L_{\alpha\gamma}}
+  =&
+  -\sum_{i=1}^{N} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
   \sum_{\rho,\sigma} \sum_{\gamma=1}^{3} L_{\beta\gamma}
   \left(
     L_{\mu\alpha}^{-1} L_{\gamma\lambda}^{-1} L_{\nu\lambda}^{-1} +
     L_{\mu\lambda}^{-1} L_{\nu\alpha}^{-1} L_{\gamma\lambda}^{-1}
-  \right) \\ &+
-  \sum_{i} \sum_{\gamma=1}^{3} \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\alpha}} \tilde{\bm{r}}_{i\gamma}
+  \right)
+  \\ &+
+  \sum_{i=1}^{N} \sum_{\gamma=1}^{3}
+  \frac{\partial U}{\partial (L_{\gamma\alpha} \Tilde{r}_{i\alpha})}
+  L_{\beta\gamma} \tilde{r}_{\gamma}
   \\
   =&
-  -\sum_{i} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  -\sum_{i=1}^{N} \sum_{\mu,\nu,\lambda} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
   \sum_{\rho,\sigma}
   \left(
     L_{\mu\alpha}^{-1} L_{\nu\lambda}^{-1} \delta_{\beta\lambda} +
     L_{\mu\lambda}^{-1} L_{\nu\alpha}^{-1} \delta_{\beta\lambda}^{-1}
   \right) +
-  \sum_{i} \sum_{\gamma=1}^{3} \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\alpha}} \tilde{\bm{r}}_{i\gamma}
+  \sum_{i=1}^{N} \sum_{\gamma=1}^{3}
+  \frac{\partial U}{\partial (L_{\gamma\alpha} \Tilde{r}_{i\alpha})}
+  L_{\beta\gamma} \tilde{r}_{\gamma}
   \\
   =&
-  -\sum_{i} \sum_{\mu,\nu} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
+  -\sum_{i=1}^{N} \sum_{\mu,\nu} \frac{\pi_{i\mu}\pi_{i\nu}}{2m_{i}}
   \sum_{\rho,\sigma}
   \left(
     L_{\mu\alpha}^{-1} L_{\nu\beta}^{-1} +
     L_{\mu\beta}^{-1} L_{\nu\alpha}^{-1}
   \right) +
-  \sum_{i} \sum_{\gamma=1}^{3} \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})_{\alpha}} \tilde{\bm{r}}_{i\gamma}
+  \sum_{i=1}^{N} \sum_{\gamma=1}^{3}
+  \frac{\partial U}{\partial (L_{\gamma\alpha} \Tilde{r}_{i\alpha})}
+  L_{\beta\gamma} \tilde{r}_{\gamma}
 \end{align}
 最後に, スケール座標からスケールされていない座標への変換式
 \begin{align}
   \sum_{\mu} \pi_{i\mu} L_{\mu\alpha}^{-1} &= p_{i\alpha} \\
   \sum_{\nu} \pi_{i\nu} L_{\nu\beta}^{-1} &= p_{i\beta} \\
-  \frac{\partial U}{\partial (\bm{L}\tilde{\bm{r}}_{i})} &= \frac{\partial U}{\partial \bm{r}_{i}} \\
-  \sum_{\gamma} L_{\beta\gamma} \tilde{\bm{r}}_{i\gamma} &= \bm{r}_{i\beta}
+  -\frac{\partial U}{\partial (L_{\gamma\alpha} \Tilde{r}_{i\alpha})} &=
+  -\frac{\partial U}{\partial r_{i\alpha}} = F_{i\alpha}\\
+  \sum_{\gamma} L_{\beta\gamma} \tilde{r}_{i\gamma} &= r_{i\beta}
 \end{align}
 を用いることで, 
 \begin{equation}
