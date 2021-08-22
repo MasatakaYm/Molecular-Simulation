@@ -4,7 +4,7 @@
 \input{../include/macro}
 \input{../include/begin}
 
-\title{最小二乗法}
+\title{関数の近似と補完法}
 \maketitle
 
 \section{線形最小二乗法}
@@ -516,6 +516,206 @@ $i$について和をとると,
     \sqrt{\frac{\sum_{i=1}^{n} w_{i}}{\Delta}}
 \end{equation}
 である. 
+
+\clearpage
+
+\section{スプライン補完}
+スプライン補完ではデータ点間の区画を補完する関数を決定する際に, 関数のつなぎ目において, できるだけ高次の微分まで滑らかになるように条件を課す.
+
+\subsection{3次のスプライン補完}
+\subsubsection{区分多項式}
+データ点$x_{i}$と$x_{i+1}$の区間を次の3次関数で補完することを考える:
+\begin{equation}
+    S_{i} (x) =
+    a_{i} +
+    b_{i} (x - x_{i}) +
+    c_{i} (x - x_{i})^{2} +
+    d_{i} (x - x_{i})^{3}
+    ,~~~~
+    (i = 0,~1,~2,~\ldots,~N-1)
+\end{equation}
+この式を区分多項式と呼ぶ. N+1個のデータをつなぐためには, $N$個の区分多項式を使用する.
+データを補完するには, 係数$a_{i}$, $b_{i}$, $c_{i}$, $d_{i}$が決める必要がある.
+未知係数は全部で$4N$個であるので, $4N$個の方程式が必要である.
+そこで, 以下の条件を課すことで未知係数を決定するための方程式を得る.
+\begin{enumerate}
+    \item 各$S_{i}(x)$に対して両端の値が決まっている. つまり, 全てのデータ点を通る.
+    \begin{enumerate}
+        \item 各区間の始点はデータ点の値をとる ($N$個の方程式).
+        \item 隣合う区分多項式は, 境界点で同じ値をとる ($N$個の方程式).
+    \end{enumerate}
+    \item 各$S_{i}(x)$について, 境界点の一次微分は連続である ($N-1$個の方程式).
+    \item 各$S_{i}(x)$について, 境界点の二次微分は連続である ($N-1$個の方程式).
+    \item 自然なスプラインである条件: 最初と最後のデータ点$(j=0,N+1)$において, 二次微分がゼロである ($2$個の方程式).
+\end{enumerate}
+区分多項式の一次微分と二次微分はそれぞれ
+\begin{alignat}{3}
+    & S_{i}^{\prime} &&=
+      b_{i} +
+    2 c_{i} (x - x_{i}) +
+    3 d_{i} (x - x_{i})^{2}
+    \\
+    & S_{i}^{\prime\prime} &&=
+    2 c_{i} +
+    6 d_{i} (x - x_{i})
+\end{alignat}
+である.
+
+\subsubsection{未知係数の決定}
+
+\paragraph{条件1-(a): 各区間の始点はデータ点の値をとる}
+各区間の始点$S_{i}(x_{i})$でデータ点と同じ値であるとすると, 
+\begin{equation}
+    S_{i}(x_{i}) = y_{i}
+    \notag
+\end{equation}
+すなわち, 
+\begin{equation}
+    a_{i} = y_{i}
+\end{equation}
+を得る.
+
+\paragraph{条件4: 自然なスプラインである条件}
+最初と最後のデータ点において, 二次微分がゼロであるので直ちに
+\begin{alignat}{3}
+    & c_{0}   &&= 0 \\
+    & c_{N-1} &&= 0
+\end{alignat}
+を得る.
+
+\paragraph{条件3: 境界点での二次微分の連続性}
+境界点の二次微分は連続性は
+\begin{equation}
+    S_{i}^{\prime\prime} (x_{i+1})
+    =
+    S_{i+1}^{\prime\prime} (x_{i+1})
+    \notag
+\end{equation}
+とかける. 具体的に計算すると,
+\begin{equation}
+    2 c_{i} + 6 d_{i} (x_{i+1} - x_{i})
+    =
+    2 c_{i+1} + 6 d_{i+1} (x_{i+1} - x_{i+1})
+    \notag
+\end{equation}
+である. これより直ちに
+\begin{equation}
+    d_{i} = 
+    \frac{c_{i+1} - c_{i}}{3(x_{i+1} - x_{i})}
+    =
+    \frac{c_{i+1} - c_{i}}{3 h_{i}}
+\end{equation}
+を得る. ここで$h_{i} \equiv x_{i+1} - x_{i}$を定義した.
+
+\paragraph{条件1-(b): 隣合う区分多項式は, 境界点で同じ値をとる}
+この条件を書き下すと
+\begin{equation}
+    S_{i}(x_{i+1}) = S_{i+1}(x_{i+1}) = y_{i+1}
+    \notag
+\end{equation}
+とかける. 具体的に計算すると,
+\begin{align}
+    &
+    a_{i} + b_{i} (x_{i+1} - x_{i}) +
+    c_{i} (x_{i+1} - x_{i})^{2} + d_{i} (x_{i+1} - x_{i})^{3}
+    \notag \\ =~
+    &
+    a_{i+1} + b_{i+1} (x_{i+1} - x_{i}) +
+    c_{i+1} (x_{i+1} - x_{i})^{2} + d_{i+1} (x_{i+1} - x_{i})^{3}
+    \notag \\
+    \notag \\
+    \to~
+    &
+    a_{i+1} = a_{i} + b_{i} h_{i} + c_{i} h_{i}^{2} + d_{i} h_{i}^{3}
+    \notag
+\end{align}
+結果を整理すると, 
+\begin{align}
+    b_{i}
+    &=
+    \frac{a_{i+1} - a_{i}}{h_{i}} - c_{i} h_{i} - d_{i} h_{i}^{2}
+    \notag \\
+    &=
+    \frac{a_{i+1} - a_{i}}{h_{i}} - c_{i} h_{i} -
+    \frac{c_{i+1} - c_{i}}{3 h_{i}} h_{i}^{2}
+    \notag \\
+    &=
+    \frac{a_{i+1} - a_{i}}{h_{i}} -
+    \frac{h_{i}(c_{i+1} + 2c_{i})}{3}
+\end{align}
+
+\paragraph{条件2: 境界点での一次微分の連続性}
+この条件を書き下すと
+\begin{equation}
+    S_{i}^{\prime} (x_{i+1}) = S_{i+1}^{\prime}(x_{i+1})
+\end{equation}
+とかける. 具体的に計算すると,
+\begin{align}
+    &
+    b_{i} + 2 c_{i} (x_{i+1} - x_{i}) + 3 d_{i} (x_{i+1} - x_{i})^{2}
+    \notag \\ = ~
+    &
+    b_{i+1} + 2 c_{i+1} (x_{i+1} - x_{i}) + 3 d_{i+1} (x_{i+1} - x_{i})^{2}
+    \notag \\
+    \notag \\ \to~
+    &
+    b_{i+1} = b_{i} + 2c_{i} (x_{i+1} - x_{i}) + 3 d_{i} (x_{i+1} - x_{i})^{2}
+    \notag \\ \to~
+    &
+    b_{i+1} = b_{i} + 2c_{i} h_{i} + 3d_{i} h_{i}^{2}
+    \notag
+\end{align}
+を得る. ここまでに得られた$a_{i}$, $b_{i}$, $d_{i}$の表式を代入すると,
+\begin{align}
+    \left[
+        \frac{a_{i+2} - a_{i+1}}{h_{i}} -
+        \frac{h_{i}(c_{i+2} + 2c_{i+1})}{3}
+    \right]
+    =
+    \left[
+        \frac{a_{i+1} - a_{i}}{h_{i}} -
+        \frac{h_{i}(c_{i+1} + 2c_{i})}{3}
+    \right]
+    +
+    2c_{i}h_{i}
+    +
+    3 \left(\frac{c_{i+1} - c_{i}}{3 h_{i}}\right) h_{i}^{2}
+\end{align}
+となる. さらに整理すると
+\begin{align}
+    h_{i+1} c_{i+2} + 2(h_{i+1} + h_{i}) c_{i+1} + c_{i}h_{i}
+    &=
+    \frac{3}{h_{i-1}}(a_{i+2} - a_{i+1}) -
+    \frac{3}{h_{i}}(a_{i+1} - a_{i})
+    \notag \\
+    =
+    \frac{3}{h_{i-1}}(y_{i+2} - y_{i+1}) -
+    \frac{3}{h_{i}}(y_{i+1} - y_{i})
+\end{align}
+を得る. この式を行列形式で書くと
+\begin{equation}
+    \begin{pmatrix}
+        1 & 0 &  0 & \cdots & 0 & 0 & 0 & 0\\
+        h_{0} & 2(h_{0} - h_{1}) & h_{1} & 0 & 0& \cdots & 0 & 0\\
+        0 & h_{1} & 2(h_{1} - h_{2}) & h_{2} & 0 & \cdots &  0 & 0\\
+        0 & 0 & h_{2} & 2(h_{2} - h_{3}) & h_{3} & 0 & \cdots & 0 \\
+        \vdots & \vdots & \vdots & &  \vdots \\
+        0 & 0 &  0 & \cdots & 0 & 0 & 0 & 1
+    \end{pmatrix}
+    \begin{pmatrix}
+        c_{0} \\ c_{1} \\ \vdots \\ \vdots \\ c_{N-2} \\ c_{N-1}
+    \end{pmatrix}
+    =
+    \begin{pmatrix}
+        0 \\
+        \frac{3}{h_{1}}(y_{2} - y_{1}) - \frac{3}{h_{0}}(y_{1} - y_{0}) \\
+        \vdots \\
+        \vdots \\
+        \frac{3}{h_{n-1}}(y_{n} - y_{n-1}) - \frac{3}{h_{i}}(y_{n-1} - y_{n-2}) \\
+        0
+    \end{pmatrix}
+\end{equation}
+となる. この連立方程式を解くと係数$c_{i}$を決定できる.
 
 \clearpage
 %\bibliographystyle{junsrt}
