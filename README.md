@@ -130,7 +130,7 @@
 3. 多状態ベネット受容比法 (MBAR: Multistate Bennett Acceptance Ration Estimator)
 4. リウェイティング tips
 
-### [17. 関数近似と補完法](https://masatakaym.github.io/documents/Molecular-Simulation/interpolation-methods)
+### [17. 関数近似と補完法](https://masatakaym.github.io/documents/Molecular-Simulation/interpolation-method.pdf)
 1. 線形最小二乗法
 2. スプライン補完
 
