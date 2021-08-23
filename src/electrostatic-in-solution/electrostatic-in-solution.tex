@@ -8,6 +8,7 @@
 \maketitle
 
 \section{Debye--H\"{u}ckel理論}
+\subsection{Debye--H\"{u}ckel近似の導出}
 解離したイオンが極性溶媒中に溶けている場合を考える.
 電場と電位の関係式, ガウスの法則の微分形はそれぞれ
 \begin{align}
@@ -87,6 +88,22 @@
 \end{equation}
 と計算される. この式から, イオン$i$が作る電位はデバイ長$1/\chi$程度の距離で十分に減衰していることがわかる. 導出の過程で, イオンの周りには他のイオンが球対称に分布していると仮定したため, デバイ長とは電位(あるいは電場)が遮蔽されるような, イオンの雲の厚さだと解釈することができる.
 
+\subsection{分子シミュレーションにおけるDebye--H\"{u}ckel型の静電相互作用}
+シミュレーションでよく用いられるDebye--H\"{u}ckel型の静電相互作用の表式を見ていく.
+MKSA単位系のとき, 静電相互作用は
+\begin{align}
+    U_{\mathrm{ele}}^{\mathrm{debye}} (r_{ij})
+    &=
+    \sum_{i<j}^{N}
+    \frac{q_{i}q_{j}}{4\pi\epsilon_{0}\epsilon_{k}r_{ij}} e^{r_{ij}/\lambda_{\mathrm{debye}}}
+    \\
+    \lambda_{\mathrm{debye}}
+    &=
+    \left(
+        \frac{\epsilon_{0}\epsilon_{k}k_{\mathrm{B}T}}{2N_{\mathrm{A}}e^{2}I}^{\frac{1}{2}}
+    \right)
+\end{align}
+ここで$q_{i}$は電荷, $\epsilon_{i}$は真空中での誘電率, $\epsilon_{k}$は誘電率, $N_{\mathrm{A}}$はアボガドロ数, $I$はイオン強度である.
 
 %\subsection{Sub section}
 
