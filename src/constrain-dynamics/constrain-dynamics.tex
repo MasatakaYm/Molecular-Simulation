@@ -8,13 +8,14 @@
 \maketitle
 
 分子動力学シミュレーションでは, しばしば, 水分子のO原子とH原子の距離を固定して剛体として取り扱ったり, 水素原子など軽い原子の伸縮を平衡距離に拘束することで, 時間刻みを長く設定し, 長時間のシミュレーションを実現したりする. 
+あるいは温度や圧力を制御するために, 運動量や瞬間圧力を課す.
 本章では拘束条件を満たしながら運動方程式の数値積分を実行するためのアルゴリズムを説明する. 
-ここでは, 拘束条件として時間に依存しないホロノミックな拘束条件
+
+拘束条件として時間に依存しないホロノミックな拘束条件
 \begin{equation}
     \sigma_{k} (\bm{r}_{1},\cdots, \bm{r}_{N}) = 0
 \end{equation}
-を考える. 
-この時, デカルト座標でのラグランジュの運動方程式と微分形式の拘束条件はそれぞれ
+を考えた時, デカルト座標でのラグランジュの運動方程式と微分形式の拘束条件はそれぞれ
 \begin{equation}
     \frac{d}{dt} \left(\frac{\partial \mathcal{L}}{\partial \dot{\bm{r}}_{i}} \right) -\frac{\partial \mathcal{L}}{\partial \bm{r}_{i}} = \sum_{k=1}^{N_{\mathrm{c}}} \lambda_{k} \bm{a}_{ki},
 \end{equation}
@@ -42,7 +43,7 @@
     \frac{d}{dt} \sigma_{k} (\bm{r}_{1},\cdots, \bm{r}_{N}) = 0
     \label{Eq:timederiv-constrain-eq}
 \end{equation}
-と等価であることが確認できる. 拘束条件付き運動方程式(\ref{eq:eom-constrain})の右辺二項目$\sum_{k=1}^{N_{\mathrm{c}}} \lambda_{k} \nabla_{i} \sigma_{k}$は拘束条件に由来する力であり, 拘束力と呼ばれる. つまり, 粒子$i$の速度は原子・分子間力に加え, 拘束に由来する力によって変化することを意味している. 
+と等価であることが確認できる. 拘束条件付き運動方程式(\ref{eq:eom-constrain})の右辺二項目$\sum_{k=1}^{N_{\mathrm{c}}} \lambda_{k} \nabla_{i} \sigma_{k}$は拘束条件に由来する力であり, 拘束力$\bm{F}_{\mathrm{c}}$と呼ばれる. つまり, 粒子$i$の速度は原子・分子間力に加え, 拘束に由来する力によって変化することを意味している. 
 式(\ref{Eq:timederiv-constrain-eq})は拘束条件の時間に関する全微分で, 拘束条件は時間発展に大して不変であることを意味する. 
 
 以下では, まず初めにホロノミックな拘束の具体例を紹介する. 
@@ -460,6 +461,162 @@ A_{lk} \equiv \sum_{i=1}^{N}\frac{1}{m_{i}}\nabla_{i} \sigma_{l} (\bm{r}_{1}^{1}
 \end{equation}
 と求まる. 
 ここで, $\bm{r}_{ji}^{2} (t + \Delta t) = d_{ij}^{2}$であることを用いた. 
+
+\section{ガウスの最小束縛原理 (ガウス束縛法)}
+拘束条件付きの運動方程式は
+\begin{align}
+    m \ddot{\bm{r}}
+    =
+    \bm{F} (\bm{r}) + \bm{F}_{\mathrm{c}}
+    \label{Eq:EoM-constrain}
+\end{align}
+のように書かれる.
+右辺第一項目はポテンシャルに由来する力, 第二項目は拘束条件に由来して生じる拘束力である.
+拘束力は, 粒子の受ける力が拘束条件によって規定される拘束面に沿うようにポテンシャルに由来する力$\bm{F}$を修正する.
+
+\textbf{ガウスの最小束縛原理}では拘束力が最小となるように選ぶ.
+そのためには, 拘束力が拘束面に垂直になるように選ぶ必要がある.
+位置$\bm{r}$において拘束面に垂直な単位ベクトルを$\bm{n}(\bm{r})$とすると, ポテンシャルに由来する力$\bm{F}(\bm{r})$を拘束面に垂直な方向に写像すれば良いので
+\begin{equation}
+    \bm{F}_{\mathrm{c}}
+    =
+    - [\bm{n} (\bm{r}) \cdot \bm{F}(\bm{r})] \bm{n}(\bm{r})
+\end{equation}
+とかける. よって粒子の運動は力
+\begin{equation}
+    \bm{F}^{\prime} = \bm{F}(\bm{r}) - [\bm{n} (\bm{r}) \cdot \bm{F}(\bm{r})] \bm{n}(\bm{r})
+\end{equation}
+にしたがって動かせば良い.
+
+\subsection{ホロノミックな拘束の場合}
+ホロノミックな拘束の場合のガウスの最小束縛原理を見ていく.
+ホロノミックな拘束条件は
+\begin{equation}
+    \sigma (\bm{r}) = 0
+\end{equation}
+のように質点の座標の間に成り立つ等式で書かれるような条件であった.
+時間について2回微分をすると,
+\begin{align}
+    &
+    \nabla \sigma \cdot \dot{\bm{r}} = 0
+    \\
+    &
+    \nabla \sigma \cdot \ddot{\bm{r}} +
+    \nabla \nabla \sigma \cdot\cdot \dot{\bm{r}} \dot{\bm{r}} = 0
+    \label{Eq:constrain-holonomic-dtdt}
+\end{align}
+を得る. 式(\ref{Eq:constrain-holonomic-dtdt})に拘束条件付き運動方程式(\ref{Eq:EoM-constrain})を代入すると,
+\begin{equation}
+    \nabla \sigma \cdot
+    \left(
+        \frac{\bm{F}(\bm{r})}{m}
+        +
+        \frac{\bm{F}_{\mathrm{c}}}{m}
+    \right)
+    +
+    \nabla \nabla \sigma \cdot\cdot \dot{\bm{r}} \dot{\bm{r}}
+    =
+    0
+\end{equation}
+となる. これを整理すると,
+\begin{equation}
+    \nabla\sigma \cdot \bm{F}_{\mathrm{c}}
+    =
+    -
+    \nabla\sigma \cdot \bm{F}(\bm{r})
+    - m
+    \nabla \nabla \sigma \cdot\cdot \dot{\bm{r}} \dot{\bm{r}}
+\end{equation}
+となる.
+ガウスの最小束縛原理では, 拘束力を最小にするには拘束力が拘束面に垂直になるように選ぶ必要があった.
+$\nabla \sigma(\bm{r})$は位置$\bm{r}$における拘束面に直行するベクトルを表す.
+拘束力を$\bm{F}_{\mathrm{c}} = \lambda \nabla \sigma$のように置くと, 拘束面に垂直するベクトル$\nabla \sigma$と同じ向きを向いていて, ガウスの最小束縛原理の要請を満たす.
+$\lambda$について解けば,
+\begin{equation}
+    \lambda=
+    -
+    \frac{\nabla\sigma \cdot \bm{F}(\bm{r}) + m
+    \nabla \nabla \sigma \cdot\cdot \dot{\bm{r}} \dot{\bm{r}}}{|\nabla \sigma|^{2}}
+\end{equation}
+を得る. したがって, 拘束条件付きの運動方程式
+\begin{equation}
+    m \ddot{\bm{r}}
+    =
+    \bm{F}(\bm{r})
+    -
+    \frac{\nabla\sigma \cdot \bm{F}(\bm{r}) + m
+    \nabla \nabla \sigma \cdot\cdot \dot{\bm{r}} \dot{\bm{r}}}{|\nabla \sigma|^{2}}
+    \nabla \sigma
+\end{equation}
+を得る. この運動方程式をガウスの運動方程式という.
+
+\subsection{半ホロノミックな拘束の場合}
+半ホロノミックな拘束の場合のガウスの最小束縛原理を見ていく.
+半ホロノミックな拘束条件は
+\begin{equation}
+    \zeta(\bm{r}, \dot{\bm{r}}, t) = 0
+\end{equation}
+のように, 拘束条件が座標, 速度, 時刻の関数となっている.
+時間について微分すると,
+\begin{equation}
+    \frac{d \zeta(\bm{r}, \dot{\bm{r}}, t)}{dt}
+    =
+    \frac{\partial \zeta}{\partial \bm{r}}
+    \cdot \dot{\bm{r}}
+    +
+    \frac{\partial \zeta}{\partial \dot{\bm{r}}}
+    \cdot \ddot{\bm{r}}
+    +
+    \frac{\partial \zeta}{\partial t}
+    =0
+\end{equation}
+となる.
+拘束条件付き運動方程式(\ref{Eq:EoM-constrain})を代入すると,
+\begin{equation}
+    \frac{\partial \zeta}{\partial \dot{\bm{r}}}
+    \cdot
+    \left(
+        \frac{\bm{F}(\bm{r})}{m}
+        +
+        \frac{\bm{F}_{\mathrm{c}}}{m}
+    \right)
+    =
+    -
+    \frac{\partial \zeta}{\partial \bm{r}}
+    \cdot
+    \dot{\bm{r}}
+    -
+    \frac{\partial \zeta}{\partial t}
+\end{equation}
+これを整理すると,
+\begin{equation}
+    \frac{\partial \zeta}{\partial \dot{\bm{r}}}
+    \cdot
+    \bm{F}_{\mathrm{c}}
+    =
+    -
+    \frac{\partial \zeta}{\partial \dot{\bm{r}}}
+    \bm{F}(\bm{r})
+    - m
+    \frac{\partial \zeta}{\partial \bm{r}}
+    \cdot
+    \dot{\bm{r}}
+    - m
+    \frac{\partial \zeta}{\partial t}
+\end{equation}
+となる. 右辺は粒子の座標と速度が決まれば値が決まる.
+ガウスの最小束縛原理より, 拘束力$|\bm{F}_{\mathrm{c}}|$を最小にするには, 束縛力が拘束面に垂直になるように決めれば良い. これはすなわち未定乗数$\lambda$を用いて
+\begin{equation}
+    \bm{F}_{\mathrm{c}}
+    =
+    \lambda
+    \frac{\partial \zeta}{\partial \bm{r}}
+\end{equation}
+と置いて, $\lambda$について解けば良いということである.
+以下の節で, 温度・圧力を拘束条件として課した場合を具体的な例として議論していく.
+
+% \section{ガウス束縛法: 温度制御}
+% \section{ガウス束縛法: 温度・圧力制御}
 
 \bibliographystyle{junsrt}
 \bibliography{constrain-dynamics}
