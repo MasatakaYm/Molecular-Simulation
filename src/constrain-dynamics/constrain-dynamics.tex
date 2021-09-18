@@ -530,7 +530,11 @@ A_{lk} \equiv \sum_{i=1}^{N}\frac{1}{m_{i}}\nabla_{i} \sigma_{l} (\bm{r}_{1}^{1}
 となる.
 ガウスの最小束縛原理では, 拘束力を最小にするには拘束力が拘束面に垂直になるように選ぶ必要があった.
 $\nabla \sigma(\bm{r})$は位置$\bm{r}$における拘束面に直行するベクトルを表す.
-拘束力を$\bm{F}_{\mathrm{c}} = \lambda \nabla \sigma$のように置くと, 拘束面に垂直するベクトル$\nabla \sigma$と同じ向きを向いていて, ガウスの最小束縛原理の要請を満たす.
+拘束力を
+\begin{equation}
+\bm{F}_{\mathrm{c}} = \lambda \nabla \sigma
+\end{equation}
+のように選ぶと, 拘束面に垂直するベクトル$\nabla \sigma$と同じ向きを向いていて, ガウスの最小束縛原理の要請を満たす.
 $\lambda$について解けば,
 \begin{equation}
     \lambda=
@@ -596,6 +600,7 @@ $\lambda$について解けば,
     =
     -
     \frac{\partial \zeta}{\partial \dot{\bm{r}}}
+    \cdot
     \bm{F}(\bm{r})
     - m
     \frac{\partial \zeta}{\partial \bm{r}}
@@ -604,18 +609,818 @@ $\lambda$について解けば,
     - m
     \frac{\partial \zeta}{\partial t}
 \end{equation}
-となる. 右辺は粒子の座標と速度が決まれば値が決まる.
-ガウスの最小束縛原理より, 拘束力$|\bm{F}_{\mathrm{c}}|$を最小にするには, 束縛力が拘束面に垂直になるように決めれば良い. これはすなわち未定乗数$\lambda$を用いて
+となる. 
+右辺は粒子の座標と速度(運動量)と時刻が決まれば値が決まり, 拘束力$|\bm{F}_{\mathrm{c}}|$の選び方にはよらない.
+ガウスの最小束縛原理より, 拘束力が拘束面に垂直になるように決めれば, 拘束力$|\bm{F}_{\mathrm{c}}|$を最小にすることができる.
+これはすなわち未定乗数$\lambda$を用いて
 \begin{equation}
     \bm{F}_{\mathrm{c}}
     =
     \lambda
-    \frac{\partial \zeta}{\partial \bm{r}}
+    \frac{\partial \zeta}{\partial \dot{\bm{r}}}
+    \label{Eq:Select-Fc}
 \end{equation}
-と置いて, $\lambda$について解けば良いということである.
-以下の節で, 温度・圧力を拘束条件として課した場合を具体的な例として議論していく.
+と選んで, $\lambda$について解けば良いということである.
+以下の節では具体的な例として, 温度・圧力を拘束条件として課した場合を議論していく.
 
-% \section{ガウス束縛法: 温度制御}
+\section{ガウス束縛法: 温度制御}
+\subsection{運動方程式}
+
+瞬間温度を一定に維ように束縛をかける場合, 束縛条件は
+\begin{equation}
+    \zeta(\bm{r}, \dot{\bm{r}}, t)
+    =
+    \frac{m}{2}\dot{\bm{r}}^{2}
+    -
+    \frac{g}{2} k_{\mathrm{B}} T_{\mathrm{eq}}
+\end{equation}
+である.
+ここで$g$は系の自由度である.
+瞬間温度に対する拘束条件を課しているので$g = 3N - 1$となる.
+$\dot{\bm{r}}$に関して微分を計算すると,
+\begin{equation}
+    \frac{\partial \zeta}{\partial \dot{\bm{r}}}
+    =
+    m \dot{\bm{r}}
+    =
+    \bm{p}
+\end{equation}
+を得る.
+したがって, 式(\ref{Eq:Select-Fc})が示すように, 束縛力$\bm{F}_{\mathrm{c}}$を運動量$\bm{p}$に比例するように取れば良いことがわかる.
+未定乗数$\lambda$を導入すると, 運動方程式は
+\begin{alignat}{3}
+    \frac{d \bm{r}_{i}}{dt}
+    &=
+    \frac{\bm{p}_{i}}{m}
+    \label{Eq:EoM-Gauss-Constant-Temperature1}
+    \\
+    \frac{d \bm{p}_{i}}{dt}
+    &=
+    \bm{F}_{i} - \lambda \bm{p}_{i}
+    \label{Eq:EoM-Gauss-Constant-Temperature2}
+\end{alignat}
+となる.
+未定乗数$\lambda$は温度一定の束縛条件
+\begin{equation}
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}^{2}}{2m_{i}}
+    -
+    \frac{g}{2} k_{\mathrm{B}} T_{\mathrm{eq}}
+    =
+    0
+    \label{Eq:Constrain-Temperature}
+\end{equation}
+を満たすように決めれば良い.
+式(\ref{Eq:Constrain-Temperature})の時間微分
+\begin{equation}
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}}{m_{i}} \cdot \dot{\bm{p}_{i}}
+    =
+    0
+\end{equation}
+を式(\ref{Eq:EoM-Gauss-Constant-Temperature2})に代入すると,
+\begin{equation}
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}}{m_{i}}
+    \cdot
+    \left( \bm{F}_{i} - \lambda \bm{p}_{i}\right)
+    =
+    0
+\end{equation}
+よって, 未定乗数$\lambda$は
+\begin{equation}
+    \lambda
+    =
+    \frac
+    {\sum_{i=1}^{N} \frac{\bm{p}_{i}}{m_{i}} \cdot \bm{F}_{i}}
+    {\sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{m_{i}}}
+    =
+    \frac
+    {\sum_{i=1}^{N} \frac{\bm{p}_{i}}{m_{i}} \cdot \bm{F}_{i}}
+    {g k_{\mathrm{B}} T_{\mathrm{eq}}}
+    \label{Eq:EoM-Gauss-Constant-Temperature-Lambda}
+\end{equation}
+となる. 式(\ref{Eq:EoM-Gauss-Constant-Temperature1}), (\ref{Eq:EoM-Gauss-Constant-Temperature2}), (\ref{Eq:EoM-Gauss-Constant-Temperature-Lambda})が温度一定のガウス束縛法の運動方程式である.
+なお, 力$\bm{F}_{i}$はポテンシャルエネルギ$U$の座標微分
+\begin{equation}
+    \bm{F}_{i}
+    =
+    -
+    \frac{\partial U}{\partial \bm{r}_{i}}
+\end{equation}
+であるので, 式(\ref{Eq:EoM-Gauss-Constant-Temperature-Lambda})の分子は
+\begin{equation}
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}}{m_{i}} \cdot \bm{F}_{i}
+    =
+    -\sum_{i=1}^{N}
+    \dot{\bm{r}}_{i} \cdot
+    \frac{\partial U}{\partial \bm{r}_{i}}
+    =
+    -
+    \frac{dU}{dt}
+\end{equation}
+のようにポテンシャルエネルギーの時間全微分の形に直すことができる.
+よって未定乗数$\lambda$は全ポテンシャルエネルギーの時間全微分を用いて
+\begin{equation}
+    \lambda
+    =
+    -
+    \frac
+    {\frac{dU}{dt}}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+    \label{Eq:EoM-Gauss-Constant-Temperature-Lambda2}
+\end{equation}
+とかける.
+
+\subsection{ガウス束縛法により得られる統計アンサンブル}
+位相空間$\bm{\Gamma} = (\bm{r}, \bm{p})$における状態分布関数$f(\bm{\Gamma})$を考える.
+状態分布関数$f(\bm{\Gamma})$について連続の式(一般化されたリウヴィル方程式)
+\begin{equation}
+    \frac{\partial f}{\partial t}
+    +
+    \frac{\partial}{\partial \bm{\Gamma}}
+    \cdot
+    \left(
+        \dot{\bm{\Gamma}} f
+    \right)
+    =
+    0
+    \label{Eq:Generalized-Liouville-Eq}
+\end{equation}
+が成立する.
+式(\ref{Eq:Generalized-Liouville-Eq})の左辺第二項目は
+\begin{equation}
+    \frac{\partial}{\partial \bm{\Gamma}}
+    \cdot
+    \left(
+        \dot{\bm{\Gamma}} f
+    \right)
+    =
+    \dot{\bm{\Gamma}}
+    \cdot
+    \frac{\partial f}{\partial \bm{\Gamma}}
+    +
+    \left(
+        \frac{\partial}{\partial \bm{\Gamma}}
+        \cdot
+        \dot{\bm{\Gamma}}
+    \right)
+    f
+    \label{Eq:Generalized-Liouville-Eq2}
+\end{equation}
+と展開される.
+式(\ref{Eq:Generalized-Liouville-Eq}), (\ref{Eq:Generalized-Liouville-Eq2})を用いれば, 状態分布関数$f(\bm{\Gamma})$の全微分は
+\begin{equation}
+    \frac{df}{dt}
+    =
+    \frac{\partial f}{\partial t}
+    +
+    \dot{\bm{\Gamma}}
+    \frac{\partial f}{\partial \bm{\Gamma}}
+    =
+    -
+    \left(
+        \frac{\partial}{\partial \bm{\Gamma}}
+        \cdot
+        \dot{\bm{\Gamma}}
+    \right)
+    f
+    \label{Eq:Gauss-dfdt}
+\end{equation}
+と計算される. この式の最右辺の()の中は, ガウス束縛法の運動方程式(\ref{Eq:EoM-Gauss-Constant-Temperature1}), (\ref{Eq:EoM-Gauss-Constant-Temperature2})を用いれば以下のように計算される:
+\begin{align}
+    \frac{\partial}{\partial \bm{\Gamma}}
+    \cdot
+    \dot{\bm{\Gamma}}
+    &=
+    \sum_{i=1}^{N}
+    \left(
+        \frac{\partial}{\partial \bm{p}_{i}} \cdot \dot{\bm{p}}
+        +
+        \frac{\partial}{\partial \bm{r}_{i}} \cdot \dot{\bm{r}}
+    \right)
+    \notag \\
+    &=
+    \sum_{i=1}^{N}
+    \left\{
+        \frac{\partial}{\partial \bm{p}_{i}} \cdot
+        \left(\bm{F}_{i} - \lambda \bm{p}_{i }\right)
+        +
+        \frac{\partial}{\partial \bm{r}_{i}} \cdot
+        \left(\frac{\bm{p}_{i}}{m_{i}}\right)
+    \right\}
+    \notag \\
+    &=
+    -3N\lambda
+    -
+    \sum_{i=1}^{N}
+    \bm{p}_{i} \cdot \frac{\partial \lambda}{\partial \bm{p}_{i}}
+    \notag \\
+    &=
+    - (3N - 1) \lambda
+    \label{Eq:Gauss-dfdt2}
+\end{align}
+と計算される. 
+なお途中の計算で
+\begin{align}
+    \frac{\partial}{\partial \bm{p}_{i}} \cdot \bm{F}_{i} = 0,~~~~
+    \frac{\partial}{\partial \bm{r}_{i}} \cdot \bm{p}_{i} = 0
+    \notag 
+\end{align}
+であることと, 
+\begin{align}
+    \sum_{i=1}^{N}
+    \bm{p}_{i} \cdot \frac{\partial \lambda}{\partial \bm{p}_{i}}
+    &=
+    \sum_{i=1}^{N}
+    \bm{p}_{i} \cdot \frac{\partial}{\partial \bm{p}_{i}}
+    \left(
+        \frac
+        {\sum_{j=1}^{N} \frac{\bm{p}_{j}}{m_{j}} \cdot \bm{F}_{j}}
+        {\sum_{j=1}^{N} \frac{\bm{p}_{j}^{2}}{m_{j}}}
+    \right)
+    =
+    -
+    \frac
+    {\sum_{i=1}^{N} \frac{\bm{p}_{i}}{m_{i}} \cdot \bm{F}_{i}}
+    {\sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{m_{i}}}
+    +
+    2
+    \frac
+    {
+        \left(\sum_{i=1}^{N} \frac{\bm{p}_{i}}{m_{i}} \cdot \bm{F}_{i}\right)
+        \left(\sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{m_{i}}\right)
+    }
+    {\left(\sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{m_{i}}\right)^{2}}
+    \notag \\
+    &=
+    \lambda - 2 \lambda
+    \notag \\
+    &=
+    - \lambda
+    \notag
+\end{align}
+と計算されることを用いた.
+結局, 状態分布関数の全微分式(\ref{Eq:Gauss-dfdt})は, 式(\ref{Eq:EoM-Gauss-Constant-Temperature-Lambda2}), (\ref{Eq:Gauss-dfdt2})を用いることで
+\begin{equation}
+    \frac{df}{dt}
+    =
+    -\frac{3N-1}{g}
+    \frac{1}{k_{\mathrm{B}}T_{\mathrm{eq}}}
+    \frac{dU}{dt} f
+\end{equation}
+と書き直せる. $g = 3N=1$と選べば
+\begin{equation}
+    \frac{df}{dt}
+    =
+    -
+    \frac{1}{k_{\mathrm{B}}T_{\mathrm{eq}}}
+    \frac{dU}{dt} f
+\end{equation}
+となる. この微分方程式は簡単に解くことができ,
+\begin{equation}
+    f(\bm{r}, \bm{p})
+    =
+    C
+    \exp
+    \left\{
+        - \frac{U(\bm{r})}{k_{\mathrm{B}} T_{\mathrm{eq}}}
+    \right\}
+\end{equation}
+となる. ここで$C$は定数である.
+さらに, 今は運動エネルギー一定の束縛が課せられていりことを考慮すれば, 状態分布関数$f(\bm{r}, \bm{p})$は
+\begin{equation}
+    f(\bm{r}, \bm{p})
+    =
+    \delta
+    \left(
+        \sum_{i=1}^{N}
+        \frac{\bm{p}_{i}^{2}}{2m_{i}}
+        -
+        \frac{g}{2} k_{\mathrm{B}}{T_{\mathrm{eq}}}
+    \right)
+    \exp
+    \left\{
+        - \frac{U(\bm{r})}{k_{\mathrm{B}} T_{\mathrm{eq}}}
+    \right\}
+\end{equation}
+となる. 
+この式からGauss束縛法では座標空間$\bm{r}$ではカノニカルアンサンブルを得られるが, 運動量空間$\bm{p}$は束縛条件によってカノニカルアンサンブルにならないことが直ちに分かる.
+しかし, 実際のMDでは座標空間でカノニカルアンサンブルが得られていれば, 運動量の分布は解析的に計算することができるので, 特に問題となることはない.
+
+\subsection{ガウス束縛法と能勢の方法の関係}
+\subsubsection{能勢のハミルトニアン(再掲)}
+能勢のハミルトニアンは
+\begin{equation}
+    \mathcal{H}_{\mathrm{N}}
+    =
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}^{\prime}}{2m_{i}s^{2}}
+    +
+    U(\bm{r}^{\prime})
+    +
+    \frac{P_{s}^{2}}{2Q}
+    +
+    g k_{\mathrm{B}} T_{\mathrm{eq}} \log s
+    \label{Eq:Gauss-NoseHamiltonian}
+\end{equation}
+であった. 仮想時間$t^{\prime}$での正準方程式は
+\begin{alignat}{4}
+    \frac{d \bm{r}_{i}^{\prime}} {dt^{\prime}}
+    &=&&
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial \bm{p}_{i}^{\prime}}
+    &&=
+    \frac{\bm{p}_{i}^{\prime}}{m_{i}s^{2}}
+    \\
+    \frac{d \bm{p}_{i}^{\prime}} {dt^{\prime}}
+    &=-&&
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial \bm{r}_{i}^{\prime}}
+    &&=
+    \bm{F}_{i}
+    \\
+    \frac{d s} {dt^{\prime}}
+    &= &&
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial P_{s}}
+    &&=
+    \frac{P_{s}}{Q}
+    \\
+    \frac{d P_{s}} {dt^{\prime}}
+    &= -&&
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial s}
+    &&=
+    \frac{1}{s}
+    \left(
+        \sum_{i=1}^{N}
+        \frac{\bm{p}_{i}^{\prime2}}{m_{i}s^{2}}
+        -
+        g k_{\mathrm{B}} T_{\mathrm{eq}}
+    \right)
+\end{alignat}
+と求まる.
+
+\subsubsection{能勢の運動方程式からガウス束縛法の運動方程式を導出する}
+この節では, 能勢のハミルトニアンに対してある拘束条件を課して運動方程式を導いた時に, ガウス束縛法が導出されることを見ていく.
+具体的には能勢の熱浴に関する変数に対して
+\begin{alignat}{4}
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial P_{s}}
+    &=
+    \frac{P_{s}}{Q}
+    \equiv
+    0
+    \label{Eq:NoseHamiltonian-Constrain1}
+    \\
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial s}
+    &=
+    -
+    \frac{1}{s}
+    \left(
+        \sum_{i=1}^{N}
+        \frac{\bm{p}_{i}^{\prime2}}{m_{i}s^{2}}
+        -
+        g k_{\mathrm{B}} T_{\mathrm{eq}}
+    \right)
+    \equiv
+    0
+    \label{Eq:NoseHamiltonian-Constrain2}
+\end{alignat}
+のような拘束条件を課す.
+最初の拘束条件から, 能勢のハミルトニアン(\ref{Eq:Gauss-NoseHamiltonian})の第三項目が常に0になることがわかる.
+また二つ目の束縛条件から, $s$はもはや独立変数ではなくて$\bm{r}_{i}^{\prime}$と$\bm{p}_{i}^{\prime}$に依存する. すなわち$s = s(\bm{r}_{i}^{\prime}, \bm{p}_{i}^{\prime})$となる.
+これらの束縛条件のもとで正準方程式を導く際には, $s$が独立変数でないので$s$を介しての$\bm{r}_{i}^{\prime}$に関する微分や$\bm{p}_{i}^{\prime}$に関する微分を考慮する必要がある.
+(ただし, $\partial \mathcal{H}_{\mathrm{N}}/\partial s =0$なので, 結局これらの項は0になる). 導入した拘束条件の下では以下の運動方程式が得られる:
+
+\begin{alignat}{4}
+    \frac{d \bm{r}_{i}^{\prime}}{dt^{\prime}}
+    &= &&
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial \bm{p}_{i}^{\prime}}
+    +
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial s}
+    \frac{\partial s}{\partial \bm{p}_{i}^{\prime}}
+    = &&
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial \bm{p}_{i}^{\prime}}
+    =
+    \frac{\bm{p}_{i}^{\prime}}{m_{i}s^{2}}
+    \label{Eq:EoMs-Nose-Constrain1}
+    \\
+    \frac{d \bm{p}_{i}^{\prime}}{dt^{\prime}}
+    &= -&&
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial \bm{r}_{i}^{\prime}}
+    -
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial s}
+    \frac{\partial s}{\partial \bm{r}_{i}^{\prime}}
+    =-&&
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial \bm{r}_{i}^{\prime}}
+    =
+    \frac{\partial U}{\partial \bm{r}_{i}^{\prime}}
+    \label{Eq:EoMs-Nose-Constrain2}
+\end{alignat}
+ここで, 熱浴の自由度$s$は束縛条件から
+\begin{equation}
+    s
+    =
+    \left\{
+        \frac{1}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+        \left(
+            \sum_{i=1}^{N}
+            \frac{\bm{p}_{i}^{2}}{m_{i}}
+        \right)
+    \right\}^{\frac{1}{2}}
+    \label{Eq:Gauss-Nose-Constrain-s}
+\end{equation}
+と書くことができる.
+
+続いて, 仮想時間での運動方程式(\ref{Eq:EoMs-Nose-Constrain1}), (\ref{Eq:EoMs-Nose-Constrain2})を実時間で書き直すと,
+\begin{alignat}{6}
+    \frac{d \bm{r}_{i}}{dt}
+    &=
+    s
+    \frac{d \bm{r}_{i}}{dt^{\prime}}
+    &&=&&
+    \frac{\bm{p}_{i}^{\prime}}{m_{i}s}
+    =
+    \frac{\bm{p}_{i}}{m_{i}}
+    \label{Eq:EoMs-Nose-Constrain1-t}
+    \\
+    \frac{d \bm{p}_{i}}{dt}
+    &=
+    s
+    \frac{d}{dt^{\prime}}
+    \left(
+        \frac{\bm{p}_{i}^{\prime}}{s}
+    \right)
+    &&=-&&
+    \frac{\partial U}{\partial \bm{r}_{i}^{\prime}}
+    -
+    \frac{1}{s}
+    \frac{ds}{dt^{\prime}} \bm{p}_{i}^{\prime}
+    =
+    -
+    \frac{\partial U}{\partial \bm{r}_{i}}
+    -
+    \frac{ds}{dt^{\prime}} \bm{p}_{i}
+    \label{Eq:EoMs-Nose-Constrain2-t}
+\end{alignat}
+を得る. さらに拘束条件式(\ref{Eq:NoseHamiltonian-Constrain2})を変形して$t^{\prime}$に関して微分すると,
+\begin{equation}
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}^{\prime}}{m_{i}}
+    \frac{d \bm{p}_{i}^{\prime}}{dt^{\prime}}
+    =
+    g k_{\mathrm{B}} T_{\mathrm{eq}} s \frac{ds}{dt^{\prime}}
+\end{equation}
+であるので,
+\begin{align}
+    \frac{ds}{dt^{\prime}}
+    &=
+    \frac{1}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+    \frac{1}{s}
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}^{\prime}}{m_{i}}
+    \frac{d \bm{p}_{i}^{\prime}}{dt^{\prime}}
+    \notag \\
+    &=
+    \frac{1}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+    \left\{
+        \sum_{i=1}^{N}
+        \frac{\bm{p}_{i}^{\prime}}{m_{i}s} \cdot
+        \left(
+            - \frac{\partial U}{\partial \bm{r}_{i}^{\prime}}
+        \right)
+    \right\}
+    \notag \\
+    &=
+    -
+    \frac{1}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+    \left(
+        \sum_{i=1}^{N}
+        \frac{\partial U}{\partial \bm{r}_{i}^{\prime}}
+        \cdot
+        \frac{\bm{p}_{i}}{m_{i}}
+    \right)
+    \notag \\
+    &=
+    -
+    \frac{1}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+    \left(
+        \sum_{i=1}^{N}
+        \frac{\partial U}{\partial \bm{r}_{i}}
+        \cdot
+        \frac{d \bm{r}_{i}}{dt}
+    \right)
+    \notag \\
+    &=
+    -
+    \frac{1}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+    \frac{dU}{dt}
+    \notag
+\end{align}
+と計算することができる.
+ガウス束縛法で導出した未定乗数(\ref{Eq:EoM-Gauss-Constant-Temperature-Lambda2})との比較から
+\begin{equation}
+    \frac{ds}{dt^{\prime}} = \lambda
+\end{equation}
+と置くことができる. 
+よって実時間における拘束条件を課した能勢の運動方程式(\ref{Eq:EoMs-Nose-Constrain1-t}), (\ref{Eq:EoMs-Nose-Constrain2-t})は
+\begin{alignat}{3}
+    \frac{d \bm{r}_{i}}{dt}
+    &=
+    \frac{\bm{p}_{i}}{m}
+    \\
+    \frac{d \bm{p}_{i}}{dt}
+    &=
+    \bm{F}_{i} - \lambda \bm{p}_{i}
+\end{alignat}
+と書くことができる.
+すなわち, 温度一定のガウス束縛法は能勢の方法に運動エネルギーの束縛を課したものと一致することが確認できた.
+
+\subsubsection{拘束条件付き能勢の運動方程式が生成するアンサンブル}
+前の節では, 能勢の方法に運動エネルギーの束縛を課すと温度一定のガウス束縛法に一致することを見た.
+ここでは, 拘束条件付きの能勢の運動方程式がガウス束縛法と同様のアンサンブルを生成することを確認する.
+まず初めに, 運動方程式(\ref{Eq:EoMs-Nose-Constrain1}), (\ref{Eq:EoMs-Nose-Constrain1})にしたがって時間発展させた場合でもハミルトニアンは保存することを確認する.
+ハミルトニアンの時間微分を具体的に計算すると,
+\begin{align}
+    \frac{d \mathcal{H}_{\mathrm{N}}}{dt^{\prime}}
+    =
+    \sum_{i=1}^{N}
+    \left(
+        \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial \bm{p}_{i}^{\prime}}
+        \frac{d \bm{p}_{i}^{\prime}}{dt^{\prime}}
+        +
+        \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial \bm{r}_{i}^{\prime}}
+        \frac{d \bm{r}_{i}^{\prime}}{dt^{\prime}}
+    \right)
+    +
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial P_{s}}
+    \frac{d P_{s}}{dt^{\prime}}
+    +
+    \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial s}
+    \frac{d s}{dt^{\prime}}
+\end{align}
+となる. 拘束条件式(\ref{Eq:NoseHamiltonian-Constrain1}), (\ref{Eq:NoseHamiltonian-Constrain2})より右辺の第3項目と第4項目はゼロになる.
+さらに右辺の第1項目は
+\begin{equation}
+    \sum_{i=1}^{N}
+    \left(
+        \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial \bm{p}_{i}^{\prime}}
+        \frac{d \bm{p}_{i}^{\prime}}{dt^{\prime}}
+        +
+        \frac{\partial \mathcal{H}_{\mathrm{N}}}{\partial \bm{r}_{i}^{\prime}}
+        \frac{d \bm{r}_{i}^{\prime}}{dt^{\prime}}
+    \right)
+    =
+    \sum_{i=1}^{N}
+    \left\{
+        \left(
+            \frac{\bm{p}_{i}^{\prime}}{m_{i}s^{2}}
+        \right)
+        \left(
+            -\frac{\partial U}{\partial \bm{r}_{i}^{\prime}}
+        \right)
+        +
+        \left(
+            \frac{\partial U}{\partial \bm{r}_{i}^{\prime}}
+        \right)
+        \left(
+            \frac{\bm{p}_{i}^{\prime}}{m_{i}s^{2}}
+        \right)
+    \right\}
+    =
+    0
+\end{equation}
+である. 以上からハミルトニアンの時間微分がゼロとなり, 保存量であることが確認できた.
+
+続いて分配関数を考える. 拡張系における分配関数は以下の通りとなる:
+\begin{equation}
+    Z
+    =
+    \int_{0}^{\infty}ds
+    \int d\bm{r}^{\prime}
+    \int d\bm{p}^{\prime}
+    \delta
+    \left\{
+        \mathcal{H}_{0}(\bm{r}^{\prime}, \bm{p}^{\prime}/s)
+        +
+        g k_{\mathrm{B}} T_{\mathrm{eq}} \log s
+        -
+        E
+    \right\}
+    \delta
+    \left\{s - s_{0}\right\}
+\end{equation}
+\begin{equation}
+    s_{0} \equiv
+    \left(
+        \frac
+        {\sum_{i=1}^{N} \bm{p}_{i}^{2} / m_{i}}
+        {g k_{\mathrm{B}} T_{\mathrm{eq}}}
+    \right)^{\frac{1}{2}}
+\end{equation}
+なおここでは, 熱浴の自由度$s$について式(\ref{Eq:Gauss-Nose-Constrain-s})の拘束条件が課されていることに注意する必要がある.
+$\delta$関数の恒等式
+\begin{equation}
+    \delta(f(s))
+    =
+    \frac{\delta (s - s_{0})}{|f^{\prime}(s)|}
+    ~~~~
+    \mathrm{但し}~ f(s_{0}) = 0
+\end{equation}
+を変形した,
+\begin{equation}
+    \delta(s - s_{0})
+    =
+    |f^{\prime}(s)| \delta(f(s))
+\end{equation}
+を用いる. $f(s_{0}) = 0$となるように
+\begin{equation}
+    f(s)
+    \equiv
+    \frac{g k_{\mathrm{B}} T_{\mathrm{eq}}}{2}
+    -
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}^{\prime 2}}{2 m_{i} s^{2}}
+\end{equation}
+を定義すれば
+\begin{align}
+    \frac{d f(s)}{ds}
+    &=
+    \frac{d}{ds}
+    \left(
+        \frac{g k_{\mathrm{B}} T_{\mathrm{eq}}}{2}
+        -
+        \sum_{i=1}^{N}
+        \frac{\bm{p}_{i}^{\prime 2}}{2 m_{i} s^{2}}
+    \right)
+    =
+    \frac{d}{ds}
+    \left(
+        - \sum_{i=1}^{N}
+        \frac{\bm{p}_{i}^{2}}{2m_{i}} s^{-2}
+    \right)
+    \notag \\
+    &=
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}^{\prime 2}}{m_{i}s^{3}}
+    =
+    \sum_{i=1}^{N}
+    \frac{1}{s}
+    \frac{\bm{p}_{i}^{\prime 2}}{m_{i}s^{2}}
+    \notag \\
+    &=
+    \frac{g k_{\mathrm{B}} T_{\mathrm{eq}}}{s}
+\end{align}
+である. 得られた式を分配関数の中に入れると
+\begin{align}
+    Z
+    =
+    \int_{0}^{\infty}ds
+    \int d\bm{r}^{\prime}
+    \int d\bm{p}^{\prime}
+    &
+    \delta
+    \left\{
+        \mathcal{H}_{0}(\bm{r}^{\prime}, \bm{p}^{\prime}/s)
+        +
+        g k_{\mathrm{B}} T_{\mathrm{eq}} \log s
+        -
+        E
+    \right\}
+    \notag \\
+    \times
+    &
+    \frac{g k_{\mathrm{B}} T_{\mathrm{eq}}}{s}
+    \delta
+    \left\{
+        \frac{g k_{\mathrm{B}} T_{\mathrm{eq}}}{2}
+        -
+        \sum_{i=1}^{N}
+        \frac{\bm{p}_{i}^{\prime 2}}{2 m_{i} s^{2}}
+    \right\}
+\end{align}
+と書き直せる.
+
+続いて, 仮想時間から実時間への変数変換$\bm{r}_{i}^{\prime} = \bm{r}_{i}$および
+$\bm{p}_{i}^{\prime} = s \bm{p}_{i}$を行う.
+$\bm{r}_{i}^{\prime}$, $\bm{p}_{i}^{\prime}$の微分は
+\begin{equation}
+    d \bm{r}^{\prime} d \bm{p}^{\prime}
+    =
+    s d\bm{r} d \bm{p}
+\end{equation}
+であるので, 分配関数は
+\begin{align}
+    Z
+    = &
+    \int d\bm{p}~
+    \delta
+    \left(
+        \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{2m_{i}}
+        -
+        \frac{g k_{\mathrm{B}} T_{\mathrm{eq}}}{2}
+    \right)
+    \notag \\
+    &\times
+    \int d\bm{r}
+    \int_{0}^{\infty} ds~ s^{3N-1}
+    g k_{\mathrm{B}} T_{\mathrm{eq}}
+    \delta
+    \left\{
+        \mathcal{H}_{0}(\bm{r}, \bm{p})
+        +
+        g k_{\mathrm{B}} T_{\mathrm{eq}} \log s
+        -
+        E
+    \right\}
+    \notag \\
+    = &
+    \int d\bm{p}~
+    \delta
+    \left(
+        \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{2m_{i}}
+        -
+        \frac{g k_{\mathrm{B}} T_{\mathrm{eq}}}{2}
+    \right)
+    \notag \\
+    &\times
+    \int d\bm{r}
+    \int_{0}^{\infty} ds~ s^{3N-1}
+    g k_{\mathrm{B}} T_{\mathrm{eq}}
+    \frac
+    {
+        \delta
+        \left[s - \exp\left\{(E-\mathcal{H}_{0})/g k_{\mathrm{B}} T_{\mathrm{eq}} \right\}\right]
+    }
+    {
+        g k_{\mathrm{B}} T_{\mathrm{eq}} / s
+    }
+    \notag \\
+    = &
+    \int d\bm{p}~
+    \delta
+    \left(
+        \sum_{i=1}^{N} \frac{\bm{p}_{i}^{2}}{2m_{i}}
+        -
+        \frac{g k_{\mathrm{B}} T_{\mathrm{eq}}}{2}
+    \right)
+    \notag \\
+    &\times
+    \int d\bm{r}
+    \exp
+    \left[
+        -\frac{3N}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+        \left\{
+            \frac{g k_{\mathrm{B}} T_{\mathrm{eq}}}{2}
+            +
+            U(\bm{r})
+            -
+            E
+        \right\}
+    \right]
+\end{align}
+となる. 最後の変形で
+\begin{equation}
+    \mathcal{H}_{0}
+    =
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}^{\prime 2}}{2 m_{i} s^{2}}
+    +
+    U(\bm{r}^{\prime})
+    =
+    \sum_{i=1}^{N}
+    \frac{\bm{p}_{i}^{2}}{2m_{i}}
+    +
+    U(\bm{r})
+    \notag
+\end{equation}
+であり, $s$の拘束条件から導かれる恒等式
+$\sum_{i=1}^{N} \bm{p}_{i}^{2}/ 2m_{i} = g k_{\mathrm{B}} T_{\mathrm{eq}}$を代入すると
+\begin{equation}
+    \mathcal{H}_{0} = \frac{g k_{\mathrm{B}} T_{\mathrm{eq}}}{2} + U(\bm{r})
+    \notag
+\end{equation}
+となることを用いた.
+以上の計算により, $g = 3N$と選ぶと
+\begin{equation}
+    f(\bm{r}, \bm{p})
+    =
+    \delta
+    \left(
+        \sum_{i=1}^{N}
+        \frac{\bm{p}_{i}^{2}}{2m_{i}}
+        -
+        \frac{g}{2} k_{\mathrm{B}} T_{\mathrm{eq}}
+    \right)
+    \exp
+    \left[
+        - \frac{U(\bm{r})}{k_{\mathrm{B}} T_{\mathrm{eq}}}
+    \right]
+\end{equation}
+の分布関数に従っていることがわかる.
+これより, 仮想時間$t^{\prime}$でサンプルする場合には$g = 3N$とすれば, 座標空間$\bm{r}$についてカノニカルアンサンブルが得られることがわかる.
+また, 能勢の方法の時に議論したときと同様に実時間$t$でサンプルする場合には$g = 3N-1$とすることでカノニカルアンサンブルが得られる.
+つまり, 実時間$t$でサンプルする場合でも仮想時間$t^{\prime}$でサンプルする場合でも, 元々の能勢の方法と比較して自由度$g$の値は1少ない.
+これは, ガウスの束縛法では運動エネルギーに束縛を課しており自由度が1少なくなっているためである.
+
+
 % \section{ガウス束縛法: 温度・圧力制御}
 
 \bibliographystyle{junsrt}
