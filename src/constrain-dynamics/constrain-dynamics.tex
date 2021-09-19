@@ -624,9 +624,11 @@ $\lambda$について解けば,
 以下の節では具体的な例として, 温度・圧力を拘束条件として課した場合を議論していく.
 
 \section{ガウス束縛法: 温度制御}
-\subsection{運動方程式}
 
-瞬間温度を一定に維ように束縛をかける場合, 束縛条件は
+\subsection{温度一定のガウス束縛法}
+\subsubsection{運動方程式}
+
+瞬間温度を一定に保つように束縛をかける場合, 束縛条件は
 \begin{equation}
     \zeta(\bm{r}, \dot{\bm{r}}, t)
     =
@@ -660,6 +662,8 @@ $\dot{\bm{r}}$に関して微分を計算すると,
     \label{Eq:EoM-Gauss-Constant-Temperature2}
 \end{alignat}
 となる.
+
+\subsubsection{未定乗数の決定}
 未定乗数$\lambda$は温度一定の束縛条件
 \begin{equation}
     \sum_{i=1}^{N}
@@ -727,7 +731,8 @@ $\dot{\bm{r}}$に関して微分を計算すると,
     =
     -
     \frac
-    {\frac{dU}{dt}}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+    {1}{g k_{\mathrm{B}} T_{\mathrm{eq}}}
+    \frac{dU}{dt}
     \label{Eq:EoM-Gauss-Constant-Temperature-Lambda2}
 \end{equation}
 とかける.
@@ -1419,6 +1424,114 @@ $\sum_{i=1}^{N} \bm{p}_{i}^{2}/ 2m_{i} = g k_{\mathrm{B}} T_{\mathrm{eq}}$を代
 また, 能勢の方法の時に議論したときと同様に実時間$t$でサンプルする場合には$g = 3N-1$とすることでカノニカルアンサンブルが得られる.
 つまり, 実時間$t$でサンプルする場合でも仮想時間$t^{\prime}$でサンプルする場合でも, 元々の能勢の方法と比較して自由度$g$の値は1少ない.
 これは, ガウスの束縛法では運動エネルギーに束縛を課しており自由度が1少なくなっているためである.
+
+\subsection{時間発展演算子によるアルゴリズム}
+温度一定のガウス束縛法の運動方程式は
+\begin{alignat}{5}
+    \frac{d \bm{r}_{i}}{dt}
+    &=&&
+    \frac{\bm{p}_{i}}{m_{i}}
+    \\
+    \frac{d \bm{p}_{i}}{dt}
+    &=-&&
+    \frac{\partial U}{\partial \bm{r}_{i}}
+    -
+    \lambda \bm{p}_{i}
+    \equiv
+    \bm{F}_{i} + \lambda^{\prime} \bm{p}_{i}
+\end{alignat}
+である. 演算子$D$を
+\begin{eqnarray}
+    D \equiv
+    \frac{\bm{p}_{i}}{m_{i}} \frac{\partial}{\partial \bm{r}_{i}}
+    +
+    (\bm{F}_{i} + \lambda^{\prime} \bm{p}_{i})
+    \frac{\partial}{\partial \bm{p}_{i}}
+\end{eqnarray}
+のように定義すると時間発展演算子は
+\begin{align}
+    e^{D \Delta t}
+    =
+    \exp
+    \left[
+        \left\{
+            \frac{\bm{p}_{i}}{m_{i}}
+            \frac{\partial}{\partial \bm{r}_{i}}
+            +
+            \left(
+                \bm{F}_{i} + \lambda^{\prime} \bm{p}_{i}
+            \right)
+            \frac{\partial}{\partial \bm{p}_{i}}
+        \right\}
+        \Delta t
+    \right]
+\end{align}
+とかける. 鈴木・トロッター展開により
+\begin{align}
+    e^{D \Delta t}
+    \simeq
+    \exp
+    \left[
+        \frac{\Delta t}{2}
+        \left(
+            \bm{F}_{i} + \lambda^{\prime} \bm{p}_{i}
+        \right)
+        \frac{\partial}{\partial \bm{p}_{i}}
+    \right]
+    \exp
+    \left[
+        \frac{\bm{p}_{i}}{m_{i}}
+        \frac{\partial}{\partial \bm{r}_{i}}
+    \right]
+    \exp
+    \left[
+        \frac{\Delta t}{2}
+        \left(
+            \bm{F}_{i} + \lambda^{\prime} \bm{p}_{i}
+        \right)
+        \frac{\partial}{\partial \bm{p}_{i}}
+    \right]
+\end{align}
+のように近似することができる.
+演算子$\exp\left[\frac{\Delta t}{2}\left(\bm{F}_{i} + \lambda^{\prime} \bm{p}_{i}\right)\frac{\partial}{\partial \bm{p}_{i}}\right]$による運動量$\bm{p}_{i}$の時間変化は, 演算子の定義により
+\begin{equation}
+    \frac{d \bm{p}_{i}}{dt}
+    =
+    \left(
+        \bm{F}_{i} + \lambda^{\prime} \bm{p}_{i}
+    \right)
+    \frac{\partial}{\partial \bm{p}_{i}} \bm{p}_{i}
+    =
+    \bm{F}_{i} + \lambda^{\prime} \bm{p}_{i}
+\end{equation}
+を解く必要がある. 
+F. Zhangらの論文にしたがって微分方程式を解くと厳密な解析解
+\begin{equation}
+    \bm{p}_{i}(t)
+    =
+    \frac{1 - \gamma}{\beta - \gamma / \beta}
+    \left\{
+        \bm{p}_{i}(0) + \bm{F}_{i}(0)
+        \frac{1 + \gamma - \beta - \gamma/\beta}{(1 - \gamma)\alpha}
+    \right\}
+\end{equation}
+を得ることができる. ここで
+\begin{align}
+    \alpha &=
+    \sqrt
+    {
+        \frac
+        {\sum_{i=1}^{N} \bm{F}_{i}^{2}(0) / m_{i}}
+        {\sum_{i=1}^{N} \bm{p}_{i}^{2}(0) / m_{i}}
+    }
+    \\
+    \beta &=
+    \exp[-\alpha t]
+    \\
+    \gamma &=
+    \frac{\lambda^{\prime}(0) - \alpha}{\lambda^{\prime}(0) + \alpha}
+\end{align}
+である. 以上を用いることで時間発展アルゴリズムを構築することができる.
 
 
 % \section{ガウス束縛法: 温度・圧力制御}
