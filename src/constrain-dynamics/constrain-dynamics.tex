@@ -1140,7 +1140,7 @@ $\dot{\bm{r}}$に関して微分を計算すると,
 
 \subsubsection{拘束条件付き能勢の運動方程式が生成するアンサンブル}
 前の節では, 能勢の方法に運動エネルギーの束縛を課すと温度一定のガウス束縛法に一致することを見た.
-ここでは, 拘束条件付きの能勢の運動方程式がガウス束縛法と同様のアンサンブルを生成することを確認する.
+ここでは, 拘束条件付きの能勢の運動方程式がガウス束縛法と同様のアンサンブルを生成することを確認する \cite{Nose1991}.
 まず初めに, 運動方程式(\ref{Eq:EoMs-Nose-Constrain1}), (\ref{Eq:EoMs-Nose-Constrain1})にしたがって時間発展させた場合でもハミルトニアンは保存することを確認する.
 ハミルトニアンの時間微分を具体的に計算すると,
 \begin{align}
@@ -1302,14 +1302,13 @@ $\delta$関数の恒等式
     \right\}
 \end{align}
 と書き直せる.
-
 続いて, 仮想時間から実時間への変数変換$\bm{r}_{i}^{\prime} = \bm{r}_{i}$および
 $\bm{p}_{i}^{\prime} = s \bm{p}_{i}$を行う.
 $\bm{r}_{i}^{\prime}$, $\bm{p}_{i}^{\prime}$の微分は
 \begin{equation}
-    d \bm{r}^{\prime} d \bm{p}^{\prime}
+    d \bm{r}_{i}^{\prime} d \bm{p}_{i}^{\prime}
     =
-    s d\bm{r} d \bm{p}
+    s d\bm{r}_{i} d \bm{p}_{i}
 \end{equation}
 であるので, 分配関数は
 \begin{align}
@@ -1505,7 +1504,7 @@ $\sum_{i=1}^{N} \bm{p}_{i}^{2}/ 2m_{i} = g k_{\mathrm{B}} T_{\mathrm{eq}}$を代
     \bm{F}_{i} + \lambda^{\prime} \bm{p}_{i}
 \end{equation}
 を解く必要がある. 
-F. Zhangらの論文にしたがって微分方程式を解くと厳密な解析解
+F. Zhang \cite{Zhang1997}らの論文にしたがって微分方程式を解くと厳密な解析解
 \begin{equation}
     \bm{p}_{i}(t)
     =
