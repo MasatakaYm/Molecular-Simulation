@@ -177,11 +177,176 @@ $1~\mathrm{cm} = 1.0 \times 10^{8}~{\mathrm{\AA}}$であるので,
 \end{align}
 $h_{k} = \pm 1$, つまり$k=0,~N-1$のとき$\phi_{k+1}$が発散してしまうのに注意. 
 
-
-
 \clearpage
 
-\section{水のモデル}
+\section{RESPAC: 粗視化粒子に小数電荷を割り当てるアルゴリズム}
+粗視化モデルを使用した場合, 分子の持つ電荷は粗視化粒子の座標点に置かれることがあるが、
+このような電荷の置き方はしばしば適切ではない.
+例えば, アミノ酸1残基を1粒子に粗視化して粒子の代表点をC$_\alpha$原子上に定めた場合, $+1$, $0$, $-1$の電荷をC$_\alpha$原子上に置くことになる. しかし、荷電アミノ酸は側鎖の先端に電荷を持っているため, C$_\alpha$原子上に$+1$, $0$, $-1$の電荷を置く取り扱いは, 実際の分子描像と解離がある.
+このような問題点を解決するためのアルゴリズムとして\textbf{RESPAC}~\cite{Terakawa2014}が提案されている.
+RESPACでは全原子レベルの部分電荷によって計算された静電ポテンシャルを再現するように粗視化粒子の部分電荷を決定する.
+量子化学計算で計算された静電ポテンシャルを再現するように全原子の部分電荷を決定するアルゴリズムRESP~\cite{Bayly1993, Besler1990}に由来して, RESPACと名前がつけられている.
+
+\subsection{RESPACの流れ}
+RESPACの一連の流れは次の通りである:
+\begin{enumerate}
+    \item 全原子モデルに対して部分電荷を割り当てる(\texttt{PDB2PQR})
+    \item 全原子の部分電荷に基づいて静電ポテンシャルを計算する(\texttt{APBS})
+    \item 粗視化構造について, 蛋白質表面のアミノ酸残基を特定する(\texttt{surface})
+    \item 蛋白質表面のアミノ酸残基について, 全原子モデルから得られた静電ポテンシャルを再現するように, 最適な粗視化粒子の部分電荷を決定する(\texttt{pdc})
+\end{enumerate}
+
+\subsection{RESPACの理論}
+\subsubsection{全原子モデルの部分電荷が作り出す静電ポテンシャルを計算する}
+連続誘電体モデルにおいて、全原子モデルの部分電荷が作り出す静電ポテンシャル$\phi_{\mathrm{ref}}$はPoisson–Boltzmann方程式
+\begin{equation}
+    \nabla \cdot
+    \left[
+        \epsilon(\bm{r}) \nabla \cdot \phi_{\mathrm{ref}}(\bm{r})
+    \right]
+    -
+    \epsilon(\bm{r}) \kappa \sinh[\phi_{\mathrm{ref}}(\bm{r})]
+    +
+    \frac{4 \pi \rho(\bm{r})}{k_{\mathrm{B}}T}
+    =
+    0
+\end{equation}
+を解くことで得られる.
+ここで, $\bm{r}$は分子の周りのグリッド点の位置ベクトル、$\epsilon(\bm{r})$は位置に依存した誘電率、$\kappa$はデバイ長の逆数、$\rho(\bm{r})$は原子電荷密度, $k_{\mathrm{B}}$はボルツマン定数,
+$T$は温度である.
+
+\subsubsection{粗視化粒子が作り出す静電ポテンシャル}
+粗視化粒子が作り出す静電ポテンシャルを考える. ここでは、Debye--H\"{u}ckel近似を適用している場合,
+粗視化粒子による静電ポテンシャルは
+\begin{equation}
+    \phi(\bm{r})
+    =
+    \sum_{i=1}^{N}
+    q_{i}
+    \frac{\exp(-\kappa |\bm{r} - \bm{r}_{i}|)}{\epsilon |\bm{r} - \bm{r}_{i}|}
+\end{equation}
+と計算できる.
+ここで$\bm{r}_{i}$は粗視化粒子の位置ベクトル, $\epsilon$は溶媒の誘電率である.
+
+\subsubsection{粗視化粒子の部分電荷の決定}
+粗視化粒子の部分電荷は次の評価関数が最小となるように決定する:
+\begin{equation}
+    \mathcal{L} (\phi_{\mathrm{ref}}^{\mathrm{PB}}, \bm{q})
+    =
+    \int_{\Omega} d\bm{r}
+    \left[
+        \phi_{\mathrm{ref}}^{\mathrm{PB}}
+        -
+        \sum_{i=1}^{N}
+        q_{i}
+        \frac{\exp(-\kappa |\bm{r} - \bm{r}_{i}|)}{\epsilon |\bm{r} - \bm{r}_{i}|}
+    \right]^{2}
+    +
+    \delta \sum_{i=1}^{N} (q_{i} - q_{i}^{\prime})^{2}
+    +
+    \lambda(q_{\mathrm{tot}} - \sum_{i=1}^{N} q_{i})^{2}
+    \label{Eq:RESPAC-Evaluation-Function}
+\end{equation}
+ここで, $\Omega$は分子に近接する空間を表す. また$\phi_{\mathrm{ref}}^{\mathrm{PB}}$は全原子モデルから計算されて参照静電ポテンシャル, $\bm{q}$は粗視化粒子の電荷の集合を表す. $q_{i}^{\prime}$はターゲット電荷, $q_{\mathrm{tot}}$は分子の総電荷量である.
+$\delta$, $\lambda$はラグランジュの未定乗数である.
+
+評価関数の第1項目は全原子から求めた参照静電ポテンシャルが粗視化粒子が形成する静電ポテンシャルと一致することを要請する束縛条件である.
+第2項目は各粗視化粒子の部分電荷に対する束縛条件である. この条件はRESP論文において部分電荷のオーバーフィッティングを避けるために導入された束縛条件である. 特に理由がなければRESP論文で述べられているようにRESPACでも$q_{i}^{\prime} = 0$と設定する.
+第3項目は分子の総電荷量を固定するための束縛条件である.
+
+続いて評価関数が極地を取る条件から粗視化粒子の部分電荷計算する方法を見ていく.
+実際の計算では離散化していた方が便利なので, 評価関数(\ref{Eq:RESPAC-Evaluation-Function})の積分を和で置き換える:
+\begin{equation}
+    \mathcal{L} (\phi_{\mathrm{ref}}^{\mathrm{PB}}, \bm{q})
+    =
+    \sum_{i=1}^{M}
+    \left[
+        \phi_{i}^{\mathrm{PB}}
+        -
+        \sum_{j=1}^{N}
+        q_{j}
+        \frac{\exp(-\kappa |\bm{r} - \bm{r}_{j}|)}{\epsilon |\bm{r} - \bm{r}_{j}|}
+    \right]^{2}
+    +
+    \delta \sum_{j=1}^{N} (q_{j} - q_{j}^{\prime})^{2}
+    +
+    \lambda(q_{\mathrm{tot}} - \sum_{j=1}^{N} q_{j})^{2}
+    \label{Eq:RESPAC-Evaluation-Function-Discrete}
+\end{equation}
+ここで$i$はグリッド点, $j$は粗視化粒子のインデックスを表していることに注意のこと.
+評価関数が極地を取る条件
+\begin{equation}
+    \frac{\partial \mathcal{L}}{\partial q_{k}} = 0
+\end{equation}
+より
+\begin{equation}
+    \sum_{i=1}^{M}
+    2
+    \left[
+        \phi_{i}^{\mathrm{PB}}
+        -
+        \sum_{j=1}^{N}
+        q_{j}
+        \frac{\exp(-\kappa r_{ij})}{\epsilon r_{ij}}
+    \right]
+    \frac{\exp(-\kappa r_{ik})}{\epsilon r_{ik}}
+    +
+    2 \delta \sum_{j=1}^{N} (q_{j} - q_{j}^{\prime})
+    +
+    2 \lambda(q_{\mathrm{tot}} - \sum_{j=1}^{N} q_{j})
+    =
+    0
+\end{equation}
+を得る. これを整理すると,
+\begin{equation}
+    \sum_{i=1}^{M} \sum_{j=1}^{N}
+    \left\{
+        \frac{\exp[-\kappa (r_{ij} + r_{ik})]}{\epsilon^{2} r_{ij}r_{ik}}
+        -
+        \lambda
+    \right\} q_{j}
+    -
+    \delta q_{k}
+    =
+    \sum_{i=1}^{M}
+    \frac{\exp(-\kappa r_{ik})}{\epsilon r_{ik}} \phi_{i}^{\mathrm{PB}}
+    -
+    \delta q_{k}^{\prime}
+    -
+    \lambda q_{\mathrm{tot}}
+\end{equation}
+となる. 以上の方程式は行列形式に直すことができる. すなわち
+\begin{align}
+    A_{jk}
+    &=
+    \sum_{i=1}^{M}
+    \frac{\exp[-\kappa(r_{ij} + r_{ik})]}{\epsilon r_{ij}r_{ik}} + \lambda^{\prime}
+    \\
+    A_{jj}
+    &=
+    \sum_{i=1}^{M}
+    \frac{\exp[-2\kappa r_{ij}]}{\epsilon r_{ij}^{2}} + \delta^{\prime}
+    \\
+    B_{j}
+    &=
+    \sum_{i=1}^{M}
+    \frac{\exp[-\kappa r_{ik}]}{\epsilon r_{ik}} \phi_{i}^{\mathrm{PB}}
+    +
+    \delta^{\prime} q_{k}^{\prime}
+    +
+    \lambda^{\prime} q_{\mathrm{tot}}
+\end{align}
+を導入すると
+\begin{equation}
+    \bm{A} \bm{q} = \bm{B}
+\end{equation}
+の連立方程式が得られ,
+\begin{equation}
+    \bm{q} = \bm{A}^{-1}\bm{B}
+\end{equation}
+のように連立方程式を解くことで最適な部分電荷の値を得ることができる.
+なお, 途中で数式の便利のために$\lambda^{\prime} = -\lambda$, $\delta^{\prime} = -\delta$のように置き直した.
+%\section{水のモデル}
 
 
 %\subsection{Sub section}
@@ -197,6 +362,6 @@ $h_{k} = \pm 1$, つまり$k=0,~N-1$のとき$\phi_{k+1}$が発散してしま�
 
 % \paragraph{Paragraph}
 
-% \bibliographystyle{junsrt}
-% \bibliography{}
+\bibliographystyle{junsrt}
+\bibliography{modeling-molecules}
 \input{../include/end}
