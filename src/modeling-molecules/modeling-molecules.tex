@@ -185,7 +185,7 @@ $h_{k} = \pm 1$, つまり$k=0,~N-1$のとき$\phi_{k+1}$が発散してしま�
 例えば, アミノ酸1残基を1粒子に粗視化して粒子の代表点をC$_\alpha$原子上に定めた場合, $+1$, $0$, $-1$の電荷をC$_\alpha$原子上に置くことになる. しかし、荷電アミノ酸は側鎖の先端に電荷を持っているため, C$_\alpha$原子上に$+1$, $0$, $-1$の電荷を置く取り扱いは, 実際の分子描像と解離がある.
 このような問題点を解決するためのアルゴリズムとして\textbf{RESPAC}~\cite{Terakawa2014}が提案されている.
 RESPACでは全原子レベルの部分電荷によって計算された静電ポテンシャルを再現するように粗視化粒子の部分電荷を決定する.
-量子化学計算で計算された静電ポテンシャルを再現するように全原子の部分電荷を決定するアルゴリズムRESP~\cite{Bayly1993, Besler1990}に由来して, RESPACと名前がつけられている.
+量子化学計算で得られた静電ポテンシャルを再現するように全原子の部分電荷を決定するアルゴリズムRESP~\cite{Bayly1993, Besler1990}に由来して, RESPACと名前がつけられている.
 
 \subsection{RESPACの流れ}
 RESPACの一連の流れは次の通りである:
@@ -216,8 +216,7 @@ RESPACの一連の流れは次の通りである:
 $T$は温度である.
 
 \subsubsection{粗視化粒子が作り出す静電ポテンシャル}
-粗視化粒子が作り出す静電ポテンシャルを考える. ここでは、Debye--H\"{u}ckel近似を適用している場合,
-粗視化粒子による静電ポテンシャルは
+Debye--H\"{u}ckel近似を適用している場合, 粗視化粒子による静電ポテンシャルは
 \begin{equation}
     \phi(\bm{r})
     =
@@ -251,10 +250,10 @@ $T$は温度である.
 $\delta$, $\lambda$はラグランジュの未定乗数である.
 
 評価関数の第1項目は全原子から求めた参照静電ポテンシャルが粗視化粒子が形成する静電ポテンシャルと一致することを要請する束縛条件である.
-第2項目は各粗視化粒子の部分電荷に対する束縛条件である. この条件はRESP論文において部分電荷のオーバーフィッティングを避けるために導入された束縛条件である. 特に理由がなければRESP論文で述べられているようにRESPACでも$q_{i}^{\prime} = 0$と設定する.
+第2項目は各粗視化粒子の部分電荷に対する束縛条件である. この条件はRESP論文において部分電荷のオーバーフィッティングを避けるために導入された束縛条件である. 特に理由がなければRESP論文で述べられているように$q_{i}^{\prime} = 0$と設定することが多い.
 第3項目は分子の総電荷量を固定するための束縛条件である.
 
-続いて評価関数が極地を取る条件から粗視化粒子の部分電荷計算する方法を見ていく.
+続いて評価関数が極値を取る条件から粗視化粒子の部分電荷計算する方法を見ていく.
 実際の計算では離散化していた方が便利なので, 評価関数(\ref{Eq:RESPAC-Evaluation-Function})の積分を和で置き換える:
 \begin{equation}
     \mathcal{L} (\phi_{\mathrm{ref}}^{\mathrm{PB}}, \bm{q})
@@ -273,8 +272,8 @@ $\delta$, $\lambda$はラグランジュの未定乗数である.
     \lambda(q_{\mathrm{tot}} - \sum_{j=1}^{N} q_{j})^{2}
     \label{Eq:RESPAC-Evaluation-Function-Discrete}
 \end{equation}
-ここで$i$はグリッド点, $j$は粗視化粒子のインデックスを表していることに注意のこと.
-評価関数が極地を取る条件
+ここで$i$はグリッド点, $j$は粗視化粒子のインデックスを表していることに注意すること.
+評価関数が極値を取る条件
 \begin{equation}
     \frac{\partial \mathcal{L}}{\partial q_{k}} = 0
 \end{equation}
@@ -315,17 +314,22 @@ $\delta$, $\lambda$はラグランジュの未定乗数である.
     -
     \lambda q_{\mathrm{tot}}
 \end{equation}
-となる. 以上の方程式は行列形式に直すことができる. すなわち
+となる. 全ての粒子の電荷$q_{k},~k = 1,\ldots,N$について同様の方程式を得ることができるので, 行列形式で書き直すと
 \begin{align}
     A_{jk}
     &=
     \sum_{i=1}^{M}
-    \frac{\exp[-\kappa(r_{ij} + r_{ik})]}{\epsilon r_{ij}r_{ik}} + \lambda^{\prime}
+    \frac{\exp[-\kappa(r_{ij} + r_{ik})]}{\epsilon r_{ij}r_{ik}}
+    + \lambda^{\prime}
+    &&(j\neq k)
     \\
-    A_{jj}
+    A_{kk}
     &=
     \sum_{i=1}^{M}
-    \frac{\exp[-2\kappa r_{ij}]}{\epsilon r_{ij}^{2}} + \delta^{\prime}
+    \frac{\exp[-2\kappa r_{ik}]}{\epsilon r_{ik}^{2}}
+    + \delta^{\prime}
+    + \lambda^{\prime}
+    &&(j = k)
     \\
     B_{j}
     &=
@@ -346,6 +350,35 @@ $\delta$, $\lambda$はラグランジュの未定乗数である.
 \end{equation}
 のように連立方程式を解くことで最適な部分電荷の値を得ることができる.
 なお, 途中で数式の便利のために$\lambda^{\prime} = -\lambda$, $\delta^{\prime} = -\delta$のように置き直した.
+
+\subsubsection{スケーリング係数$\delta$と$\lambda$の決定方法}
+評価関数(\ref{Eq:RESPAC-Evaluation-Function})を最小化するためには, 適切なスケーリング係数$\delta$, $\lambda$を選択する必要がある.
+分子の総電荷に対する束縛条件のスケーリング係数である$\lambda$は, 得られる有効電荷にあまり影響しないため, 十分大きい値を設定しておけばいい. 例えばRESPAC論文では$\lambda = 10^{5}$と設定している.
+
+一方で, 各粒子に対する参照電荷の束縛条件のスケーリング係数$\delta$の値はRESPACで得られる有効電荷に大きく影響を与える.
+最適な$\delta$の値を得るためのプロトコルとして次のようなものが提案されている:
+(i) 全原子モデルに基づいた短いMDシミュレーションを実行して, 10個の構造をサンプリングする.
+(ii) 各構造に対して、評価関数(\ref{Eq:RESPAC-Evaluation-Function})を最小化するようにして粗視化電荷を決定する.
+(iii) 得られた粗視化電荷$\bm{q}$に対して, 規格化された誤差$\Delta (\bm{q}(\delta))$
+\begin{equation}
+    \Delta (\bm{q}(\delta))
+    =
+    \frac
+    {\int_{\Omega} d\bm{r}
+        \left[
+            \phi_{\mathrm{ref}}^{\mathrm{PB}}
+            -
+            \sum_{i}^{N} q_{i}
+            \frac{\exp(-\kappa |\bm{r} - \bm{r}_{i}|)}{\epsilon |\bm{r} - \bm{r}_{i}|}
+        \right]^{2}
+    }
+    {
+        \int_{\Omega} d\bm{r}[\phi_{\mathrm{ref}}^{\mathrm{PB}}]^{2}
+    }
+\end{equation}
+を計算する.
+(iv) サンプリングした10個の構造に対して誤差の平均$\langle \Delta (\bm{q}(\delta)) \rangle$を計算し, 誤差の平均が最小となるような$\delta$を採用する.
+
 %\section{水のモデル}
 
 
