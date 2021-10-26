@@ -2,7 +2,7 @@ name: Building pdf and posting github pages
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
