@@ -1,0 +1,24 @@
+name: Building pdf and posting github pages
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: github-pages
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    runs-on: ubuntu-latest
+    container: arcatdmz/texlinve
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build PDF file
+        run: latexmk && mkdir -p docs && cp main.pdf ./docs/
+
+      - name: Deploy pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
