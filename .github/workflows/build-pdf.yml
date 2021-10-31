@@ -28,8 +28,9 @@ jobs:
       - name: Build PDF file
         run: |
           cd src
-          latexmk main
-          mkdir -p docs && cp main.pdf ./docs/
+          sh util-scripts/latexmk-alldocs.sh
+          mkdir -p docs
+          for file in `find . -name "*.pdf"`; do mv $file ./docs/.s; done
 
       - name: Deploy pages
         uses: peaceiris/actions-gh-pages@v3
