@@ -177,11 +177,221 @@ $1~\mathrm{cm} = 1.0 \times 10^{8}~{\mathrm{\AA}}$であるので,
 \end{align}
 $h_{k} = \pm 1$, つまり$k=0,~N-1$のとき$\phi_{k+1}$が発散してしまうのに注意. 
 
-
-
 \clearpage
 
-\section{水のモデル}
+\section{RESPAC: 粗視化粒子に小数電荷を割り当てるアルゴリズム}
+粗視化モデルを使用した場合, 分子の持つ電荷は粗視化粒子の座標点に置かれることがあるが、
+このような電荷の置き方はしばしば適切ではない.
+例えば, アミノ酸1残基を1粒子に粗視化して粒子の代表点をC$_\alpha$原子上に定めた場合, $\pm 1$ or $0$の電荷をC$_\alpha$原子上に置くことになる. しかし、荷電アミノ酸は側鎖の先端に電荷を持っているため, C$_\alpha$原子上に電荷を置くような取り扱いは実際の分子描像と解離がある.
+このような問題点を解決するためのアルゴリズムとして\textbf{RESPAC}~\cite{Terakawa2014}が提案されている.
+RESPACでは全原子レベルの部分電荷によって計算された静電ポテンシャルを再現するように粗視化粒子の部分電荷を決定する.
+量子化学計算で得られた静電ポテンシャルを再現するように全原子の部分電荷を決定するアルゴリズムRESP~\cite{Bayly1993, Besler1990}に由来して, RESPACと名前がつけられている.
+
+\subsection{RESPACの流れ}
+RESPACの一連の流れは次の通りである:
+\begin{enumerate}
+    \item 全原子モデル構造の各原子に対して部分電荷を割り振る(\texttt{PDB2PQR})
+    \item 全原子の部分電荷に基づいて静電ポテンシャルを計算する(\texttt{APBS})
+    \item 粗視化構造について, 蛋白質表面のアミノ酸残基を特定する(\texttt{surface})
+    \item 蛋白質表面のアミノ酸残基について, 全原子モデルから得られた静電ポテンシャルを再現するように, 最適な粗視化粒子の部分電荷を決定する(\texttt{pdc})
+\end{enumerate}
+
+\subsection{RESPACの理論}
+\subsubsection{全原子モデルの部分電荷が作り出す静電ポテンシャルを計算する}
+連続誘電体モデルにおいて、全原子モデルの部分電荷が作り出す静電ポテンシャル$\phi_{\mathrm{ref}}$はPoisson–Boltzmann方程式
+\begin{equation}
+    \nabla \cdot
+    \left[
+        \epsilon(\bm{r}) \nabla \cdot \phi_{\mathrm{ref}}(\bm{r})
+    \right]
+    -
+    \epsilon(\bm{r}) \kappa \sinh[\phi_{\mathrm{ref}}(\bm{r})]
+    +
+    \frac{4 \pi \rho(\bm{r})}{k_{\mathrm{B}}T}
+    =
+    0
+\end{equation}
+を解くことで得られる.
+ここで, $\bm{r}$は分子の周りのグリッド点の位置ベクトル、$\epsilon(\bm{r})$は位置に依存した誘電率、$\kappa$はデバイ長の逆数、$\rho(\bm{r})$は原子電荷密度, $k_{\mathrm{B}}$はボルツマン定数,
+$T$は温度である.
+
+\subsubsection{粗視化粒子が作り出す静電ポテンシャル}
+Debye--H\"{u}ckel近似を適用している場合, 粗視化粒子による静電ポテンシャルは
+\begin{equation}
+    \phi(\bm{r})
+    =
+    \sum_{i=1}^{N}
+    q_{i}
+    \frac{\exp(-\kappa |\bm{r} - \bm{r}_{i}|)}{\epsilon |\bm{r} - \bm{r}_{i}|}
+\end{equation}
+と計算できる.
+ここで$\bm{r}_{i}$は粗視化粒子の位置ベクトル, $\epsilon$は溶媒の誘電率である.
+
+\subsubsection{粗視化粒子の部分電荷の決定}
+粗視化粒子の部分電荷は次の評価関数が最小となるように決定する:
+\begin{equation}
+    \mathcal{L} (\phi_{\mathrm{ref}}^{\mathrm{PB}}, \bm{q})
+    =
+    \int_{\Omega} d\bm{r}
+    \left[
+        \phi_{\mathrm{ref}}^{\mathrm{PB}}
+        -
+        \sum_{i=1}^{N}
+        q_{i}
+        \frac{\exp(-\kappa |\bm{r} - \bm{r}_{i}|)}{\epsilon |\bm{r} - \bm{r}_{i}|}
+    \right]^{2}
+    +
+    \delta \sum_{i=1}^{N} (q_{i} - q_{i}^{\prime})^{2}
+    +
+    \lambda(q_{\mathrm{tot}} - \sum_{i=1}^{N} q_{i})^{2}
+    \label{Eq:RESPAC-Evaluation-Function}
+\end{equation}
+ここで, $\Omega$は分子に近接する空間を表す. また$\phi_{\mathrm{ref}}^{\mathrm{PB}}$は全原子モデルから計算されて参照静電ポテンシャル, $\bm{q}$は粗視化粒子の電荷の集合を表す. $q_{i}^{\prime}$はターゲット電荷, $q_{\mathrm{tot}}$は分子の総電荷量である.
+$\delta$, $\lambda$はラグランジュの未定乗数である.
+
+評価関数の第1項目は全原子から求めた参照静電ポテンシャルが粗視化粒子が形成する静電ポテンシャルと一致することを要請する束縛条件である.
+第2項目は各粗視化粒子の部分電荷に対する束縛条件である. この条件はRESP論文において部分電荷のオーバーフィッティングを避けるために導入された束縛条件である. 特に理由がなければRESP論文で述べられているように$q_{i}^{\prime} = 0$と設定することが多い.
+第3項目は分子の総電荷量を固定するための束縛条件である.
+
+続いて評価関数が極値を取る条件から粗視化粒子の部分電荷を計算する方法を見ていく.
+実際の計算では離散化していた方が便利なので, 評価関数(\ref{Eq:RESPAC-Evaluation-Function})の積分を和で置き換える:
+\begin{equation}
+    \mathcal{L} (\phi_{\mathrm{ref}}^{\mathrm{PB}}, \bm{q})
+    =
+    \sum_{i=1}^{M}
+    \left[
+        \phi_{i}^{\mathrm{PB}}
+        -
+        \sum_{j=1}^{N}
+        q_{j}
+        \frac{\exp(-\kappa |\bm{r} - \bm{r}_{j}|)}{\epsilon |\bm{r} - \bm{r}_{j}|}
+    \right]^{2}
+    +
+    \delta \sum_{j=1}^{N} (q_{j} - q_{j}^{\prime})^{2}
+    +
+    \lambda(q_{\mathrm{tot}} - \sum_{j=1}^{N} q_{j})^{2}
+    \label{Eq:RESPAC-Evaluation-Function-Discrete}
+\end{equation}
+ここで$i$はグリッド点, $j$は粗視化粒子のインデックスを表していることに注意すること.
+評価関数が極値を取る条件
+\begin{equation}
+    \frac{\partial \mathcal{L}}{\partial q_{k}} = 0
+\end{equation}
+より
+\begin{equation}
+    \sum_{i=1}^{M}
+    2
+    \left[
+        \phi_{i}^{\mathrm{PB}}
+        -
+        \sum_{j=1}^{N}
+        q_{j}
+        \frac{\exp(-\kappa r_{ij})}{\epsilon r_{ij}}
+    \right]
+    \frac{\exp(-\kappa r_{ik})}{\epsilon r_{ik}}
+    +
+    2 \delta \sum_{j=1}^{N} (q_{j} - q_{j}^{\prime})
+    +
+    2 \lambda(q_{\mathrm{tot}} - \sum_{j=1}^{N} q_{j})
+    =
+    0
+\end{equation}
+を得る. これを整理すると,
+\begin{equation}
+    \sum_{i=1}^{M} \sum_{j=1}^{N}
+    \left\{
+        \frac{\exp[-\kappa (r_{ij} + r_{ik})]}{\epsilon^{2} r_{ij}r_{ik}}
+        -
+        \lambda
+    \right\} q_{j}
+    -
+    \delta q_{k}
+    =
+    \sum_{i=1}^{M}
+    \frac{\exp(-\kappa r_{ik})}{\epsilon r_{ik}} \phi_{i}^{\mathrm{PB}}
+    -
+    \delta q_{k}^{\prime}
+    -
+    \lambda q_{\mathrm{tot}}
+\end{equation}
+となる. 全ての粒子の電荷$q_{k},~k = 1,\ldots,N$について同様の方程式を得ることができるので, 行列形式で書き直すと
+\begin{align}
+    A_{jk}
+    &=
+    \sum_{i=1}^{M}
+    \frac{\exp[-\kappa(r_{ij} + r_{ik})]}{\epsilon r_{ij}r_{ik}}
+    + \lambda^{\prime}
+    &&(j\neq k)
+    \\
+    A_{kk}
+    &=
+    \sum_{i=1}^{M}
+    \frac{\exp[-2\kappa r_{ik}]}{\epsilon r_{ik}^{2}}
+    + \delta^{\prime}
+    + \lambda^{\prime}
+    &&(j = k)
+    \\
+    B_{j}
+    &=
+    \sum_{i=1}^{M}
+    \frac{\exp[-\kappa r_{ik}]}{\epsilon r_{ik}} \phi_{i}^{\mathrm{PB}}
+    +
+    \delta^{\prime} q_{k}^{\prime}
+    +
+    \lambda^{\prime} q_{\mathrm{tot}}
+\end{align}
+を導入すると
+\begin{equation}
+    \bm{A} \bm{q} = \bm{B}
+\end{equation}
+の連立方程式が得られ,
+\begin{equation}
+    \bm{q} = \bm{A}^{-1}\bm{B}
+\end{equation}
+のように連立方程式を解くことで最適な部分電荷の値を得ることができる.
+なお, 途中で数式の便利のために$\lambda^{\prime} = -\lambda$, $\delta^{\prime} = -\delta$のように置き直した.
+
+\subsubsection{蛋白質表面のアミノ酸残基の特定}
+RESPACの論文では1つのビーズが1つのアミノ酸に対応する粗視化表現を使用しており, 表面のアミノ酸を表す粒子に対してゼロではない電荷を割り振るように提案している.
+これは、RESP法において蛋白質内部に埋もれた電荷がうまく決定されない傾向があり, タンパク質構造の予期せぬ不安定化を引き起こす可能性があることが知られているためである.
+したがって, 評価関数(\ref{Eq:RESPAC-Evaluation-Function})では表面に露出しているアミノ酸のみを考慮する.
+蛋白質表面に露出しているアミノ酸は以下のようにして決定することができる:
+\begin{enumerate}
+    \item 1~{\AA}で区切られた3次元格子をターゲット蛋白質周辺に設定する.
+    \item 全てのグリッド点について各原子との距離を計算して、それが原子+プローブ球より離れている点については1, 小さい場合は0のフラグを立てる. つまり, 蛋白質+プローブ球の内部にあるグリッド点を0, その他の蛋白質外部にあるグリッド点を1に設定する.
+    \item 1のフラグを立てたグリッドについて, グリッド座標と原子の距離を全原子について計算して, 最も距離の近い原子を持つアミノ酸残基を表面アミノ酸残基として定義する.
+\end{enumerate}
+
+
+\subsubsection{スケーリング係数$\delta$と$\lambda$の決定方法}
+評価関数(\ref{Eq:RESPAC-Evaluation-Function})を最小化するためには, 適切なスケーリング係数$\delta$, $\lambda$を選択する必要がある.
+分子の総電荷に対する束縛条件のスケーリング係数である$\lambda$は, 得られる有効電荷にあまり影響しないため, 十分大きい値を設定しておけばいい. 例えばRESPAC論文では$\lambda = 10^{5}$と設定している.
+
+一方で, 各粒子に対する参照電荷の束縛条件のスケーリング係数$\delta$の値はRESPACで得られる有効電荷に大きく影響を与える.
+最適な$\delta$の値を得るためのプロトコルとして次のようなものが提案されている:
+(i) 全原子モデルに基づいた短いMDシミュレーションを実行して, 10個の構造をサンプリングする.
+(ii) 各構造に対して、評価関数(\ref{Eq:RESPAC-Evaluation-Function})を最小化するようにして粗視化電荷を決定する.
+(iii) 得られた粗視化電荷$\bm{q}$に対して, 規格化された誤差$\Delta (\bm{q}(\delta))$
+\begin{equation}
+    \Delta (\bm{q}(\delta))
+    =
+    \frac
+    {\int_{\Omega} d\bm{r}
+        \left[
+            \phi_{\mathrm{ref}}^{\mathrm{PB}}
+            -
+            \sum_{i}^{N} q_{i}
+            \frac{\exp(-\kappa |\bm{r} - \bm{r}_{i}|)}{\epsilon |\bm{r} - \bm{r}_{i}|}
+        \right]^{2}
+    }
+    {
+        \int_{\Omega} d\bm{r}[\phi_{\mathrm{ref}}^{\mathrm{PB}}]^{2}
+    }
+\end{equation}
+を計算する.
+(iv) サンプリングした10個の構造に対して誤差の平均$\langle \Delta (\bm{q}(\delta)) \rangle$を計算し, 誤差の平均が最小となるような$\delta$を採用する.
+
+%\section{水のモデル}
 
 
 %\subsection{Sub section}
@@ -197,6 +407,6 @@ $h_{k} = \pm 1$, つまり$k=0,~N-1$のとき$\phi_{k+1}$が発散してしま�
 
 % \paragraph{Paragraph}
 
-% \bibliographystyle{junsrt}
-% \bibliography{}
+\bibliographystyle{junsrt}
+\bibliography{modeling-molecules}
 \input{../include/end}

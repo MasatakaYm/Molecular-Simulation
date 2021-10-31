@@ -519,7 +519,7 @@ $N_{\mathrm{c}}$個の拘束を持つ系は, $3N - N_{\mathrm{c}}$の自由を�
   \sum_{i = 1}^{3N} a_{ki} dq_{i} + a_{kt} dt = 0,~~~~~~ k = 1,\cdots, N_{\mathrm{c}}
   \label{eq:eq-of-constrain}
 \end{equation}
-で書くことができる. これを拘束の式という. 係数$a_{ki}, a_{kt}$は$q_{1}, \cdots, q_{3N}, t$の関数であり, 添字$\alpha$は拘束の式の番号を表す. 
+で書くことができる. これを拘束の式という. 係数$a_{ki}, a_{kt}$は$q_{1}, \cdots, q_{3N}, t$の関数であり, 添字$k$は拘束の式の番号を表す. 
 
 ホロノミックな拘束の場合, 拘束条件の全微分
 \begin{equation}
@@ -535,7 +535,7 @@ $N_{\mathrm{c}}$個の拘束を持つ系は, $3N - N_{\mathrm{c}}$の自由を�
   a_{ki} &= \frac{\partial \sigma_{k}}{\partial q_{i}}, \\
   a_{kt} &= \frac{\partial \sigma_{k}}{\partial t}
 \end{align}
-つまり, 拘束の式(\ref{eq:eq-of-constrain})の左辺が, 完全導関数となっており, この拘束の式は積分可能である. 
+つまり, 拘束の式(\ref{eq:eq-of-constrain})の左辺が完全導関数となっており, この拘束の式は積分可能である. 
 
 一方, 非ホロノミックな拘束の多くの場合, 拘束の式(\ref{eq:eq-of-constrain})の左辺は, ある座標の関数の時間についての完全導関数にならず, この方程式は積分不可能な関係式となる. 非ホロノミックな拘束条件は, いくつかの座標の間の関係式に還元して, 現実の自由度の数よりも少数の自由度で物体の位置を表現するということはできない. このように非ホロノミックな拘束は座標の数を減らすのに使うことができないため, 全てが独立とは言えない座標を使うことが避けられない. この場合に対応するラグランジュの運動方程式を求めるには, 最小作用の原理を使わなければならない. 例外として, 運動量の拘束が挙げられる. 運動量の拘束条件は
 \begin{equation}
@@ -544,7 +544,7 @@ $N_{\mathrm{c}}$個の拘束を持つ系は, $3N - N_{\mathrm{c}}$の自由を�
   = \sum_{i = 1}^{N} \frac{1}{2} m_{i} \dot{\bm{r}}_{i} \cdot \frac{d \bm{r}_{i}}{dt} - C
   = 0
 \end{equation}
-であることから, 微分形式
+であることから, 右から見て2つの式に両辺に$dt$をかけることで, 微分形式
 \begin{equation}
   \sum_{i = 1}^{N} \frac{1}{2} m_{i} \dot{\bm{r}}_{i} \cdot d \bm{r} - C dt = 0
 \end{equation}
@@ -595,7 +595,7 @@ $a_{kt}$は時間に対して変位しないため, この変分形式には表�
 \end{equation}
 拘束の式(\ref{eq:eq-of-constrain})と拘束条件付き運動方程式(\ref{eq:lagrange-eq-constrains})は, $3N+N_{\mathrm{c}}$個の未知の量$q_{1},\cdots,q_{3N}, \lambda{1}, \cdots, \lambda_{N_{\mathrm{c}}}$に対する方程式の完全な系を構成する. 
 
-物理系が時間に依存しないホロノミックな拘束を課されている場合($a_{kt} = 0)$, ハミルトニアン保存する. 実際, この時の拘束の式(\ref{eq:eq-of-constrain})と拘束条件付き運動方程式(\ref{eq:lagrange-eq-constrains})のハミルトン形式は
+物理系が時間に依存しないホロノミックな拘束を課されている場合($a_{kt} = 0)$, ハミルトニアンは保存する. 実際, この時の拘束の式(\ref{eq:eq-of-constrain})と拘束条件付き運動方程式(\ref{eq:lagrange-eq-constrains})のハミルトン形式は
 
 \begin{align}
   \dot{q}_{i} &=  \frac{\partial \mathcal{H}}{\partial p_{i}}

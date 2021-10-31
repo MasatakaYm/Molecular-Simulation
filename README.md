@@ -52,13 +52,16 @@
    9. モースポテンシャル
 3. 計算ノート: 力・ヴィリアルの導出
 
-### [5. 長距離相互作用の計算方法: Ewaldの方法](https://masatakaym.github.io/documents/Molecular-Simulation/ewald.pdf)
+### [5. 溶液中の静電相互作用]
+
+### [6. 長距離相互作用の計算方法: Ewaldの方法](https://masatakaym.github.io/documents/Molecular-Simulation/ewald.pdf)
 1. Ewaldの方法
 2. Particle Mesh Ewald (PME)法
 3. 静電相互作用を実装したときのメモ
 4. 付録 (B-spline関数について)
 
-### [6. 運動方程式の時間発展](https://masatakaym.github.io/documents/Molecular-Simulation/integrator.pdf)
+
+### [7. 運動方程式の時間発展](https://masatakaym.github.io/documents/Molecular-Simulation/integrator.pdf)
 1. 時間積分のアルゴリズム
    -  オイラー法, 修正オイラー法
    -  ベルレ法, リープフロッグ法, 速度ベルレ法
@@ -67,12 +70,12 @@
 3. 時間発展演算子による取り扱い
 4. 時間反転多時間刻み法(RESPA法)
 
-### [7. シンプレクティック分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/symplectic.pdf)
+### [8. シンプレクティック分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/symplectic.pdf)
 1. ハミルトンの正準方程式とシンプレクティック条件
 2. シンプレクティック分子動力学法
 3. シンプレクティック分子動力学法における保存量
 
-### [8. 拡張系の方法](https://masatakaym.github.io/documents/Molecular-Simulation/extended-phase-space-method.pdf)
+### [9. 拡張系の方法](https://masatakaym.github.io/documents/Molecular-Simulation/extended-phase-space-method.pdf)
 1. 温度制御: 能勢・Hoover 熱浴
 2. 温度制御: 能勢・Poincare 熱浴
 3. 圧力制御: Andersenの方法
@@ -81,23 +84,23 @@
 6. 温度・圧力制御: Martyna-Tobias-Klein (MTK)の運動方程式
 7. 温度・圧力制御: 能勢・ポアンカレ・Andersenの方法
 
-### [9. 拘束条件付き分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/constrain-dynamics.pdf)
+
+### 10. 🍊その他の温度・圧力制御
+   1. Berensenの方法
+
+### [11. 拘束条件付き分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/constrain-dynamics.pdf)
 1. ホロノミックな拘束条件の具体的な例
 2. 座標に対する拘束動力学: ベルレ法による時間発展とSHAKE法
 3. 速度と座標に対する拘束動力学: 速度ベルレ法による時間発展とRATTLE法
+4. ガウスの最小束縛原理(ガウス束縛法)
+5. ガウス束縛法: 温度制御
+6. ガウス束縛法: 温度・圧力制御
 
-### [10. 剛体の分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/rigid-body-MD.pdf)
+### [12. 剛体の分子動力学法](https://masatakaym.github.io/documents/Molecular-Simulation/rigid-body-MD.pdf)
 1. 剛体運動の古典力学的記述
 2. 剛体運動の解析力学的記述
 3. 剛体の回転運動に対する分子動力学アルゴリズム
 
-### 11. 🍊ガウス束縛法
-   1. 温度制御
-   2. 圧力制御
-   3. 温度・圧力制御
-
-### 12. 🍊その他の温度・圧力制御
-   1. Berensenの方法
 
 ### [13. マルコフ連鎖モンテカルロ法](https://masatakaym.github.io/documents/Molecular-Simulation/markov-chain-monte-carlo.pdf)
 1. マルコフ連鎖
@@ -119,8 +122,9 @@
 1. 濃度換算
 2. 水の初期配置について
 3. 一般化螺旋集合 (GSS: Generalized Spiral Set)
-4. 🍊水のモデル
-5. 🍊トポロジーの判定: 結合原子リストから結合角・二面角・インプロパーを判定する
+4. RESPAC: 粗視化粒子に小数電荷を割り当てるアルゴリズム
+5. 🍊水のモデル
+6. 🍊トポロジーの判定: 結合原子リストから結合角・二面角・インプロパーを判定する
 
 ## 第4部 分子シミュレーションの解析方法
 
@@ -158,7 +162,6 @@
 5. 補足: 四元数
 
 ### [23. 溶媒接触表面積(SASA: Solvent Accessible Surface Ares)](https://masatakaym.github.io/documents/Molecular-Simulation/solvent-accessible-surface-area.pdf)
-
 
 ### [24. 熱力学量の算出](https://masatakaym.github.io/documents/Molecular-Simulation/thermodynamics-quantities.pdf)
 1. 熱力学量

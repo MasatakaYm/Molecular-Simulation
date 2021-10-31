@@ -1,0 +1,124 @@
+\input{../include/preample-jsarticle}
+\input{../include/page-rayout}
+\input{../include/usepackage}
+\input{../include/macro}
+\input{../include/begin}
+
+\title{溶液中の静電相互作用}
+\maketitle
+
+\section{Debye--H\"{u}ckel理論}
+\subsection{Debye--H\"{u}ckel近似の導出}
+解離したイオンが極性溶媒中に溶けている場合を考える.
+電場と電位の関係式, ガウスの法則の微分形はそれぞれ
+\begin{align}
+    \bm{E} &= - \nabla \phi
+    \\
+    \nabla \cdot \phi &= - \frac{4\pi\rho}{\epsilon}
+\end{align}
+である. これらを連立するとポアソン方程式を得る:
+\begin{equation}
+    \nabla^{2} \phi(r) = - \frac{4\pi\rho(r)}{\epsilon}
+    \label{Eq:Poisson-Equation}
+\end{equation}
+ここで$\epsilon$は極性溶媒の平均誘電率である.
+
+極性溶媒中に存在する電荷電荷を$Z_{j} e$を持つイオン$j$を考えていく.
+イオンの密度$\rho_{j}(r)$はボルツマン分布に従うと仮定する. 
+他のイオン$i$が作る電位を$\phi_{i}(r)$とすると, 静電エネルギーは$Z_{j}e \phi_{i}(r)$であることから, イオンの密度$\rho_{j}(r)$は
+\begin{equation}
+    \rho_{j}(r) =
+    \rho_{j}^{(0)} \exp\left[-\beta Z_{j}e \phi_{i}(r)\right]
+\end{equation}
+と計算される.　ここで$\beta = 1/k_{\mathrm{B}}T$は逆温度, $n_{j}^{0}$はポテンシャルがゼロの時のイオンの平均密度を表す. 
+これをポアソン方程式(\ref{Eq:Poisson-Equation})に代入すると
+\begin{align}
+    \nabla^{2} \phi(r)
+    &=
+    - \frac{4\pi\rho(r)}{\epsilon}
+    \notag \\
+    &=
+    - \frac{4\pi}{\epsilon} \sum_{j}(Z_{j} e \rho_{j})
+    \notag \\
+    &=
+    - \frac{4\pi}{\epsilon}
+    \rho_{j}^{(0)} \exp\left[-\beta Z_{j}e \phi_{i}(r)\right]
+\end{align}
+を得る. ここで, $\sum_{j}$はプラス電荷のイオンもマイナス電荷のイオンも足し合わせることを意味している. この方程式を解析的に解くことは困難である. そこで, $\beta Z_{j} e \phi_{i}(r) << 1$であるとする近似を行う. 近似の結果, 主要な項のみを取り出すと
+\begin{equation}
+    \nabla^{2} \phi(r)
+    =
+    \frac{4\pi}{\epsilon}
+    \sum_{j} Z_{j}^{2} e^{2} \rho_{j}^{(0)} \phi_{i}(r)
+\end{equation}
+となる. ここで, デバイ長を
+\begin{align}
+    \lambda_{\mathrm{debye}} &\equiv \frac{1}{\chi} 
+    \\
+    \chi^{2} &\equiv 
+    \frac{4\pi}{\epsilon}
+    \sum_{j} Z_{j}^{2} e^{2} \rho_{j}^{(0)}
+\end{align}
+と定義すると, 近似したポアソン方程式は
+\begin{equation}
+    \nabla^{2} \phi(r) = \chi^{2} \phi_{i}(r)
+\end{equation}
+とかける. さらに, イオンの分布は球対称であるので$r$方向のみを考えると,
+\begin{equation}
+    \frac{1}{r^{2}} \frac{d}{dr}
+    \left(
+        r^{2}
+        \frac{d\phi_{i}(r)}{dr}
+    \right)
+    =
+    \chi^{2} \phi_{i}(r)
+\end{equation}
+となる. この微分方程式を解くために$u = r \phi_{i}(r)$と置くと,
+\begin{equation}
+    \frac{d^{2} u}{dr^{2}} = \chi^{2} u
+\end{equation}
+となる. この微分方程式は簡単に解ける.
+無限遠において電位がゼロであるという境界条件を考慮すると, 微分方程式の解は
+\begin{equation}
+    u = A \exp(\chi r)
+\end{equation}
+となる. したがって, 電位は
+\begin{equation}
+    \phi_{i}(r) = \frac{u}{r} = \frac{A}{r} \exp(\chi r)
+\end{equation}
+と計算される. この式から, イオン$i$が作る電位はデバイ長$1/\chi$程度の距離で十分に減衰することが分かる. 導出の過程で, イオンの周りには他のイオンが球対称に分布していると仮定したため, デバイ長とは電位(あるいは電場)を遮蔽するようなイオンの雲の厚さだと解釈することができる.
+
+\subsection{分子シミュレーションにおけるDebye--H\"{u}ckel型の静電相互作用}
+シミュレーションでよく用いられるDebye--H\"{u}ckel型の静電相互作用の表式を見ていく.
+MKSA単位系のとき, 静電相互作用は
+\begin{align}
+    U_{\mathrm{ele}}^{\mathrm{debye}} (r_{ij})
+    &=
+    \sum_{i<j}^{N}
+    \frac{q_{i}q_{j}}{4\pi\epsilon_{0}\epsilon_{k}r_{ij}} e^{r_{ij}/\lambda_{\mathrm{debye}}}
+    \\
+    \lambda_{\mathrm{debye}}
+    &=
+    \left(
+        \frac{\epsilon_{0}\epsilon_{k}k_{\mathrm{B}T}}{2N_{\mathrm{A}}e^{2}I}^{\frac{1}{2}}
+    \right)
+\end{align}
+と表される.
+ここで$q_{i}$は電荷, $\epsilon_{i}$は真空中での誘電率, $\epsilon_{k}$は誘電率, $N_{\mathrm{A}}$はアボガドロ数, $I$はイオン強度である.
+
+%\subsection{Sub section}
+
+% \subsubsection{Sub sub section}
+% \begin{figure}
+%  \begin{center}
+%   \includegraphics[width=0.5\hsize]{../figure/sample/sample_figure.pdf}
+%   \caption{This is caption of sample figure.}
+%   \label{Fig:Sample}
+%  \end{center}
+% \end{figure}
+
+%\paragraph{Paragraph}
+
+% \bibliographystyle{junsrt}
+% \bibliography{}
+\input{../include/end}
