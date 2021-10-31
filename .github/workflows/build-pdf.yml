@@ -10,10 +10,20 @@ jobs:
     name: github-pages
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     runs-on: ubuntu-latest
-    container: arcatdmz/texlive
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Install TexLive
+        run: |
+          sudo apt install texlive-lang-japanese
+          sudo apt install texlive-lang-cjk
+          sudo apt install xdvik-ja
+          sudo apt install gv
+          sudo apt install evince
+          sudo apt install texlive-fonts-recommended
+          sudo apt install texlive-fonts-extra
+          sudo apt install latexmk
 
       - name: Build PDF file
         run: |
