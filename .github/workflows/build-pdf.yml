@@ -25,7 +25,7 @@ jobs:
           sudo apt install texlive-fonts-extra
           sudo apt install latexmk
 
-      - name: Build PDF file
+      - name: Build PDF files
         shell: bash
         run: |
           cd ./src
