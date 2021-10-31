@@ -29,7 +29,7 @@
 
 ## 第2部 分子シミュレーションの方法論
 
-### [3. 分子動力学シミュレーションの基礎](https://masatakaym.github.io/Molecular-Simulation/simulation-basic.pdf)
+### [3. 分子動力学シミュレーション事始め](https://masatakaym.github.io/Molecular-Simulation/simulation-basic.pdf)
 1. ミクロカノニカルアンサンブルでのシミュレーション
 2. 2体力近似
 3. 周期境界条件
@@ -78,6 +78,7 @@
 1. ハミルトンの正準方程式とシンプレクティック条件
 2. シンプレクティック分子動力学法
 3. シンプレクティック分子動力学法における保存量
+4. 付録: 計算ノート
 
 ### [9. 拡張系の方法](https://masatakaym.github.io/Molecular-Simulation/extended-phase-space-method.pdf)
 
