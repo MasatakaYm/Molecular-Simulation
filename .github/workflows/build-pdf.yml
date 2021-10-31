@@ -26,11 +26,12 @@ jobs:
           sudo apt install latexmk
 
       - name: Build PDF file
+        shell: bash
         run: |
           cd src
           sh util-scripts/latexmk-alldocs.sh
           mkdir -p docs
-          for file in `find . -name "*.pdf"`; do mv $file ./docs/.s; done
+          for file in `find . -name "*.pdf"`; do mv $file ./docs/; done
 
       - name: Deploy pages
         uses: peaceiris/actions-gh-pages@v3

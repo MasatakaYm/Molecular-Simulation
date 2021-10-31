@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Compile each document
 for file in `find . -name '*.tex' -and ! -name 'main.tex'`
