@@ -28,8 +28,8 @@ jobs:
       - name: Build PDF file
         shell: bash
         run: |
-          cd src
-          sh util-scripts/latexmk-alldocs.sh
+          cd ./src
+          sh ./util-scripts/latexmk-alldocs.sh
           mkdir -p docs
           for file in `find . -name "*.pdf"`; do mv $file ./docs/; done
 

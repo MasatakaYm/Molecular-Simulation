@@ -13,9 +13,9 @@ do
         echo Skip compiling ${DIR_NAME}/${TEX_FILE}
         continue
     else
-        pushd ${DIR_NAME}
+        cd ${DIR_NAME}
         latexmk ${TEX_FILE}
-        popd
+        cd ../
     fi
 done
 
