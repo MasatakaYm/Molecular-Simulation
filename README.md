@@ -146,10 +146,10 @@
 4. リウェイティング tips
 
 
-### [16. 関数近似と補完法](https://masatakaym.github.io/Molecular-Simulation/interpolation-methods.pdf)
+### [16. 関数近似と補間法](https://masatakaym.github.io/Molecular-Simulation/interpolation-methods.pdf)
 
 1. 線形最小二乗法
-2. スプライン補完
+2. スプライン補間
 
 ### [17. 主成分解析 (Principal Component Analysis; PCA)](https://masatakaym.github.io/Molecular-Simulation/pca.pdf)
 
