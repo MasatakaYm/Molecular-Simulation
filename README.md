@@ -7,6 +7,7 @@
 --->
 
 [PDF (Written in Japanese)](https://masatakaym.github.io/Molecular-Simulation/main.pdf)
+
 ## 目次
 
 執筆状況を示すための指標として、目次に絵文字を添える.
@@ -187,8 +188,6 @@
 2. Hwleyの方程式
 
 
-----
-
 ### 参考文献
 
 本ノートは総合研究大学院大学の講義, 分子科学研究所奥村Gのセミナー資料を参考にしている。
@@ -214,3 +213,10 @@
 1. Mark E. Tuckerman. Statistical Mechanics: Theory and Molecular Simulation. Oxford University Press, 2010.
 1. Daan Frenkel and Berend Smit. Understanding Molecular Simulation: From Algorithms to Applications. Academic press, 2002.
 1. Michael P Allen and Dominic J. Tildesley. Computer Simulation of Liquids: Second Edition. Oxford University Press, 2017.
+
+### 謝辞
+
+このノートの作成に貢献してくれた以下の皆様に感謝します。
+
+- Toru Niina (@ToruNiina)
+  - 誤字脱字、表記ブレなどの修正。
