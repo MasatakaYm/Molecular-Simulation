@@ -367,6 +367,49 @@ $\bm{v}_{i}(t - \frac{\Delta t}{2})$を消すと,
 \end{alignat}
 となる. このような時間発展方法を{\bf{速度ベルレ法}}という. 
 
+\subsection{Gearの予測子・修正子法}
+
+ここまで見てきたベルレ法やそこから派生した類似の方法では, 運動方程式に速度依存項がある場合にそのままの形では使うことができない.
+本節では汎用的な微分方程式の解法である予測子・修正子法を紹介する\cite{2003Nose}.
+ここでは一般的な二階常微分方程式
+
+\begin{equation}
+  \ddot{x}(t) = f(x, \dot{x}, t)
+\end{equation}
+
+を解くことを考える. 式からわかるように, 二階の微分方程式なので速度項が含まれている.
+$x$の$k-1$階微分までを用いて、次のような列ベクトル$\bm{X}(t)$を考える:
+
+\begin{equation}
+  \bm{X}(t)
+  =
+  \left(
+    x(t),~
+    \dot{x}(t) \Delta t,~
+    \frac{1}{2!} \ddot{x}(t) (\Delta t)^{2}
+    ,~\ldots,~
+    \frac{1}{(k-1)!}x^{(k-1)}(t) (\Delta t)^{k-1}
+  \right)^{\mathrm{t}}
+\end{equation}
+
+列ベクトル$\bm{X}(t)$の各成分はテイラー展開の係数に対応している.
+時刻$t$で得られた$\bm{X}(t)$に基づいて, 時刻$t + \Delta t$での列ベクトルの予測値(predict)を
+
+\begin{equation}
+  \bm{X}_{\mathrm{p}}(t + \Delta t)
+  =
+  \left(
+    x_{\mathrm{p}}(t + \Delta t),~
+    \dot{x}_{\mathrm{p}} (t + \Delta t) \Delta t,~
+    \frac{1}{2!} \ddot{x}_{\mathrm{p}}(t) (\Delta t)^{2}
+    ,~\ldots,~
+    \frac{1}{(k-1)!}x^{(k-1)}_{\mathrm{p}}(t) (\Delta t)^{k-1}
+  \right)^{\mathrm{t}}
+\end{equation}
+
+のように書くとする.
+
+
 \section{ベルレ法によるエネルギーの誤差}
 \subsection{エネルギーの誤差}
 時間発展を実装した時にプログラムが正しいか確認するには, エネルギーの誤差を調べると良い.
