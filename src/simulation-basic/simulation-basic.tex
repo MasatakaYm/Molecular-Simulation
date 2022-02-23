@@ -204,13 +204,13 @@ SI単位系での基本単位の定義は以下の通りになる:
 となる.
 
 \subsection{単位換算: エネルギー}
-エネルギーの単位換算をまとめる. なおここでは$T=298\mathrm{K}$を想定する.
+以下に, エネルギーの単位換算をまとめる. ここでは$T=298\mathrm{K}$であると仮定する.
 \begin{alignat}{3}
   1~\mathrm{kcal/mol}
   &= 0.04337 &&~\mathrm{eV}      \notag \\
   &= 349.75  &&~\mathrm{cm^{-1}} \notag \\
   &= 1.689   &&~k_{\mathrm{B}}T  \notag \\
-  &= 4.184   &&~\mathrm{kal/mol} \notag
+  &= 4.184   &&~\mathrm{kJ/mol}  \notag
 \end{alignat}
 
 \begin{alignat}{3}
@@ -218,7 +218,7 @@ SI単位系での基本単位の定義は以下の通りになる:
   &= 23.06   &&~\mathrm{kcal/mol}      \notag \\
   &= 8064.6  &&~\mathrm{cm^{-1}} \notag \\
   &= 38.94   &&~k_{\mathrm{B}}T  \notag \\
-  &= 96.49   &&~\mathrm{kal/mol} \notag
+  &= 96.49   &&~\mathrm{kJ/mol} \notag
 \end{alignat}
 
 \begin{alignat}{3}
@@ -226,8 +226,67 @@ SI単位系での基本単位の定義は以下の通りになる:
   &= 0.5922  &&~\mathrm{kcal/mol} \notag \\
   &= 0.02568 &&~\mathrm{eV}      \notag \\
   &= 207.1   &&~\mathrm{cm^{-1}} \notag \\
-  &= 2.476   &&~\mathrm{kal/mol} \notag
+  &= 2.476   &&~\mathrm{kJ/mol} \notag
 \end{alignat}
+
+\subsubsection{圧力と体積の積$PV$に対する単位換算}
+
+ここでは、エネルギーの次元を持つ, 圧力と体積の積$PV$に対する単位換算を考える。
+なぜこのような単位換算を考える必要があるのかと言えば, 定温定圧アンサンブルでのシミュレーションを実行して, エンタルピー$H = U + K + PV$を計算するときに、圧力$P$は気圧(1atm)あるいはPa, 体積$V$は$\mathrm{\AA}^3$の単位で与えられ, 一方でkJ/molあるいはkcal/molの単位を持ったエネルギー値を必要とすることが多いからである.
+
+以下では, 圧力はPa, 体積は$\mathrm{\AA}^3$の単位で与えられたときの, $PV$をkJ/molに単位換算する例を見ていく. なお, 1気圧は101,325Paであるので覚えておくと便利である.
+まず初めに, 圧力の単位Pa, $PV$の単位をSI単位系で表すと
+\begin{align}
+  [\mathrm{Pa}]
+  &=
+  [\mathrm{N} ~ \mathrm{m}^{-2}]
+  =
+  [\mathrm{kg} ~ \mathrm{m} ~ \mathrm{s}^{-2}][\mathrm{m}^{-2}]
+  =
+  [\mathrm{kg} ~ \mathrm{m}^{-1} ~ \mathrm{s}^{-2}]
+  \notag \\
+  [PV \mathrm{の単位}]
+  &=
+  [\mathrm{Pa}][\mathrm{m}^{3}]
+  =
+  [\mathrm{kg} ~ \mathrm{m}^{2} ~ \mathrm{s}^{-2}]
+  =
+  [\mathrm{J}]
+  \notag
+\end{align}
+である. アボガドロ定数$N_{\mathrm{A}}$は,
+\begin{align}
+  N_{\mathrm{A}} &= 6.022 140 76 \times 10^{23}
+                 ~~ \mathrm{mol}^{-1}
+  \notag
+\end{align}
+であるから,
+\begin{align}
+  [PV \mathrm{の単位}] = [\mathrm{Pa}][\mathrm{\AA}^{3}]
+  &=
+  [\mathrm{kg} ~ \mathrm{m}^{-1} ~ \mathrm{s}^{-2}] [\mathrm{\AA}^{3}]
+  \notag \\
+  &=
+  [\mathrm{kg} ~ \mathrm{m}^{-1} ~ \mathrm{s}^{-2}] [(10^{-10}\mathrm{m})^{3}]
+  \times [6.022 140 76 \times 10^{23}~ \mathrm{mol}^{-1}]
+  \notag \\
+  &=
+  6.022 140 76 \times 10^{23} \times 10^{-30}~
+  [\mathrm{kg} ~ \mathrm{m}^{2} ~ \mathrm{s}^{-2} / \mathrm{mol}]
+  \notag \\
+  &=
+  6.022 140 76 \times 10^{23} \times 10^{-30}~
+  [\mathrm{J/mol}]
+  \notag \\
+  &=
+  6.022 140 76 \times 10^{23} \times 10^{-30} \times 10^{-3}~
+  [\mathrm{kJ/mol}]
+  \notag \\
+  &=
+  6.022 140 76 \times 10^{-10} ~ [\mathrm{kJ/mol}]
+  \notag
+\end{align}
+のように単位換算できる.
 
 \subsection{単位換算: 静電相互作用の係数}
 エネルギーの単位をkcal/molとした時の静電相互作用にかかる係数$1/(4\pi \epsilon_{0})$の単位換算を考える.
