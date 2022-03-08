@@ -172,8 +172,8 @@ SI単位系での基本単位の定義は以下の通りになる:
 これらの無次元量をハミルトンの正準方程式(\ref{eq:HamiltonEq1})(\ref{eq:HamiltonEq2})
 に代入すれば無次元量に対するハミルトンの正準方程式が導かれる.
 
-\subsection{全原子生体分子モデルに対する無次元化}
-全原子生体分子シミュレーションでは
+\subsection{生体分子モデルに対する無次元化}
+生体分子シミュレーションでは
 \begin{alignat}{3}
  [\mathrm{エネルギー}] &= \mathrm{kcal/mol} &&= 4.184~\mathrm{kJ/mol}
  \notag \\
@@ -182,9 +182,16 @@ SI単位系での基本単位の定義は以下の通りになる:
  [\mathrm{質量}]       &= \mathrm{amu} &&= \mathrm{g/mol}
  \notag
 \end{alignat}
-を基本単位系とする.
-全原子分子動力学シミュレーションではpsあるいはfsを単位時間とすることが多い.
-ここではpsを単位時間にすることを考える.
+を基本単位系とする. この単位系における時間は,
+\begin{align}
+  [\tau] =
+  \sqrt{\frac{[\mathrm{amu}][\mathrm{\AA}]^2}{[\mathrm{kcal/mol}]}} \notag
+  =
+  \sqrt{\frac{[\mathrm{g/mol}][\mathrm{\AA}]^2}{[\mathrm{kcal/mol}]}}
+\end{align}
+のような次元を持つ.
+
+全原子分子動力学シミュレーションではpsあるいはfsを単位時間とすることが多いので, psを単位時間とした時の単位換算を見ていく.
 基本単位系を用いて時間を表すと
 \begin{align}
   [\mathrm{s}]
@@ -195,13 +202,18 @@ SI単位系での基本単位の定義は以下の通りになる:
   \notag \\
 &=\sqrt{4.184 \times 10^{26}} \sqrt{\frac{[\mathrm{g/mol}][\mathrm{\AA}]^{2}}{[\mathrm{kcal/mol}]}}
   \notag
+ =\sqrt{4.184 \times 10^{26}} ~ [\tau]
 \end{align}
 となる. $[\mathrm{s}] = 10^{12}[\mathrm{ps}]$だから
 \begin{align}
  [\mathrm{ps}]
-=10\sqrt{4.184} \sqrt{\frac{[\mathrm{g/mol}][\mathrm{\AA}]^{2}}{[\mathrm{kcal/mol}]}}
+=10\sqrt{4.184} ~ [\tau]
 \end{align}
-となる.
+を得る. 逆に, 生体分子モデルにおける時間単位を実時間に換算すると,
+\begin{align}
+  [\tau] = \frac{1}{10\sqrt{4.184}} [\mathrm{ps}] = 0.0488~[\mathrm{ps}]  = 48.8~[\mathrm{fs}]
+\end{align}
+であることが分かる.
 
 \subsection{単位換算: エネルギー}
 以下に, エネルギーの単位換算をまとめる. ここでは$T=298\mathrm{K}$であると仮定する.
