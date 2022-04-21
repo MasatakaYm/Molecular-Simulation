@@ -367,6 +367,197 @@ $\bm{v}_{i}(t - \frac{\Delta t}{2})$を消すと,
 \end{alignat}
 となる. このような時間発展方法を{\bf{速度ベルレ法}}という. 
 
+\subsection{Gearの予測子・修正子法}
+
+ここまで見てきたベルレ法やそこから派生した類似の方法では, 運動方程式に速度依存項がある場合にそのままの形では使うことができない.
+本節では汎用的な微分方程式の解法である予測子・修正子法を紹介する\cite{2003Nose}.
+ここでは一般的な二階常微分方程式
+\begin{equation}
+  \ddot{x}(t) = f(x, \dot{x}, t)
+\end{equation}
+を解くことを考える. 式から分かるように, 二階の微分方程式なので速度項が含まれている.
+$x$の$k-1$階微分までを用いて, 次のような列ベクトル$\bm{X}(t)$を考える:
+
+\begin{align}
+  \bm{X}(t)
+  &=
+  \left(
+    X_{0}(t),~ X_{1}(t),~ X_{2}(t), ~\ldots, X_{k-1}(t)
+  \right)
+  \\
+  &=
+  \left(
+    x(t),~
+    \dot{x}(t) \Delta t,~
+    \frac{1}{2!} \ddot{x}(t) (\Delta t)^{2}
+    ,~\ldots,~
+    \frac{1}{(k-1)!}x^{(k-1)}(t) (\Delta t)^{k-1}
+  \right)^{\mathrm{t}}
+\end{align}
+列ベクトル$\bm{X}(t)$の各成分はテイラー展開の係数に対応している.
+時刻$t$で得られた$\bm{X}(t)$に基づいて, 時刻$t + \Delta t$での列ベクトルの予測値(predict)を
+\begin{align}
+  \bm{X}_{\mathrm{p}}(t + \Delta t)
+  &=
+  \left(
+    X_{\mathrm{p}}^{0} (t + \Delta t),~
+    X_{\mathrm{p}}^{1} (t + \Delta t),~
+    X_{\mathrm{p}}^{2} (t + \Delta t),~
+    \ldots,~
+    X_{\mathrm{p}}^{k-1} (t + \Delta t)
+  \right)
+  \notag \\
+  &=
+  \left(
+    x_{\mathrm{p}}(t + \Delta t),~
+    \dot{x}_{\mathrm{p}} (t + \Delta t) \Delta t,~
+    \frac{1}{2!} \ddot{x}_{\mathrm{p}}(t) (\Delta t)^{2}
+    ,~\ldots,~
+    \frac{1}{(k-1)!}x^{(k-1)}_{\mathrm{p}}(t) (\Delta t)^{k-1}
+  \right)^{\mathrm{t}}
+\end{align}
+のように書くとする. 予測ベクトルの各項は, 時刻tにおけるベクトル$\bm{X}$のテイラー展開をすることで,
+
+\begin{align}
+  X_{\mathrm{p}}^{0} (t + \Delta t)
+  &=
+  X_{0}(t) + X_{1}(t) + X_{2}(t) +
+  X_{3}(t) + X_{4}(t) + X_{5}(t) + \mathcal{O}((\Delta t)^6)
+  \notag \\ \notag \\
+  X_{\mathrm{p}}^{1} (t + \Delta t)
+  &=
+  X_{1}(t)
+  + \frac{d X_{1}(t)}{dt} (\Delta t)
+  + \frac{1}{2!} \frac{d^{2} X_{1}(t)}{dt^{2}} (\Delta t)^{2}
+  + \frac{1}{3!} \frac{d^{3} X_{1}(t)}{dt^{3}} (\Delta t)^{3}
+  + \ldots
+  \notag \\
+  &=
+  X_{1}(t)
+  + \frac{d}{dt}                    \left\{\dot{x}(t) \Delta t \right\}(\Delta t)
+  + \frac{1}{2!} \frac{d^{2}}{dt^2} \left\{\dot{x}(t) \Delta t \right\}(\Delta t)^{2}
+  + \frac{1}{3!} \frac{d^{3}}{dt^3} \left\{\dot{x}(t) \Delta t \right\}(\Delta t)^{3}
+  + \ldots
+  \notag \\
+  &=
+  X_{1}(t)
+  + 2 \cdot \frac{1}{2!} \left\{\ddot{x}(t) \Delta t \right\}(\Delta t)^{2}
+  + 3 \cdot \frac{1}{3!} \left\{\ddot{x}(t) \Delta t \right\}(\Delta t)^{3}
+  + 4 \cdot \frac{1}{4!} \left\{\ddot{x}(t) \Delta t \right\}(\Delta t)^{4}
+  + \ldots
+  \notag \\
+  &=
+  X_{1}(t) + 2 X_{2} (t) + 2 X_{3} + 4 X_{4} \ldots
+  \notag \\ \notag \\
+  X_{\mathrm{p}}^{2} (t + \Delta t)
+  &=
+  X_{2}(t)
+  + \frac{d X_{2}(t)}{dt} (\Delta t)
+  + \frac{1}{2!} \frac{d^{2} X_{2}(t)}{dt^{2}} (\Delta t)^{2}
+  + \frac{1}{3!} \frac{d^{3} X_{2}(t)}{dt^{3}} (\Delta t)^{3}
+  + \ldots
+  \notag \\
+  &=
+  X_{2}(t)
+  + \frac{d}{dt} 
+    \left\{
+      \frac{1}{2!}
+      \ddot{x}(t) (\Delta t)^{2}
+    \right\}(\Delta t)
+  + \frac{1}{2!} \frac{d^{2}}{dt^2}
+    \left\{
+      \frac{1}{2!}
+      \ddot{x}(t) (\Delta t)^{2}
+    \right\}(\Delta t)^{2}
+  + \ldots
+  \notag \\
+  &=
+  X_{2}(t)
+  + 3 \cdot \left\{\frac{1}{3!} x^{3} (\Delta t)^{3} \right\}
+  + \frac{4!}{2! \cdot 2!}\left\{ \frac{1}{4!} x^{(4)} (t) (\Delta t)^{4}\right\}
+  + \ldots
+  \notag \\
+  &=
+  X_{2}(t) + 3 X_{3}(t) + 6 X_{4}(t) + \ldots
+  \notag
+\end{align}
+のように具体的に書き下せる. これらの一般項は
+\begin{equation}
+  X_{j}^{\mathrm{p}}(t + \Delta t)
+  =
+  \sum_{m=j}^{k} \frac{m!}{j! (m-j)!} X_{m} (t)
+  =
+  \sum_{m=j}^{k} ~_m\mathrm{C}_{j} X_{m} (t)
+\end{equation}
+である. ここで$~_m\mathrm{C}_{j}$は二項係数である.
+以上の計算から, 予測ベクトルは二項係数を成分に持つ上半三角行列と$\bm{X}(t)$の積にまとめられることが分かる. すなわち
+\begin{align}
+  \bm{X}_{\mathrm{p}}(t + \Delta t)
+  =
+  \bm{T} \bm{X}(t)
+  \equiv
+  \begin{bmatrix}
+    1 & 1 & 1 & 1 & 1 & \ldots & 1 \\
+    0 & 1 & 2 & 3 & 4 & \ldots & k \\
+    0 & 0 & 1 & 3 & 6 & \ldots & _k \mathrm{C}_{2} \\
+    0 & 0 & 1 & 3 & 6 & \ldots & _k \mathrm{C}_{3} \\
+    \vdots& & & \vdots& & \ldots & \vdots \\
+    0 & 0 & 0 & 0 & 0 & \ldots & 1 \\
+  \end{bmatrix}
+  \bm{X}(t)
+\end{align}
+
+\begin{equation}
+  T_{ij} =
+  \begin{cases}
+    ~_{j-1} \mathrm{C}_{i-1} & ( i \le j \mathrm{の時} )\\
+    0                        & (i > j \mathrm{の時})
+  \end{cases}
+\end{equation}
+のように表せる. もし$\bm{X}_{\mathrm{p}} (t + \Delta t)$が微分方程式の解になっているならば
+\begin{equation}
+  \ddot{X}_{\mathrm{p}} (t + \Delta t)
+  =
+  f(
+    X_{\mathrm{p}} (t + \Delta t),
+    \dot{X}_{\mathrm{p}} (t + \Delta t),
+    t + \Delta t
+  )
+\end{equation}
+を満たすはずであるが, 行列$\bm{T}$を見て分かるように, 展開を有限項で打ち切っているため, 等式は成り立たず, 何かしらの誤差を伴っている.
+Gearの予測子・修正子法では, 差
+\begin{equation}
+  \delta
+  =
+  \frac{1}{2} (\Delta t)^{2}
+  \left\{
+    f(x_{\mathrm{p}}, \dot{x}_{\mathrm{p}, t+\Delta t} - \ddot{x}_{\mathrm{p}})
+  \right\}
+\end{equation}
+を導入して予測した$\bm{X}_{\mathrm{p}}(t + \Delta t)$を
+\begin{equation}
+  \bm{X}(t + \Delta t)
+  =
+  \bm{X}_{\mathrm{p}} (t + \Delta t) + \delta \bm{C}
+\end{equation}
+のように修正する. ここで$\bm{C}$は予測子ベクトルと呼ばれ, 解ができるだけ安定かつ精度良くなるように決められており, 具体的な値を表\ref{tbl:gear-modification-vector}に示す. 詳しくは解説記事\cite{2003Nose}を参考のこと. Gearの予測子・修正子法は(1)予測ベクトルの計算, (2)修正子ベクトルによる補正を繰り返すことで時間発展を行う.
+
+\begin{table}[hbtp]
+  \caption{修正子ベクトルの値}
+  \label{tbl:gear-modification-vector}
+  \centering
+  \begin{tabular}{cccccccc}
+    \hline
+    $k$ & $c_{1}$ & $c_{2}$ & $c_{3}$ & $c_{4}$ & $c_{5}$ & $c_{6}$ & $c_{6}$\\
+    \hline \hline
+    4  & $\frac{1}{6}$    & $\frac{5}{6}$     & $1$ & $\frac{1}{3}$   & & & \\
+    5  & $\frac{19}{120}$ & $\frac{3}{4}$     & $1$ & $\frac{1}{2}$   & $\frac{1}{12}$ & & \\
+    6  & $\frac{3}{20}$  & $\frac{251}{360}$ & $1$ & $\frac{11}{18}$ &  $\frac{1}{6}$ & $\frac{1}{60}$ &\\
+    7  & $\frac{863}{6048}$ & $\frac{665}{1008}$ & $1$ & $\frac{25}{36}$ &  $\frac{35}{144}$ & $\frac{1}{24}$ & $\frac{1}{360}$ \\
+    \hline
+  \end{tabular}
+\end{table}
+
 \section{ベルレ法によるエネルギーの誤差}
 \subsection{エネルギーの誤差}
 時間発展を実装した時にプログラムが正しいか確認するには, エネルギーの誤差を調べると良い.
