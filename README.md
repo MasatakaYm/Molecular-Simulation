@@ -179,7 +179,7 @@
 4. 四元数を用いる方法
 5. 補足: 四元数
 
-### [22. 溶媒接触表面積(SASA: Solvent Accessible Surface Ares)](https://masatakaym.github.io/Molecular-Simulation/solvent-accessible-surface-area.pdf)
+### [22. 溶媒接触表面積(SASA: Solvent Accessible Surface Area)](https://masatakaym.github.io/Molecular-Simulation/solvent-accessible-surface-area.pdf)
 
 
 ### [23. 熱力学量の算出](https://masatakaym.github.io/Molecular-Simulation/thermodynamics-quantities.pdf)
