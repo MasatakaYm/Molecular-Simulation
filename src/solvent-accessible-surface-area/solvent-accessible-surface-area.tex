@@ -4,10 +4,10 @@
 \input{../include/macro}
 \input{../include/begin}
 
-\title{溶媒接触表面積 (SASA: Solvent Accessible Surface Ares)}
+\title{溶媒接触表面積 (SASA: Solvent Accessible Surface Area)}
 \maketitle
 
-\section{溶媒接触面積について\cite{2010TohHiroyuki}}
+\section{溶媒接触表面積について\cite{2010TohHiroyuki}}
 タンパク質と直接接触している水分子の数や, タンパク質の特定の部分と接触している水分子の数に興味があることがある. 
 このような場合に, どの程度溶質が溶媒に露出しているかを測定する手段の一つが, 溶媒接触表面積(Solvent Accessible Surface Area)を計算することである. 
 
@@ -39,7 +39,7 @@ $r_{\mathrm{A, probe}} = r_{\mathrm{LJ}}^{\mathrm{A}} + r_{\mathrm{LJ}}^{\mathrm
 \begin{align}
     x &= r \sin\theta \cos\phi \\
     y &= r \sin\theta \sin\phi \\
-    x &= r \cos\theta
+    z &= r \cos\theta
 \end{align}
 であるから, 半径$r$の球面上に一様に分布する点の座標$(x, y, z)$は, $z$軸の$\cos\theta (\equiv u)$と角度$\phi$の値をそれぞれ$-1$から$1$, $0$から$2\pi$の一様分布から取り出すことで決定できる. 
 つまり, 2つの一様乱数
@@ -55,7 +55,7 @@ $r_{\mathrm{A, probe}} = r_{\mathrm{LJ}}^{\mathrm{A}} + r_{\mathrm{LJ}}^{\mathrm
 \begin{alignat}{3}
     x &= r \sin\theta \cos\phi &&= r \sqrt{1 - u^{2}} \cos\phi \\
     y &= r \sin\theta \sin\phi &&= r \sqrt{1 - u^{2}} \sin\phi \\
-    x &= r \cos\theta          &&= r u
+    z &= r \cos\theta          &&= r u
 \end{alignat}
 のように決定できる. 
 
@@ -82,7 +82,7 @@ $
 \end{equation}
 と計算できる. 
 
-\paragraph{Step.3} ある溶質分子の溶媒接触面積は, 溶質分子内の原子の溶媒接触面積の和
+\paragraph{Step.3} ある溶質分子の溶媒接触表面積は, 溶質分子内の原子の溶媒接触表面積の和
 \begin{equation}
     SASA
     =
@@ -94,7 +94,7 @@ $
 実験的に, 炭化水素など疎水的な水分子の疎水性相互作用エネルギーが溶媒接触表面積によい近似で比例することが知られている\cite{1970Nozaki, 2010TohHiroyuki}. 
 
 \subsection{溶媒露出度(Solvent Accessibility)}
-溶媒接触面積を用いて, 分子がどれだけ溶媒に露出しているかを定量化する場合, 大きいアミノ酸残基ほど溶媒接触面積への寄与が大きくなってしまう. 
+溶媒接触表面積を用いて, 分子がどれだけ溶媒に露出しているかを定量化する場合, 大きいアミノ酸残基ほど溶媒接触表面積への寄与が大きくなってしまう. 
 そこで, 各アミノ酸の溶媒への露出度を評価するときには, 溶媒露出度(Solvent Accessibility)あるいは相対溶媒露出度(Relative Solvent Accessibility)と呼ばれる規格化された値が使用されることがある. 
 溶媒露出度は, 
 \begin{equation}
@@ -102,8 +102,8 @@ $
     \frac{SASA(i_{\mathrm{res}})}{SASA(i_{\mathrm{res}_{\max}})} \in [0,~1]
 \end{equation}
 と計算される. 
-ここで, $SASA(i_{\mathrm{res}_{\max}})$はアミノ酸の最大溶媒接触面積である. 
-通常, アミノ酸の最大溶媒接触面積は, 二面角$\phi$と$\psi$を$\beta$シート領域になるように設定したペプチドGly-X-Gly(Xは目的のアミノ酸残基)から見積もる. 
+ここで, $SASA(i_{\mathrm{res}_{\max}})$はアミノ酸の最大溶媒接触表面積である. 
+通常, アミノ酸の最大溶媒接触表面積は, 二面角$\phi$と$\psi$を$\beta$シート領域になるように設定したペプチドGly-X-Gly(Xは目的のアミノ酸残基)から見積もる. 
 溶媒露出度が大きい値(1に近い)ほど, その残基が溶媒に露出していることを意味し, 小さい値(0に近い)ほど他の残基と接触していることを意味する. 
 また, 溶媒露出度の減少は他の残基との接触が増加していることを意味する. 
 
