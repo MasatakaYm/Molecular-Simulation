@@ -222,3 +222,5 @@
   - 誤字脱字、表記ブレなどの修正。
 - NamaNamazu (@yutakasi634)
   - 数式のミスの修正。
+- Shoichi Tanimoto (Institute for Molecular Science)
+  - 誤植の指摘。
