@@ -23,17 +23,17 @@
 \end{equation}
 ここで$\epsilon$は極性溶媒の平均誘電率である.
 
-極性溶媒中に存在する電荷電荷を$Z_{j} e$を持つイオン$j$を考えていく.
+極性溶媒中に存在する電荷を$Z_{j} e$を持つイオン$j$を考えていく.
 イオンの密度$\rho_{j}(r)$はボルツマン分布に従うと仮定する. 
 他のイオン$i$が作る電位を$\phi_{i}(r)$とすると, 静電エネルギーは$Z_{j}e \phi_{i}(r)$であることから, イオンの密度$\rho_{j}(r)$は
 \begin{equation}
     \rho_{j}(r) =
     \rho_{j}^{(0)} \exp\left[-\beta Z_{j}e \phi_{i}(r)\right]
 \end{equation}
-と計算される.　ここで$\beta = 1/k_{\mathrm{B}}T$は逆温度, $n_{j}^{0}$はポテンシャルがゼロの時のイオンの平均密度を表す. 
+と計算される. ここで$\beta = 1/k_{\mathrm{B}}T$は逆温度, $\rho_{j}^{(0)}$はポテンシャルがゼロの時のイオンの平均密度を表す. 
 これをポアソン方程式(\ref{Eq:Poisson-Equation})に代入すると
 \begin{align}
-    \nabla^{2} \phi(r)
+    \nabla^{2}_{i} \phi(r)
     &=
     - \frac{4\pi\rho(r)}{\epsilon}
     \notag \\
@@ -42,11 +42,12 @@
     \notag \\
     &=
     - \frac{4\pi}{\epsilon}
+    \sum_{j}
     \rho_{j}^{(0)} \exp\left[-\beta Z_{j}e \phi_{i}(r)\right]
 \end{align}
 を得る. ここで, $\sum_{j}$はプラス電荷のイオンもマイナス電荷のイオンも足し合わせることを意味している. この方程式を解析的に解くことは困難である. そこで, $\beta Z_{j} e \phi_{i}(r) << 1$であるとする近似を行う. 近似の結果, 主要な項のみを取り出すと
 \begin{equation}
-    \nabla^{2} \phi(r)
+    \nabla^{2}_{i} \phi(r)
     =
     \frac{4\pi}{\epsilon}
     \sum_{j} Z_{j}^{2} e^{2} \rho_{j}^{(0)} \phi_{i}(r)
@@ -61,7 +62,7 @@
 \end{align}
 と定義すると, 近似したポアソン方程式は
 \begin{equation}
-    \nabla^{2} \phi(r) = \chi^{2} \phi_{i}(r)
+    \nabla^{2}_{i} \phi(r) = \chi^{2} \phi_{i}(r)
 \end{equation}
 とかける. さらに, イオンの分布は球対称であるので$r$方向のみを考えると,
 \begin{equation}
