@@ -224,3 +224,5 @@
   - 数式のミスの修正。
 - Shoichi Tanimoto (Institute for Molecular Science)
   - 誤植の指摘。
+- Sugata Daiki (Kyoto University)
+  - 誤植の指摘。
