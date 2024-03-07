@@ -42,7 +42,7 @@
     \notag \\
     &=
     - \frac{4\pi}{\epsilon}
-    \sum_{j}
+    \sum_{j} Z_{j} e
     \rho_{j}^{(0)} \exp\left[-\beta Z_{j}e \phi_{i}(r)\right]
 \end{align}
 を得る. ここで, $\sum_{j}$はプラス電荷のイオンもマイナス電荷のイオンも足し合わせることを意味している. この方程式を解析的に解くことは困難である. そこで, $\beta Z_{j} e \phi_{i}(r) << 1$であるとする近似を行う. 近似の結果, 主要な項のみを取り出すと
@@ -93,7 +93,7 @@
 シミュレーションでよく用いられるDebye--H\"{u}ckel型の静電相互作用の表式を見ていく.
 MKSA単位系のとき, 静電相互作用は
 \begin{align}
-    U_{\mathrm{ele}}^{\mathrm{debye}} (r_{ij})
+    U_{\mathrm{ele}}^{\mathrm{debye}}
     &=
     \sum_{i<j}^{N}
     \frac{q_{i}q_{j}}{4\pi\epsilon_{0}\epsilon_{k}r_{ij}} e^{r_{ij}/\lambda_{\mathrm{debye}}}
@@ -101,8 +101,8 @@ MKSA単位系のとき, 静電相互作用は
     \lambda_{\mathrm{debye}}
     &=
     \left(
-        \frac{\epsilon_{0}\epsilon_{k}k_{\mathrm{B}}T}{2N_{\mathrm{A}}e^{2}I}^{\frac{1}{2}}
-    \right)
+        \frac{\epsilon_{0}\epsilon_{k}k_{\mathrm{B}}T}{2N_{\mathrm{A}}e^{2}I}
+    \right)^{\frac{1}{2}}
 \end{align}
 と表される.
 ここで$q_{i}$は電荷, $\epsilon_{i}$は真空中での誘電率, $\epsilon_{k}$は誘電率, $N_{\mathrm{A}}$はアボガドロ数, $I$はイオン強度である.
